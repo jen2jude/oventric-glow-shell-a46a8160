@@ -14,10 +14,19 @@ export interface MentionRef {
   slug: string | null;
 }
 
+export interface MediaTag {
+  productId: string;
+  productName: string;
+  mediaIndex: number;
+  x?: number;
+  y?: number;
+}
+
 export interface PostMediaItem {
   url: string;
   type: "image" | "video";
   poster_url?: string | null;
+  tags?: MediaTag[];
 }
 
 export interface PostCircleRef {
@@ -125,10 +134,11 @@ async function buildFeedPosts(
   const allProfileIds = Array.from(authorIds);
   const postIds = rows.map((r) => r.id);
 
-  const [{ data: profiles }, likesRes, { data: commentRows }] = await Promise.all([
+  const [{ data: profiles }, likesRes, { data: commentRows }, { data: tagRows }] = await Promise.all([
     sb.from("profiles").select("user_id, display_name, username, slug, avatar_path").in("user_id", allProfileIds),
     sb.from("post_likes").select("post_id, user_id, reaction" as any).in("post_id", postIds),
     sb.from("post_comments").select("post_id").in("post_id", postIds),
+    sb.from("post_media_tags").select("id, post_id, product_id, media_index, x_percent, y_percent, products(name)").in("post_id", postIds),
   ]);
 
   const avatarPaths = Array.from(
@@ -222,6 +232,18 @@ async function buildFeedPosts(
     reactionsByPost.set(row.post_id, bucket);
     if (userId && row.user_id === userId) viewerReactionByPost.set(row.post_id, kind);
   });
+  const tagsByPost = new Map<string, MediaTag[]>();
+  (tagRows ?? []).forEach((t: any) => {
+    const list = tagsByPost.get(t.post_id) ?? [];
+    list.push({
+      productId: t.product_id,
+      productName: t.products?.name ?? "Product",
+      mediaIndex: t.media_index,
+      x: t.x_percent ? Number(t.x_percent) : undefined,
+      y: t.y_percent ? Number(t.y_percent) : undefined,
+    });
+    tagsByPost.set(t.post_id, list);
+  });
   const commentCounts = new Map<string, number>();
   (commentRows ?? []).forEach((c) => commentCounts.set(c.post_id, (commentCounts.get(c.post_id) ?? 0) + 1));
 
@@ -293,7 +315,8 @@ async function buildFeedPosts(
         const url = signedByPath.get(p);
         if (url) {
           const poster = kind === "video" ? (posterByVideoPath.get(p) ?? null) : null;
-          media.push({ url, type: kind, poster_url: poster });
+          const tags = (tagsByPost.get(r.id) ?? []).filter(t => t.mediaIndex === media.length);
+          media.push({ url, type: kind, poster_url: poster, tags });
         }
       });
     } else if (r.media_path) {
@@ -438,6 +461,12 @@ export const createPost = createServerFn({ method: "POST" })
       audience: z.enum(["public", "circle", "followers"]).optional(),
       circleId: z.string().uuid().nullable().optional(),
       mentionedUserIds: z.array(z.string().uuid()).max(20).optional(),
+      productTags: z.array(z.object({
+        productId: z.string().uuid(),
+        mediaIndex: z.number().int().min(0).max(10),
+        x: z.number().min(0).max(100).optional(),
+        y: z.number().min(0).max(100).optional(),
+      })).max(20).optional(),
       wallUserId: z.string().uuid().nullable().optional(),
     }).parse(input),
   )
