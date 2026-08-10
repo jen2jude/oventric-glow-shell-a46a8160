@@ -25,9 +25,9 @@ import { useFocusTrap } from "@/hooks/useFocusTrap";
 import {
   createPost as createPostFn,
   searchMentionCandidates as searchMentionsFn,
-  searchMyProductsForTagging as searchProductsFn,
   listMyPostableCircles as listCirclesFn,
 } from "@/lib/posts.functions";
+import { searchMyProductsForTagging as searchProductsFn } from "@/lib/marketplace.functions";
 
 type Audience = "public" | "circle" | "followers";
 type Mention = {
