@@ -97,7 +97,9 @@ export function ProfileOverview({
   itemSearch,
   onOpenSection,
 }: Props) {
+  const navigate = useNavigate();
   const fetchTab = useServerFn(getLiveProfileTab);
+
   const fetchRef = useRef(fetchTab);
   fetchRef.current = fetchTab;
   const [data, setData] = useState<Partial<Record<PreviewKey, unknown[]>>>({});
