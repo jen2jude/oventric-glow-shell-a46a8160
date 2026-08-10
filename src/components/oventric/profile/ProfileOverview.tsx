@@ -3,7 +3,7 @@ import { Link, useNavigate } from "@tanstack/react-router";
 
 import { useServerFn } from "@tanstack/react-start";
 import { ArrowRight, FileText, MessageCircle, ShoppingBag, Users, Wrench } from "lucide-react";
-import { getLiveProfileTab } from "@/lib/profiles.functions";
+import { getLiveProfileTab, type RealProfileView } from "@/lib/profiles.functions";
 import type {
   ProfileArticle,
   ProfileGroup,
@@ -26,7 +26,9 @@ interface Props {
   price: (usd: number) => string;
   itemSearch: Record<string, unknown>;
   onOpenSection: (key: string) => void;
+  realProfile?: RealProfileView | null;
 }
+
 
 /** Section shell: title on the left, a "see all" affordance on the right. */
 function Module({
@@ -96,7 +98,9 @@ export function ProfileOverview({
   price,
   itemSearch,
   onOpenSection,
+  realProfile,
 }: Props) {
+
   const navigate = useNavigate();
   const fetchTab = useServerFn(getLiveProfileTab);
 
@@ -182,8 +186,20 @@ export function ProfileOverview({
   const posts = (data.posts ?? []) as ProfilePost[];
   const groups = (data.groups ?? []) as ProfileGroup[];
 
+  const interests = realProfile?.interests ?? [];
+
   return (
     <div data-testid="profile-overview" className="pb-2">
+      {interests.length > 0 && (
+        <Module title="What I'm into">
+          <div className="-mx-1 flex flex-wrap gap-2 px-1">
+            {interests.map((tag) => (
+              <Chip key={tag} label={`#${tag}`} tone="accent" />
+            ))}
+          </div>
+        </Module>
+      )}
+
       {shop.length > 0 && (
         <Module
           title={`From ${name.split(" ")[0] || name}'s shop`}
