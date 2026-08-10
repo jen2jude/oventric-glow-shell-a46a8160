@@ -12,6 +12,11 @@ import {
   Check,
   Loader2,
   AlertCircle,
+  BarChart3,
+  Smile,
+  MapPin,
+  ShoppingBag,
+  Plus,
 } from "lucide-react";
 import { useServerFn } from "@tanstack/react-start";
 import { supabase } from "@/integrations/supabase/client";
