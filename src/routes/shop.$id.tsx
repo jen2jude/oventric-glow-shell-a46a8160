@@ -3,6 +3,7 @@ import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { useServerFn } from "@tanstack/react-start";
 import {
   ArrowLeft,
+  ArrowRight,
   BadgeCheck,
   ChevronLeft,
   ChevronRight,
@@ -215,10 +216,12 @@ function ShopPage() {
           }).catch(() => null),
         ]);
         if (cancelled) return;
-        setShop({
-          ...s.shop,
-          category: mp?.items?.[0]?.category || "General Store"
-        });
+        if (s.shop) {
+          setShop({
+            ...s.shop,
+            category: (mp?.items?.[0] as any)?.category || "General Store"
+          });
+        }
         setFollowers(c?.followers ?? 0);
         const items = (mp?.items ?? []) as ProfileListing[];
         setProducts(items);
@@ -442,44 +445,49 @@ function ShopPage() {
             <>
               {/* Spotlight / Focal Product */}
               {focalProduct && (
-                <div className="mt-6">
-                  <SectionHead title="Spotted from Post" />
+              {/* Featured Product (Visual Emphasis) */}
+              {focalProduct && (
+                <div className="mt-8">
+                  <SectionHead title="Featured" />
                   <Link
                     to="/product/$id"
                     params={{ id: focalProduct.id }}
-                    className="mt-3 block overflow-hidden rounded-3xl border-2 bg-[#141417] transition-transform active:scale-[0.98]"
-                    style={{ borderColor: ACCENT }}
+                    className="group mt-4 block overflow-hidden rounded-[2rem] border border-white/10 bg-[#141417] transition-all hover:border-[#E5484D]/30"
                   >
-                    <div className="relative aspect-[16/9] w-full overflow-hidden">
-                      <Cover url={focalProduct.coverUrl} className="h-full w-full" />
-                      <div className="absolute top-4 right-4 rounded-full bg-black/60 px-3 py-1 text-[10px] font-black tracking-wider text-white backdrop-blur-md uppercase">
-                        Spotlight
+                    <div className="relative aspect-[16/9] w-full overflow-hidden bg-neutral-900">
+                      <Cover url={focalProduct.coverUrl} className="h-full w-full transition-transform duration-700 group-hover:scale-105" />
+                      <div className="absolute top-5 left-5 rounded-full bg-[#E5484D] px-4 py-1.5 text-[10px] font-black uppercase tracking-widest text-white shadow-lg">
+                        Featured
                       </div>
                     </div>
-                    <div className="p-5">
-                      <div className="flex items-start justify-between gap-4">
-                        <div className="flex-1">
-                          <h3 className="text-lg font-black leading-tight">{focalProduct.title}</h3>
-                          <p className="mt-1 line-clamp-2 text-sm text-slate-400">
+                    <div className="p-6">
+                      <div className="flex items-start justify-between gap-6">
+                        <div className="flex-1 min-w-0">
+                          <h3 className="text-xl font-black leading-tight text-white group-hover:text-[#E5484D] transition-colors">
+                            {focalProduct.title}
+                          </h3>
+                          <p className="mt-2 line-clamp-2 text-sm text-slate-400">
                             {focalProduct.blurb || focalProduct.category}
                           </p>
                         </div>
-                        <div className="text-xl font-black" style={{ color: ACCENT }}>
+                        <div className="text-2xl font-black text-[#E5484D]">
                           {price(focalProduct.priceUsd)}
                         </div>
                       </div>
-                      
-                      <div className="mt-5 flex items-center justify-between border-t border-white/5 pt-4">
-                        <div className="flex items-center gap-2">
-                          <div className="flex -space-x-2">
-                             {[1,2,3].map(i => (
-                               <div key={i} className="h-6 w-6 rounded-full border-2 border-[#141417] bg-slate-800" />
-                             ))}
+
+                      <div className="mt-6 flex items-center justify-between border-t border-white/5 pt-5">
+                        <div className="flex items-center gap-3">
+                          <div className="flex -space-x-2.5">
+                            {[1, 2, 3].map((i) => (
+                              <div key={i} className="h-7 w-7 rounded-full border-2 border-[#141417] bg-slate-800" />
+                            ))}
                           </div>
-                          <span className="text-[11px] font-bold text-slate-500">24 people looking</span>
+                          <span className="text-[11px] font-bold text-slate-500 uppercase tracking-wider">
+                            {compact(sales + 12)} global sales
+                          </span>
                         </div>
-                        <div className="rounded-full bg-white/5 px-4 py-2 text-xs font-black">
-                          View Item
+                        <div className="rounded-full bg-white/5 px-6 py-2.5 text-xs font-black uppercase tracking-widest text-white transition-colors group-hover:bg-[#E5484D]">
+                          View Details
                         </div>
                       </div>
                     </div>
