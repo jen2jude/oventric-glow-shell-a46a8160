@@ -245,10 +245,11 @@ export function FeedGlobalResults({ q, category }: { q: string; category: FeedCa
                 <h3 className="px-1 py-2 text-[10px] font-bold uppercase tracking-wider text-white/30">Bounties</h3>
                 <div className="space-y-3">
                   {results.bounties.map((b) => (
-                    <Link
+                    <button
                       key={b.id}
-                      to="/bounties"
-                      className="flex items-center gap-4 p-3 rounded-2xl border border-white/[0.06] bg-[#141416] active:scale-[0.98]"
+                      type="button"
+                      onClick={() => navigateSection("Bounties")}
+                      className="w-full text-left flex items-center gap-4 p-3 rounded-2xl border border-white/[0.06] bg-[#141416] active:scale-[0.98]"
                     >
                       {b.coverUrl ? (
                         <img src={b.coverUrl} alt="" className="w-14 h-14 rounded-xl object-cover" />
@@ -263,7 +264,8 @@ export function FeedGlobalResults({ q, category }: { q: string; category: FeedCa
                           ${b.amountUsd.toLocaleString()}
                         </p>
                       </div>
-                    </Link>
+                    </button>
+
                   ))}
                 </div>
               </div>
