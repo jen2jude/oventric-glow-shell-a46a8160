@@ -81,18 +81,44 @@ export function FeedDiscoverExplore({
     return (
       <div className="-mx-4 flex flex-col min-h-screen bg-[#0A0A0B]">
         <ExploreHeader activeTab={activeTab} onTabChange={setActiveTab} />
+        
+        {/* Sub-Search in Explore */}
+        <div className="px-4 py-3 bg-[#0A0A0B]">
+          <div className="relative group">
+            <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-white/20 group-focus-within:text-[#E5484D] transition-colors" />
+            <input 
+              type="text"
+              placeholder={`Search ${activeTab.toLowerCase()}...`}
+              value={searchQuery}
+              onChange={(e) => setSearchQuery(e.target.value)}
+              className="w-full h-10 pl-10 pr-4 text-sm rounded-xl bg-[#141416] border border-white/[0.06] text-white placeholder:text-white/30 focus:outline-none focus:border-[#E5484D]/50 transition-all"
+            />
+          </div>
+        </div>
+
         <div className="flex-1">
           {activeTab === "People" && (
-            <PeopleExploreList users={peers} />
+            <PeopleExploreList users={peers.filter(p => 
+              !searchQuery || 
+              p.name.toLowerCase().includes(searchQuery.toLowerCase()) || 
+              p.slug.toLowerCase().includes(searchQuery.toLowerCase())
+            )} />
           )}
           {activeTab === "Posts" && (
             <div className="space-y-4 p-4">
-               {trending.map((p) => renderPost(p))}
+               {trending.filter(p => 
+                 !searchQuery || 
+                 p.text.toLowerCase().includes(searchQuery.toLowerCase()) || 
+                 p.author_name.toLowerCase().includes(searchQuery.toLowerCase())
+               ).map((p) => renderPost(p))}
             </div>
           )}
           {activeTab === "Products" && (
             <div className="grid grid-cols-2 gap-3 p-4">
-              {products.map((p) => (
+              {products.filter(p => 
+                !searchQuery || 
+                p.title.toLowerCase().includes(searchQuery.toLowerCase())
+              ).map((p) => (
                 <Link
                   key={p.id}
                   to="/product/$id"
@@ -116,7 +142,10 @@ export function FeedDiscoverExplore({
           )}
           {activeTab === "Topics" && (
             <div className="grid grid-cols-1 gap-3 p-4">
-              {circles.map((c) => (
+              {circles.filter(c => 
+                !searchQuery || 
+                c.name.toLowerCase().includes(searchQuery.toLowerCase())
+              ).map((c) => (
                 <button
                   key={c.id}
                   type="button"
@@ -133,9 +162,18 @@ export function FeedDiscoverExplore({
             </div>
           )}
         </div>
+        
+        {/* Back to Discovery */}
+        <button 
+          onClick={() => setActiveTab("Discovery")}
+          className="fixed bottom-24 right-6 h-12 w-12 rounded-full bg-[#E5484D] text-white shadow-lg flex items-center justify-center active:scale-95 transition-transform z-50"
+        >
+          <X className="w-6 h-6" />
+        </button>
       </div>
     );
   }
+
 
   return (
     <div className="space-y-6">
