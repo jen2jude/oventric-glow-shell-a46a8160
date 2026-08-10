@@ -248,6 +248,39 @@ function PostScreen() {
   const shareUrl =
     typeof window !== "undefined" ? window.location.href : `https://oventric.com/post/${id}`;
 
+  const logShare = useCallback(
+    async (channel: string) => {
+      setShares((n) => n + 1);
+      try {
+        const r = await shareLogFn({ data: { postId: id, channel } });
+        setShares(r.shares_count);
+      } catch {
+        /* share still happened; count refreshes on next load */
+      }
+    },
+    [shareLogFn, id],
+  );
+
+  const toggleSave = useCallback(() => {
+    require(
+      1,
+      async () => {
+        const next = !saved;
+        setSaved(next);
+        try {
+          await savePostFn({ data: { postId: id, saved: next } });
+          toast.success(next ? "Saved — find it in your bookmarks" : "Removed from saved");
+        } catch {
+          setSaved(!next);
+          toast.error("Could not update your saved posts");
+        }
+      },
+      "interaction",
+    );
+  }, [require, saved, savePostFn, id]);
+
+
+
   const onReact = () => {
     if (!post) return;
     require(
