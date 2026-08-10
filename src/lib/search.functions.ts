@@ -11,6 +11,7 @@ export interface SearchResultPeer {
   username: string | null;
   avatarUrl: string | null;
   stars: number;
+  description?: string;
 }
 
 export interface SearchResultBounty {
@@ -32,12 +33,38 @@ export interface SearchResultProduct {
   coverUrl: string | null;
 }
 
-export type SearchResult = SearchResultPeer | SearchResultBounty | SearchResultProduct;
+export interface SearchResultCircle {
+  kind: "circle";
+  id: string;
+  slug: string;
+  name: string;
+  emoji: string;
+  memberCount: number;
+}
+
+export interface SearchResultPost {
+  kind: "post";
+  id: string;
+  text: string;
+  authorName: string;
+  authorSlug: string;
+  authorAvatarUrl: string | null;
+  createdAt: string;
+}
+
+export type SearchResult =
+  | SearchResultPeer
+  | SearchResultBounty
+  | SearchResultProduct
+  | SearchResultCircle
+  | SearchResultPost;
 
 export interface SearchResults {
   peers: SearchResultPeer[];
   bounties: SearchResultBounty[];
   products: SearchResultProduct[];
+  circles: SearchResultCircle[];
+  posts: SearchResultPost[];
 }
 
 function serverPublicClient() {
