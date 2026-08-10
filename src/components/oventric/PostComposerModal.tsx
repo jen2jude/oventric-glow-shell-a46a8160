@@ -110,8 +110,11 @@ export function PostComposerModal({
   const [productQuery, setProductQuery] = useState("");
   const [productResults, setProductResults] = useState<any[]>([]);
   const [productLoading, setProductLoading] = useState(false);
-  const [taggedProducts, setTaggedProducts] = useState<{ productId: string; name: string; mediaIndex: number }[]>([]);
+  const [taggedProducts] = useState<{ productId: string; name: string; mediaIndex: number }[]>([]);
+  const [attachedProducts, setAttachedProducts] = useState<{ id: string; name: string; price: number; coverUrl: string | null }[]>([]);
+
   const [submitAttempted, setSubmitAttempted] = useState(false);
+
 
 
 
@@ -303,17 +306,21 @@ export function PostComposerModal({
   const removeMention = (id: string) => setMentions((prev) => prev.filter((m) => m.userId !== id));
 
   const addProductTag = (p: any) => {
-    const mediaIndex = 0;
-    if (!taggedProducts.find(x => x.productId === p.id)) {
-      setTaggedProducts(prev => [...prev, { productId: p.id, name: p.name, mediaIndex }]);
+    // If we're opening from "Add to Post" (Product action), we treat it as an attachment
+    // If we were implementation image tagging, it would go to taggedProducts.
+    // For this STAGE 2 requirement, "When the user selects Product: Open a product selector... Allow selection."
+    // and "When a product is attached to a post, render a clean mini product card."
+    if (!attachedProducts.find(x => x.id === p.id)) {
+      setAttachedProducts(prev => [...prev, { id: p.id, name: p.name, price: p.priceUsd, coverUrl: p.coverUrl }]);
     }
     setProductPickerOpen(false);
     setProductQuery("");
   };
 
-  const removeProductTag = (id: string) => {
-    setTaggedProducts(prev => prev.filter(p => p.productId !== id));
+  const removeProductAttachment = (id: string) => {
+    setAttachedProducts(prev => prev.filter(p => p.id !== id));
   };
+
 
   const audienceLabel = useMemo(() => {
     if (audience === "public") return "Public";
@@ -333,7 +340,7 @@ export function PostComposerModal({
   }, [trimmed]);
   const audienceError =
     !isWall && audience === "circle" && !circleId ? "Pick a circle to post into." : null;
-  const hasBlockingError = !!(textError || audienceError || (trimmed.length === 0 && !hasMedia));
+  const hasBlockingError = !!(textError || audienceError || (trimmed.length === 0 && !hasMedia && attachedProducts.length === 0));
   const showTextError = submitAttempted && !!textError;
   const showAudienceError = submitAttempted && !!audienceError;
 
@@ -361,7 +368,9 @@ export function PostComposerModal({
       circleId: isWall ? null : audience === "circle" ? circleId : null,
       mentionedUserIds: mentions.map((m) => m.userId),
       productTags: taggedProducts.map(t => ({ productId: t.productId, mediaIndex: t.mediaIndex })),
+      productAttachmentIds: attachedProducts.map(p => p.id),
     };
+
     onOptimistic?.({
       tempId,
       text: snapshot.text,
@@ -375,6 +384,8 @@ export function PostComposerModal({
     setAudience("public");
     setCircleId(null);
     setAttachments([]);
+    setAttachedProducts([]);
+
     if (fileInputRef.current) fileInputRef.current.value = "";
     setPosting(false);
     onClose();
@@ -439,7 +450,9 @@ export function PostComposerModal({
             circleId: snapshot.circleId,
             mentionedUserIds: snapshot.mentionedUserIds,
             productTags: snapshot.productTags,
+            productAttachmentIds: snapshot.productAttachmentIds,
             wallUserId: wallUserId ?? null,
+
           },
         });
         // eslint-disable-next-line @typescript-eslint/no-explicit-any
@@ -630,22 +643,35 @@ export function PostComposerModal({
 
           {/* Extra Info (Mentions, Errors) - Moved INSIDE scroll area */}
           <div className="py-2">
-                        {taggedProducts.length > 0 && (
-              <div className="flex flex-wrap gap-1.5 mb-2">
-                {taggedProducts.map((p) => (
-                  <span
-                    key={p.productId}
-                    className="inline-flex items-center gap-1 px-2 py-1 rounded-full bg-amber-400/10 border border-amber-400/30 text-[11px] text-amber-400"
+            {attachedProducts.length > 0 && (
+              <div className="flex flex-wrap gap-2 mb-4">
+                {attachedProducts.map((p) => (
+                  <div
+                    key={p.id}
+                    className="flex items-center gap-2 p-2 rounded-xl bg-white/5 border border-white/10"
                   >
-                    <ShoppingBag className="w-3 h-3" />
-                    {p.name}
-                    <button onClick={() => removeProductTag(p.productId)} className="hover:text-white ml-0.5">
-                      <X className="w-3 h-3" />
+                    <div className="w-10 h-10 rounded-lg overflow-hidden bg-neutral-800">
+                      {p.coverUrl ? (
+                        <img src={p.coverUrl} alt="" className="w-full h-full object-cover" />
+                      ) : (
+                        <ShoppingBag className="w-4 h-4 m-auto mt-3 text-slate-500" />
+                      )}
+                    </div>
+                    <div className="flex-1 min-w-0">
+                      <div className="text-xs font-bold text-white truncate">{p.name}</div>
+                      <div className="text-[10px] text-amber-400 font-bold">${p.price}</div>
+                    </div>
+                    <button
+                      onClick={() => removeProductAttachment(p.id)}
+                      className="p-1.5 rounded-full hover:bg-white/10 text-slate-400"
+                    >
+                      <X className="w-3.5 h-3.5" />
                     </button>
-                  </span>
+                  </div>
                 ))}
               </div>
             )}
+
             {mentions.length > 0 && (
               <div className="flex flex-wrap gap-1.5 mb-2">
                 {mentions.map((m) => (

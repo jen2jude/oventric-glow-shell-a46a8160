@@ -34,7 +34,18 @@ import { supabase } from "@/integrations/supabase/client";
 const ACCENT = "#E5484D";
 type ShopTab = "shop" | "collections" | "services" | "about";
 
+import { z } from "zod";
+
 export const Route = createFileRoute("/shop/$id")({
+  validateSearch: (search) => z.object({
+    productId: z.string().optional(),
+    tab: z.string().optional(),
+    pages: z.number().optional(),
+    y: z.number().optional(),
+    q: z.string().optional(),
+    sort: z.string().optional()
+  }).parse(search),
+
   head: ({ params }) => ({
     meta: [
       { title: `Shop · @${params.id} · Oventric` },
@@ -158,7 +169,23 @@ function ShopPage() {
     [sym, fx],
   );
 
+  const { productId } = Route.useSearch();
+  const [focalProduct, setFocalProduct] = useState<ProfileListing | null>(null);
+
   useEffect(() => {
+    if (productId && products.length > 0) {
+      const found = products.find(p => p.id === productId);
+      if (found) {
+        setFocalProduct(found);
+        setTab("shop");
+        // Scroll to top or focal product
+        window.scrollTo({ top: 0, behavior: 'smooth' });
+      }
+    }
+  }, [productId, products]);
+
+  useEffect(() => {
+
     let alive = true;
     supabase.auth.getSession().then(({ data }) => {
       if (alive) setMeId(data.session?.user?.id ?? null);
@@ -401,7 +428,55 @@ function ShopPage() {
             </div>
           ) : (
             <>
+              {/* Spotlight / Focal Product */}
+              {focalProduct && (
+                <div className="mt-6">
+                  <SectionHead title="Spotted from Post" />
+                  <Link
+                    to="/product/$id"
+                    params={{ id: focalProduct.id }}
+                    className="mt-3 block overflow-hidden rounded-3xl border-2 bg-[#141417] transition-transform active:scale-[0.98]"
+                    style={{ borderColor: ACCENT }}
+                  >
+                    <div className="relative aspect-[16/9] w-full overflow-hidden">
+                      <Cover url={focalProduct.coverUrl} className="h-full w-full" />
+                      <div className="absolute top-4 right-4 rounded-full bg-black/60 px-3 py-1 text-[10px] font-black tracking-wider text-white backdrop-blur-md uppercase">
+                        Spotlight
+                      </div>
+                    </div>
+                    <div className="p-5">
+                      <div className="flex items-start justify-between gap-4">
+                        <div className="flex-1">
+                          <h3 className="text-lg font-black leading-tight">{focalProduct.title}</h3>
+                          <p className="mt-1 line-clamp-2 text-sm text-slate-400">
+                            {focalProduct.blurb || focalProduct.category}
+                          </p>
+                        </div>
+                        <div className="text-xl font-black" style={{ color: ACCENT }}>
+                          {price(focalProduct.priceUsd)}
+                        </div>
+                      </div>
+                      
+                      <div className="mt-5 flex items-center justify-between border-t border-white/5 pt-4">
+                        <div className="flex items-center gap-2">
+                          <div className="flex -space-x-2">
+                             {[1,2,3].map(i => (
+                               <div key={i} className="h-6 w-6 rounded-full border-2 border-[#141417] bg-slate-800" />
+                             ))}
+                          </div>
+                          <span className="text-[11px] font-bold text-slate-500">24 people looking</span>
+                        </div>
+                        <div className="rounded-full bg-white/5 px-4 py-2 text-xs font-black">
+                          View Item
+                        </div>
+                      </div>
+                    </div>
+                  </Link>
+                </div>
+              )}
+
               {/* Featured carousel */}
+
               {featured.length > 0 && (
                 <>
                   <SectionHead
