@@ -52,7 +52,9 @@ export interface ProductDTO {
   imagePaths: string[];
   imageUrls: string[];
   requiresManualDelivery: boolean;
+  salesCount?: number;
 }
+
 
 export interface OrderDTO {
   id: string;
