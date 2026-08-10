@@ -110,7 +110,7 @@ export function PostComposerModal({
   const [productQuery, setProductQuery] = useState("");
   const [productResults, setProductResults] = useState<any[]>([]);
   const [productLoading, setProductLoading] = useState(false);
-  const [taggedProducts] = useState<{ productId: string; name: string; mediaIndex: number }[]>([]);
+  const [taggedProducts] = useState<{ productId: string; name: string; mediaIndex: number; x?: number; y?: number }[]>([]);
   const [attachedProducts, setAttachedProducts] = useState<{ id: string; name: string; price: number; coverUrl: string | null }[]>([]);
 
   const [submitAttempted, setSubmitAttempted] = useState(false);
@@ -367,7 +367,7 @@ export function PostComposerModal({
       audience: isWall ? ("public" as Audience) : audience,
       circleId: isWall ? null : audience === "circle" ? circleId : null,
       mentionedUserIds: mentions.map((m) => m.userId),
-      productTags: taggedProducts.map(t => ({ productId: t.productId, mediaIndex: t.mediaIndex })),
+      productTags: (taggedProducts || []).map(t => ({ productId: t.productId, mediaIndex: t.mediaIndex, x: t.x, y: t.y })),
       productAttachmentIds: attachedProducts.map(p => p.id),
     };
 
