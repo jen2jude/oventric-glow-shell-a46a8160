@@ -261,7 +261,13 @@ function ProfilePage() {
   const { require, baseCurrency } = useOnboarding();
 
   const tab: Tab = isTab(search.tab) ? search.tab : "posts";
+  useEffect(() => {
+    // If user comes from a shop link with specific tab, we might want to respect it
+    // but typically profile has its own tab state.
+  }, [search.tab]);
+
   // "Overview" is the curated landing view of the identity hub; every other
+
   // value maps to a live data tab.
   const overviewMode = !isTab(search.tab);
   const desiredPages = Math.max(1, Math.min(200, search.pages || 1));
