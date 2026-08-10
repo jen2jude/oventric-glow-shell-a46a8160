@@ -513,14 +513,9 @@ export function PostComposerModal({
             </div>
           </div>
         </div>
-            {showAudienceError && <FieldError>{audienceError}</FieldError>}
-          </div>
-        ) : (
-          <div className="px-4 pt-3 shrink-0">
-            <div className="inline-flex items-center gap-2 px-3 py-1.5 rounded-full bg-[#E5484D]/10 border border-[#E5484D]/30 text-xs text-[#E5484D]">
-              <UsersRound className="w-3.5 h-3.5" />
-              <span>Wall post{wallOwnerName ? ` · ${wallOwnerName}` : ""}</span>
-            </div>
+        {showAudienceError && (
+          <div className="px-4 pt-1">
+            <FieldError>{audienceError}</FieldError>
           </div>
         )}
 
