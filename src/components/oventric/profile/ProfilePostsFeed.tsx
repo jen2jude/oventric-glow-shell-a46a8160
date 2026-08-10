@@ -305,6 +305,16 @@ export function ProfilePostsFeed({ wallUserId, wallOwnerName, viewerId }: Props)
                   </div>
                 )}
 
+                {p.product_attachments && p.product_attachments.length > 0 && (
+                  <div className="px-4">
+                    {p.product_attachments.map((pa) => (
+                      <ProductAttachmentCard key={pa.id} product={pa} />
+                    ))}
+                  </div>
+                )}
+
+
+
                 <footer className="flex items-center gap-5 px-4 py-3">
                   <div className="relative flex items-center gap-2">
                     {pickerFor === p.id && (
