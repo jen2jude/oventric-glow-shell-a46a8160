@@ -1,12 +1,15 @@
 import { useState } from "react";
 import { Link } from "@tanstack/react-router";
-import { Flame, Sparkles, Trophy, GraduationCap, Users, ShoppingBag, PlayCircle } from "lucide-react";
+import { Flame, Sparkles, Trophy, GraduationCap, Users, ShoppingBag, PlayCircle, Search, X } from "lucide-react";
 import { AvatarImage } from "@/components/oventric/AvatarImage";
 import { navigateSection } from "@/components/oventric/DiscoveryPanel";
 import { useFeedDiscovery } from "@/components/oventric/feed/useFeedDiscovery";
 import { useStoryRail } from "@/components/oventric/feed/useStories";
 import { StoryViewerModal } from "@/components/oventric/feed/StoryViewerModal";
 import type { FeedPost } from "@/lib/posts.functions";
+import { ExploreHeader, type ExploreTab } from "./ExploreHeader";
+import { PeopleExploreList } from "./PeopleExploreList";
+
 
 
 function Section({
@@ -64,6 +67,8 @@ export function FeedDiscoverExplore({
   const { peers, products, bounties, courses, circles, loading } = useFeedDiscovery(true);
   const { groups: storyGroups, refresh: refreshStories } = useStoryRail(true);
   const [reelAt, setReelAt] = useState<number | null>(null);
+  const [activeTab, setActiveTab] = useState<ExploreTab | "Discovery">("Discovery");
+  const [searchQuery, setSearchQuery] = useState("");
 
   const trending = [...posts]
     .sort(
@@ -72,9 +77,114 @@ export function FeedDiscoverExplore({
     )
     .slice(0, 6);
 
+  if (activeTab !== "Discovery") {
+    return (
+      <div className="-mx-4 flex flex-col min-h-screen bg-[#0A0A0B] overflow-y-auto">
+        <ExploreHeader activeTab={activeTab} onTabChange={setActiveTab} />
+        
+        {/* Sub-Search in Explore */}
+        <div className="px-4 py-3 bg-[#0A0A0B]">
+          <div className="relative group">
+            <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-white/20 group-focus-within:text-[#E5484D] transition-colors" />
+            <input 
+              type="text"
+              placeholder={`Search ${activeTab.toLowerCase()}...`}
+              value={searchQuery}
+              onChange={(e) => setSearchQuery(e.target.value)}
+              className="w-full h-10 pl-10 pr-4 text-sm rounded-xl bg-[#141416] border border-white/[0.06] text-white placeholder:text-white/30 focus:outline-none focus:border-[#E5484D]/50 transition-all"
+            />
+          </div>
+        </div>
+
+        <div className="flex-1">
+          {activeTab === "People" && (
+            <PeopleExploreList users={peers.filter(p => 
+              !searchQuery || 
+              p.name.toLowerCase().includes(searchQuery.toLowerCase()) || 
+              p.slug.toLowerCase().includes(searchQuery.toLowerCase())
+            )} />
+          )}
+          {activeTab === "Posts" && (
+            <div className="space-y-4 p-4">
+               {trending.filter(p => 
+                 !searchQuery || 
+                 p.text.toLowerCase().includes(searchQuery.toLowerCase()) || 
+                 p.author_name.toLowerCase().includes(searchQuery.toLowerCase())
+               ).map((p) => renderPost(p))}
+            </div>
+          )}
+          {activeTab === "Products" && (
+            <div className="grid grid-cols-2 gap-3 p-4">
+              {products.filter(p => 
+                !searchQuery || 
+                p.title.toLowerCase().includes(searchQuery.toLowerCase())
+              ).map((p) => (
+                <Link
+                  key={p.id}
+                  to="/product/$id"
+                  params={{ id: p.id }}
+                  className="overflow-hidden rounded-2xl border border-white/[0.06] bg-[#141416] active:scale-[0.98]"
+                >
+                  {p.coverUrl ? (
+                    <img src={p.coverUrl} alt="" loading="lazy" className="h-28 w-full object-cover" />
+                  ) : (
+                    <div className={`h-28 w-full bg-gradient-to-br ${p.hue}`} />
+                  )}
+                  <div className="p-2.5">
+                    <p className="line-clamp-2 text-[12.5px] font-medium text-white">{p.title}</p>
+                    <p className="mt-1 text-[12.5px] font-bold text-[#E5484D]">
+                      ${p.priceUsd.toLocaleString()}
+                    </p>
+                  </div>
+                </Link>
+              ))}
+            </div>
+          )}
+          {activeTab === "Topics" && (
+            <div className="grid grid-cols-1 gap-3 p-4">
+              {circles.filter(c => 
+                !searchQuery || 
+                c.name.toLowerCase().includes(searchQuery.toLowerCase())
+              ).map((c) => (
+                <button
+                  key={c.id}
+                  type="button"
+                  onClick={() => navigateSection("Circles")}
+                  className="flex items-center gap-3 w-full rounded-2xl border border-white/[0.06] bg-[#141416] p-4 text-left active:scale-[0.98]"
+                >
+                  <span className="text-3xl">{c.emoji}</span>
+                  <div>
+                    <p className="text-[15px] font-bold text-white">{c.name}</p>
+                    <p className="text-[12px] text-white/40">{c.memberCount} members</p>
+                  </div>
+                </button>
+              ))}
+            </div>
+          )}
+        </div>
+        
+      </div>
+    );
+  }
+
+
   return (
     <div className="space-y-6">
+      {/* Search Bar - Mirrored from App Chrome for "Discovery" mode */}
+      <div className="-mx-1 px-1">
+        <div 
+          onClick={() => setActiveTab("People")}
+          className="relative group cursor-pointer"
+        >
+          <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-white/20" />
+          <div className="w-full h-11 pl-10 pr-4 flex items-center text-sm rounded-2xl bg-[#141416] border border-white/[0.06] text-white/30">
+            Search Oventric...
+          </div>
+        </div>
+      </div>
+
       {storyGroups.length > 0 && (
+
         <Section icon={PlayCircle} title="Reels">
           <Rail>
             {storyGroups.map((g, i) => (

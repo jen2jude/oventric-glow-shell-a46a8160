@@ -75,33 +75,34 @@ export function FeedSearchBar({
         )}
       </div>
 
-      <div
-        role="tablist"
-        aria-label="Feed filters"
-        className="mt-3 flex items-center gap-2 overflow-x-auto no-scrollbar -mx-1 px-1"
-      >
-        {FEED_CATEGORIES.map((c) => {
-          const active = c.id === category;
-          return (
-            <button
-              key={c.id}
-              type="button"
-              role="tab"
-              aria-selected={active}
-              onClick={() => onCategoryChange(c.id)}
-              className={`shrink-0 rounded-full px-4 py-1.5 text-xs transition-colors ${
-                active
-                  ? "bg-[#E5484D] text-black font-semibold"
-                  : appShell
-                    ? "bg-[#141416] border border-white/[0.06] text-white/60 font-medium hover:text-white"
+      {!appShell && (
+        <div
+          role="tablist"
+          aria-label="Feed filters"
+          className="mt-3 flex items-center gap-2 overflow-x-auto no-scrollbar -mx-1 px-1"
+        >
+          {FEED_CATEGORIES.map((c) => {
+            const active = c.id === category;
+            return (
+              <button
+                key={c.id}
+                type="button"
+                role="tab"
+                aria-selected={active}
+                onClick={() => onCategoryChange(c.id)}
+                className={`shrink-0 rounded-full px-4 py-1.5 text-xs transition-colors ${
+                  active
+                    ? "bg-[#E5484D] text-black font-semibold"
                     : "bg-white/[0.06] md:bg-slate-100 text-slate-300 md:text-slate-600 font-semibold hover:bg-white/10 md:hover:bg-slate-200"
-              }`}
-            >
-              {c.label}
-            </button>
-          );
-        })}
-      </div>
+                }`}
+              >
+                {c.label}
+              </button>
+            );
+          })}
+        </div>
+      )}
+
 
       {typeof resultCount === "number" && (
         <p className="mt-2 text-[11px] text-slate-500 md:text-slate-500">
@@ -113,11 +114,15 @@ export function FeedSearchBar({
   );
 }
 
+import { PeopleExploreList } from "./PeopleExploreList";
+import { ExploreHeader, type ExploreTab } from "./ExploreHeader";
+
 /** Cross-entity results (bounties, marketplace assets, people). */
 export function FeedGlobalResults({ q, category }: { q: string; category: FeedCategory }) {
   const search = useServerFn(searchGlobal);
   const [results, setResults] = useState<SearchResults>(EMPTY);
   const [loading, setLoading] = useState(false);
+  const [activeExploreTab, setActiveExploreTab] = useState<ExploreTab>("People");
 
   const term = q.trim();
   const enabled = term.length >= 2;
@@ -146,137 +151,93 @@ export function FeedGlobalResults({ q, category }: { q: string; category: FeedCa
     };
   }, [term, enabled, search]);
 
-  const showPeople = category === "all" || category === "people";
-  const showBounties = category === "all" || category === "bounties";
-  const showAssets = category === "all" || category === "assets";
-
-  const peers = showPeople ? results.peers : [];
-  const bounties = showBounties ? results.bounties : [];
-  const products = showAssets ? results.products : [];
-  const total = peers.length + bounties.length + products.length;
-
   if (!enabled) {
-    if (GLOBAL_CATEGORIES.includes(category)) {
-      return (
-        <div className="bg-[#1E1E24] md:bg-white md:shadow-sm border border-white/10 md:border-slate-200 rounded-xl p-6 text-center text-xs text-slate-400 md:text-slate-600">
-          Type at least 2 characters to search.
-        </div>
-      );
-    }
     return null;
   }
 
-  if (loading && total === 0) {
+  if (loading && results.peers.length === 0 && results.bounties.length === 0 && results.products.length === 0) {
     return (
-      <div className="bg-[#1E1E24] md:bg-white md:shadow-sm border border-white/10 md:border-slate-200 rounded-xl p-5 text-center text-sm text-slate-400 md:text-slate-600 inline-flex items-center justify-center gap-2 w-full">
-        <Loader2 className="w-3.5 h-3.5 animate-spin" /> Searching…
-      </div>
-    );
-  }
-
-  if (total === 0) {
-    if (!GLOBAL_CATEGORIES.includes(category)) return null;
-    return (
-      <div className="bg-[#1E1E24] md:bg-white md:shadow-sm border border-white/10 md:border-slate-200 rounded-xl p-6 text-center text-xs text-slate-400 md:text-slate-600">
-        No matches for “{term}”.
+      <div className="bg-[#0A0A0B] p-10 text-center flex flex-col items-center justify-center gap-3">
+        <Loader2 className="w-6 h-6 animate-spin text-[#E5484D]" />
+        <p className="text-sm text-white/40 font-medium">Searching Oventric...</p>
       </div>
     );
   }
 
   return (
-    <div className="bg-[#1E1E24] md:bg-white md:shadow-sm border border-white/10 md:border-slate-200 rounded-xl overflow-hidden">
-      {peers.length > 0 && (
-        <Section icon={<User className="w-3 h-3" />} title="People">
-          {peers.map((p) => (
-            <Link
-              key={p.id}
-              to="/profile/$id"
-              params={{ id: p.slug }}
-              className="flex items-center gap-3 px-4 py-2.5 hover:bg-white/[0.04] md:hover:bg-slate-50 transition-colors"
-            >
-              {p.avatarUrl ? (
-                <img src={p.avatarUrl} alt="" className="w-8 h-8 rounded-full object-cover" />
-              ) : (
-                <span className="w-8 h-8 rounded-full bg-[#E5484D]/20 text-[#E5484D] flex items-center justify-center">
-                  <User className="w-3.5 h-3.5" />
-                </span>
-              )}
-              <span className="min-w-0 flex-1">
-                <span className="block text-sm font-semibold text-white md:text-slate-900 truncate">
-                  {p.name}
-                </span>
-                <span className="block text-[11px] text-slate-500 truncate">
-                  {p.username ? `@${p.username}` : p.slug}
-                </span>
-              </span>
-              {p.stars > 0 && (
-                <span className="inline-flex items-center gap-1 text-[11px] text-amber-400">
-                  <Star className="w-3 h-3" /> {p.stars.toFixed(1)}
-                </span>
-              )}
-            </Link>
-          ))}
-        </Section>
-      )}
+    <div className="flex flex-col min-h-screen bg-[#0A0A0B]">
+      <ExploreHeader 
+        activeTab={activeExploreTab} 
+        onTabChange={setActiveExploreTab} 
+      />
 
-      {bounties.length > 0 && (
-        <Section icon={<Coins className="w-3 h-3" />} title="Bounties">
-          {bounties.map((b) => (
-            <button
-              key={b.id}
-              type="button"
-              onClick={() => navigateSection("Bounties")}
-              className="w-full text-left flex items-center gap-3 px-4 py-2.5 hover:bg-white/[0.04] md:hover:bg-slate-50 transition-colors"
-            >
-              <span className="w-8 h-8 rounded-md bg-amber-500/20 text-amber-400 flex items-center justify-center shrink-0">
-                <Coins className="w-3.5 h-3.5" />
-              </span>
-              <span className="min-w-0 flex-1">
-                <span className="block text-sm font-semibold text-white md:text-slate-900 truncate">
-                  {b.title}
-                </span>
-                <span className="block text-[11px] text-slate-500 truncate">
-                  ${b.amountUsd.toLocaleString()}
-                  {b.category ? ` · ${b.category}` : ""}
-                </span>
-              </span>
-            </button>
-          ))}
-        </Section>
-      )}
+      <div className="flex-1">
+        {activeExploreTab === "People" && (
+          results.peers.length > 0 ? (
+            <PeopleExploreList users={results.peers} />
+          ) : (
+            <EmptyState message="No people found" />
+          )
+        )}
 
-      {products.length > 0 && (
-        <Section icon={<Store className="w-3 h-3" />} title="Marketplace assets">
-          {products.map((p) => (
-            <Link
-              key={p.id}
-              to="/product/$id"
-              params={{ id: p.id }}
-              className="flex items-center gap-3 px-4 py-2.5 hover:bg-white/[0.04] md:hover:bg-slate-50 transition-colors"
-            >
-              {p.coverUrl ? (
-                <img src={p.coverUrl} alt="" className="w-8 h-8 rounded-md object-cover" />
-              ) : (
-                <span className="w-8 h-8 rounded-md bg-sky-500/20 text-sky-400 flex items-center justify-center">
-                  <Store className="w-3.5 h-3.5" />
-                </span>
-              )}
-              <span className="min-w-0 flex-1">
-                <span className="block text-sm font-semibold text-white md:text-slate-900 truncate">
-                  {p.title}
-                </span>
-                <span className="block text-[11px] text-slate-500 truncate">
-                  ${p.priceUsd.toLocaleString()} · {p.category}
-                  {p.vendor ? ` · ${p.vendor}` : ""}
-                </span>
-              </span>
-            </Link>
-          ))}
-        </Section>
-      )}
+        {activeExploreTab === "Posts" && (
+          <div className="p-8 text-center text-white/40 text-sm">
+            Trending posts matching "{term}" will appear here.
+          </div>
+        )}
+
+        {activeExploreTab === "Products" && (
+          results.products.length > 0 ? (
+            <div className="divide-y divide-white/[0.06]">
+              {results.products.map((p) => (
+                <Link
+                  key={p.id}
+                  to="/product/$id"
+                  params={{ id: p.id }}
+                  className="flex items-center gap-4 px-4 py-4 active:bg-white/[0.02] transition-colors"
+                >
+                  {p.coverUrl ? (
+                    <img src={p.coverUrl} alt="" className="w-14 h-14 rounded-xl object-cover ring-1 ring-white/10" />
+                  ) : (
+                    <div className="w-14 h-14 rounded-xl bg-sky-500/10 text-sky-500 flex items-center justify-center ring-1 ring-white/10">
+                      <Store className="w-6 h-6" />
+                    </div>
+                  )}
+                  <div className="flex-1 min-w-0">
+                    <h4 className="text-[15px] font-bold text-white truncate">{p.title}</h4>
+                    <p className="text-[12px] text-white/40 mt-0.5">
+                      ${p.priceUsd.toLocaleString()} • {p.category}
+                    </p>
+                  </div>
+                  <div className="h-8 px-4 rounded-full bg-white/5 border border-white/10 text-white text-[12px] font-bold flex items-center">
+                    View
+                  </div>
+                </Link>
+              ))}
+            </div>
+          ) : (
+            <EmptyState message="No products found" />
+          )
+        )}
+
+        {activeExploreTab === "Topics" && (
+           <div className="p-8 text-center text-white/40 text-sm">
+            Curated topics and communities will appear here.
+          </div>
+        )}
+      </div>
     </div>
   );
 }
+
+function EmptyState({ message }: { message: string }) {
+  return (
+    <div className="p-12 text-center">
+      <p className="text-sm font-medium text-white/30">{message}</p>
+    </div>
+  );
+}
+
 
 function Section({
   icon,
