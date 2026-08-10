@@ -155,7 +155,7 @@ export function FeedGlobalResults({ q, category }: { q: string; category: FeedCa
     return null;
   }
 
-  if (loading && results.peers.length === 0 && results.bounties.length === 0 && results.products.length === 0) {
+  if (loading && results.peers.length === 0 && results.bounties.length === 0 && results.products.length === 0 && results.circles.length === 0 && results.posts.length === 0) {
     return (
       <div className="bg-[#0A0A0B] p-10 text-center flex flex-col items-center justify-center gap-3">
         <Loader2 className="w-6 h-6 animate-spin text-[#E5484D]" />
@@ -181,49 +181,119 @@ export function FeedGlobalResults({ q, category }: { q: string; category: FeedCa
         )}
 
         {activeExploreTab === "Posts" && (
-          <div className="p-8 text-center text-white/40 text-sm">
-            Trending posts matching "{term}" will appear here.
-          </div>
-        )}
-
-        {activeExploreTab === "Products" && (
-          results.products.length > 0 ? (
-            <div className="divide-y divide-white/[0.06]">
-              {results.products.map((p) => (
+          results.posts.length > 0 ? (
+            <div className="space-y-4 p-4">
+              {results.posts.map((p) => (
                 <Link
                   key={p.id}
-                  to="/product/$id"
+                  to="/post/$id"
                   params={{ id: p.id }}
-                  className="flex items-center gap-4 px-4 py-4 active:bg-white/[0.02] transition-colors"
+                  className="block rounded-2xl border border-white/[0.06] bg-[#141416] p-4 active:scale-[0.98] transition-transform"
                 >
-                  {p.coverUrl ? (
-                    <img src={p.coverUrl} alt="" className="w-14 h-14 rounded-xl object-cover ring-1 ring-white/10" />
-                  ) : (
-                    <div className="w-14 h-14 rounded-xl bg-sky-500/10 text-sky-500 flex items-center justify-center ring-1 ring-white/10">
-                      <Store className="w-6 h-6" />
+                  <div className="flex items-center gap-3 mb-2">
+                    <div className="h-8 w-8 rounded-full overflow-hidden bg-[#1A1A1F]">
+                      <AvatarImage src={p.authorAvatarUrl} alt={p.authorName} />
                     </div>
-                  )}
-                  <div className="flex-1 min-w-0">
-                    <h4 className="text-[15px] font-bold text-white truncate">{p.title}</h4>
-                    <p className="text-[12px] text-white/40 mt-0.5">
-                      ${p.priceUsd.toLocaleString()} • {p.category}
-                    </p>
+                    <div>
+                      <p className="text-[13px] font-bold text-white leading-none">{p.authorName}</p>
+                      <p className="text-[11px] text-white/40 mt-0.5">{new Date(p.createdAt).toLocaleDateString()}</p>
+                    </div>
                   </div>
-                  <div className="h-8 px-4 rounded-full bg-white/5 border border-white/10 text-white text-[12px] font-bold flex items-center">
-                    View
-                  </div>
+                  <p className="text-[14px] text-white/80 line-clamp-3 leading-relaxed">
+                    {p.text}
+                  </p>
                 </Link>
               ))}
             </div>
           ) : (
-            <EmptyState message="No products found" />
+            <EmptyState message="No posts found" />
           )
         )}
 
-        {activeExploreTab === "Topics" && (
-           <div className="p-8 text-center text-white/40 text-sm">
-            Curated topics and communities will appear here.
+        {activeExploreTab === "Products" && (
+          <div className="flex flex-col divide-y divide-white/[0.06]">
+            {results.products.length > 0 && (
+              <div className="p-3">
+                <h3 className="px-1 py-2 text-[10px] font-bold uppercase tracking-wider text-white/30">Marketplace</h3>
+                <div className="grid grid-cols-2 gap-3">
+                  {results.products.map((p) => (
+                    <Link
+                      key={p.id}
+                      to="/product/$id"
+                      params={{ id: p.id }}
+                      className="overflow-hidden rounded-2xl border border-white/[0.06] bg-[#141416] active:scale-[0.98]"
+                    >
+                      {p.coverUrl ? (
+                        <img src={p.coverUrl} alt="" className="h-28 w-full object-cover" />
+                      ) : (
+                        <div className="h-28 w-full bg-sky-500/10" />
+                      )}
+                      <div className="p-2.5">
+                        <p className="line-clamp-2 text-[12.5px] font-medium text-white">{p.title}</p>
+                        <p className="mt-1 text-[12.5px] font-bold text-[#E5484D]">
+                          ${p.priceUsd.toLocaleString()}
+                        </p>
+                      </div>
+                    </Link>
+                  ))}
+                </div>
+              </div>
+            )}
+            {results.bounties.length > 0 && (
+              <div className="p-3">
+                <h3 className="px-1 py-2 text-[10px] font-bold uppercase tracking-wider text-white/30">Bounties</h3>
+                <div className="space-y-3">
+                  {results.bounties.map((b) => (
+                    <Link
+                      key={b.id}
+                      to="/bounties"
+                      className="flex items-center gap-4 p-3 rounded-2xl border border-white/[0.06] bg-[#141416] active:scale-[0.98]"
+                    >
+                      {b.coverUrl ? (
+                        <img src={b.coverUrl} alt="" className="w-14 h-14 rounded-xl object-cover" />
+                      ) : (
+                        <div className="w-14 h-14 rounded-xl bg-amber-500/10 flex items-center justify-center">
+                          <Coins className="w-6 h-6 text-amber-500" />
+                        </div>
+                      )}
+                      <div className="flex-1 min-w-0">
+                        <h4 className="text-[14px] font-bold text-white truncate">{b.title}</h4>
+                        <p className="text-[12px] text-[#E5484D] font-bold mt-0.5">
+                          ${b.amountUsd.toLocaleString()}
+                        </p>
+                      </div>
+                    </Link>
+                  ))}
+                </div>
+              </div>
+            )}
+            {results.products.length === 0 && results.bounties.length === 0 && (
+              <EmptyState message="No products or bounties found" />
+            )}
           </div>
+        )}
+
+        {activeExploreTab === "Topics" && (
+          results.circles.length > 0 ? (
+            <div className="grid grid-cols-1 gap-3 p-4">
+              {results.circles.map((c) => (
+                <button
+                  key={c.id}
+                  type="button"
+                  onClick={() => navigateSection("Circles")}
+                  className="flex items-center gap-3 w-full rounded-2xl border border-white/[0.06] bg-[#141416] p-4 text-left active:scale-[0.98]"
+                >
+                  <span className="text-3xl">{c.emoji}</span>
+                  <div>
+                    <p className="text-[15px] font-bold text-white">{c.name}</p>
+                    <p className="text-[12px] text-white/40">{c.memberCount} members</p>
+                  </div>
+                </button>
+              ))}
+            </div>
+          ) : (
+            <EmptyState message="No topics found" />
+          )
         )}
       </div>
     </div>

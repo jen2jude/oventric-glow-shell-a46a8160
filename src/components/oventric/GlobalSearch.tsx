@@ -1,7 +1,7 @@
 import { useEffect, useMemo, useRef, useState } from "react";
 import { useNavigate } from "@tanstack/react-router";
 import { useServerFn } from "@tanstack/react-start";
-import { Search, X, Star, Coins, Store, User, Loader2 } from "lucide-react";
+import { Search, X, Star, Coins, Store, User, Loader2, Users, MessageSquare } from "lucide-react";
 import { navigateSection } from "@/components/oventric/DiscoveryPanel";
 import { searchGlobal, type SearchResults } from "@/lib/search.functions";
 
@@ -254,6 +254,28 @@ export function GlobalSearch({
                 .map((item) => (
                   <ResultRow key={item.key} item={item} onSelect={handleSelect} />
                 ))}
+              {results.circles.length > 0 && (
+                <li className="px-4 pt-3 pb-1 text-[10px] uppercase tracking-widest text-slate-500 flex items-center gap-1.5">
+                  <Users className="w-3 h-3" /> Communities
+                </li>
+              )}
+              {flat
+                .filter((f) => f.key.startsWith("circle-"))
+                .map((item) => (
+                  <ResultRow key={item.key} item={item} onSelect={handleSelect} />
+                ))}
+
+              {results.posts.length > 0 && (
+                <li className="px-4 pt-3 pb-1 text-[10px] uppercase tracking-widest text-slate-500 flex items-center gap-1.5">
+                  <MessageSquare className="w-3 h-3" /> Posts
+                </li>
+              )}
+              {flat
+                .filter((f) => f.key.startsWith("post-"))
+                .map((item) => (
+                  <ResultRow key={item.key} item={item} onSelect={handleSelect} />
+                ))}
+
               {results.products.length > 0 && (
                 <li className="px-4 pt-3 pb-1 text-[10px] uppercase tracking-widest text-slate-500 flex items-center gap-1.5">
                   <Store className="w-3 h-3" /> Marketplace
