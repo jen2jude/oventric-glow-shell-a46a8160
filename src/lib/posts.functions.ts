@@ -262,24 +262,87 @@ async function buildFeedPosts(
     tagsByPost.set(t.post_id, list);
   });
   const attachmentsByPost = new Map<string, ProductAttachment[]>();
-  (attachmentRows ?? []).forEach((at: any) => {
-    const p = at.products;
-    if (!p) return;
-    const vendor = p.profiles;
-    const list = attachmentsByPost.get(at.post_id) ?? [];
-    list.push({
-      id: p.id,
-      name: p.name,
-      priceUsd: p.price_usd,
-      coverUrl: p.cover_path ? (p.cover_path.startsWith('http') ? p.cover_path : `https://fwnkrtebjsgguixzaydw.supabase.co/storage/v1/object/public/products/${p.cover_path}`) : null,
-      vendor: vendor?.display_name || vendor?.username || "Seller",
-      vendorId: p.user_id,
-      vendorSlug: vendor?.slug || null,
-      vendorAvatarUrl: vendor?.avatar_path ? (vendor.avatar_path.startsWith('http') ? vendor.avatar_path : `https://fwnkrtebjsgguixzaydw.supabase.co/storage/v1/object/public/avatars/${vendor.avatar_path}`) : null,
-      shortDescription: p.short_description
-    });
-    attachmentsByPost.set(at.post_id, list);
-  });
+  {
+    const productIds = Array.from(
+      new Set(((attachmentRows ?? []) as any[]).map((a) => a.product_id).filter(Boolean)),
+    );
+    if (productIds.length) {
+      const { data: prodRows } = await sb
+        .from("products")
+        .select("id, seller_id, name, price_usd, cover_path, description")
+        .in("id", productIds);
+      const products = (prodRows ?? []) as any[];
+
+      // Vendor profiles
+      const sellerIds = Array.from(new Set(products.map((p) => p.seller_id).filter(Boolean)));
+      const vendorById = new Map<string, any>();
+      if (sellerIds.length) {
+        const { data: vRows } = await sb
+          .from("profiles")
+          .select("user_id, display_name, username, slug, avatar_path")
+          .in("user_id", sellerIds);
+        (vRows ?? []).forEach((v: any) => vendorById.set(v.user_id, v));
+        const vPaths = Array.from(
+          new Set((vRows ?? []).map((v: any) => v.avatar_path).filter(Boolean)),
+        ) as string[];
+        if (vPaths.length) {
+          const { data: signedV } = await sb.storage
+            .from("avatars")
+            .createSignedUrls(vPaths, 60 * 60 * 6);
+          (signedV ?? []).forEach((s) => {
+            if (s.path && s.signedUrl) avatarByPath.set(s.path, s.signedUrl);
+          });
+        }
+      }
+
+      // Cover URLs (private bucket → signed)
+      const coverPaths = Array.from(
+        new Set(products.map((p) => p.cover_path).filter(Boolean)),
+      ) as string[];
+      const coverByPath = new Map<string, string>();
+      if (coverPaths.length) {
+        const { data: signedC } = await sb.storage
+          .from("product-covers")
+          .createSignedUrls(coverPaths, 60 * 60 * 24 * 7);
+        (signedC ?? []).forEach((s) => {
+          if (s.path && s.signedUrl) coverByPath.set(s.path, s.signedUrl);
+        });
+      }
+
+      const attachmentByProductId = new Map<string, ProductAttachment>();
+      products.forEach((p) => {
+        const vendor = vendorById.get(p.seller_id);
+        const avatarPath = vendor?.avatar_path as string | undefined;
+        attachmentByProductId.set(p.id, {
+          id: p.id,
+          name: p.name,
+          priceUsd: Number(p.price_usd ?? 0),
+          coverUrl: p.cover_path
+            ? String(p.cover_path).startsWith("http")
+              ? p.cover_path
+              : (coverByPath.get(p.cover_path) ?? null)
+            : null,
+          vendor: vendor?.display_name || vendor?.username || "Seller",
+          vendorId: p.seller_id,
+          vendorSlug: vendor?.slug || null,
+          vendorAvatarUrl: avatarPath
+            ? avatarPath.startsWith("http")
+              ? avatarPath
+              : (avatarByPath.get(avatarPath) ?? null)
+            : null,
+          shortDescription: p.description ?? null,
+        });
+      });
+
+      ((attachmentRows ?? []) as any[]).forEach((at) => {
+        const item = attachmentByProductId.get(at.product_id);
+        if (!item) return;
+        const list = attachmentsByPost.get(at.post_id) ?? [];
+        list.push(item);
+        attachmentsByPost.set(at.post_id, list);
+      });
+    }
+  }
   const commentCounts = new Map<string, number>();
   (commentRows ?? []).forEach((c) => commentCounts.set(c.post_id, (commentCounts.get(c.post_id) ?? 0) + 1));
 
