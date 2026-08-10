@@ -23,6 +23,9 @@ export function PeopleExploreItem({
 }: PeopleExploreItemProps) {
   const [following, setFollowing] = useState(false);
 
+  // Fallback description for demo if missing
+  const displayDescription = description || "Digital Creator • Oventric Hub";
+
   return (
     <div className="flex items-start gap-3 py-4 border-b border-white/[0.06] last:border-0 px-4 active:bg-white/[0.02] transition-colors">
       <Link
@@ -48,13 +51,11 @@ export function PeopleExploreItem({
             <CheckCircle2 className="h-3.5 w-3.5 fill-[#3897F0] text-[#0A0A0B]" />
           )}
         </Link>
-        <p className="text-[12px] text-white/40 leading-none">@{username}</p>
+        <p className="text-[12px] text-white/40 leading-none">@{username || slug}</p>
         
-        {description && (
-          <p className="mt-1.5 text-[13px] text-white/70 line-clamp-2 leading-relaxed">
-            {description}
-          </p>
-        )}
+        <p className="mt-1.5 text-[13px] text-white/70 line-clamp-2 leading-relaxed">
+          {displayDescription}
+        </p>
       </div>
 
       <button
@@ -84,12 +85,13 @@ export function PeopleExploreList({ users }: { users: any[] }) {
           userId={user.user_id || user.userId || user.id}
           name={user.name || user.display_name}
           username={user.username || user.slug}
-          description={user.description || user.bio || "Digital Creator • Oventric Hub"}
+          description={user.description || user.bio}
           avatarUrl={user.avatarUrl || user.avatar_path}
           slug={user.slug}
-          isVerified={user.is_verified}
+          isVerified={user.is_verified || user.stars > 4.5}
         />
       ))}
     </div>
   );
 }
+
