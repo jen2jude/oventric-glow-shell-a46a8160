@@ -19,6 +19,9 @@ export interface FeedComment {
   post_id: string;
   author_id: string;
   author_name: string;
+  author_username: string | null;
+  author_slug: string | null;
+  author_avatar_url: string | null;
   initials: string;
   text: string;
   created_at: string;
@@ -26,6 +29,7 @@ export interface FeedComment {
   reactions: Record<ReactionType, number>;
   viewer_reaction: ReactionType | null;
 }
+
 
 function zero(): Record<ReactionType, number> {
   return { love: 0, like: 0, dislike: 0, laugh: 0, crown: 0 };
