@@ -149,7 +149,7 @@ function ShopPage() {
   const loadTab = useServerFn(getLiveProfileTab);
   const loadDiscovery = useServerFn(getShopDiscovery);
 
-  const [shop, setShop] = useState<ShopBranding | null>(null);
+  const [shop, setShop] = useState<(ShopBranding & { category?: string }) | null>(null);
   const [followers, setFollowers] = useState(0);
   const [products, setProducts] = useState<ProfileListing[]>([]);
   const [productTotal, setProductTotal] = useState(0);
@@ -215,7 +215,10 @@ function ShopPage() {
           }).catch(() => null),
         ]);
         if (cancelled) return;
-        setShop(s.shop);
+        setShop({
+          ...s.shop,
+          category: mp?.items?.[0]?.category || "General Store"
+        });
         setFollowers(c?.followers ?? 0);
         const items = (mp?.items ?? []) as ProfileListing[];
         setProducts(items);
@@ -285,7 +288,7 @@ function ShopPage() {
         >
           <ArrowLeft className="h-4 w-4" />
         </button>
-        <div className="min-w-0 flex-1 truncate text-sm font-bold">Seller Shop Overview</div>
+        <div className="min-w-0 flex-1 truncate text-[11px] font-black uppercase tracking-widest text-slate-400">Branded Storefront</div>
         {isOwner && (
           <button
             type="button"
@@ -300,13 +303,13 @@ function ShopPage() {
 
       <div className="mx-auto w-full max-w-[720px] pb-20">
         {/* Cover */}
-        <div className="relative h-40 w-full overflow-hidden sm:h-56">
+        <div className="relative h-48 w-full overflow-hidden sm:h-64">
           {shop?.coverUrl ? (
             <img src={shop.coverUrl} alt="" className="h-full w-full object-cover" />
           ) : (
-            <div className="h-full w-full bg-[linear-gradient(120deg,#2A1030_0%,#3B1240_55%,#120913_100%)]" />
+            <div className="h-full w-full bg-[#1A1A1F]" />
           )}
-          <div className="absolute inset-0 bg-gradient-to-t from-[#0A0A0B] via-[#0A0A0B]/30 to-transparent" />
+          <div className="absolute inset-0 bg-gradient-to-t from-[#0A0A0B] via-transparent to-transparent" />
         </div>
 
         {/* Identity */}
@@ -321,25 +324,34 @@ function ShopPage() {
             )}
           </div>
 
-          <div className="mt-3 flex items-center gap-1.5">
-            <h1 className="truncate text-xl font-black">{name}</h1>
-            {verified && <BadgeCheck className="h-5 w-5 shrink-0 text-sky-400" />}
+          <div className="mt-4 flex items-center justify-between gap-4">
+            <div className="min-w-0 flex-1">
+              <div className="flex items-center gap-2">
+                <h1 className="truncate text-2xl font-black">{name}</h1>
+                {verified && <BadgeCheck className="h-6 w-6 shrink-0 text-sky-400" />}
+              </div>
+              <div className="mt-0.5 flex items-center gap-2 text-xs font-bold text-slate-500 uppercase tracking-widest">
+                <span>{shop?.country || "Global"}</span>
+                <span>•</span>
+                <span>{shop?.category || "Creator"}</span>
+              </div>
+            </div>
           </div>
-          <p className="mt-1 text-sm text-slate-400">
-            {shop?.shopAbout?.trim() || "Digital goods and services on Oventric."}
+          <p className="mt-3 text-sm leading-relaxed text-slate-400">
+            {shop?.shopAbout?.trim() || "Branded digital goods and professional services on Oventric."}
           </p>
 
           {/* Stats */}
-          <div className="mt-4 grid grid-cols-4 gap-2 rounded-2xl border border-white/10 bg-[#141417] px-3 py-3 text-center">
+          <div className="mt-6 flex items-center justify-between gap-6 overflow-x-auto no-scrollbar py-2">
             {[
               { v: compact(followers), l: "Followers" },
               { v: compact(productTotal), l: "Products" },
               { v: compact(sales), l: "Sales" },
               { v: rating, l: "Rating" },
             ].map((s) => (
-              <div key={s.l}>
-                <div className="text-sm font-black">{s.v}</div>
-                <div className="mt-0.5 text-[10px] font-semibold text-slate-400">{s.l}</div>
+              <div key={s.l} className="shrink-0">
+                <div className="text-lg font-black">{s.v}</div>
+                <div className="text-[10px] font-bold uppercase tracking-widest text-slate-500">{s.l}</div>
               </div>
             ))}
           </div>
@@ -680,6 +692,20 @@ function ShopPage() {
                     ))}
                   </Rail>
                 </>
+              )}
+              {/* Seller Content Module */}
+              {isOwner === false && (
+                <div className="mt-12 mb-8 rounded-3xl border border-white/10 bg-[#141417] p-8 text-center">
+                  <h3 className="text-base font-black uppercase tracking-widest text-white">Identity Verified</h3>
+                  <p className="mt-2 text-sm text-slate-400">This shop belongs to a real person/creator. Check their Oventric profile for more content.</p>
+                  <Link 
+                    to="/profile/$id" 
+                    params={{ id }} 
+                    className="mt-6 inline-flex items-center gap-2 rounded-full border border-white/10 bg-white/5 px-6 py-2.5 text-xs font-black uppercase tracking-widest text-white hover:bg-white/10"
+                  >
+                    View Broader Identity <ArrowRight className="h-3.5 w-3.5" />
+                  </Link>
+                </div>
               )}
             </>
           )}
