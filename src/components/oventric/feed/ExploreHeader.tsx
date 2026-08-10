@@ -13,15 +13,15 @@ export function ExploreHeader({
   onTabChange: (tab: ExploreTab) => void;
 }) {
   return (
-    <div className="bg-[#0A0A0B] pt-2">
-      <div className="px-4 mb-4 flex items-center gap-4">
+    <div className="bg-[#0A0A0B] pt-3">
+      <div className="px-4 mb-3 flex items-center gap-4">
         <button 
           onClick={() => onTabChange("Discovery" as any)}
-          className="p-1 -ml-1 text-white/60 active:text-white transition-colors"
+          className="p-1 -ml-1 text-white active:text-[#E5484D] transition-colors"
         >
-          <ArrowLeft className="w-6 h-6" strokeWidth={2.5} />
+          <ArrowLeft className="w-6 h-6" strokeWidth={3} />
         </button>
-        <h1 className="text-2xl font-black text-white tracking-tight">Explore</h1>
+        <h1 className="text-[22px] font-black text-white tracking-tight">Explore</h1>
       </div>
       
       <div className="flex border-b border-white/[0.06]">

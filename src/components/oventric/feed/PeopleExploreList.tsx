@@ -44,7 +44,7 @@ export function PeopleExploreItem({
           params={{ id: slug }}
           className="flex items-center gap-1 group"
         >
-          <span className="text-[15px] font-bold text-white truncate group-active:text-[#E5484D] transition-colors">
+          <span className="text-[15px] font-bold text-white truncate group-active:text-[#E5484D] transition-colors leading-tight">
             {name}
           </span>
           {isVerified && (

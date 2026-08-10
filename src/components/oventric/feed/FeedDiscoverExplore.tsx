@@ -79,7 +79,7 @@ export function FeedDiscoverExplore({
 
   if (activeTab !== "Discovery") {
     return (
-      <div className="-mx-4 flex flex-col min-h-screen bg-[#0A0A0B]">
+      <div className="-mx-4 flex flex-col min-h-screen bg-[#0A0A0B] overflow-y-auto">
         <ExploreHeader activeTab={activeTab} onTabChange={setActiveTab} />
         
         {/* Sub-Search in Explore */}
