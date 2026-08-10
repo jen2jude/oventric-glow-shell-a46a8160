@@ -443,8 +443,6 @@ function ShopPage() {
             </div>
           ) : (
             <>
-              {/* Spotlight / Focal Product */}
-              {focalProduct && (
               {/* Featured Product (Visual Emphasis) */}
               {focalProduct && (
                 <div className="mt-8">
