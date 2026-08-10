@@ -1962,7 +1962,7 @@ export function Feed() {
                     </div>
                     <button
                       type="button"
-                      onClick={() => openPostScreen(post.id)}
+                      onClick={() => setCommentsSheetPostId(post.id)}
                       className="flex items-center gap-1.5 px-2.5 py-2 rounded-lg hover:bg-white/5 md:hover:bg-slate-100 hover:text-white md:hover:text-slate-900 transition-colors font-semibold"
                       aria-label="Open comments"
                     >
@@ -2003,7 +2003,7 @@ export function Feed() {
                     {comments.length === 0 ? (
                       <button
                         type="button"
-                        onClick={() => openPostScreen(post.id)}
+                        onClick={() => setCommentsSheetPostId(post.id)}
                         className="w-full rounded-lg border border-dashed border-white/10 md:border-slate-300 bg-black/20 md:bg-slate-50 px-3 py-3 text-left text-xs text-slate-500 hover:text-slate-300 md:hover:text-slate-700 hover:border-white/20 md:hover:border-slate-400 transition-colors"
                       >
                         No comments yet — be the first to reply.
@@ -2030,7 +2030,7 @@ export function Feed() {
                         })()}
                         <button
                           type="button"
-                          onClick={() => openPostScreen(post.id)}
+                          onClick={() => setCommentsSheetPostId(post.id)}
                           className="text-[11px] font-medium text-[#E5484D] md:text-[#E5484D] hover:text-emerald-300 md:hover:text-emerald-700 ml-9"
                         >
                           {post.comments_count > 1
