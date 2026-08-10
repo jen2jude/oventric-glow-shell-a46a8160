@@ -169,7 +169,23 @@ function ShopPage() {
     [sym, fx],
   );
 
+  const { productId } = Route.useSearch();
+  const [focalProduct, setFocalProduct] = useState<ProfileListing | null>(null);
+
   useEffect(() => {
+    if (productId && products.length > 0) {
+      const found = products.find(p => p.id === productId);
+      if (found) {
+        setFocalProduct(found);
+        setTab("shop");
+        // Scroll to top or focal product
+        window.scrollTo({ top: 0, behavior: 'smooth' });
+      }
+    }
+  }, [productId, products]);
+
+  useEffect(() => {
+
     let alive = true;
     supabase.auth.getSession().then(({ data }) => {
       if (alive) setMeId(data.session?.user?.id ?? null);
