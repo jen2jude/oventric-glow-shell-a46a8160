@@ -606,89 +606,23 @@ export function PostComposerModal({
           </div>
         </div>
 
-          {/* Mention chips */}
+        {/* Extra Info (Mentions, Errors) */}
+        <div className="px-4 py-2 shrink-0">
           {mentions.length > 0 && (
-            <div className="mt-2 flex flex-wrap gap-1.5">
+            <div className="flex flex-wrap gap-1.5 mb-2">
               {mentions.map((m) => (
                 <span
                   key={m.userId}
-                  className="inline-flex items-center gap-1 px-2 py-1 rounded-full bg-emerald-500/10 border border-emerald-500/30 text-[11px] text-emerald-300"
+                  className="inline-flex items-center gap-1 px-2 py-1 rounded-full bg-[#E5484D]/10 border border-[#E5484D]/30 text-[11px] text-[#E5484D]"
                 >
                   @{m.username || m.name}
-                  <button
-                    onClick={() => removeMention(m.userId)}
-                    className="hover:text-white"
-                    aria-label={`Remove mention of ${m.name}`}
-                  >
+                  <button onClick={() => removeMention(m.userId)} className="hover:text-white">
                     <X className="w-3 h-3" />
                   </button>
                 </span>
               ))}
             </div>
           )}
-
-          {/* Attachment previews */}
-          {attachments.length > 0 && (
-            <div className="mt-3">
-              <div className="flex items-center justify-between mb-1.5">
-                <span className="text-[11px] text-slate-400">
-                  {attachments[0].kind === "video"
-                    ? "1 video attached"
-                    : `${attachments.length} of ${MAX_IMAGES} photos attached`}
-                </span>
-                <button
-                  type="button"
-                  onClick={() => setAttachments([])}
-                  disabled={posting}
-                  className="text-[11px] text-slate-400 hover:text-red-400"
-                >
-                  Clear all
-                </button>
-              </div>
-              <div className="grid grid-cols-3 gap-2">
-                {attachments.map((a, i) => (
-                  <div key={a.previewUrl} className="relative aspect-square group">
-                    {a.kind === "image" ? (
-                      <img
-                        src={a.previewUrl}
-                        alt={`Attachment ${i + 1}`}
-                        className="w-full h-full rounded-lg border border-white/10 object-cover"
-                      />
-                    ) : (
-                      <video
-                        src={a.previewUrl}
-                        controls
-                        className="w-full h-full rounded-lg border border-white/10 object-cover"
-                      />
-                    )}
-                    <div className="pointer-events-none absolute bottom-1 left-1 right-8 truncate rounded bg-black/65 px-1.5 py-0.5 text-[9px] text-white/90">
-                      {a.file.name} · {(a.file.size / (1024 * 1024)).toFixed(1)} MB
-                    </div>
-                    <button
-                      type="button"
-                      onClick={() => removeAttachmentAt(i)}
-                      aria-label="Remove attachment"
-                      className="absolute top-1 right-1 p-1 rounded-full bg-black/70 hover:bg-black text-white"
-                    >
-                      <X className="w-3.5 h-3.5" />
-                    </button>
-                  </div>
-                ))}
-                {attachments[0].kind === "image" && attachments.length < MAX_IMAGES && (
-                  <button
-                    type="button"
-                    onClick={onPickFile}
-                    disabled={posting}
-                    className="aspect-square rounded-lg border border-dashed border-white/20 text-slate-400 hover:text-emerald-400 hover:border-emerald-400/50 flex flex-col items-center justify-center gap-1 text-[11px]"
-                  >
-                    <ImageIcon className="w-4 h-4" />
-                    Add more
-                  </button>
-                )}
-              </div>
-            </div>
-          )}
-
           {mediaError && <FieldError>{mediaError}</FieldError>}
           {error && <FieldError>{error}</FieldError>}
         </div>
