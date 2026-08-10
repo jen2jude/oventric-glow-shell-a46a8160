@@ -280,7 +280,9 @@ export function PostComposerModal({
     return c ? `Circle · ${c.name}` : "Circle";
   }, [audience, circleId, circles]);
 
+  const hasMedia = attachments.length > 0;
   const trimmed = text.trim();
+
   const textError = useMemo(() => {
     if (trimmed.length > MAX_TEXT)
       return `Post is ${trimmed.length - MAX_TEXT} character${trimmed.length - MAX_TEXT === 1 ? "" : "s"} over the ${MAX_TEXT.toLocaleString()} limit.`;
