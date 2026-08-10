@@ -168,7 +168,7 @@ export const saveCollection = createServerFn({ method: "POST" })
       slug: `${slugify(data.title)}-${Math.random().toString(36).slice(2, 6)}`,
       description: data.description || null,
       cover_url: data.coverUrl || null,
-      is_public: data.isPublic ?? true,
+      is_public: data.isPublic ?? false,
     };
 
     if (data.id) {
