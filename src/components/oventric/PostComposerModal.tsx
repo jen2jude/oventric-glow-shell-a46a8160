@@ -527,63 +527,84 @@ export function PostComposerModal({
             onChange={(e) => setText(e.target.value)}
             aria-invalid={showTextError}
             aria-describedby={showTextError ? "composer-text-error" : undefined}
-            placeholder="Share an update, ask a question, drop a build log…"
-            className={`w-full bg-transparent text-slate-100 placeholder:text-slate-500 resize-none focus:outline-none text-base mt-4 min-h-[120px] rounded-lg px-2 -mx-2 ${
+            placeholder="What's on your mind?"
+            className={`w-full bg-transparent text-slate-100 placeholder:text-slate-500 resize-none focus:outline-none text-base mt-3 min-h-[100px] rounded-lg px-0 ${
               showTextError ? "ring-1 ring-red-500/60" : ""
             }`}
           />
+          
           <div className="flex items-start justify-between gap-3">
             <div id="composer-text-error" className="min-w-0">
               {showTextError && <FieldError>{textError}</FieldError>}
             </div>
-            {trimmed.length > MAX_TEXT * 0.8 && (
-              <span
-                className={`mt-1.5 text-[11px] shrink-0 ${trimmed.length > MAX_TEXT ? "text-red-400" : "text-slate-500"}`}
-              >
-                {trimmed.length.toLocaleString()}/{MAX_TEXT.toLocaleString()}
-              </span>
-            )}
           </div>
 
-          {/* Inline action bar — kept high so it stays visible above the mobile keyboard */}
-          <div className="mt-2 -mx-1 flex items-center gap-1 flex-wrap">
-            <input
-              ref={fileInputRef}
-              type="file"
-              accept="image/*,video/*"
-              multiple
-              className="hidden"
-              onChange={onFile}
-            />
-            <button
-              type="button"
-              onClick={onPickFile}
-              disabled={posting}
-              className="flex items-center gap-2 px-3 py-2 rounded-lg text-slate-300 hover:text-emerald-400 hover:bg-white/5 text-sm"
-            >
-              <ImageIcon className="w-4 h-4" />
-              <span className="hidden sm:inline">Photo</span>
-            </button>
-            <button
-              type="button"
-              onClick={onPickFile}
-              disabled={posting}
-              className="flex items-center gap-2 px-3 py-2 rounded-lg text-slate-300 hover:text-emerald-400 hover:bg-white/5 text-sm"
-            >
-              <VideoIcon className="w-4 h-4" />
-              <span className="hidden sm:inline">Video</span>
-            </button>
-            <button
-              type="button"
-              onClick={() => setMentionPickerOpen(true)}
-              disabled={posting}
-              className="flex items-center gap-2 px-3 py-2 rounded-lg text-slate-300 hover:text-emerald-400 hover:bg-white/5 text-sm"
-            >
-              <AtSign className="w-4 h-4" />
-              <span className="hidden sm:inline">Mention</span>
-            </button>
-            <div className="ml-auto text-[10px] text-slate-500 pr-2">Up to 50 MB media</div>
+          {/* Media Rail / Horizontal Grid */}
+          <div className="flex items-center gap-2 overflow-x-auto pb-2 scrollbar-hide">
+            {attachments.map((a, i) => (
+              <div key={a.previewUrl} className="relative w-24 h-24 shrink-0 rounded-xl overflow-hidden group">
+                {a.kind === "image" ? (
+                  <img src={a.previewUrl} alt="" className="w-full h-full object-cover" />
+                ) : (
+                  <video src={a.previewUrl} className="w-full h-full object-cover" />
+                )}
+                <button
+                  type="button"
+                  onClick={() => removeAttachmentAt(i)}
+                  className="absolute top-1 right-1 p-1 rounded-full bg-black/60 text-white"
+                >
+                  <X className="w-3.5 h-3.5" />
+                </button>
+              </div>
+            ))}
+            
+            {!attachments.some(a => a.kind === 'video') && attachments.length < MAX_IMAGES && (
+              <button
+                type="button"
+                onClick={onPickFile}
+                className="w-24 h-24 shrink-0 rounded-xl border border-dashed border-white/20 flex flex-col items-center justify-center gap-1 text-slate-400 hover:text-white hover:border-white/40 bg-white/5"
+              >
+                <Plus className="w-5 h-5" />
+                <span className="text-[10px]">Add media</span>
+              </button>
+            )}
           </div>
+          
+          <input
+            ref={fileInputRef}
+            type="file"
+            accept="image/*,video/*"
+            multiple
+            className="hidden"
+            onChange={onFile}
+          />
+        </div>
+
+        {/* Toolbar Icons */}
+        <div className="px-4 py-3 border-t border-white/10 flex items-center justify-between shrink-0">
+          <div className="flex items-center gap-4">
+            <button onClick={onPickFile} className="text-slate-400 hover:text-[#E5484D] transition-colors"><ImageIcon className="w-5 h-5" /></button>
+            <button onClick={onPickFile} className="text-slate-400 hover:text-[#E5484D] transition-colors"><VideoIcon className="w-5 h-5" /></button>
+            <button className="text-slate-400 hover:text-[#E5484D] transition-colors"><BarChart3 className="w-5 h-5" /></button>
+            <button className="text-slate-400 hover:text-[#E5484D] transition-colors"><Smile className="w-5 h-5" /></button>
+            <button className="text-slate-400 hover:text-[#E5484D] transition-colors"><MapPin className="w-5 h-5" /></button>
+            <button className="text-slate-400 hover:text-[#E5484D] transition-colors"><ShoppingBag className="w-5 h-5" /></button>
+          </div>
+          <div className="text-[10px] text-slate-500 font-medium tracking-wide uppercase">
+            {trimmed.length}/{MAX_TEXT}
+          </div>
+        </div>
+
+        {/* Action List */}
+        <div className="bg-[#141418] border-t border-white/10 pt-2 pb-6 shrink-0">
+          <div className="px-4 py-2 text-[10px] text-slate-500 font-semibold tracking-wider uppercase">Add to your post</div>
+          <div className="flex flex-col">
+            <ActionButton icon={<ImageIcon className="w-5 h-5 text-sky-400" />} label="Photo/Video" onClick={onPickFile} />
+            <ActionButton icon={<AtSign className="w-5 h-5 text-indigo-400" />} label="Mention People" onClick={() => setMentionPickerOpen(true)} />
+            <ActionButton icon={<Plus className="w-5 h-5 text-[#E5484D]" />} label="Topic / Hashtag" />
+            <ActionButton icon={<ShoppingBag className="w-5 h-5 text-amber-400" />} label="Product from my shop" />
+          </div>
+        </div>
 
           {/* Mention chips */}
           {mentions.length > 0 && (
