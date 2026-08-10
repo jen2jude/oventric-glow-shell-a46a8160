@@ -493,12 +493,8 @@ export const createPost = createServerFn({ method: "POST" })
   .inputValidator((input: unknown) =>
     z.object({
       text: z.string().trim().max(4000).optional().default(""),
-      productAttachmentIds: z.array(z.string().uuid()).optional(),
-
-      // Legacy single-media (kept for old callers).
       mediaPath: z.string().trim().min(1).max(500).optional(),
       mediaType: z.enum(["image", "video"]).optional(),
-      // New multi-image support (up to 10). Videos still use `mediaPath`.
       mediaPaths: z.array(z.string().trim().min(1).max(500)).max(10).optional(),
       audience: z.enum(["public", "circle", "followers"]).optional(),
       circleId: z.string().uuid().nullable().optional(),
@@ -509,6 +505,7 @@ export const createPost = createServerFn({ method: "POST" })
         x: z.number().min(0).max(100).optional(),
         y: z.number().min(0).max(100).optional(),
       })).max(20).optional(),
+      productAttachmentIds: z.array(z.string().uuid()).max(10).optional(),
       wallUserId: z.string().uuid().nullable().optional(),
     }).refine(data => {
       const hasMedia = (data.mediaPaths && data.mediaPaths.length > 0) || !!data.mediaPath;
