@@ -492,7 +492,7 @@ export const createPost = createServerFn({ method: "POST" })
   .middleware([requireSupabaseAuth])
   .inputValidator((input: unknown) =>
     z.object({
-      text: z.string().trim().min(1).max(4000),
+      text: z.string().trim().max(4000).optional().default(""),
       productAttachmentIds: z.array(z.string().uuid()).optional(),
 
       // Legacy single-media (kept for old callers).
@@ -510,6 +510,14 @@ export const createPost = createServerFn({ method: "POST" })
         y: z.number().min(0).max(100).optional(),
       })).max(20).optional(),
       wallUserId: z.string().uuid().nullable().optional(),
+    }).refine(data => {
+      const hasMedia = (data.mediaPaths && data.mediaPaths.length > 0) || !!data.mediaPath;
+      const hasProducts = (data.productAttachmentIds && data.productAttachmentIds.length > 0);
+      const hasText = data.text && data.text.trim().length > 0;
+      return hasMedia || hasProducts || hasText;
+    }, {
+      message: "Post must have text, media, or a product attached",
+      path: ["text"]
     }).parse(input),
   )
   .handler(async ({ data, context }) => {
@@ -542,7 +550,7 @@ export const createPost = createServerFn({ method: "POST" })
       .from("posts")
       .insert({
         author_id: context.userId,
-        text: data.text,
+        text: data.text || "",
         media_path: legacyPath,
         media_type: legacyType,
         media_paths: paths,
