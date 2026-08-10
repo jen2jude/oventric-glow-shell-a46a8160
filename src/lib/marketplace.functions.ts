@@ -1398,3 +1398,42 @@ export const listMyContactedSellers = createServerFn({ method: "GET" })
     return out;
   });
 
+
+/** Search current seller's active products for tagging in a post. */
+export const searchMyProductsForTagging = createServerFn({ method: "GET" })
+  .middleware([requireSupabaseAuth])
+  .inputValidator((input: unknown) => z.object({ q: z.string().trim().max(100) }).parse(input))
+  .handler(async ({ data, context }) => {
+    const { sb } = await (async () => {
+       // We need to use the admin client or similar because of RLS restrictions on seller contact info
+       // But wait, for tagging we only need basic info. The authenticated client is fine.
+       return { sb: context.supabase };
+    })();
+    
+    let query = sb
+      .from("products")
+      .select("id, name, vendor, price_usd, cover_path, category")
+      .eq("seller_id", context.userId)
+      .eq("status", "active");
+
+    if (data.q) {
+      query = query.ilike("name", `%${data.q}%`);
+    }
+
+    const { data: rows, error } = await query.limit(20);
+    if (error) throw new Error(error.message);
+
+    const paths = (rows ?? []).map((r) => r.cover_path as string | null);
+    const urls = await signCovers(sb as any, paths);
+
+    return {
+      products: (rows ?? []).map((r, i) => ({
+        id: r.id,
+        name: r.name,
+        vendor: r.vendor,
+        priceUsd: Number(r.price_usd),
+        coverUrl: urls[i],
+        category: r.category,
+      })),
+    };
+  });
