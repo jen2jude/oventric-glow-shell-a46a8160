@@ -17,7 +17,14 @@ import {
   Play,
   CornerDownRight,
 } from "lucide-react";
-import { getPost, setReaction, type FeedPost, type ReactionType } from "@/lib/posts.functions";
+import {
+  getPost,
+  setReaction,
+  logPostShare,
+  setPostSaved,
+  type FeedPost,
+  type ReactionType,
+} from "@/lib/posts.functions";
 import {
   listComments,
   addComment,
@@ -194,6 +201,8 @@ function PostScreen() {
   const createComment = useServerFn(addComment);
   const reactPost = useServerFn(setReaction);
   const reactComment = useServerFn(setCommentReaction);
+  const shareLogFn = useServerFn(logPostShare);
+  const savePostFn = useServerFn(setPostSaved);
 
   const [post, setPost] = useState<FeedPost | null | undefined>(undefined);
   const [comments, setComments] = useState<FeedComment[]>([]);
@@ -205,12 +214,17 @@ function PostScreen() {
   const [repostOpen, setRepostOpen] = useState(false);
   const [reportOpen, setReportOpen] = useState(false);
   const [saved, setSaved] = useState(false);
+  const [shares, setShares] = useState(0);
   const inputRef = useRef<HTMLInputElement | null>(null);
 
   const load = useCallback(async () => {
     try {
       const r = await fetchPost({ data: { id } });
       setPost(r.post ?? null);
+      if (r.post) {
+        setSaved(!!r.post.viewer_saved);
+        setShares(r.post.shares_count ?? 0);
+      }
       if (r.post) {
         const c = await fetchComments({ data: { postId: id } });
         setComments(c.comments);
@@ -233,6 +247,39 @@ function PostScreen() {
 
   const shareUrl =
     typeof window !== "undefined" ? window.location.href : `https://oventric.com/post/${id}`;
+
+  const logShare = useCallback(
+    async (channel: string) => {
+      setShares((n) => n + 1);
+      try {
+        const r = await shareLogFn({ data: { postId: id, channel } });
+        setShares(r.shares_count);
+      } catch {
+        /* share still happened; count refreshes on next load */
+      }
+    },
+    [shareLogFn, id],
+  );
+
+  const toggleSave = useCallback(() => {
+    require(
+      1,
+      async () => {
+        const next = !saved;
+        setSaved(next);
+        try {
+          await savePostFn({ data: { postId: id, saved: next } });
+          toast.success(next ? "Saved — find it in your bookmarks" : "Removed from saved");
+        } catch {
+          setSaved(!next);
+          toast.error("Could not update your saved posts");
+        }
+      },
+      "interaction",
+    );
+  }, [require, saved, savePostFn, id]);
+
+
 
   const onReact = () => {
     if (!post) return;
@@ -341,7 +388,7 @@ function PostScreen() {
     { label: post.likes_count === 1 ? "Like" : "Likes", value: post.likes_count },
     { label: post.comments_count === 1 ? "Comment" : "Comments", value: post.comments_count },
     { label: post.reposts_count === 1 ? "Repost" : "Reposts", value: post.reposts_count },
-    { label: "Views", value: post.views_count ?? 0 },
+    { label: shares === 1 ? "Share" : "Shares", value: shares },
   ];
 
   return (
@@ -374,6 +421,7 @@ function PostScreen() {
                   type="button"
                   onClick={() => {
                     void navigator.clipboard?.writeText(shareUrl);
+                    void logShare("copy_link");
                     toast.success("Link copied");
                     setMenuOpen(false);
                   }}
@@ -542,16 +590,14 @@ function PostScreen() {
           type="button"
           onClick={() => setShareOpen(true)}
           aria-label="Share"
-          className="flex flex-1 items-center justify-center rounded-xl py-2 text-white/60 hover:bg-white/5"
+          className="flex flex-1 items-center justify-center gap-1.5 rounded-xl py-2 text-[13px] font-semibold text-white/60 hover:bg-white/5"
         >
           <Share2 className="h-[19px] w-[19px]" />
+          {shares > 0 && <span>{compact(shares)}</span>}
         </button>
         <button
           type="button"
-          onClick={() => {
-            setSaved((v) => !v);
-            toast.success(saved ? "Removed from saved" : "Saved");
-          }}
+          onClick={() => toggleSave()}
           aria-label="Save post"
           className="flex flex-1 items-center justify-center rounded-xl py-2 text-white/60 hover:bg-white/5"
           style={{ color: saved ? ACCENT : undefined }}
@@ -660,6 +706,7 @@ function PostScreen() {
         url={shareUrl}
         title={`${post.author_name} on Oventric`}
         text={post.text?.slice(0, 140) || undefined}
+        onShared={(channel) => void logShare(channel)}
       />
       <ReportModal
         open={reportOpen}
