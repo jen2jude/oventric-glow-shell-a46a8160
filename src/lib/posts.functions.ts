@@ -493,9 +493,6 @@ export const createPost = createServerFn({ method: "POST" })
   .inputValidator((input: unknown) =>
     z.object({
       text: z.string().trim().max(4000).optional().default(""),
-      productAttachmentIds: z.array(z.string().uuid()).optional(),
-
-      // Legacy single-media (kept for old callers).
       mediaPath: z.string().trim().min(1).max(500).optional(),
       mediaType: z.enum(["image", "video"]).optional(),
       mediaPaths: z.array(z.string().trim().min(1).max(500)).max(10).optional(),
