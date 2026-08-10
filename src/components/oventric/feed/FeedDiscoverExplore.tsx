@@ -67,6 +67,8 @@ export function FeedDiscoverExplore({
   const { peers, products, bounties, courses, circles, loading } = useFeedDiscovery(true);
   const { groups: storyGroups, refresh: refreshStories } = useStoryRail(true);
   const [reelAt, setReelAt] = useState<number | null>(null);
+  const [activeTab, setActiveTab] = useState<ExploreTab | "Discovery">("Discovery");
+  const [searchQuery, setSearchQuery] = useState("");
 
   const trending = [...posts]
     .sort(
@@ -75,9 +77,83 @@ export function FeedDiscoverExplore({
     )
     .slice(0, 6);
 
+  if (activeTab !== "Discovery") {
+    return (
+      <div className="-mx-4 flex flex-col min-h-screen bg-[#0A0A0B]">
+        <ExploreHeader activeTab={activeTab} onTabChange={setActiveTab} />
+        <div className="flex-1">
+          {activeTab === "People" && (
+            <PeopleExploreList users={peers} />
+          )}
+          {activeTab === "Posts" && (
+            <div className="space-y-4 p-4">
+               {trending.map((p) => renderPost(p))}
+            </div>
+          )}
+          {activeTab === "Products" && (
+            <div className="grid grid-cols-2 gap-3 p-4">
+              {products.map((p) => (
+                <Link
+                  key={p.id}
+                  to="/product/$id"
+                  params={{ id: p.id }}
+                  className="overflow-hidden rounded-2xl border border-white/[0.06] bg-[#141416] active:scale-[0.98]"
+                >
+                  {p.coverUrl ? (
+                    <img src={p.coverUrl} alt="" loading="lazy" className="h-28 w-full object-cover" />
+                  ) : (
+                    <div className={`h-28 w-full bg-gradient-to-br ${p.hue}`} />
+                  )}
+                  <div className="p-2.5">
+                    <p className="line-clamp-2 text-[12.5px] font-medium text-white">{p.title}</p>
+                    <p className="mt-1 text-[12.5px] font-bold text-[#E5484D]">
+                      ${p.priceUsd.toLocaleString()}
+                    </p>
+                  </div>
+                </Link>
+              ))}
+            </div>
+          )}
+          {activeTab === "Topics" && (
+            <div className="grid grid-cols-1 gap-3 p-4">
+              {circles.map((c) => (
+                <button
+                  key={c.id}
+                  type="button"
+                  onClick={() => navigateSection("Circles")}
+                  className="flex items-center gap-3 w-full rounded-2xl border border-white/[0.06] bg-[#141416] p-4 text-left active:scale-[0.98]"
+                >
+                  <span className="text-3xl">{c.emoji}</span>
+                  <div>
+                    <p className="text-[15px] font-bold text-white">{c.name}</p>
+                    <p className="text-[12px] text-white/40">{c.memberCount} members</p>
+                  </div>
+                </button>
+              ))}
+            </div>
+          )}
+        </div>
+      </div>
+    );
+  }
+
   return (
     <div className="space-y-6">
+      {/* Search Bar - Mirrored from App Chrome for "Discovery" mode */}
+      <div className="-mx-1 px-1">
+        <div 
+          onClick={() => setActiveTab("People")}
+          className="relative group cursor-pointer"
+        >
+          <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-white/20" />
+          <div className="w-full h-11 pl-10 pr-4 flex items-center text-sm rounded-2xl bg-[#141416] border border-white/[0.06] text-white/30">
+            Search Oventric...
+          </div>
+        </div>
+      </div>
+
       {storyGroups.length > 0 && (
+
         <Section icon={PlayCircle} title="Reels">
           <Rail>
             {storyGroups.map((g, i) => (
