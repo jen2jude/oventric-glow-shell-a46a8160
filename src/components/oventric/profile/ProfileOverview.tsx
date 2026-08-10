@@ -189,7 +189,7 @@ export function ProfileOverview({
   const interests = realProfile?.interests ?? [];
 
   return (
-    <div data-testid="profile-overview" className="pb-2">
+    <div data-testid="profile-overview" className="space-y-6 pb-2">
       {interests.length > 0 && (
         <Module title="What I'm into">
           <div className="-mx-1 flex flex-wrap gap-2 px-1">
@@ -199,6 +199,7 @@ export function ProfileOverview({
           </div>
         </Module>
       )}
+
 
       {shop.length > 0 && (
         <Module
@@ -323,8 +324,9 @@ export function ProfileOverview({
             Your overview is empty
           </p>
           <p className="mt-1 text-xs text-slate-500">
-            Add a bio, skills and interests, then list a product, service or course.
+            Add a bio, skills, interests, and listings to complete your snapshot.
           </p>
+
         </div>
       )}
     </div>
