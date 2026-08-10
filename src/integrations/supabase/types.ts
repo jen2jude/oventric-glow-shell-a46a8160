@@ -2503,6 +2503,51 @@ export type Database = {
           },
         ]
       }
+      post_media_tags: {
+        Row: {
+          created_at: string
+          id: string
+          media_index: number
+          post_id: string
+          product_id: string
+          x_percent: number | null
+          y_percent: number | null
+        }
+        Insert: {
+          created_at?: string
+          id?: string
+          media_index?: number
+          post_id: string
+          product_id: string
+          x_percent?: number | null
+          y_percent?: number | null
+        }
+        Update: {
+          created_at?: string
+          id?: string
+          media_index?: number
+          post_id?: string
+          product_id?: string
+          x_percent?: number | null
+          y_percent?: number | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "post_media_tags_post_id_fkey"
+            columns: ["post_id"]
+            isOneToOne: false
+            referencedRelation: "posts"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "post_media_tags_product_id_fkey"
+            columns: ["product_id"]
+            isOneToOne: false
+            referencedRelation: "products"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       post_reports: {
         Row: {
           created_at: string
