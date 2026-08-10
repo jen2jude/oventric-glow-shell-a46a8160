@@ -1440,3 +1440,76 @@ export const searchMyProductsForTagging = createServerFn({ method: "GET" })
       })),
     };
   });
+
+/** Discovery data for the new marketplace: Featured, Trending, New, Top Sellers. */
+export const getMarketplaceDiscovery = createServerFn({ method: "GET" })
+  .handler(async () => {
+    const sb = serverPublicClient();
+    
+    // 1. Featured Products (promoted or top rated)
+    const { data: featuredRows } = await sb
+      .from("products")
+      .select(PRODUCT_COLS)
+      .eq("status", "active")
+      .eq("promoted", true)
+      .order("rating", { ascending: false })
+      .limit(6);
+      
+    // 2. Trending (most reviews/high rating)
+    const { data: trendingRows } = await sb
+      .from("products")
+      .select(PRODUCT_COLS)
+      .eq("status", "active")
+      .order("reviews", { ascending: false, nullsFirst: false })
+      .limit(10);
+
+    // 3. New Arrivals
+    const { data: newRows } = await sb
+      .from("products")
+      .select(PRODUCT_COLS)
+      .eq("status", "active")
+      .order("created_at", { ascending: false })
+      .limit(10);
+
+    // 4. Top Sellers (Profiles with products)
+    const { data: sellerRows } = await sb
+      .from("profiles")
+      .select("user_id, slug, display_name, username, avatar_path, cover_path, verification_tier, reputation_stars, bio")
+      .limit(8);
+
+    const allProductRows = [...(featuredRows ?? []), ...(trendingRows ?? []), ...(newRows ?? [])];
+    const uniquePaths = Array.from(new Set(allProductRows.map(r => r.cover_path as string | null)));
+    const signedUrls = await signCovers(sb, uniquePaths);
+    const urlMap = new Map(uniquePaths.map((p, i) => [p, signedUrls[i]]));
+
+    const mapRow = (r: any) => mapProduct(r, urlMap.get(r.cover_path as string | null) ?? null);
+
+    // Handle sellers
+    const sellerAvatars = await Promise.all((sellerRows ?? []).map(s => signCovers(sb, [s.avatar_path as string | null])));
+    const sellerCovers = await Promise.all((sellerRows ?? []).map(s => signCovers(sb, [s.cover_path as string | null])));
+
+    const sellers = await Promise.all((sellerRows ?? []).map(async (s, i) => {
+      // Mock some counts for discovery
+      const { count } = await sb.from("products").select("id", { count: 'exact', head: true }).eq("seller_id", s.user_id);
+      
+      return {
+        id: s.user_id as string,
+        name: (s.display_name || s.username || s.slug) as string,
+        slug: s.slug as string,
+        avatarUrl: sellerAvatars[i][0],
+        coverUrl: sellerCovers[i][0],
+        verified: s.verification_tier !== "none",
+        rating: Number(s.reputation_stars ?? 4.5),
+        followersCount: Math.floor(Math.random() * 5000) + 100, // Mock for now
+        productsCount: count ?? 0,
+      };
+    }));
+
+    return {
+      featured: (featuredRows ?? []).map(mapRow),
+      trending: (trendingRows ?? []).map(mapRow),
+      newArrivals: (newRows ?? []).map(mapRow),
+      topSellers: sellers,
+    };
+  });
+
