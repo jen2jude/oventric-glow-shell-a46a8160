@@ -1267,18 +1267,20 @@ export function Feed() {
         </button>
 
         {isAppShell && searchOpen && (
-
-          <FeedSearchBar
-            appShell
-            q={query}
-            onQueryChange={setQuery}
-            category={category}
-            onCategoryChange={setCategory}
-            resultCount={
-              showPostList && (debouncedQuery || category !== "all") ? filteredPosts.length : null
-            }
-          />
+          <div className="bg-[#0A0A0B]">
+            <FeedSearchBar
+              appShell
+              q={query}
+              onQueryChange={setQuery}
+              category={category}
+              onCategoryChange={setCategory}
+              resultCount={
+                showPostList && (debouncedQuery || category !== "all") ? filteredPosts.length : null
+              }
+            />
+          </div>
         )}
+
 
         {!isAppShell && (
           <FeedSearchBar
