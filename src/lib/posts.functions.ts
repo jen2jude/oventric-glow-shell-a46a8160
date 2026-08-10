@@ -234,6 +234,28 @@ async function buildFeedPosts(
     });
   }
 
+  // Share counts + viewer saves (bookmarks).
+  const shareCounts = new Map<string, number>();
+  {
+    const { data: sh } = await sb
+      .from("post_shares")
+      .select("post_id" as any)
+      .in("post_id", postIds);
+    ((sh ?? []) as any[]).forEach((row) => {
+      shareCounts.set(row.post_id, (shareCounts.get(row.post_id) ?? 0) + 1);
+    });
+  }
+  const viewerSaved = new Set<string>();
+  if (userId) {
+    const { data: sv } = await sb
+      .from("post_saves")
+      .select("post_id" as any)
+      .eq("user_id", userId)
+      .in("post_id", postIds);
+    ((sv ?? []) as any[]).forEach((row) => viewerSaved.add(row.post_id));
+  }
+
+
   // Quoted originals (one level deep only).
   const quotedById = new Map<string, FeedPost>();
   if (depth === 0) {
