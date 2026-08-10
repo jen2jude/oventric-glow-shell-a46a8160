@@ -1296,9 +1296,18 @@ export function Feed() {
           />
         )}
 
-        {(debouncedQuery.length >= 2 || isGlobalCategory) && (
-          <div className="fixed inset-0 z-[41] bg-[#0A0A0B] overflow-y-auto pt-14 -mx-4">
+        {(debouncedQuery.length >= 1 || isGlobalCategory) && (
+          <div className="fixed inset-0 z-[41] bg-[#0A0A0B] overflow-y-auto -mx-4">
             <FeedGlobalResults q={debouncedQuery} category={category} />
+            <button
+              onClick={() => {
+                setQuery("");
+                setDebouncedQuery("");
+              }}
+              className="fixed top-4 right-4 z-[45] p-2 rounded-full bg-white/5 text-white active:scale-90 transition-transform"
+            >
+              <X className="w-6 h-6" />
+            </button>
           </div>
         )}
 

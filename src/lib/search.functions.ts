@@ -11,6 +11,7 @@ export interface SearchResultPeer {
   username: string | null;
   avatarUrl: string | null;
   stars: number;
+  description?: string;
 }
 
 export interface SearchResultBounty {
@@ -32,12 +33,38 @@ export interface SearchResultProduct {
   coverUrl: string | null;
 }
 
-export type SearchResult = SearchResultPeer | SearchResultBounty | SearchResultProduct;
+export interface SearchResultCircle {
+  kind: "circle";
+  id: string;
+  slug: string;
+  name: string;
+  emoji: string;
+  memberCount: number;
+}
+
+export interface SearchResultPost {
+  kind: "post";
+  id: string;
+  text: string;
+  authorName: string;
+  authorSlug: string;
+  authorAvatarUrl: string | null;
+  createdAt: string;
+}
+
+export type SearchResult =
+  | SearchResultPeer
+  | SearchResultBounty
+  | SearchResultProduct
+  | SearchResultCircle
+  | SearchResultPost;
 
 export interface SearchResults {
   peers: SearchResultPeer[];
   bounties: SearchResultBounty[];
   products: SearchResultProduct[];
+  circles: SearchResultCircle[];
+  posts: SearchResultPost[];
 }
 
 function serverPublicClient() {
@@ -78,10 +105,10 @@ export const searchGlobal = createServerFn({ method: "GET" })
     const raw = data.q;
     const like = `%${escapeLike(raw)}%`;
 
-    const [peersRes, bountiesRes, productsRes] = await Promise.all([
+    const [peersRes, bountiesRes, productsRes, circlesRes, postsRes] = await Promise.all([
       sb
         .from("profiles")
-        .select("user_id, slug, display_name, username, avatar_path, reputation_stars")
+        .select("user_id, slug, display_name, username, avatar_path, reputation_stars, bio")
         .or(
           `display_name.ilike.${like},username.ilike.${like},slug.ilike.${like}`,
         )
@@ -99,6 +126,17 @@ export const searchGlobal = createServerFn({ method: "GET" })
         .or(`name.ilike.${like},category.ilike.${like},vendor.ilike.${like}`)
         .order("reviews", { ascending: false, nullsFirst: false })
         .limit(8),
+      sb
+        .from("circles")
+        .select("id, slug, name, emoji")
+        .or(`name.ilike.${like},slug.ilike.${like},description.ilike.${like}`)
+        .limit(8),
+      sb
+        .from("posts")
+        .select("id, text, created_at, author_id")
+        .ilike("text", like)
+        .order("created_at", { ascending: false })
+        .limit(8),
     ]);
 
     const peerRows = (peersRes.data ?? []).filter(
@@ -113,6 +151,7 @@ export const searchGlobal = createServerFn({ method: "GET" })
       username: (p.username as string) ?? null,
       avatarUrl: peerAvatars[i],
       stars: Number(p.reputation_stars ?? 0),
+      description: (p.bio as string) ?? undefined,
     }));
 
     const bRows = bountiesRes.data ?? [];
@@ -138,5 +177,60 @@ export const searchGlobal = createServerFn({ method: "GET" })
       coverUrl: pCovers[i],
     }));
 
-    return { peers, bounties, products };
+    // Fetch member counts for circles
+    const cRows = circlesRes.data ?? [];
+    const cIds = cRows.map((c) => c.id);
+    let countsMap = new Map<string, number>();
+    if (cIds.length > 0) {
+      const { data: mCounts } = await sb
+        .from("circle_members")
+        .select("circle_id");
+      (mCounts ?? []).forEach((m) => {
+        countsMap.set(m.circle_id, (countsMap.get(m.circle_id) ?? 0) + 1);
+      });
+    }
+    const circles: SearchResultCircle[] = cRows.map((c) => ({
+      kind: "circle",
+      id: c.id as string,
+      slug: c.slug as string,
+      name: c.name as string,
+      emoji: (c.emoji as string) ?? "🌐",
+      memberCount: countsMap.get(c.id) ?? 0,
+    }));
+
+    // Fetch authors for posts
+    const postRows = postsRes.data ?? [];
+    const postAuthorIds = Array.from(new Set(postRows.map((p) => p.author_id)));
+    let authorMap = new Map<string, { name: string; slug: string; avatarUrl: string | null }>();
+    if (postAuthorIds.length > 0) {
+      const { data: authorProfiles } = await sb
+        .from("profiles")
+        .select("user_id, display_name, username, slug, avatar_path")
+        .in("user_id", postAuthorIds);
+      
+      const authorAvatars = await signBucket(sb, "avatars", (authorProfiles ?? []).map(p => p.avatar_path));
+      
+      (authorProfiles ?? []).forEach((p, i) => {
+        authorMap.set(p.user_id, {
+          name: (p.display_name || p.username || p.slug) as string,
+          slug: p.slug as string,
+          avatarUrl: authorAvatars[i],
+        });
+      });
+    }
+
+    const posts: SearchResultPost[] = postRows.map((p) => {
+      const author = authorMap.get(p.author_id);
+      return {
+        kind: "post",
+        id: p.id as string,
+        text: p.text as string,
+        authorName: author?.name ?? "Member",
+        authorSlug: author?.slug ?? "",
+        authorAvatarUrl: author?.avatarUrl ?? null,
+        createdAt: p.created_at,
+      };
+    });
+
+    return { peers, bounties, products, circles, posts };
   });
