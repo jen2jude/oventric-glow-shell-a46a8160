@@ -516,6 +516,18 @@ export const createPost = createServerFn({ method: "POST" })
       throw new Error("Failed to create post");
     }
 
+    if (data.productTags && data.productTags.length > 0) {
+      const tagRows = data.productTags.map(t => ({
+        post_id: row.id,
+        product_id: t.productId,
+        media_index: t.mediaIndex,
+        x_percent: t.x,
+        y_percent: t.y,
+      }));
+      const { error: tagErr } = await context.supabase.from("post_media_tags").insert(tagRows);
+      if (tagErr) console.error("[createPost] tag insert failed", tagErr);
+    }
+
     if (mentioned.length > 0) {
       const { data: me } = await context.supabase
         .from("profiles")
