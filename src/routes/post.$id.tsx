@@ -34,6 +34,7 @@ import {
 import { RepostDialog } from "@/components/oventric/feed/RepostDialog";
 import { ShareSheet } from "@/components/oventric/ShareSheet";
 import { ReportModal } from "@/components/oventric/ReportModal";
+import { ProductAttachmentCard } from "@/components/oventric/feed/ProductAttachmentCard";
 import { useOnboarding } from "@/lib/onboarding/OnboardingContext";
 import { toast } from "sonner";
 
