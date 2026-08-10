@@ -75,33 +75,34 @@ export function FeedSearchBar({
         )}
       </div>
 
-      <div
-        role="tablist"
-        aria-label="Feed filters"
-        className="mt-3 flex items-center gap-2 overflow-x-auto no-scrollbar -mx-1 px-1"
-      >
-        {FEED_CATEGORIES.map((c) => {
-          const active = c.id === category;
-          return (
-            <button
-              key={c.id}
-              type="button"
-              role="tab"
-              aria-selected={active}
-              onClick={() => onCategoryChange(c.id)}
-              className={`shrink-0 rounded-full px-4 py-1.5 text-xs transition-colors ${
-                active
-                  ? "bg-[#E5484D] text-black font-semibold"
-                  : appShell
-                    ? "bg-[#141416] border border-white/[0.06] text-white/60 font-medium hover:text-white"
+      {!appShell && (
+        <div
+          role="tablist"
+          aria-label="Feed filters"
+          className="mt-3 flex items-center gap-2 overflow-x-auto no-scrollbar -mx-1 px-1"
+        >
+          {FEED_CATEGORIES.map((c) => {
+            const active = c.id === category;
+            return (
+              <button
+                key={c.id}
+                type="button"
+                role="tab"
+                aria-selected={active}
+                onClick={() => onCategoryChange(c.id)}
+                className={`shrink-0 rounded-full px-4 py-1.5 text-xs transition-colors ${
+                  active
+                    ? "bg-[#E5484D] text-black font-semibold"
                     : "bg-white/[0.06] md:bg-slate-100 text-slate-300 md:text-slate-600 font-semibold hover:bg-white/10 md:hover:bg-slate-200"
-              }`}
-            >
-              {c.label}
-            </button>
-          );
-        })}
-      </div>
+                }`}
+              >
+                {c.label}
+              </button>
+            );
+          })}
+        </div>
+      )}
+
 
       {typeof resultCount === "number" && (
         <p className="mt-2 text-[11px] text-slate-500 md:text-slate-500">
