@@ -19,6 +19,9 @@ export interface FeedComment {
   post_id: string;
   author_id: string;
   author_name: string;
+  author_username: string | null;
+  author_slug: string | null;
+  author_avatar_url: string | null;
   initials: string;
   text: string;
   created_at: string;
@@ -26,6 +29,7 @@ export interface FeedComment {
   reactions: Record<ReactionType, number>;
   viewer_reaction: ReactionType | null;
 }
+
 
 function zero(): Record<ReactionType, number> {
   return { love: 0, like: 0, dislike: 0, laugh: 0, crown: 0 };
@@ -84,18 +88,46 @@ export const listComments = createServerFn({ method: "GET" })
         if (userId && r.user_id === userId) viewerByComment.set(r.comment_id, kind);
       });
     }
-    const comments: FeedComment[] = commentRows.map((c) => ({
-      id: c.id,
-      post_id: c.post_id,
-      author_id: c.author_id,
-      author_name: c.author_name,
-      initials: c.initials,
-      text: c.text,
-      created_at: c.created_at,
-      parent_id: (c.parent_id ?? null) as string | null,
-      reactions: reactionsByComment.get(c.id) ?? zero(),
-      viewer_reaction: viewerByComment.get(c.id) ?? null,
-    }));
+    // Live profile data (avatar, username, slug) for each commenter.
+    const authorIds = Array.from(new Set(commentRows.map((c) => c.author_id).filter(Boolean)));
+    const profById = new Map<string, any>();
+    const avatarByPath = new Map<string, string>();
+    if (authorIds.length) {
+      const { data: profs } = await sb
+        .from("profiles")
+        .select("user_id, display_name, username, slug, avatar_path")
+        .in("user_id", authorIds);
+      (profs ?? []).forEach((p: any) => profById.set(p.user_id, p));
+      const paths = Array.from(
+        new Set((profs ?? []).map((p: any) => p.avatar_path).filter((p: any): p is string => !!p)),
+      );
+      if (paths.length) {
+        const { data: signed } = await sb.storage.from("avatars").createSignedUrls(paths, 60 * 60 * 6);
+        (signed ?? []).forEach((s) => {
+          if (s.path && s.signedUrl) avatarByPath.set(s.path, s.signedUrl);
+        });
+      }
+    }
+
+    const comments: FeedComment[] = commentRows.map((c) => {
+      const prof = profById.get(c.author_id);
+      return {
+        id: c.id,
+        post_id: c.post_id,
+        author_id: c.author_id,
+        author_name: prof?.display_name || c.author_name,
+        author_username: prof?.username ?? null,
+        author_slug: prof?.slug ?? null,
+        author_avatar_url: prof?.avatar_path ? (avatarByPath.get(prof.avatar_path) ?? null) : null,
+        initials: c.initials,
+        text: c.text,
+        created_at: c.created_at,
+        parent_id: (c.parent_id ?? null) as string | null,
+        reactions: reactionsByComment.get(c.id) ?? zero(),
+        viewer_reaction: viewerByComment.get(c.id) ?? null,
+      };
+    });
+
     return { comments };
   });
 
@@ -125,6 +157,9 @@ export const addComment = createServerFn({ method: "POST" })
       post_id: r.post_id,
       author_id: r.author_id,
       author_name: r.author_name,
+      author_username: null,
+      author_slug: null,
+      author_avatar_url: null,
       initials: r.initials,
       text: r.text,
       created_at: r.created_at,
@@ -158,6 +193,9 @@ export const updateComment = createServerFn({ method: "POST" })
       post_id: r.post_id,
       author_id: r.author_id,
       author_name: r.author_name,
+      author_username: null,
+      author_slug: null,
+      author_avatar_url: null,
       initials: r.initials,
       text: r.text,
       created_at: r.created_at,
