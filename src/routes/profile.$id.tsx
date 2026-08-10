@@ -1717,7 +1717,9 @@ function ProfilePage() {
                     }
                     if (isTab(key)) changeTab(key);
                   }}
+                  realProfile={realProfile}
                 />
+
               ) : photosMode ? (
                 <ProfilePhotosGallery slug={id} />
               ) : tab === "collections" ? (
