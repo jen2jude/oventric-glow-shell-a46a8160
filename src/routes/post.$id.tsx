@@ -516,6 +516,16 @@ function PostScreen() {
         </div>
       )}
 
+      {post.product_attachments && post.product_attachments.length > 0 && (
+        <div className="px-4">
+          {post.product_attachments.map((pa) => (
+            <ProductAttachmentCard key={pa.id} product={pa} />
+          ))}
+        </div>
+      )}
+
+
+
       {/* Quoted repost */}
       {post.repost_of && (
         <div className="mt-4 px-4">
