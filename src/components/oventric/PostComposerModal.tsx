@@ -110,7 +110,7 @@ export function PostComposerModal({
   const [productQuery, setProductQuery] = useState("");
   const [productResults, setProductResults] = useState<any[]>([]);
   const [productLoading, setProductLoading] = useState(false);
-  const [taggedProducts] = useState<{ productId: string; name: string; mediaIndex: number }[]>([]);
+  const [taggedProducts] = useState<{ productId: string; name: string; mediaIndex: number; x?: number; y?: number }[]>([]);
   const [attachedProducts, setAttachedProducts] = useState<{ id: string; name: string; price: number; coverUrl: string | null }[]>([]);
 
   const [submitAttempted, setSubmitAttempted] = useState(false);
