@@ -117,6 +117,34 @@ export function GlobalSearch({
         onSelect: () => navigate({ to: "/product/$id", params: { id: p.id } }),
       }),
     );
+    results.circles.forEach((c) =>
+      items.push({
+        key: `circle-${c.id}`,
+        label: c.name,
+        sub: `${c.emoji} ${c.memberCount} members`,
+        icon: (
+          <div className="w-7 h-7 rounded-md bg-violet-500/20 text-violet-300 flex items-center justify-center">
+            <Users className="w-3.5 h-3.5" />
+          </div>
+        ),
+        onSelect: () => navigateSection("Circles"),
+      }),
+    );
+    results.posts.forEach((p) =>
+      items.push({
+        key: `post-${p.id}`,
+        label: p.authorName,
+        sub: p.text,
+        icon: p.authorAvatarUrl ? (
+          <img src={p.authorAvatarUrl} alt="" className="w-7 h-7 rounded-full object-cover" />
+        ) : (
+          <div className="w-7 h-7 rounded-full bg-slate-500/20 text-slate-300 flex items-center justify-center">
+            <User className="w-3.5 h-3.5" />
+          </div>
+        ),
+        onSelect: () => navigate({ to: "/post/$id", params: { id: p.id } }),
+      }),
+    );
     return items;
   }, [results, navigate]);
 
