@@ -765,6 +765,27 @@ export function PostComposerModal({
   );
 }
 
+function ActionButton({
+  icon,
+  label,
+  onClick,
+}: {
+  icon: React.ReactNode;
+  label: string;
+  onClick?: () => void;
+}) {
+  return (
+    <button
+      type="button"
+      onClick={onClick}
+      className="flex items-center gap-3 px-4 py-3 hover:bg-white/5 transition-colors text-left"
+    >
+      <span className="shrink-0">{icon}</span>
+      <span className="text-sm font-medium text-slate-200">{label}</span>
+    </button>
+  );
+}
+
 function AudienceOption({
   icon,
   title,
@@ -786,12 +807,12 @@ function AudienceOption({
         active ? "bg-white/5" : ""
       }`}
     >
-      <span className="mt-0.5 text-emerald-400">{icon}</span>
+      <span className="mt-0.5 text-[#E5484D]">{icon}</span>
       <span className="flex-1">
         <span className="block text-sm text-slate-100">{title}</span>
         <span className="block text-[11px] text-slate-500">{desc}</span>
       </span>
-      {active && <Check className="w-4 h-4 text-emerald-400 mt-1" />}
+      {active && <Check className="w-4 h-4 text-[#E5484D] mt-1" />}
     </button>
   );
 }
