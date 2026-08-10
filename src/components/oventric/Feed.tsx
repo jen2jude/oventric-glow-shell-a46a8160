@@ -1297,7 +1297,9 @@ export function Feed() {
         )}
 
         {(debouncedQuery.length >= 2 || isGlobalCategory) && (
-          <FeedGlobalResults q={debouncedQuery} category={category} />
+          <div className="fixed inset-0 z-[41] bg-[#0A0A0B] overflow-y-auto pt-14 -mx-4">
+            <FeedGlobalResults q={debouncedQuery} category={category} />
+          </div>
         )}
 
         <AdSlot placement="feed" variant="banner" />
