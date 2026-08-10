@@ -154,7 +154,7 @@ async function buildFeedPosts(
     sb.from("post_likes").select("post_id, user_id, reaction" as any).in("post_id", postIds),
     sb.from("post_comments").select("post_id").in("post_id", postIds),
     sb.from("post_media_tags").select("id, post_id, product_id, media_index, x_percent, y_percent, products(name)").in("post_id", postIds),
-    sb.from("post_product_attachments").select("post_id, product_id, products(id, name, price_usd, cover_path, short_description, user_id, profiles(display_name, username, slug, avatar_path))").in("post_id", postIds),
+    sb.from("post_product_attachments").select("post_id, product_id").in("post_id", postIds),
   ]);
 
 
