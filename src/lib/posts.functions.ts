@@ -37,6 +37,19 @@ export interface PostCircleRef {
   viewerIsMember: boolean;
 }
 
+export interface ProductAttachment {
+  id: string;
+  name: string;
+  priceUsd: number;
+  coverUrl: string | null;
+  vendor: string;
+  vendorId: string;
+  vendorSlug: string | null;
+  vendorAvatarUrl: string | null;
+  shortDescription?: string | null;
+}
+
+
 export interface FeedPost {
   id: string;
   author_id: string;
@@ -71,7 +84,9 @@ export interface FeedPost {
   media: PostMediaItem[];
   mentions: MentionRef[];
   circle: PostCircleRef | null;
+  product_attachments?: ProductAttachment[];
 }
+
 
 
 function initialsFrom(name: string | null | undefined, fallback: string): string {
@@ -134,12 +149,14 @@ async function buildFeedPosts(
   const allProfileIds = Array.from(authorIds);
   const postIds = rows.map((r) => r.id);
 
-  const [{ data: profiles }, likesRes, { data: commentRows }, { data: tagRows }] = await Promise.all([
+  const [{ data: profiles }, likesRes, { data: commentRows }, { data: tagRows }, { data: attachmentRows }] = await Promise.all([
     sb.from("profiles").select("user_id, display_name, username, slug, avatar_path").in("user_id", allProfileIds),
     sb.from("post_likes").select("post_id, user_id, reaction" as any).in("post_id", postIds),
     sb.from("post_comments").select("post_id").in("post_id", postIds),
     sb.from("post_media_tags").select("id, post_id, product_id, media_index, x_percent, y_percent, products(name)").in("post_id", postIds),
+    sb.from("post_product_attachments").select("post_id, product_id, products(id, name, price_usd, cover_path, short_description, user_id, profiles(display_name, username, slug, avatar_path))").in("post_id", postIds),
   ]);
+
 
   const avatarPaths = Array.from(
     new Set(((profiles ?? []).map((p) => p.avatar_path).filter((p): p is string => !!p))),
@@ -244,8 +261,28 @@ async function buildFeedPosts(
     });
     tagsByPost.set(t.post_id, list);
   });
+  const attachmentsByPost = new Map<string, ProductAttachment[]>();
+  (attachmentRows ?? []).forEach((at: any) => {
+    const p = at.products;
+    if (!p) return;
+    const vendor = p.profiles;
+    const list = attachmentsByPost.get(at.post_id) ?? [];
+    list.push({
+      id: p.id,
+      name: p.name,
+      priceUsd: p.price_usd,
+      coverUrl: p.cover_path, // Needs signing later or conversion
+      vendor: vendor?.display_name || vendor?.username || "Seller",
+      vendorId: p.user_id,
+      vendorSlug: vendor?.slug || null,
+      vendorAvatarUrl: vendor?.avatar_path || null,
+      shortDescription: p.short_description
+    });
+    attachmentsByPost.set(at.post_id, list);
+  });
   const commentCounts = new Map<string, number>();
   (commentRows ?? []).forEach((c) => commentCounts.set(c.post_id, (commentCounts.get(c.post_id) ?? 0) + 1));
+
 
   // Repost counts for these posts + whether the viewer already reposted them.
   const repostCounts = new Map<string, number>();
@@ -339,7 +376,10 @@ async function buildFeedPosts(
         circle = { id: c.id, name: c.name, slug: c.slug, avatarUrl: url, viewerIsMember: viewerCircleIds.has(c.id) };
       }
     }
+    const productAttachments = attachmentsByPost.get(r.id) ?? [];
     return {
+      product_attachments: productAttachments,
+
       reposts_count: repostCounts.get(r.id) ?? 0,
       shares_count: shareCounts.get(r.id) ?? 0,
       viewer_saved: viewerSaved.has(r.id),
@@ -453,6 +493,8 @@ export const createPost = createServerFn({ method: "POST" })
   .inputValidator((input: unknown) =>
     z.object({
       text: z.string().trim().min(1).max(4000),
+      productAttachmentIds: z.array(z.string().uuid()).optional(),
+
       // Legacy single-media (kept for old callers).
       mediaPath: z.string().trim().min(1).max(500).optional(),
       mediaType: z.enum(["image", "video"]).optional(),

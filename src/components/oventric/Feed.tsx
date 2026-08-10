@@ -80,6 +80,8 @@ import {
   FeedCommerceCard,
   useFeedCommerceCards,
 } from "@/components/oventric/feed/FeedCommerceCard";
+import { ProductAttachmentCard } from "@/components/oventric/feed/ProductAttachmentCard";
+
 
 import {
   FeedSearchBar,
@@ -1768,6 +1770,15 @@ export function Feed() {
                       }`}
                     />
                   </div>
+
+                  {post.product_attachments?.map((pa) => (
+                    <ProductAttachmentCard 
+                      key={pa.id} 
+                      product={pa} 
+                      isAppShell={isAppShell} 
+                    />
+                  ))}
+
 
 
                   {post.media_type === "image" &&
