@@ -282,9 +282,9 @@ export function PostComposerModal({
 
   const trimmed = text.trim();
   const textError = useMemo(() => {
-    if (trimmed.length === 0) return "Write something before posting.";
     if (trimmed.length > MAX_TEXT)
       return `Post is ${trimmed.length - MAX_TEXT} character${trimmed.length - MAX_TEXT === 1 ? "" : "s"} over the ${MAX_TEXT.toLocaleString()} limit.`;
+
     return null;
   }, [trimmed]);
   const audienceError =
