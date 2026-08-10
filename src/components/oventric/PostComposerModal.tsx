@@ -656,7 +656,7 @@ export function PostComposerModal({
             <div className="max-h-80 overflow-auto py-1">
               {mentionLoading && (
                 <div className="flex items-center justify-center py-6 text-slate-500 text-xs gap-2">
-                  <Loader2 className="w-4 h-4 animate-spin" /> Searching…
+                  <Loader2 className="w-4 h-4 animate-spin text-[#E5484D]" /> Searching…
                 </div>
               )}
               {!mentionLoading && mentionResults.length === 0 && mentionQuery.trim().length > 0 && (
