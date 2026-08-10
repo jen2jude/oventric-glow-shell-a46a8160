@@ -34,7 +34,18 @@ import { supabase } from "@/integrations/supabase/client";
 const ACCENT = "#E5484D";
 type ShopTab = "shop" | "collections" | "services" | "about";
 
+import { z } from "zod";
+
 export const Route = createFileRoute("/shop/$id")({
+  validateSearch: (search) => z.object({
+    productId: z.string().optional(),
+    tab: z.string().optional(),
+    pages: z.number().optional(),
+    y: z.number().optional(),
+    q: z.string().optional(),
+    sort: z.string().optional()
+  }).parse(search),
+
   head: ({ params }) => ({
     meta: [
       { title: `Shop · @${params.id} · Oventric` },
