@@ -879,7 +879,6 @@ export function Feed() {
   const [videoStartId, setVideoStartId] = useState<string | null>(null);
   const [commentsSheetPostId, setCommentsSheetPostId] = useState<string | null>(null);
   const navigate = useNavigate();
-  const openPostScreen = (postId: string) => navigate({ to: "/post/$id", params: { id: postId } });
   const [hiddenPosts, setHiddenPosts] = useState<Set<string>>(() => getHiddenPosts());
   const [blogPosts, setBlogPosts] = useState<BlogListItem[]>([]);
   const [blogShare, setBlogShare] = useState<BlogListItem | null>(null);
