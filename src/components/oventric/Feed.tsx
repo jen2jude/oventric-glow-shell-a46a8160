@@ -1897,12 +1897,13 @@ export function Feed() {
                         <span className="ml-auto flex items-center gap-2.5">
                           <button
                             type="button"
-                            onClick={() => openPostScreen(post.id)}
+                            onClick={() => setCommentsSheetPostId(post.id)}
                             className="hover:underline"
                           >
                             {post.comments_count}{" "}
                             {post.comments_count === 1 ? "comment" : "comments"}
                           </button>
+
                           <span className="inline-flex items-center gap-1">
                             <Eye className="w-3.5 h-3.5" aria-hidden />
                             {compactCount(post.views_count ?? 0)}
