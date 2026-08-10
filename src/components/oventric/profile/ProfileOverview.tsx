@@ -185,7 +185,7 @@ export function ProfileOverview({
         <Module
           title={`From ${name.split(" ")[0] || name}'s shop`}
           action="View shop"
-          onAction={() => onOpenSection("marketplace")}
+          onAction={() => navigate({ to: "/shop/$id", params: { id: profileId } })}
         >
           <Rail>{shop.slice(0, 6).map((l) => listingCard(l, "listing", "Product"))}</Rail>
         </Module>
