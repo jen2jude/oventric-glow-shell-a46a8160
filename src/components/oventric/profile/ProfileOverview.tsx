@@ -1,5 +1,6 @@
 import { useEffect, useMemo, useRef, useState } from "react";
-import { Link } from "@tanstack/react-router";
+import { Link, useNavigate } from "@tanstack/react-router";
+
 import { useServerFn } from "@tanstack/react-start";
 import { ArrowRight, FileText, MessageCircle, ShoppingBag, Users, Wrench } from "lucide-react";
 import { getLiveProfileTab } from "@/lib/profiles.functions";
