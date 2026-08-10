@@ -841,3 +841,82 @@ export const listUserPhotos = createServerFn({ method: "GET" })
     return { photos };
   });
 
+
+/** Log a share of a post (link copy, native share, or a specific channel). */
+export const logPostShare = createServerFn({ method: "POST" })
+  .middleware([requireSupabaseAuth])
+  .inputValidator((input: unknown) =>
+    z
+      .object({
+        postId: z.string().uuid(),
+        channel: z.string().trim().min(1).max(40).default("link"),
+      })
+      .parse(input),
+  )
+  .handler(async ({ data, context }) => {
+    const { error } = await context.supabase
+      .from("post_shares")
+      .insert({ post_id: data.postId, user_id: context.userId, channel: data.channel } as any);
+    if (error) {
+      console.error("[logPostShare] insert failed", error);
+      throw new Error("Failed to log share");
+    }
+    const { count } = await context.supabase
+      .from("post_shares")
+      .select("post_id", { count: "exact", head: true })
+      .eq("post_id", data.postId);
+    return { postId: data.postId, shares_count: count ?? 0 };
+  });
+
+/** Save (bookmark) or unsave a post for the current viewer. */
+export const setPostSaved = createServerFn({ method: "POST" })
+  .middleware([requireSupabaseAuth])
+  .inputValidator((input: unknown) =>
+    z.object({ postId: z.string().uuid(), saved: z.boolean() }).parse(input),
+  )
+  .handler(async ({ data, context }) => {
+    if (data.saved) {
+      const { error } = await context.supabase
+        .from("post_saves")
+        .upsert({ post_id: data.postId, user_id: context.userId } as any, {
+          onConflict: "post_id,user_id",
+        });
+      if (error && (error as any).code !== "23505") {
+        console.error("[setPostSaved] upsert failed", error);
+        throw new Error("Failed to save post");
+      }
+    } else {
+      const { error } = await context.supabase
+        .from("post_saves")
+        .delete()
+        .eq("post_id", data.postId)
+        .eq("user_id", context.userId);
+      if (error) {
+        console.error("[setPostSaved] delete failed", error);
+        throw new Error("Failed to unsave post");
+      }
+    }
+    return { postId: data.postId, saved: data.saved };
+  });
+
+/** Posts the current viewer has bookmarked, newest saved first. */
+export const listSavedPosts = createServerFn({ method: "GET" })
+  .middleware([requireSupabaseAuth])
+  .handler(async ({ context }) => {
+    const { data: saves } = await context.supabase
+      .from("post_saves")
+      .select("post_id, created_at")
+      .eq("user_id", context.userId)
+      .order("created_at", { ascending: false })
+      .limit(100);
+    const ids = (saves ?? []).map((s: any) => s.post_id);
+    if (ids.length === 0) return { posts: [] as FeedPost[] };
+    const { data: rows } = await context.supabase
+      .from("posts")
+      .select(POST_SELECT as any)
+      .in("id", ids);
+    const built = await buildFeedPosts(context.supabase, context.userId, (rows ?? []) as any[]);
+    const order = new Map(ids.map((id: string, i: number) => [id, i]));
+    built.sort((a, b) => (order.get(a.id) ?? 0) - (order.get(b.id) ?? 0));
+    return { posts: built };
+  });
