@@ -1,7 +1,8 @@
 import { useEffect, useState } from "react";
 import { Link } from "@tanstack/react-router";
 import { useServerFn } from "@tanstack/react-start";
-import { Search, X, Loader2, Coins, Store, User, Star } from "lucide-react";
+import { Search, X, Loader2, Coins, Store, User, Star, Users, MessageSquare } from "lucide-react";
+import { AvatarImage } from "@/components/oventric/AvatarImage";
 import { navigateSection } from "@/components/oventric/DiscoveryPanel";
 import { searchGlobal, type SearchResults } from "@/lib/search.functions";
 
