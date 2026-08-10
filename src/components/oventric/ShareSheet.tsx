@@ -8,6 +8,8 @@ type Props = {
   url: string;
   title?: string;
   text?: string;
+  /** Fired when the user actually shares through a channel (for logging). */
+  onShared?: (channel: string) => void;
 };
 
 export async function nativeShare(url: string, title = "Oventric", text?: string) {
@@ -22,7 +24,7 @@ export async function nativeShare(url: string, title = "Oventric", text?: string
   return false;
 }
 
-export function ShareSheet({ open, onClose, url, title = "Oventric", text }: Props) {
+export function ShareSheet({ open, onClose, url, title = "Oventric", text, onShared }: Props) {
   useEffect(() => {
     if (!open) return;
     const onKey = (e: KeyboardEvent) => {
@@ -71,6 +73,7 @@ export function ShareSheet({ open, onClose, url, title = "Oventric", text }: Pro
   const copy = async () => {
     try {
       await navigator.clipboard.writeText(url);
+      onShared?.("copy_link");
       toast.success("Link copied");
     } catch {
       toast.error("Could not copy link");
@@ -79,7 +82,10 @@ export function ShareSheet({ open, onClose, url, title = "Oventric", text }: Pro
 
   const doNative = async () => {
     const ok = await nativeShare(url, title, text);
-    if (ok) onClose();
+    if (ok) {
+      onShared?.("native");
+      onClose();
+    }
   };
 
   const canNative = typeof navigator !== "undefined" && !!(navigator as any).share;
@@ -115,7 +121,10 @@ export function ShareSheet({ open, onClose, url, title = "Oventric", text }: Pro
               target="_blank"
               rel="noopener noreferrer"
               className={`${t.bg} text-white text-xs font-bold rounded-lg py-3 text-center hover:opacity-90 transition`}
-              onClick={() => setTimeout(onClose, 100)}
+              onClick={() => {
+                onShared?.(t.label.toLowerCase());
+                setTimeout(onClose, 100);
+              }}
             >
               {t.label}
             </a>
@@ -123,7 +132,10 @@ export function ShareSheet({ open, onClose, url, title = "Oventric", text }: Pro
           <a
             href={`mailto:?subject=${enc(title)}&body=${enc(`${text ? text + "\n\n" : ""}${url}`)}`}
             className="bg-slate-700 text-white text-xs font-bold rounded-lg py-3 text-center hover:opacity-90 transition inline-flex items-center justify-center gap-1"
-            onClick={() => setTimeout(onClose, 100)}
+            onClick={() => {
+              onShared?.("email");
+              setTimeout(onClose, 100);
+            }}
           >
             <Mail className="w-3.5 h-3.5" /> Email
           </a>
