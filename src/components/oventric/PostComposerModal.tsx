@@ -583,53 +583,53 @@ export function PostComposerModal({
             className="hidden"
             onChange={onFile}
           />
-        </div>
 
-        {/* Toolbar Icons */}
-        <div className="px-4 py-3 border-t border-white/10 flex items-center justify-between shrink-0">
-          <div className="flex items-center gap-4">
-            <button onClick={onPickFile} className="text-slate-400 hover:text-[#E5484D] transition-colors"><ImageIcon className="w-5 h-5" /></button>
-            <button onClick={onPickFile} className="text-slate-400 hover:text-[#E5484D] transition-colors"><VideoIcon className="w-5 h-5" /></button>
-            <button className="text-slate-400 hover:text-[#E5484D] transition-colors"><BarChart3 className="w-5 h-5" /></button>
-            <button className="text-slate-400 hover:text-[#E5484D] transition-colors"><Smile className="w-5 h-5" /></button>
-            <button className="text-slate-400 hover:text-[#E5484D] transition-colors"><MapPin className="w-5 h-5" /></button>
-            <button className="text-slate-400 hover:text-[#E5484D] transition-colors"><ShoppingBag className="w-5 h-5" /></button>
+          {/* Extra Info (Mentions, Errors) - Moved INSIDE scroll area */}
+          <div className="py-2">
+            {mentions.length > 0 && (
+              <div className="flex flex-wrap gap-1.5 mb-2">
+                {mentions.map((m) => (
+                  <span
+                    key={m.userId}
+                    className="inline-flex items-center gap-1 px-2 py-1 rounded-full bg-[#E5484D]/10 border border-[#E5484D]/30 text-[11px] text-[#E5484D]"
+                  >
+                    @{m.username || m.name}
+                    <button onClick={() => removeMention(m.userId)} className="hover:text-white">
+                      <X className="w-3 h-3" />
+                    </button>
+                  </span>
+                ))}
+              </div>
+            )}
+            {mediaError && <FieldError>{mediaError}</FieldError>}
+            {error && <FieldError>{error}</FieldError>}
           </div>
-          <div className="text-[10px] text-slate-500 font-medium tracking-wide uppercase">
-            {trimmed.length}/{MAX_TEXT}
-          </div>
-        </div>
 
-        {/* Action List */}
-        <div className="bg-[#141418] border-t border-white/10 pt-2 pb-6 shrink-0">
-          <div className="px-4 py-2 text-[10px] text-slate-500 font-semibold tracking-wider uppercase">Add to your post</div>
-          <div className="flex flex-col">
-            <ActionButton icon={<ImageIcon className="w-5 h-5 text-sky-400" />} label="Photo/Video" onClick={onPickFile} />
-            <ActionButton icon={<AtSign className="w-5 h-5 text-indigo-400" />} label="Mention People" onClick={() => setMentionPickerOpen(true)} />
-            <ActionButton icon={<Plus className="w-5 h-5 text-[#E5484D]" />} label="Topic / Hashtag" />
-            <ActionButton icon={<ShoppingBag className="w-5 h-5 text-amber-400" />} label="Product from my shop" />
-          </div>
-        </div>
-
-        {/* Extra Info (Mentions, Errors) */}
-        <div className="px-4 py-2 shrink-0">
-          {mentions.length > 0 && (
-            <div className="flex flex-wrap gap-1.5 mb-2">
-              {mentions.map((m) => (
-                <span
-                  key={m.userId}
-                  className="inline-flex items-center gap-1 px-2 py-1 rounded-full bg-[#E5484D]/10 border border-[#E5484D]/30 text-[11px] text-[#E5484D]"
-                >
-                  @{m.username || m.name}
-                  <button onClick={() => removeMention(m.userId)} className="hover:text-white">
-                    <X className="w-3 h-3" />
-                  </button>
-                </span>
-              ))}
+          {/* Toolbar Icons - Moved INSIDE scroll area */}
+          <div className="py-3 border-t border-white/10 flex items-center justify-between">
+            <div className="flex items-center gap-4">
+              <button onClick={onPickFile} className="text-slate-400 hover:text-[#E5484D] transition-colors"><ImageIcon className="w-5 h-5" /></button>
+              <button onClick={onPickFile} className="text-slate-400 hover:text-[#E5484D] transition-colors"><VideoIcon className="w-5 h-5" /></button>
+              <button className="text-slate-400 hover:text-[#E5484D] transition-colors"><BarChart3 className="w-5 h-5" /></button>
+              <button className="text-slate-400 hover:text-[#E5484D] transition-colors"><Smile className="w-5 h-5" /></button>
+              <button className="text-slate-400 hover:text-[#E5484D] transition-colors"><MapPin className="w-5 h-5" /></button>
+              <button className="text-slate-400 hover:text-[#E5484D] transition-colors"><ShoppingBag className="w-5 h-5" /></button>
             </div>
-          )}
-          {mediaError && <FieldError>{mediaError}</FieldError>}
-          {error && <FieldError>{error}</FieldError>}
+            <div className="text-[10px] text-slate-500 font-medium tracking-wide uppercase">
+              {trimmed.length}/{MAX_TEXT}
+            </div>
+          </div>
+
+          {/* Action List - Moved INSIDE scroll area */}
+          <div className="bg-transparent border-t border-white/10 pt-2 pb-6">
+            <div className="py-2 text-[10px] text-slate-500 font-semibold tracking-wider uppercase">Add to your post</div>
+            <div className="flex flex-col">
+              <ActionButton icon={<ImageIcon className="w-5 h-5 text-sky-400" />} label="Photo/Video" onClick={onPickFile} />
+              <ActionButton icon={<AtSign className="w-5 h-5 text-indigo-400" />} label="Mention People" onClick={() => setMentionPickerOpen(true)} />
+              <ActionButton icon={<Plus className="w-5 h-5 text-[#E5484D]" />} label="Topic / Hashtag" />
+              <ActionButton icon={<ShoppingBag className="w-5 h-5 text-amber-400" />} label="Product from my shop" />
+            </div>
+          </div>
         </div>
       </div>
 
