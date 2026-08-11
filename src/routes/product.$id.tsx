@@ -513,11 +513,37 @@ function ProductPage() {
                 />
               </div>
 
-              <p className={`text-sm ${isAppShell ? "text-slate-300" : "text-slate-600"} md:text-slate-600 leading-relaxed whitespace-pre-wrap mb-6`}>
-                {product.description || "No description provided."}
-              </p>
+              {(() => {
+                const raw = (product.description || "").split("\n").map((l) => l.trim()).filter(Boolean);
+                const bullets = raw.filter((l) => /^([-•*✓·])\s+/.test(l)).map((l) => l.replace(/^([-•*✓·])\s+/, ""));
+                const body = raw.filter((l) => !/^([-•*✓·])\s+/.test(l)).join("\n");
+                return (
+                  <>
+                    <p className={`text-sm ${isAppShell ? "text-slate-400" : "text-slate-600"} md:text-slate-600 leading-relaxed whitespace-pre-wrap ${bullets.length > 0 ? "mb-4" : "mb-6"}`}>
+                      {body || (bullets.length === 0 ? "No description provided." : "")}
+                    </p>
+                    {bullets.length > 0 && (
+                      <ul className="mb-6 space-y-2.5">
+                        {bullets.map((b) => (
+                          <li
+                            key={b}
+                            className={`flex items-start gap-2.5 text-sm ${isAppShell ? "text-slate-300" : "text-slate-700"}`}
+                          >
+                            <Check
+                              className={`mt-0.5 h-4 w-4 shrink-0 ${isAppShell ? "text-slate-400" : "text-emerald-600"}`}
+                              strokeWidth={2.5}
+                            />
+                            <span>{b}</span>
+                          </li>
+                        ))}
+                      </ul>
+                    )}
+                  </>
+                );
+              })()}
 
-              <div className={`${isAppShell ? "bg-[#16161A] border-white/5" : "bg-white border-slate-200 shadow-sm"} md:shadow-sm md:bg-white border rounded-xl p-5 mb-4`}>
+              <div className={`${isAppShell ? "bg-transparent border-transparent p-0 mb-5" : "bg-white border-slate-200 shadow-sm md:shadow-sm md:bg-white border rounded-xl p-5 mb-4"}`}>
+
                 <div className="flex items-baseline justify-between mb-4">
                   <div>
                     {(() => {
