@@ -996,7 +996,7 @@ function CheckoutPage() {
                         active
                           ? "bg-[#E5484D]/10 border-[#E5484D]/50"
                           : isAppShell
-                            ? "bg-[#0A0A0B] border-white/5"
+                            ? "bg-white/[0.03] border-white/5"
                             : "bg-white border-slate-200"
                       }`}
                     >
