@@ -646,14 +646,13 @@ function ProductPage() {
                 )}
                 {product.kind === "service" ? (
                   isAppShell ? (
-                    <div className="fixed bottom-0 left-0 right-0 z-40 p-4 bg-[#0A0A0B] border-t border-white/5">
-                      <button
-                        onClick={openSellerChat}
-                        className="w-full inline-flex items-center justify-center gap-2 py-3 text-[14px] rounded-xl bg-emerald-500 hover:bg-emerald-400 text-black font-black transition-colors"
-                      >
-                        <MessageCircle className="w-4 h-4" /> Contact for this service
-                      </button>
-                    </div>
+                    <button
+                      onClick={openSellerChat}
+                      className="w-full inline-flex items-center justify-center gap-2 py-3.5 text-[14px] rounded-2xl bg-[#E5484D] hover:bg-[#d13a3f] text-white font-black transition-colors"
+                    >
+                      <MessageCircle className="w-4 h-4" /> Contact for this service
+                    </button>
+
                   ) : (
                     <button
                       onClick={openSellerChat}
