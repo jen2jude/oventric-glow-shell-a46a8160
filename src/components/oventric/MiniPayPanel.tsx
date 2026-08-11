@@ -9,6 +9,7 @@ import {
   attachManualProof,
 } from "@/lib/manual-payments.functions";
 import { formatMoney } from "@/lib/fx-display";
+import minipayQrAsset from "@/assets/minipay-qr.jpg.asset.json";
 
 interface Props {
   purpose: "order" | "course" | "bounty";
@@ -139,8 +140,9 @@ export function MiniPayPanel({
                 <div className="flex justify-center mb-4">
                   <div className="relative p-2 bg-white rounded-xl">
                     <img 
-                      src="https://fwnkrtebjsgguixzaydw.supabase.co/storage/v1/object/public/marketplace-assets/minipay-qr.jpg" 
+                      src={minipayQrAsset.url} 
                       alt="MiniPay QR Code" 
+
                       className="w-48 h-48 object-contain"
                     />
                     <div className="absolute inset-0 flex items-center justify-center pointer-events-none opacity-10">
