@@ -663,22 +663,23 @@ function ProductPage() {
                     </button>
                   )
                 ) : isAppShell ? (
-                  <div className="fixed bottom-0 left-0 right-0 z-40 p-4 bg-[#0A0A0B] border-t border-white/5 grid grid-cols-2 gap-3">
-                    <button
-                      onClick={product.kind === "physical" ? openContact : startCheckout}
-                      className="inline-flex items-center justify-center gap-2 py-3 text-[14px] rounded-xl bg-emerald-500 hover:bg-emerald-400 text-black font-black transition-colors"
-                    >
-                      <ShoppingCart className="w-4 h-4" /> Buy Now
-                    </button>
+                  <div className={`grid ${product.kind !== "physical" ? "grid-cols-2" : "grid-cols-1"} gap-3`}>
                     {product.kind !== "physical" && (
                       <button
                         onClick={openSellerChat}
-                        className="inline-flex items-center justify-center gap-2 py-3 text-[14px] bg-white/[0.05] border border-white/10 text-white rounded-xl hover:bg-white/[0.1] font-bold transition-colors"
+                        className="inline-flex items-center justify-center gap-2 py-3.5 text-[14px] bg-[#1C1C1F] border border-white/[0.06] text-white rounded-2xl hover:bg-[#222226] font-bold transition-colors"
                       >
                         <MessageCircle className="w-4 h-4" /> Chat
                       </button>
                     )}
+                    <button
+                      onClick={product.kind === "physical" ? openContact : startCheckout}
+                      className="inline-flex items-center justify-center gap-2 py-3.5 text-[14px] rounded-2xl bg-[#E5484D] hover:bg-[#d13a3f] text-white font-black transition-colors"
+                    >
+                      <ShoppingCart className="w-4 h-4" /> Buy Now
+                    </button>
                   </div>
+
                 ) : (
                   <div className="space-y-2">
                     <button
