@@ -6,7 +6,11 @@ import { useEffect, useState } from "react";
 import { useServerFn } from "@tanstack/react-start";
 import {
   ArrowLeft,
+  Heart,
+  Share2,
+  Check,
   Star,
+
   ShoppingCart,
   Flame,
   Sparkles,
