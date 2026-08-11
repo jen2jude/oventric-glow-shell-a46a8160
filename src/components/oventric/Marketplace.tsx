@@ -201,7 +201,8 @@ export function Marketplace() {
                           onClick={() => openProduct(item)}
                           className="grid h-[200px] w-full min-w-full shrink-0 snap-center grid-cols-[1.05fr_1fr] overflow-hidden rounded-[32px] bg-[#141416] text-left ring-1 ring-white/5"
                         >
-                          <span className="flex h-full flex-col justify-center gap-2 bg-gradient-to-br from-[#E5484D] to-[#B5333A] p-6">
+                          {/* Left caption panel */}
+                          <span className="relative z-10 flex h-full flex-col justify-center gap-2 bg-gradient-to-br from-[#E5484D] to-[#B5333A] p-6">
                             <span className="w-fit rounded-lg bg-black/25 px-2.5 py-1 text-[10px] font-black uppercase tracking-widest text-white">
                               {item.kind === "digital"
                                 ? "Digital Asset"
@@ -214,15 +215,24 @@ export function Marketplace() {
                             </span>
                             <span className="text-[13px] font-black text-white/85">Shop now →</span>
                           </span>
+
+                          {/* Right image panel — fills the full right shape */}
                           <span className="relative h-full w-full overflow-hidden bg-[#1A1A1E]">
-                            {item.coverUrl && (
+                            {item.coverUrl ? (
                               <img
                                 src={item.coverUrl}
                                 alt={item.name}
                                 loading="lazy"
                                 className="h-full w-full object-cover"
                               />
+                            ) : (
+                              <div className="h-full w-full bg-gradient-to-br from-[#1d1d22] to-[#101014]" />
                             )}
+                            {/* Feathered left edge so the image melts into the crimson panel */}
+                            <span
+                              className="pointer-events-none absolute inset-y-0 left-0 z-10 w-[40%] bg-gradient-to-r from-[#E5484D]/70 via-[#E5484D]/20 to-transparent"
+                              aria-hidden="true"
+                            />
                           </span>
                         </button>
                       ))}
