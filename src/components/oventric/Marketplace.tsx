@@ -47,8 +47,8 @@ export function Marketplace() {
       try {
         const kindParam = mode === "all" ? "all" : mode;
         const [d, p, c] = await Promise.all([
-          loadDiscovery({ kind: kindParam }),
-          loadProducts({ kind: kindParam }),
+          loadDiscovery({ data: { kind: kindParam } }),
+          loadProducts({ data: { kind: kindParam } }),
           loadCats(),
         ]);
         setDiscovery(d as Discovery);
