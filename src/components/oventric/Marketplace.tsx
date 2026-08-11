@@ -11,6 +11,9 @@ import {
   ShoppingBag,
   Heart,
   ArrowRight,
+  Filter,
+  Globe,
+  LayoutGrid,
 } from "lucide-react";
 import { useOnboarding } from "@/lib/onboarding/OnboardingContext";
 import {
@@ -27,8 +30,11 @@ import { SectionHeader } from "./marketplace-discovery/SectionHeader";
 import { ProductDiscoveryCard } from "./marketplace-discovery/ProductDiscoveryCard";
 import { SellerDiscoveryCard } from "./marketplace-discovery/SellerDiscoveryCard";
 import { FeaturedHero } from "./marketplace-discovery/FeaturedHero";
+import { CategoryDiscoverySheet } from "./marketplace-discovery/CategoryDiscoverySheet";
 import { ScrollArea, ScrollBar } from "@/components/ui/scroll-area";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import marketplace01 from "@/assets/marketplace01.png.asset.json";
+import marketplace04 from "@/assets/marketplace04.png.asset.json";
 
 type Mode = "digital" | "physical";
 
