@@ -432,10 +432,12 @@ function CheckoutPage() {
           : "page-light bg-white text-slate-900"
       }`}
     >
-      <Header onOpenMessages={() => {}} light={!isAppShell} desktopNav={!isAppShell} forceSiteNavbar={!isAppShell} />
+      <div className="sticky top-0 z-50">
+        <Header onOpenMessages={() => {}} light={!isAppShell} desktopNav={!isAppShell} forceSiteNavbar={!isAppShell} />
+      </div>
       <main
         className={`max-w-4xl mx-auto w-full min-w-0 ${
-          isAppShell ? "px-0 py-0 pb-32 pt-2" : "px-4 py-12 pb-24"
+          isAppShell ? "px-0 py-0 pb-32 pt-0" : "px-4 py-8 pb-24"
         }`}
       >
         <Link
