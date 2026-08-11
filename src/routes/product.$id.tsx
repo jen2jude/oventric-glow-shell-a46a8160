@@ -6,7 +6,11 @@ import { useEffect, useState } from "react";
 import { useServerFn } from "@tanstack/react-start";
 import {
   ArrowLeft,
+  Heart,
+  Share2,
+  Check,
   Star,
+
   ShoppingCart,
   Flame,
   Sparkles,
@@ -339,7 +343,7 @@ function ProductPage() {
         {product && (
           <div className={`grid grid-cols-1 lg:grid-cols-2 ${isAppShell ? "gap-0" : "gap-8"}`}>
             <div className={`flex flex-col ${isAppShell ? "gap-0" : "gap-8"}`}>
-              <div>
+              <div className={isAppShell ? "px-3 pt-3" : ""}>
                 {(() => {
                   const gallery =
                     product.kind === "physical" && product.imageUrls.length > 0
@@ -350,7 +354,7 @@ function ProductPage() {
                   const cur = gallery[activeImage] ?? gallery[0];
                   return (
                     <>
-                        <div className={`relative ${isAppShell ? "w-full aspect-square" : "aspect-[4/3]"} ${isAppShell ? "" : "rounded-2xl bg-white border border-slate-100 shadow-sm"} md:bg-slate-100 overflow-hidden flex items-center justify-center`}>
+                        <div className={`relative ${isAppShell ? "w-full aspect-[4/3] rounded-2xl bg-[#141416] border border-white/[0.06]" : "aspect-[4/3] rounded-2xl bg-white border border-slate-100 shadow-sm md:bg-slate-100"} overflow-hidden flex items-center justify-center`}>
                           {cur ? (
                             <ResponsiveImage
                               sizes="(min-width: 1024px) 640px, 100vw"
@@ -365,22 +369,50 @@ function ProductPage() {
                             <ShoppingCart className="w-12 h-12 text-white/20" />
                           )}
                           {isAppShell && (
-                            <button
-                              type="button"
-                              onClick={() => {
-                                navigate({ to: "/" });
-                                setTimeout(
-                                  () =>
-                                    window.dispatchEvent(
-                                      new CustomEvent("oventric:navigate", { detail: { section: "Marketplace" } }),
-                                    ),
-                                  100,
-                                );
-                              }}
-                              className="absolute top-4 left-4 z-10 p-2 rounded-full bg-black/40 backdrop-blur-md border border-white/10 text-white"
-                            >
-                              <ArrowLeft className="w-6 h-6" />
-                            </button>
+                            <>
+                              <button
+                                type="button"
+                                onClick={() => {
+                                  navigate({ to: "/" });
+                                  setTimeout(
+                                    () =>
+                                      window.dispatchEvent(
+                                        new CustomEvent("oventric:navigate", { detail: { section: "Marketplace" } }),
+                                      ),
+                                    100,
+                                  );
+                                }}
+                                className="absolute top-3 left-3 z-10 grid place-items-center h-9 w-9 rounded-full bg-black/50 backdrop-blur-md border border-white/10 text-white"
+                              >
+                                <ArrowLeft className="w-[18px] h-[18px]" />
+                              </button>
+                              <div className="absolute top-3 right-3 z-10 flex items-center gap-2">
+                                <button
+                                  type="button"
+                                  onClick={() => toast.success("Saved to your wishlist")}
+                                  aria-label="Save product"
+                                  className="grid place-items-center h-9 w-9 rounded-full bg-black/50 backdrop-blur-md border border-white/10 text-white"
+                                >
+                                  <Heart className="w-[18px] h-[18px]" />
+                                </button>
+                                <button
+                                  type="button"
+                                  onClick={() => {
+                                    void navigator.clipboard?.writeText(window.location.href);
+                                    toast.success("Link copied");
+                                  }}
+                                  aria-label="Share product"
+                                  className="grid place-items-center h-9 w-9 rounded-full bg-black/50 backdrop-blur-md border border-white/10 text-white"
+                                >
+                                  <Share2 className="w-[18px] h-[18px]" />
+                                </button>
+                              </div>
+                              {gallery.length > 1 && (
+                                <span className="absolute bottom-3 left-3 z-10 rounded-full bg-black/60 backdrop-blur px-2 py-0.5 text-[11px] font-semibold text-white/90">
+                                  {activeImage + 1}/{gallery.length}
+                                </span>
+                              )}
+                            </>
                           )}
                           {product.promoted && !isAppShell && (
                             <span className="absolute top-3 left-3 text-[10px] font-bold uppercase tracking-wider bg-black/60 text-emerald-300 border border-emerald-400/50 rounded px-2 py-0.5">
@@ -389,12 +421,12 @@ function ProductPage() {
                           )}
                         </div>
                       {gallery.length > 1 && (
-                        <div className={`${isAppShell ? "mt-4 px-4" : "mt-3"} flex gap-2 overflow-x-auto scrollbar-none`}>
+                        <div className={`${isAppShell ? "mt-3" : "mt-3"} flex gap-2 overflow-x-auto scrollbar-none`}>
                           {gallery.map((url, i) => (
                             <button
                               key={url}
                               onClick={() => setActiveImage(i)}
-                              className={`shrink-0 w-20 h-20 rounded-lg overflow-hidden border-2 ${i === activeImage ? "border-emerald-500" : isAppShell ? "border-white/10" : "border-slate-200"} md:border-slate-200`}
+                              className={`shrink-0 w-16 h-16 rounded-xl overflow-hidden border-2 ${i === activeImage ? (isAppShell ? "border-[#E5484D]" : "border-emerald-500") : isAppShell ? "border-white/10" : "border-slate-200"}`}
                             >
                               <img
                                 src={url}
@@ -412,6 +444,7 @@ function ProductPage() {
                 })()}
               </div>
 
+
               {!isAppShell && (
                 <div className="lg:block hidden">
                   <ProductComments productId={product.id} />
@@ -419,8 +452,9 @@ function ProductPage() {
               )}
             </div>
 
-            <div className={isAppShell ? "p-4 pt-6 pb-24" : ""}>
-              <div className={`text-xs font-bold uppercase tracking-widest ${isAppShell ? "text-emerald-400" : "text-emerald-600"} mb-2`}>
+            <div className={isAppShell ? "px-4 pt-5 pb-28" : ""}>
+              <div className={`text-xs font-bold uppercase tracking-widest ${isAppShell ? "text-[#E5484D]" : "text-emerald-600"} mb-2`}>
+
                 {product.category}
                 {product.subcategory ? ` · ${product.subcategory}` : ""}
               </div>
@@ -479,11 +513,37 @@ function ProductPage() {
                 />
               </div>
 
-              <p className={`text-sm ${isAppShell ? "text-slate-300" : "text-slate-600"} md:text-slate-600 leading-relaxed whitespace-pre-wrap mb-6`}>
-                {product.description || "No description provided."}
-              </p>
+              {(() => {
+                const raw = (product.description || "").split("\n").map((l) => l.trim()).filter(Boolean);
+                const bullets = raw.filter((l) => /^([-•*✓·])\s+/.test(l)).map((l) => l.replace(/^([-•*✓·])\s+/, ""));
+                const body = raw.filter((l) => !/^([-•*✓·])\s+/.test(l)).join("\n");
+                return (
+                  <>
+                    <p className={`text-sm ${isAppShell ? "text-slate-400" : "text-slate-600"} md:text-slate-600 leading-relaxed whitespace-pre-wrap ${bullets.length > 0 ? "mb-4" : "mb-6"}`}>
+                      {body || (bullets.length === 0 ? "No description provided." : "")}
+                    </p>
+                    {bullets.length > 0 && (
+                      <ul className="mb-6 space-y-2.5">
+                        {bullets.map((b) => (
+                          <li
+                            key={b}
+                            className={`flex items-start gap-2.5 text-sm ${isAppShell ? "text-slate-300" : "text-slate-700"}`}
+                          >
+                            <Check
+                              className={`mt-0.5 h-4 w-4 shrink-0 ${isAppShell ? "text-slate-400" : "text-emerald-600"}`}
+                              strokeWidth={2.5}
+                            />
+                            <span>{b}</span>
+                          </li>
+                        ))}
+                      </ul>
+                    )}
+                  </>
+                );
+              })()}
 
-              <div className={`${isAppShell ? "bg-[#16161A] border-white/5" : "bg-white border-slate-200 shadow-sm"} md:shadow-sm md:bg-white border rounded-xl p-5 mb-4`}>
+              <div className={`${isAppShell ? "bg-transparent border-transparent p-0 mb-5" : "bg-white border-slate-200 shadow-sm md:shadow-sm md:bg-white border rounded-xl p-5 mb-4"}`}>
+
                 <div className="flex items-baseline justify-between mb-4">
                   <div>
                     {(() => {
@@ -586,14 +646,13 @@ function ProductPage() {
                 )}
                 {product.kind === "service" ? (
                   isAppShell ? (
-                    <div className="fixed bottom-0 left-0 right-0 z-40 p-4 bg-[#0A0A0B] border-t border-white/5">
-                      <button
-                        onClick={openSellerChat}
-                        className="w-full inline-flex items-center justify-center gap-2 py-3 text-[14px] rounded-xl bg-emerald-500 hover:bg-emerald-400 text-black font-black transition-colors"
-                      >
-                        <MessageCircle className="w-4 h-4" /> Contact for this service
-                      </button>
-                    </div>
+                    <button
+                      onClick={openSellerChat}
+                      className="w-full inline-flex items-center justify-center gap-2 py-3.5 text-[14px] rounded-2xl bg-[#E5484D] hover:bg-[#d13a3f] text-white font-black transition-colors"
+                    >
+                      <MessageCircle className="w-4 h-4" /> Contact for this service
+                    </button>
+
                   ) : (
                     <button
                       onClick={openSellerChat}
@@ -603,22 +662,23 @@ function ProductPage() {
                     </button>
                   )
                 ) : isAppShell ? (
-                  <div className="fixed bottom-0 left-0 right-0 z-40 p-4 bg-[#0A0A0B] border-t border-white/5 grid grid-cols-2 gap-3">
-                    <button
-                      onClick={product.kind === "physical" ? openContact : startCheckout}
-                      className="inline-flex items-center justify-center gap-2 py-3 text-[14px] rounded-xl bg-emerald-500 hover:bg-emerald-400 text-black font-black transition-colors"
-                    >
-                      <ShoppingCart className="w-4 h-4" /> Buy Now
-                    </button>
+                  <div className={`grid ${product.kind !== "physical" ? "grid-cols-2" : "grid-cols-1"} gap-3`}>
                     {product.kind !== "physical" && (
                       <button
                         onClick={openSellerChat}
-                        className="inline-flex items-center justify-center gap-2 py-3 text-[14px] bg-white/[0.05] border border-white/10 text-white rounded-xl hover:bg-white/[0.1] font-bold transition-colors"
+                        className="inline-flex items-center justify-center gap-2 py-3.5 text-[14px] bg-[#1C1C1F] border border-white/[0.06] text-white rounded-2xl hover:bg-[#222226] font-bold transition-colors"
                       >
                         <MessageCircle className="w-4 h-4" /> Chat
                       </button>
                     )}
+                    <button
+                      onClick={product.kind === "physical" ? openContact : startCheckout}
+                      className="inline-flex items-center justify-center gap-2 py-3.5 text-[14px] rounded-2xl bg-[#E5484D] hover:bg-[#d13a3f] text-white font-black transition-colors"
+                    >
+                      <ShoppingCart className="w-4 h-4" /> Buy Now
+                    </button>
                   </div>
+
                 ) : (
                   <div className="space-y-2">
                     <button
@@ -639,14 +699,34 @@ function ProductPage() {
                 )}
               </div>
 
-              <div className="text-[11px] text-slate-500 md:text-slate-500 inline-flex items-center gap-1">
-                <Sparkles className="w-3 h-3 text-emerald-400" />
+              {isAppShell && (
+                <div className="mt-5 flex items-center gap-3 rounded-2xl border border-white/[0.06] bg-[#141416] p-3.5">
+                  <div className="h-11 w-11 shrink-0 overflow-hidden rounded-full bg-white/10 grid place-items-center text-[13px] font-black text-white">
+                    {product.vendor?.slice(0, 2).toUpperCase()}
+                  </div>
+                  <div className="min-w-0 flex-1">
+                    <div className="truncate text-[14px] font-bold text-white">{product.vendor}</div>
+                    <div className="text-[11.5px] text-white/45">Seller on Oventric</div>
+                  </div>
+                  <Link
+                    to="/shop/$id"
+                    params={{ id: product.sellerSlug ?? product.sellerId }}
+                    className="shrink-0 rounded-xl border border-white/10 bg-white/[0.04] px-3.5 py-2 text-[12.5px] font-bold text-white"
+                  >
+                    View Shop
+                  </Link>
+                </div>
+              )}
+
+              <div className={`${isAppShell ? "mt-4" : ""} text-[11px] text-slate-500 md:text-slate-500 inline-flex items-center gap-1`}>
+                <Sparkles className={`w-3 h-3 ${isAppShell ? "text-[#E5484D]" : "text-emerald-400"}`} />
                 {product.kind === "service"
                   ? "Service listing — message the provider to agree scope, timeline and price."
                   : product.kind === "physical"
                     ? "Deal directly with the seller — Oventric does not mediate."
                     : "Instant download after payment · Buyer protection covered"}
               </div>
+
 
             </div>
             
