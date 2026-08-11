@@ -1,5 +1,5 @@
 import { useEffect, useRef, useState } from "react";
-import { Loader2, Upload, CheckCircle2, Copy, X, ShieldCheck } from "lucide-react";
+import { Loader2, Upload, CheckCircle2, Copy, X, ShieldCheck, QrCode } from "lucide-react";
 import { toast } from "sonner";
 import { useServerFn } from "@tanstack/react-start";
 import { supabase } from "@/integrations/supabase/client";
@@ -9,6 +9,7 @@ import {
   attachManualProof,
 } from "@/lib/manual-payments.functions";
 import { formatMoney } from "@/lib/fx-display";
+import minipayQrAsset from "@/assets/minipay-qr.jpg.asset.json";
 
 interface Props {
   purpose: "order" | "course" | "bounty";
@@ -135,20 +136,34 @@ export function MiniPayPanel({
 
           {payment && !done && (
             <>
-              <div className="rounded-xl border border-emerald-500/30 bg-emerald-500/5 p-3">
-                <div className="text-[11px] uppercase tracking-wider text-emerald-300/90 font-semibold">
+              <div className="rounded-xl border border-emerald-500/30 bg-emerald-500/5 p-4 text-center">
+                <div className="flex justify-center mb-4">
+                  <div className="relative p-2 bg-white rounded-xl">
+                    <img 
+                      src={minipayQrAsset.url} 
+                      alt="MiniPay QR Code" 
+
+                      className="w-48 h-48 object-contain"
+                    />
+                    <div className="absolute inset-0 flex items-center justify-center pointer-events-none opacity-10">
+                      <QrCode className="w-24 h-24 text-black" />
+                    </div>
+                  </div>
+                </div>
+                
+                <div className="text-[11px] uppercase tracking-wider text-emerald-300/90 font-bold mb-1">
                   Amount to send
                 </div>
-                <div className="text-2xl font-black text-white mt-1">
+                <div className="text-3xl font-black text-white">
                   {formatMoney(payment.amount, payment.currency)}
                 </div>
+                <p className="mt-3 text-[10px] text-amber-300/90 font-medium bg-amber-500/10 py-1.5 px-3 rounded-full border border-amber-500/20">
+                  Pay the full amount or your transaction won't be confirmed
+                </p>
               </div>
 
-              <Row label="MiniPay handle" value={instructions.handle ?? "—"} onCopy={copy} />
-              {instructions.accountName && (
-                <Row label="Account name" value={instructions.accountName} onCopy={copy} />
-              )}
-              <Row label="Reference (put in the note)" value={payment.reference} onCopy={copy} />
+              <Row label="MiniPay Account Number" value="+234 803 434 7661" onCopy={copy} />
+              <Row label="MiniPay handle" value={instructions.handle ?? "oventric"} onCopy={copy} />
 
               {instructions.instructions && (
                 <p className="text-xs text-slate-400 leading-relaxed whitespace-pre-line">

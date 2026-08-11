@@ -152,8 +152,8 @@ function CheckoutPage() {
   const [minipayOpen, setMinipayOpen] = useState(false);
   // Gateway picker shown under "Debit/Credit Card".
   const [cardOpen, setCardOpen] = useState(true);
-  const [gateway, setGateway] = useState<"flutterwave" | "paystack" | "minipay">("flutterwave");
-  const [recommended, setRecommended] = useState<"flutterwave" | "paystack">("flutterwave");
+  const [gateway, setGateway] = useState<"flutterwave" | "paystack" | "minipay">("minipay");
+  const [recommended, setRecommended] = useState<"flutterwave" | "paystack" | "minipay">("minipay");
   const loadOptions = useServerFn(getPaymentOptions);
   const loadPackages = useServerFn(getServicePackages);
   const [servicePackage, setServicePackage] = useState<ServicePackage | null>(null);
@@ -169,9 +169,10 @@ function CheckoutPage() {
     loadOptions({ data: { currency: baseCurrency, purpose: "order" } })
       .then((o) => {
         if (cancelled) return;
-        setMinipay({ available: o.minipay.available });
-        setRecommended(o.provider);
-        setGateway(o.provider);
+        setMinipay({ available: true });
+        // Flutterwave is greyed out, default to MiniPay as first choice for manual verification
+        setRecommended("minipay");
+        setGateway("minipay");
       })
       .catch(() => {});
     return () => {
@@ -506,12 +507,20 @@ function CheckoutPage() {
                   label: string;
                   hint: string;
                   Icon: React.ComponentType<{ className?: string }>;
+                  disabled?: boolean;
                 }> = [
+                  {
+                    id: "minipay" as const,
+                    label: "MiniPay",
+                    hint: "Send manually, upload receipt · verified by our team",
+                    Icon: Smartphone,
+                  },
                   {
                     id: "flutterwave",
                     label: "Flutterwave",
-                    hint: "Cards, bank transfer & mobile money",
+                    hint: "Temporarily unavailable",
                     Icon: CreditCard,
+                    disabled: true,
                   },
                   {
                     id: "paystack",
@@ -519,16 +528,6 @@ function CheckoutPage() {
                     hint: "Cards, bank transfer & USSD",
                     Icon: Building2,
                   },
-                  ...(minipay.available
-                    ? [
-                        {
-                          id: "minipay" as const,
-                          label: "MiniPay",
-                          hint: "Send manually, upload receipt · verified by our team",
-                          Icon: Smartphone,
-                        },
-                      ]
-                    : []),
                 ];
                 return (
                   <div key={m.id}>
@@ -599,35 +598,43 @@ function CheckoutPage() {
                         </div>
                         {gateways.map((g) => {
                           const on = gateway === g.id;
+                          const isDisabled = g.disabled;
                           return (
                             <button
                               key={g.id}
-                              onClick={() => setGateway(g.id)}
+                              onClick={() => !isDisabled && setGateway(g.id)}
+                              disabled={isDisabled}
                               className={`w-full text-left rounded-[10px] border p-3 flex items-center gap-3 transition-all ${
-                                on
-                                  ? "bg-[#E5484D]/10 border-[#E5484D]/50"
-                                  : isAppShell
-                                  ? "bg-white/[0.03] border-white/5 hover:border-white/10"
-                                  : "bg-white border-slate-200 hover:border-slate-300 shadow-sm"
+                                isDisabled
+                                  ? "opacity-50 cursor-not-allowed grayscale bg-white/[0.01] border-white/5"
+                                  : on
+                                    ? "bg-[#E5484D]/10 border-[#E5484D]/50"
+                                    : isAppShell
+                                      ? "bg-white/[0.03] border-white/5 hover:border-white/10"
+                                      : "bg-white border-slate-200 hover:border-slate-300 shadow-sm"
                               }`}
                             >
                               <g.Icon
                                 className={`w-4 h-4 shrink-0 ${on ? "text-[#E5484D]" : "text-slate-400"}`}
                               />
                               <span className="flex-1 min-w-0">
-                                <span className={`block text-sm font-semibold ${isAppShell ? "text-white" : "text-slate-900"}`}>
+                                <span
+                                  className={`block text-sm font-semibold ${isAppShell ? "text-white" : "text-slate-900"}`}
+                                >
                                   {g.label}
-                                  {g.id === recommended && (
+                                  {g.id === recommended && !isDisabled && (
                                     <span className="ml-2 text-[9px] font-bold uppercase tracking-wider text-[#E5484D]">
                                       Recommended
                                     </span>
                                   )}
                                 </span>
-                                <span className={`block text-[11px] ${isAppShell ? "text-slate-500" : "text-slate-600"}`}>
+                                <span
+                                  className={`block text-[11px] ${isAppShell ? "text-slate-500" : "text-slate-600"}`}
+                                >
                                   {g.hint}
                                 </span>
                               </span>
-                              {on && <Check className="w-4 h-4 text-[#E5484D] shrink-0" />}
+                              {on && !isDisabled && <Check className="w-4 h-4 text-[#E5484D] shrink-0" />}
                             </button>
                           );
                         })}
