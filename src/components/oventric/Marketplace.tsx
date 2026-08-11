@@ -270,7 +270,7 @@ export function Marketplace() {
                         >
                           {/* Left caption panel */}
                           <span className="relative z-10 flex h-full flex-col justify-center gap-2 bg-gradient-to-br from-[#E5484D] to-[#B5333A] p-6">
-                            <span className="w-fit rounded-lg bg-black/25 px-2.5 py-1 text-[10px] font-black uppercase tracking-widest text-white">
+                            <span className="w-fit rounded-[10px] bg-black/25 px-2.5 py-1 text-[10px] font-black uppercase tracking-widest text-white">
                               {item.kind === "digital"
                                 ? "Digital Asset"
                                 : item.kind === "physical"

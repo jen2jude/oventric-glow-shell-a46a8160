@@ -314,7 +314,7 @@ function ProductPage() {
                 100,
               );
             }}
-            className="inline-flex items-center gap-2 text-sm text-slate-600 bg-white border border-slate-200 hover:text-slate-900 shadow-sm rounded-lg px-3 py-2 mb-6"
+            className="inline-flex items-center gap-2 text-sm text-slate-600 bg-white border border-slate-200 hover:text-slate-900 shadow-sm rounded-[10px] px-3 py-2 mb-6"
           >
             <ArrowLeft className="w-4 h-4" /> Back to Marketplace
           </button>
@@ -327,7 +327,7 @@ function ProductPage() {
             <div className="text-sm text-slate-400 md:text-slate-500 mb-4">{error}</div>
             <Link
               to="/"
-              className="inline-flex items-center gap-2 px-4 py-2 bg-emerald-500 text-black font-semibold text-sm rounded-lg"
+              className="inline-flex items-center gap-2 px-4 py-2 bg-emerald-500 text-black font-semibold text-sm rounded-[10px]"
             >
               Browse marketplace
             </Link>
@@ -575,7 +575,7 @@ function ProductPage() {
                         onChange={(e) =>
                           setQty(Math.max(1, Math.min(20, Number(e.target.value) || 1)))
                         }
-                        className={`w-16 ${isAppShell ? "bg-[#121214] border-white/10 text-white" : "bg-slate-50 border-slate-200 text-slate-900"} md:bg-slate-50 border md:border-slate-200 rounded-lg px-2 py-1.5 text-sm text-center`}
+                        className={`w-16 ${isAppShell ? "bg-[#121214] border-white/10 text-white" : "bg-slate-50 border-slate-200 text-slate-900"} md:bg-slate-50 border md:border-slate-200 rounded-[10px] px-2 py-1.5 text-sm text-center`}
                       />
                     </div>
                   )}
@@ -657,7 +657,7 @@ function ProductPage() {
                   ) : (
                     <button
                       onClick={openSellerChat}
-                      className="w-full inline-flex items-center justify-center gap-2 py-3 text-sm rounded-lg bg-emerald-500 hover:bg-emerald-400 text-black font-black transition-colors"
+                      className="w-full inline-flex items-center justify-center gap-2 py-3 text-sm rounded-[10px] bg-emerald-500 hover:bg-emerald-400 text-black font-black transition-colors"
                     >
                       <MessageCircle className="w-4 h-4" /> Contact for this service
                     </button>
@@ -697,14 +697,14 @@ function ProductPage() {
                   <div className="space-y-2">
                     <button
                       onClick={product.kind === "physical" ? openContact : startCheckout}
-                      className="w-full inline-flex items-center justify-center gap-2 py-3 text-sm rounded-lg bg-emerald-500 hover:bg-emerald-400 text-black font-black transition-colors"
+                      className="w-full inline-flex items-center justify-center gap-2 py-3 text-sm rounded-[10px] bg-emerald-500 hover:bg-emerald-400 text-black font-black transition-colors"
                     >
                       <ShoppingCart className="w-4 h-4" /> Buy Now
                     </button>
                     {product.kind !== "physical" && (
                       <button
                         onClick={openSellerChat}
-                        className="w-full inline-flex items-center justify-center gap-2 py-3 text-sm bg-emerald-50 text-emerald-700 border border-emerald-200 hover:bg-emerald-100 rounded-lg font-bold transition-colors md:bg-white md:text-emerald-600 md:border-emerald-500/40"
+                        className="w-full inline-flex items-center justify-center gap-2 py-3 text-sm bg-emerald-50 text-emerald-700 border border-emerald-200 hover:bg-emerald-100 rounded-[10px] font-bold transition-colors md:bg-white md:text-emerald-600 md:border-emerald-500/40"
                       >
                         <MessageCircle className="w-4 h-4" /> Chat with seller
                       </button>
@@ -885,7 +885,7 @@ function ContactSellerModal({
         {/* Live preview card — mirrors what the seller will see */}
         <div className={`mb-4 rounded-[10px] border ${isAppShell ? "border-white/10 bg-[#121214]" : "border-slate-200 bg-slate-50"} md:border-slate-200 md:bg-slate-50 overflow-hidden`}>
           <div className="flex gap-3 p-3">
-            <div className="shrink-0 w-20 h-20 rounded-lg overflow-hidden bg-white/5 md:bg-slate-100 flex items-center justify-center">
+            <div className="shrink-0 w-20 h-20 rounded-[10px] overflow-hidden bg-white/5 md:bg-slate-100 flex items-center justify-center">
               {cover ? (
                 <img
                   src={cover}
@@ -952,7 +952,7 @@ function ContactSellerModal({
           onChange={(e) => setNote(e.target.value.slice(0, 240))}
           rows={2}
           placeholder="e.g. Is this still available? Can I pick up today?"
-          className={`w-full mb-4 ${isAppShell ? "bg-[#121214] border-white/10 text-white placeholder:text-slate-600" : "bg-slate-50 border-slate-200 text-slate-900 placeholder:text-slate-400"} md:bg-slate-50 border md:border-slate-200 rounded-lg px-3 py-2 text-sm focus:outline-none focus:border-emerald-500/50`}
+          className={`w-full mb-4 ${isAppShell ? "bg-[#121214] border-white/10 text-white placeholder:text-slate-600" : "bg-slate-50 border-slate-200 text-slate-900 placeholder:text-slate-400"} md:bg-slate-50 border md:border-slate-200 rounded-[10px] px-3 py-2 text-sm focus:outline-none focus:border-emerald-500/50`}
         />
 
         <p className="text-xs text-slate-400 md:text-slate-500 leading-relaxed mb-4">
@@ -964,7 +964,7 @@ function ContactSellerModal({
             href={canCall ? `tel:+${phone}` : undefined}
             aria-disabled={!canCall}
             onClick={() => canCall && handleContact("call")}
-            className={`inline-flex items-center justify-center gap-2 py-3 rounded-lg font-semibold text-sm ${canCall ? isAppShell ? "bg-white/10 text-white hover:bg-white/15" : "bg-slate-100 text-slate-900 hover:bg-slate-200 shadow-sm" : isAppShell ? "bg-white/5 text-slate-500 pointer-events-none" : "bg-slate-50 text-slate-300 pointer-events-none"} md:bg-slate-100 md:text-slate-900 md:hover:bg-slate-200`}
+            className={`inline-flex items-center justify-center gap-2 py-3 rounded-[10px] font-semibold text-sm ${canCall ? isAppShell ? "bg-white/10 text-white hover:bg-white/15" : "bg-slate-100 text-slate-900 hover:bg-slate-200 shadow-sm" : isAppShell ? "bg-white/5 text-slate-500 pointer-events-none" : "bg-slate-50 text-slate-300 pointer-events-none"} md:bg-slate-100 md:text-slate-900 md:hover:bg-slate-200`}
           >
             <Phone className="w-4 h-4" /> Call Seller
           </a>
@@ -973,7 +973,7 @@ function ContactSellerModal({
             target="_blank"
             rel="noopener noreferrer"
             onClick={() => wa && handleContact("whatsapp")}
-            className={`inline-flex items-center justify-center gap-2 py-3 rounded-lg font-semibold text-sm ${wa ? "bg-emerald-500 text-black hover:bg-emerald-400" : "bg-white/5 text-slate-500 pointer-events-none"}`}
+            className={`inline-flex items-center justify-center gap-2 py-3 rounded-[10px] font-semibold text-sm ${wa ? "bg-emerald-500 text-black hover:bg-emerald-400" : "bg-white/5 text-slate-500 pointer-events-none"}`}
           >
             <MessageCircle className="w-4 h-4" /> Chat Seller
           </a>
