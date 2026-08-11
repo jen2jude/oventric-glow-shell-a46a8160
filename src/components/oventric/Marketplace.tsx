@@ -198,12 +198,12 @@ export function Marketplace() {
                         />
                       )}
                       <div className="absolute inset-0 bg-gradient-to-r from-[#2A1266] via-[#2A1266]/85 to-transparent" />
-                      <div className="relative flex h-full w-[62%] flex-col justify-center gap-2 p-5">
+                      <div className="relative flex h-full w-[62%] min-w-0 flex-col justify-center gap-1.5 p-5">
                         <span className="w-fit rounded-md bg-white/15 px-2 py-1 text-[9.5px] font-bold uppercase tracking-[0.15em] text-white">
                           Featured
                         </span>
-                        <p className="line-clamp-2 text-[22px] font-bold leading-tight text-white">{featured.name}</p>
-                        <p className="line-clamp-2 text-[12.5px] text-white/60">{featured.description}</p>
+                        <p className="line-clamp-2 text-[19px] font-bold leading-tight text-white">{featured.name}</p>
+                        <p className="line-clamp-1 text-[12px] text-white/60">{featured.description}</p>
                         <span className="mt-1 w-fit rounded-full bg-white px-4 py-2 text-[12px] font-bold text-black">
                           Explore Now
                         </span>
