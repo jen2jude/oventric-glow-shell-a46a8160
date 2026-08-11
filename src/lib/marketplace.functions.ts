@@ -1513,8 +1513,8 @@ export const getMarketplaceDiscovery = createServerFn({ method: "GET" })
 
     const mapRow = (r: any) => mapProduct(r, urlMap.get(r.cover_path as string | null) ?? null);
 
-    const sellerAvatars = await signCovers(sb, (sellerRows ?? []).map((s: any) => s.avatar_path ?? null));
-    const sellerCovers = await signCovers(sb, (sellerRows ?? []).map((s: any) => s.cover_path ?? null));
+    const sellerAvatars = await signBucket(sb, "avatars", (sellerRows ?? []).map((s: any) => s.avatar_path ?? null));
+    const sellerCovers = await signBucket(sb, "profile-covers", (sellerRows ?? []).map((s: any) => s.cover_path ?? null));
 
     const sellers = await Promise.all((sellerRows ?? []).map(async (s: any, i: number) => {
       const { count: followers } = await sb
