@@ -890,7 +890,7 @@ function CheckoutPage() {
                   <button
                     onClick={pay}
                     disabled={submitting || (needsDelivery && !deliveryValid)}
-                    className="w-full inline-flex items-center justify-center gap-2 py-3.5 rounded-[10px] bg-[#E5484D] hover:bg-[#d13a3f] text-black font-black text-sm transition-all active:scale-[0.98] disabled:opacity-60 disabled:cursor-not-allowed shadow-[0_4px_20px_-5px_rgba(16,185,129,0.4)]"
+                    className="w-full inline-flex items-center justify-center gap-2 py-4 rounded-[10px] bg-[#E5484D] hover:bg-[#d13a3f] text-white font-black text-sm transition-all active:scale-[0.98] disabled:opacity-60 disabled:cursor-not-allowed shadow-[0_8px_30px_rgb(229,72,77,0.2)]"
                   >
                     {submitting ? (
                       <>
@@ -905,7 +905,7 @@ function CheckoutPage() {
                     )}
                   </button>
                   <div className="text-[10px] text-slate-500 flex items-center justify-center gap-1 opacity-60">
-                    <ShieldCheck className="w-3 h-3 text-emerald-500/50" /> Secured by Oventric
+                    <ShieldCheck className="w-3 h-3 text-[#E5484D]/50" /> Secured by Oventric
                     escrow
                   </div>
                 </div>
