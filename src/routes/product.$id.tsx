@@ -343,7 +343,7 @@ function ProductPage() {
         {product && (
           <div className={`grid grid-cols-1 lg:grid-cols-2 ${isAppShell ? "gap-0" : "gap-8"}`}>
             <div className={`flex flex-col ${isAppShell ? "gap-0" : "gap-8"}`}>
-              <div className={isAppShell ? "px-3 pt-3" : ""}>
+              <div className={isAppShell ? "px-0 pt-0" : ""}>
                 {(() => {
                   const gallery =
                     product.kind === "physical" && product.imageUrls.length > 0
