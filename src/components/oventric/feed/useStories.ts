@@ -1,4 +1,4 @@
-import { useCallback, useRef, useState } from "react";
+import { useCallback, useEffect, useRef, useState } from "react";
 import { useQuery } from "@tanstack/react-query";
 import { useServerFn } from "@tanstack/react-start";
 import { supabase } from "@/integrations/supabase/client";
@@ -39,10 +39,27 @@ export function useStoryRail(enabled: boolean) {
   const trimResolver = useRef<((f: File | null) => void) | null>(null);
   const busy = useRef(false);
 
+  // listStories requires an authenticated session — never call it signed out,
+  // otherwise the server fn throws "Unauthorized: No authorization header".
+  const [signedIn, setSignedIn] = useState(false);
+  useEffect(() => {
+    let alive = true;
+    supabase.auth.getSession().then(({ data }) => {
+      if (alive) setSignedIn(!!data.session);
+    });
+    const { data: sub } = supabase.auth.onAuthStateChange((_e, session) => {
+      setSignedIn(!!session);
+    });
+    return () => {
+      alive = false;
+      sub.subscription.unsubscribe();
+    };
+  }, []);
+
   const q = useQuery<{ groups: StoryGroup[] }>({
     queryKey: ["stories-rail"],
     queryFn: () => loadStories(),
-    enabled,
+    enabled: enabled && signedIn,
     staleTime: 60 * 1000,
   });
 
