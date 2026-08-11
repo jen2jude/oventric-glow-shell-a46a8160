@@ -813,13 +813,13 @@ function CheckoutPage() {
                   Cashback Wallet
                 </div>
                 <label
-                  className={`flex items-start gap-3 rounded-[10px] px-3 py-2.5 border transition-all ${
+                  className={`flex items-start gap-3 rounded-[10px] px-3 py-3 border transition-all ${
                     cashbackUSD > 0
                       ? isAppShell
-                        ? "bg-[#E5484D]/5 border-[#E5484D]/20 cursor-pointer"
-                        : "bg-[#E5484D]/10 border-[#E5484D]/40 cursor-pointer"
+                        ? "bg-[#E5484D]/5 border-[#E5484D]/20 cursor-pointer shadow-sm"
+                        : "bg-[#E5484D]/10 border-[#E5484D]/40 cursor-pointer shadow-sm"
                       : isAppShell
-                        ? "bg-[#0A0A0B] border-white/5 opacity-50 cursor-not-allowed"
+                        ? "bg-white/[0.01] border-white/5 opacity-50 cursor-not-allowed"
                         : "bg-slate-100 border-slate-200 opacity-70 cursor-not-allowed"
                   }`}
                 >
