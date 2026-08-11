@@ -62,6 +62,11 @@ export function Marketplace() {
     })();
   }, [loadDiscovery, loadProducts, loadCats, mode]);
 
+  // Snap to top when the marketplace mode changes so the new feed starts fresh.
+  useEffect(() => {
+    scrollTop();
+  }, [mode]);
+
   const [featuredIndex, setFeaturedIndex] = useState(0);
 
   const openProduct = (p: ProductDTO) =>
