@@ -956,7 +956,7 @@ function CheckoutPage() {
         >
           <div
             className={`w-full max-w-md border rounded-2xl p-6 ${
-              isAppShell ? "bg-[#16161A] border-white/5" : "bg-white shadow-sm border-slate-200"
+              isAppShell ? "bg-white/[0.03] backdrop-blur-xl border-white/5" : "bg-white shadow-sm border-slate-200"
             }`}
             onClick={(e) => e.stopPropagation()}
           >
