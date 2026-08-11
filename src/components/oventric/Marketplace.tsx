@@ -74,8 +74,13 @@ export function Marketplace() {
 
   // Snap to top when the marketplace mode changes so the new feed starts fresh.
   useEffect(() => {
+    setCatalogLimit(8);
     scrollTop();
   }, [mode]);
+
+  useEffect(() => {
+    setCatalogLimit(8);
+  }, [sort]);
 
   const [featuredIndex, setFeaturedIndex] = useState(0);
 
