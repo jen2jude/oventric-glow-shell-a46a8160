@@ -1472,10 +1472,9 @@ export const searchMyProductsForTagging = createServerFn({ method: "GET" })
 
 /** Discovery data for the new marketplace: Featured, Trending, New, Top Sellers. */
 export const getMarketplaceDiscovery = createServerFn({ method: "GET" })
-  .inputValidator((input: { kind?: "digital" | "physical" | "all" } | undefined) => {
-    const kind = (input?.kind ?? "all") as "digital" | "physical" | "all";
-    return { kind };
-  })
+  .inputValidator((input: unknown) =>
+    z.object({ kind: z.enum(["digital", "physical", "all"]).default("all") }).default({}).parse(input),
+  )
   .handler(async ({ data }) => {
     const sb = serverPublicClient();
     const { kind } = data;
