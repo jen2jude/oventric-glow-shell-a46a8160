@@ -45,7 +45,12 @@ export function Marketplace() {
     (async () => {
       setLoading(true);
       try {
-        const [d, p, c] = await Promise.all([loadDiscovery(), loadProducts(), loadCats()]);
+        const kindParam = mode === "all" ? "all" : mode;
+        const [d, p, c] = await Promise.all([
+          loadDiscovery({ kind: kindParam }),
+          loadProducts({ kind: kindParam }),
+          loadCats(),
+        ]);
         setDiscovery(d as Discovery);
         setProducts(p ?? []);
         setCats(c ?? []);
@@ -55,7 +60,7 @@ export function Marketplace() {
         setLoading(false);
       }
     })();
-  }, [loadDiscovery, loadProducts, loadCats]);
+  }, [loadDiscovery, loadProducts, loadCats, mode]);
 
   const [featuredIndex, setFeaturedIndex] = useState(0);
 
