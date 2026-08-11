@@ -724,7 +724,7 @@ function CheckoutPage() {
                 <div
                   className={`mt-2 rounded-[10px] border p-4 ${
                     isAppShell
-                      ? "border-white/5 bg-[#16161A]"
+                      ? "border-white/5 bg-white/[0.03] shadow-sm"
                       : "border-slate-200 bg-white shadow-sm"
                   }`}
                 >
