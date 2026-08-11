@@ -87,8 +87,8 @@ export function Marketplace() {
   const categoryProducts = useMemo(() => {
     if (!activeCategory) return [];
     const slugs = new Set<string>([activeCategory.slug, ...activeCategory.children.map((c) => c.slug)]);
-    return products.filter((p) => slugs.has(p.category) || (p.subcategory && slugs.has(p.subcategory)));
-  }, [products, activeCategory]);
+    return byMode.filter((p) => slugs.has(p.category) || (p.subcategory && slugs.has(p.subcategory)));
+  }, [byMode, activeCategory]);
 
   /** Root categories that actually have live products — used for the trailing grids. */
   const categoryBuckets = useMemo(() => {
@@ -96,12 +96,12 @@ export function Marketplace() {
       .filter((c) => mode === "all" || c.kind === mode)
       .map((c) => {
         const slugs = new Set<string>([c.slug, ...c.children.map((k) => k.slug)]);
-        const items = products.filter((p) => slugs.has(p.category) || (p.subcategory && slugs.has(p.subcategory)));
+        const items = byMode.filter((p) => slugs.has(p.category) || (p.subcategory && slugs.has(p.subcategory)));
         return { cat: c, items };
       })
       .filter((b) => b.items.length > 0)
       .slice(0, 8);
-  }, [cats, products, mode]);
+  }, [cats, byMode, mode]);
 
   const recommendedProducts = useMemo(() => [...byMode].sort(() => 0).slice(0, 8), [byMode]);
   const sellers = discovery?.topSellers ?? [];
