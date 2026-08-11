@@ -1,7 +1,7 @@
 import { useEffect, useMemo, useRef, useState } from "react";
 import { useNavigate } from "@tanstack/react-router";
 import { useServerFn } from "@tanstack/react-start";
-import { ChevronLeft, LayoutGrid, Search, ShoppingCart, SlidersHorizontal } from "lucide-react";
+import { ChevronLeft, LayoutGrid, Search, SlidersHorizontal } from "lucide-react";
 import { useOnboarding } from "@/lib/onboarding/OnboardingContext";
 import {
   listProducts,
@@ -12,7 +12,6 @@ import {
 } from "@/lib/marketplace.functions";
 import { CategoryDiscoverySheet } from "./marketplace-discovery/CategoryDiscoverySheet";
 import { GridCard, Rail, RowCard, ShopCard, TileCard, type SellerLite } from "./marketplace-discovery/cards";
-import oventricFull from "@/assets/oventric-full.asset.json";
 
 type Mode = "all" | "digital" | "physical";
 
@@ -111,22 +110,6 @@ export function Marketplace() {
   return (
     <div ref={topRef} className="min-h-full bg-[#0A0A0B] pb-24 text-white">
       <div className="mx-auto w-full max-w-[720px]">
-        {/* Header */}
-        <header
-          className="grid grid-cols-[minmax(0,1fr)_auto] items-center gap-4 px-4 pb-2"
-          style={{ paddingTop: "max(env(safe-area-inset-top), 0.75rem)" }}
-        >
-          <img src={oventricFull.url} alt="Oventric" className="h-7 w-auto" />
-          <button
-            type="button"
-            onClick={() => navigate({ to: "/dashboard" })}
-            className="relative grid h-10 w-10 shrink-0 place-items-center"
-            aria-label="Your orders"
-          >
-            <ShoppingCart className="h-6 w-6 text-white" />
-          </button>
-        </header>
-
         {activeCategory ? (
           <CategoryResults
             category={activeCategory}
