@@ -459,7 +459,7 @@ function CheckoutPage() {
         {/* No H1 needed as Header provides context */}
 
         {loadErr && (
-          <div className={`${isAppShell ? "bg-[#16161A] border-white/5 mx-4" : "bg-white shadow-sm border-red-200"} border rounded-[10px] p-6 text-sm text-red-500`}>
+          <div className={`${isAppShell ? "bg-white/[0.03] border-[#E5484D]/20 mx-4 shadow-sm" : "bg-white shadow-sm border-red-200"} border rounded-[10px] p-6 text-sm text-[#E5484D]`}>
             {loadErr}
           </div>
         )}
