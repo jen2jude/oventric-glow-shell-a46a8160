@@ -421,7 +421,7 @@ function ProductPage() {
                           )}
                         </div>
                       {gallery.length > 1 && (
-                        <div className={`${isAppShell ? "mt-3" : "mt-3"} flex gap-2 overflow-x-auto scrollbar-none`}>
+                        <div className={`${isAppShell ? "mt-3 px-3" : "mt-3"} flex gap-2 overflow-x-auto scrollbar-none`}>
                           {gallery.map((url, i) => (
                             <button
                               key={url}
