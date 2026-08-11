@@ -1471,11 +1471,40 @@ export const getMarketplaceDiscovery = createServerFn({ method: "GET" })
       .order("created_at", { ascending: false })
       .limit(10);
 
-    // 4. Top Sellers (Profiles with products)
-    const { data: sellerRows } = await sb
-      .from("profiles")
-      .select("user_id, slug, display_name, username, avatar_path, cover_path, verification_tier, reputation_stars, bio")
-      .limit(8);
+    // 4. Sellers (profiles that actually have active products)
+    const { data: sellerIdRows } = await sb
+      .from("products")
+      .select("seller_id")
+      .eq("status", "active")
+      .limit(500);
+    const sellerCounts = new Map<string, number>();
+    (sellerIdRows ?? []).forEach((r) => {
+      const id = r.seller_id as string;
+      sellerCounts.set(id, (sellerCounts.get(id) ?? 0) + 1);
+    });
+    const sellerIds = Array.from(sellerCounts.keys())
+      .sort((a, b) => (sellerCounts.get(b) ?? 0) - (sellerCounts.get(a) ?? 0))
+      .slice(0, 12);
+
+    const { data: sellerRows } = sellerIds.length
+      ? await sb
+          .from("profiles")
+          .select("user_id, slug, display_name, username, avatar_path, cover_path, verification_tier, reputation_stars, bio")
+          .in("user_id", sellerIds)
+      : { data: [] as any[] };
+
+    // 5. Live category counts (products.category stores the category slug)
+    const { data: catCountRows } = await sb
+      .from("products")
+      .select("category")
+      .eq("status", "active")
+      .limit(1000);
+    const categoryCounts: Record<string, number> = {};
+    (catCountRows ?? []).forEach((r) => {
+      const c = (r.category as string) ?? "";
+      if (!c) return;
+      categoryCounts[c] = (categoryCounts[c] ?? 0) + 1;
+    });
 
     const allProductRows = [...(featuredRows ?? []), ...(trendingRows ?? []), ...(newRows ?? [])];
     const uniquePaths = Array.from(new Set(allProductRows.map(r => r.cover_path as string | null)));
@@ -1484,32 +1513,37 @@ export const getMarketplaceDiscovery = createServerFn({ method: "GET" })
 
     const mapRow = (r: any) => mapProduct(r, urlMap.get(r.cover_path as string | null) ?? null);
 
-    // Handle sellers
-    const sellerAvatars = await Promise.all((sellerRows ?? []).map(s => signCovers(sb, [s.avatar_path as string | null])));
-    const sellerCovers = await Promise.all((sellerRows ?? []).map(s => signCovers(sb, [s.cover_path as string | null])));
+    const sellerAvatars = await signCovers(sb, (sellerRows ?? []).map((s: any) => s.avatar_path ?? null));
+    const sellerCovers = await signCovers(sb, (sellerRows ?? []).map((s: any) => s.cover_path ?? null));
 
-    const sellers = await Promise.all((sellerRows ?? []).map(async (s, i) => {
-      // Mock some counts for discovery
-      const { count } = await sb.from("products").select("id", { count: 'exact', head: true }).eq("seller_id", s.user_id);
-      
+    const sellers = await Promise.all((sellerRows ?? []).map(async (s: any, i: number) => {
+      const { count: followers } = await sb
+        .from("follows")
+        .select("follower_id", { count: "exact", head: true })
+        .eq("followee_id", s.user_id);
       return {
         id: s.user_id as string,
         name: (s.display_name || s.username || s.slug) as string,
         slug: s.slug as string,
-        avatarUrl: sellerAvatars[i][0],
-        coverUrl: sellerCovers[i][0],
+        bio: (s.bio as string) ?? "",
+        avatarUrl: sellerAvatars[i] ?? null,
+        coverUrl: sellerCovers[i] ?? null,
         verified: s.verification_tier !== "none",
-        rating: Number(s.reputation_stars ?? 4.5),
-        followersCount: Math.floor(Math.random() * 5000) + 100, // Mock for now
-        productsCount: count ?? 0,
+        rating: Number(s.reputation_stars ?? 0),
+        followersCount: followers ?? 0,
+        productsCount: sellerCounts.get(s.user_id as string) ?? 0,
       };
     }));
+
+    sellers.sort((a, b) => b.productsCount - a.productsCount);
 
     return {
       featured: (featuredRows ?? []).map(mapRow),
       trending: (trendingRows ?? []).map(mapRow),
       newArrivals: (newRows ?? []).map(mapRow),
       topSellers: sellers,
+      categoryCounts,
     };
   });
+
 
