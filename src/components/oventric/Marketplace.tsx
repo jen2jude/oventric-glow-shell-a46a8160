@@ -14,6 +14,14 @@ import { CategoryDiscoverySheet } from "./marketplace-discovery/CategoryDiscover
 import { GridCard, Rail, RowCard, ShopCard, TileCard, type SellerLite } from "./marketplace-discovery/cards";
 
 type Mode = "all" | "digital" | "physical";
+type SortKey = "popular" | "newest" | "best_selling" | "top_rated";
+
+const SORTS: { key: SortKey; label: string }[] = [
+  { key: "popular", label: "Popular" },
+  { key: "newest", label: "Newest" },
+  { key: "best_selling", label: "Best Selling" },
+  { key: "top_rated", label: "Top Rated" },
+];
 
 interface Discovery {
   featured: ProductDTO[];
@@ -35,6 +43,8 @@ export function Marketplace() {
   const [products, setProducts] = useState<ProductDTO[]>([]);
   const [cats, setCats] = useState<CategoryNode[]>([]);
   const [mode, setMode] = useState<Mode>("all");
+  const [sort, setSort] = useState<SortKey>("popular");
+  const [catalogLimit, setCatalogLimit] = useState(8);
   const [query, setQuery] = useState("");
   const [loading, setLoading] = useState(true);
   const [showCategories, setShowCategories] = useState(false);
@@ -64,8 +74,13 @@ export function Marketplace() {
 
   // Snap to top when the marketplace mode changes so the new feed starts fresh.
   useEffect(() => {
+    setCatalogLimit(8);
     scrollTop();
   }, [mode]);
+
+  useEffect(() => {
+    setCatalogLimit(8);
+  }, [sort]);
 
   const [featuredIndex, setFeaturedIndex] = useState(0);
 
@@ -88,6 +103,27 @@ export function Marketplace() {
         p.category.toLowerCase().includes(q),
     );
   }, [byMode, query]);
+
+  const sortedCatalog = useMemo(() => {
+    const list = [...byMode];
+    const sales = (p: ProductDTO) => Number(p.salesCount ?? 0);
+    switch (sort) {
+      case "newest":
+        return list.sort((a, b) => +new Date(b.createdAt) - +new Date(a.createdAt));
+      case "best_selling":
+        return list.sort((a, b) => sales(b) - sales(a) || b.reviews - a.reviews);
+      case "top_rated":
+        return list.sort((a, b) => b.rating - a.rating || b.reviews - a.reviews);
+      default:
+        // Popular = sales weighted, then review volume, then rating.
+        return list.sort(
+          (a, b) =>
+            sales(b) * 3 + b.reviews - (sales(a) * 3 + a.reviews) || b.rating - a.rating,
+        );
+    }
+  }, [byMode, sort]);
+
+
 
   const categoryProducts = useMemo(() => {
     if (!activeCategory) return [];
@@ -177,7 +213,43 @@ export function Marketplace() {
               </section>
             ) : (
               <div className="space-y-8 pt-6">
-                {/* Featured carousel — split card: caption panel + product image */}
+                {/* Catalog — sort tabs + grid (Digital / Physical modes) */}
+                {mode !== "all" && byMode.length > 0 && (
+                  <section className="px-4">
+                    <div className="no-scrollbar -mx-1 mb-4 flex gap-5 overflow-x-auto px-1">
+                      {SORTS.map((s) => (
+                        <button
+                          key={s.key}
+                          type="button"
+                          onClick={() => setSort(s.key)}
+                          className={`shrink-0 whitespace-nowrap pb-2 text-[14px] font-semibold transition-colors ${
+                            sort === s.key
+                              ? "border-b-2 border-[#E5484D] text-white"
+                              : "border-b-2 border-transparent text-white/40"
+                          }`}
+                        >
+                          {s.label}
+                        </button>
+                      ))}
+                    </div>
+                    <div className="grid grid-cols-2 gap-x-3 gap-y-5">
+                      {sortedCatalog.slice(0, catalogLimit).map((p) => (
+                        <GridCard key={p.id} product={p} onClick={() => openProduct(p)} />
+                      ))}
+                    </div>
+                    {sortedCatalog.length > catalogLimit && (
+                      <button
+                        type="button"
+                        onClick={() => setCatalogLimit((n) => n + 8)}
+                        className="mt-5 w-full rounded-2xl bg-[#141416] py-3 text-[13px] font-semibold text-white/70 ring-1 ring-white/5"
+                      >
+                        Show more
+                      </button>
+                    )}
+                  </section>
+                )}
+
+
                 {discovery && discovery.featured.length > 0 && (
                   <div className="px-4">
                     <div

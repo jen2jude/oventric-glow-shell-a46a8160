@@ -212,7 +212,29 @@ export const listProducts = createServerFn({ method: "GET" })
     if (error) throw new Error(error.message);
     const items = rows ?? [];
     const urls = await signCovers(sb, items.map((r) => (r.cover_path as string) ?? null));
-    return items.map((r, i) => mapProduct(r as Record<string, unknown>, urls[i]));
+
+    // Aggregate paid sales per product so the catalog can sort by best-selling.
+    const salesMap = new Map<string, number>();
+    try {
+      const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
+      const { data: orderRows } = await supabaseAdmin
+        .from("orders")
+        .select("product_id, quantity, status")
+        .in("status", ["paid", "delivered", "completed", "released"])
+        .limit(5000);
+      (orderRows ?? []).forEach((o: any) => {
+        const pid = o.product_id as string | null;
+        if (!pid) return;
+        salesMap.set(pid, (salesMap.get(pid) ?? 0) + Number(o.quantity ?? 1));
+      });
+    } catch {
+      /* sales metrics are best-effort */
+    }
+
+    return items.map((r, i) => ({
+      ...mapProduct(r as Record<string, unknown>, urls[i]),
+      salesCount: salesMap.get(r.id as string) ?? 0,
+    }));
   });
 
 export interface CategoryNode {
