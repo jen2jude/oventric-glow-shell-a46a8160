@@ -427,7 +427,7 @@ function CheckoutPage() {
     <div
       className={`min-h-screen overflow-x-hidden ${
         isAppShell
-          ? "bg-[#0A0A0B] text-slate-200"
+          ? "bg-[#0A0A0B] text-slate-200 selection:bg-[#E5484D]/30"
           : "page-light bg-white text-slate-900"
       }`}
     >
