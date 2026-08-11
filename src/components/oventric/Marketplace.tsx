@@ -97,6 +97,27 @@ export function Marketplace() {
     );
   }, [byMode, query]);
 
+  const sortedCatalog = useMemo(() => {
+    const list = [...byMode];
+    const sales = (p: ProductDTO) => Number(p.salesCount ?? 0);
+    switch (sort) {
+      case "newest":
+        return list.sort((a, b) => +new Date(b.createdAt) - +new Date(a.createdAt));
+      case "best_selling":
+        return list.sort((a, b) => sales(b) - sales(a) || b.reviews - a.reviews);
+      case "top_rated":
+        return list.sort((a, b) => b.rating - a.rating || b.reviews - a.reviews);
+      default:
+        // Popular = sales weighted, then review volume, then rating.
+        return list.sort(
+          (a, b) =>
+            sales(b) * 3 + b.reviews - (sales(a) * 3 + a.reviews) || b.rating - a.rating,
+        );
+    }
+  }, [byMode, sort]);
+
+
+
   const categoryProducts = useMemo(() => {
     if (!activeCategory) return [];
     const slugs = new Set<string>([activeCategory.slug, ...activeCategory.children.map((c) => c.slug)]);
