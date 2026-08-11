@@ -29,7 +29,7 @@ export function TileCard({ product, onClick }: { product: ProductDTO; onClick: (
   const price = usePrice();
   return (
     <button type="button" onClick={onClick} className="w-[142px] shrink-0 text-left">
-      <div className="aspect-square w-full overflow-hidden rounded-[24px] bg-[#161618] ring-1 ring-white/[0.04]">
+      <div className="aspect-square w-full overflow-hidden rounded-[10px] bg-[#161618] ring-1 ring-white/[0.04]">
         <Cover src={product.coverUrl} alt={product.name} className="h-full w-full" />
       </div>
       <p className="mt-2.5 line-clamp-1 text-[13.5px] font-bold tracking-tight text-white">
@@ -53,9 +53,9 @@ export function RowCard({ product, onClick }: { product: ProductDTO; onClick: ()
     <button
       type="button"
       onClick={onClick}
-      className="flex w-full items-center gap-3.5 rounded-[22px] bg-[#131316] p-3 text-left ring-1 ring-white/[0.04]"
+      className="flex w-full items-center gap-3.5 rounded-[10px] bg-[#131316] p-3 text-left ring-1 ring-white/[0.04]"
     >
-      <div className="h-[72px] w-[72px] shrink-0 overflow-hidden rounded-2xl bg-[#1A1A1E]">
+      <div className="h-[72px] w-[72px] shrink-0 overflow-hidden rounded-[10px] bg-[#1A1A1E]">
         <Cover src={product.coverUrl} alt={product.name} className="h-full w-full" />
       </div>
       <div className="min-w-0 flex-1">
@@ -81,7 +81,7 @@ export function RowCard({ product, onClick }: { product: ProductDTO; onClick: ()
           </span>
         </div>
       </div>
-      <span className="grid h-10 w-10 shrink-0 place-items-center rounded-xl bg-white/[0.03]">
+      <span className="grid h-10 w-10 shrink-0 place-items-center rounded-[10px] bg-white/[0.03]">
         <ShoppingCart className="h-4.5 w-4.5 text-white/40" />
       </span>
     </button>
@@ -93,7 +93,7 @@ export function GridCard({ product, onClick }: { product: ProductDTO; onClick: (
   const price = usePrice();
   return (
     <button type="button" onClick={onClick} className="w-full text-left">
-      <div className="aspect-square w-full overflow-hidden rounded-[28px] bg-[#161618] ring-1 ring-white/[0.05]">
+      <div className="aspect-square w-full overflow-hidden rounded-[10px] bg-[#161618] ring-1 ring-white/[0.05]">
         <Cover src={product.coverUrl} alt={product.name} className="h-full w-full" />
       </div>
       <p className="mt-3 line-clamp-1 text-[14.5px] font-bold tracking-tight text-white">
@@ -132,9 +132,9 @@ export function ShopCard({ seller, onClick }: { seller: SellerLite; onClick: () 
     <button
       type="button"
       onClick={onClick}
-      className="relative flex w-full flex-col overflow-hidden rounded-[28px] border border-white/[0.04] bg-[#131316] p-4 text-left transition-transform active:scale-[0.98]"
+      className="relative flex w-full flex-col overflow-hidden rounded-[10px] border border-white/[0.04] bg-[#131316] p-4 text-left transition-transform active:scale-[0.98]"
     >
-      <div className="relative mb-4 h-[120px] w-full overflow-hidden rounded-2xl bg-[#1A1A1E]">
+      <div className="relative mb-4 h-[120px] w-full overflow-hidden rounded-[10px] bg-[#1A1A1E]">
         {seller.coverUrl && (
           <img src={seller.coverUrl} alt="" className="h-full w-full object-cover opacity-60" />
         )}

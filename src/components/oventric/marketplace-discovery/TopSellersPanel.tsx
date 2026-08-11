@@ -132,7 +132,7 @@ export function TopSellersPanel({
             key={t.key}
             type="button"
             onClick={() => setTab(t.key)}
-            className={`shrink-0 rounded-xl px-4 py-2 text-[13px] font-bold transition-colors ${
+            className={`shrink-0 rounded-[10px] px-4 py-2 text-[13px] font-bold transition-colors ${
               tab === t.key ? "bg-[#E5484D] text-white" : "bg-[#141416] text-white/55"
             }`}
           >
@@ -158,7 +158,7 @@ export function TopSellersPanel({
               return (
                 <article
                   key={s.id}
-                  className="relative rounded-[22px] border border-white/[0.05] bg-[#131316] p-3"
+                  className="relative rounded-[10px] border border-white/[0.05] bg-[#131316] p-3"
                 >
                   <span
                     className={`absolute left-2.5 top-2.5 grid h-6 w-6 place-items-center rounded-full text-[11px] font-black ${
@@ -193,7 +193,7 @@ export function TopSellersPanel({
                   </div>
                   <p className="line-clamp-1 text-center text-[11px] text-white/40">{s.bio || "Oventric seller"}</p>
 
-                  <div className="mt-2.5 flex items-center justify-between gap-1 rounded-xl bg-white/[0.03] px-2.5 py-2">
+                  <div className="mt-2.5 flex items-center justify-between gap-1 rounded-[10px] bg-white/[0.03] px-2.5 py-2">
                     <div className="text-center">
                       <p className="text-[12px] font-black text-white">{compact(s.followersCount)}</p>
                       <p className="text-[9px] uppercase tracking-wide text-white/35">Followers</p>
@@ -213,7 +213,7 @@ export function TopSellersPanel({
                       type="button"
                       onClick={() => toggleFollow(s)}
                       disabled={busy[s.id]}
-                      className={`flex w-full items-center justify-center gap-1 rounded-xl border py-2 text-[11.5px] font-bold transition-colors disabled:opacity-60 ${
+                      className={`flex w-full items-center justify-center gap-1 rounded-[10px] border py-2 text-[11.5px] font-bold transition-colors disabled:opacity-60 ${
                         isFollowing
                           ? "border-transparent bg-[#E5484D] text-white"
                           : isRequested
@@ -233,7 +233,7 @@ export function TopSellersPanel({
                     <button
                       type="button"
                       onClick={() => onOpenShop(s.slug)}
-                      className="w-full rounded-xl border border-white/10 bg-white/[0.03] py-2 text-[11.5px] font-bold text-white"
+                      className="w-full rounded-[10px] border border-white/10 bg-white/[0.03] py-2 text-[11.5px] font-bold text-white"
                     >
                       View Shop
                     </button>
