@@ -299,8 +299,8 @@ function ProductPage() {
     <div
       className={`min-h-screen overflow-x-hidden ${isAppShell ? "bg-[#0A0A0B] text-slate-300" : "bg-[#F7F8FA] text-slate-700"}`}
     >
-      <Header onOpenMessages={() => {}} forceSiteNavbar={!isAppShell} />
-      <main className={`max-w-6xl mx-auto w-full ${isAppShell ? "px-0 py-0 gap-0" : "px-4 py-6"} pb-24`}>
+      {!isAppShell && <Header onOpenMessages={() => {}} forceSiteNavbar={!isAppShell} />}
+      <main className={`max-w-6xl mx-auto w-full ${isAppShell ? "px-0 py-0 gap-0" : "px-4 py-6"} pb-32`}>
         {!isAppShell && (
           <button
             type="button"
