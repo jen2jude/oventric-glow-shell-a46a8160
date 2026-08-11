@@ -554,7 +554,7 @@ function CheckoutPage() {
                           : active
                             ? "bg-[#E5484D]/10 border-[#E5484D]/50"
                             : isAppShell
-                              ? "bg-[#16161A] border-white/5 hover:border-white/10"
+                              ? "bg-white/[0.03] border-white/5 hover:border-white/10"
                               : "bg-white border-slate-200 hover:border-slate-300 shadow-sm"
                       }`}
                     >
