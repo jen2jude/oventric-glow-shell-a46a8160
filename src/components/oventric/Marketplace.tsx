@@ -191,21 +191,21 @@ export function Marketplace() {
                           key={item.id}
                           type="button"
                           onClick={() => openProduct(item)}
-                          className="relative h-[190px] w-full min-w-full shrink-0 snap-center overflow-hidden rounded-[32px] bg-[#1A1A1E] text-left ring-1 ring-white/5"
+                          className="relative h-[200px] w-full min-w-full shrink-0 snap-center overflow-hidden rounded-[32px] bg-[#1A1A1E] text-left ring-1 ring-white/5"
                         >
                           {item.coverUrl && (
                             <img
                               src={item.coverUrl}
                               alt=""
-                              className="absolute inset-0 h-full w-full object-cover opacity-60 transition-transform duration-500 group-hover:scale-110"
+                              className="absolute inset-0 h-full w-full object-cover opacity-60"
                             />
                           )}
-                          <div className="absolute inset-0 bg-gradient-to-t from-black via-black/40 to-transparent" />
-                          <div className="relative flex h-full flex-col justify-end p-6 pb-7">
+                          <div className="absolute inset-0 bg-gradient-to-t from-black via-black/30 to-transparent" />
+                          <div className="relative flex h-full flex-col justify-end p-7 pb-8">
                             <span className="mb-2 w-fit rounded-lg bg-[#E5484D] px-2.5 py-1 text-[10px] font-black uppercase tracking-widest text-white shadow-lg">
-                              {item.kind === "digital" ? "Digital" : item.kind === "physical" ? "Physical" : "Featured"}
+                              {item.kind === "digital" ? "Digital Asset" : item.kind === "physical" ? "Physical Product" : "Featured"}
                             </span>
-                            <h3 className="line-clamp-2 text-[22px] font-bold leading-[1.1] tracking-tight text-white drop-shadow-md">
+                            <h3 className="line-clamp-2 text-[23px] font-bold leading-[1.1] tracking-tight text-white drop-shadow-md">
                               {item.name}
                             </h3>
                           </div>
@@ -213,9 +213,9 @@ export function Marketplace() {
                       ))}
                     </div>
                     {/* Dots indicator */}
-                    <div className="mt-3 flex justify-center gap-1.5">
+                    <div className="mt-3 flex justify-center gap-2">
                       {discovery.featured.slice(0, 5).map((_, i) => (
-                        <div key={i} className={`h-1.5 rounded-full transition-all duration-300 ${i === 0 ? "w-4 bg-[#E5484D]" : "w-1.5 bg-white/20"}`} />
+                        <div key={i} className={`h-1.5 rounded-full transition-all duration-300 ${i === 0 ? "w-5 bg-[#E5484D]" : "w-1.5 bg-white/20"}`} />
                       ))}
                     </div>
                   </div>
