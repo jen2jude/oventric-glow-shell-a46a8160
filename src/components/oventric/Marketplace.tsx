@@ -182,33 +182,42 @@ export function Marketplace() {
               </section>
             ) : (
               <div className="space-y-8 pt-6">
-                {/* Featured banner */}
-                {featured && (
+                {/* Featured carousel */}
+                {discovery && discovery.featured.length > 0 && (
                   <div className="px-4">
-                    <button
-                      type="button"
-                      onClick={() => openProduct(featured)}
-                      className="relative block h-[190px] w-full overflow-hidden rounded-3xl bg-gradient-to-br from-[#3B1E86] to-[#16092F] text-left"
-                    >
-                      {featured.coverUrl && (
-                        <img
-                          src={featured.coverUrl}
-                          alt=""
-                          className="absolute right-0 top-0 h-full w-1/2 object-cover opacity-80"
-                        />
-                      )}
-                      <div className="absolute inset-0 bg-gradient-to-r from-[#2A1266] via-[#2A1266]/85 to-transparent" />
-                      <div className="relative flex h-full w-[62%] min-w-0 flex-col justify-center gap-1.5 p-5">
-                        <span className="w-fit rounded-md bg-white/15 px-2 py-1 text-[9.5px] font-bold uppercase tracking-[0.15em] text-white">
-                          Featured
-                        </span>
-                        <p className="line-clamp-2 text-[19px] font-bold leading-tight text-white">{featured.name}</p>
-                        <p className="line-clamp-1 text-[12px] text-white/60">{featured.description}</p>
-                        <span className="mt-1 w-fit rounded-full bg-white px-4 py-2 text-[12px] font-bold text-black">
-                          Explore Now
-                        </span>
-                      </div>
-                    </button>
+                    <div className="no-scrollbar flex snap-x snap-mandatory gap-4 overflow-x-auto pb-2">
+                      {discovery.featured.slice(0, 5).map((item) => (
+                        <button
+                          key={item.id}
+                          type="button"
+                          onClick={() => openProduct(item)}
+                          className="relative h-[200px] w-full min-w-full shrink-0 snap-center overflow-hidden rounded-[32px] bg-[#1A1A1E] text-left ring-1 ring-white/5"
+                        >
+                          {item.coverUrl && (
+                            <img
+                              src={item.coverUrl}
+                              alt=""
+                              className="absolute inset-0 h-full w-full object-cover opacity-60"
+                            />
+                          )}
+                          <div className="absolute inset-0 bg-gradient-to-t from-black via-black/30 to-transparent" />
+                          <div className="relative flex h-full flex-col justify-end p-7 pb-8">
+                            <span className="mb-2 w-fit rounded-lg bg-[#E5484D] px-2.5 py-1 text-[10px] font-black uppercase tracking-widest text-white shadow-lg">
+                              {item.kind === "digital" ? "Digital Asset" : item.kind === "physical" ? "Physical Product" : "Featured"}
+                            </span>
+                            <h3 className="line-clamp-2 text-[23px] font-bold leading-[1.1] tracking-tight text-white drop-shadow-md">
+                              {item.name}
+                            </h3>
+                          </div>
+                        </button>
+                      ))}
+                    </div>
+                    {/* Dots indicator */}
+                    <div className="mt-3 flex justify-center gap-2">
+                      {discovery.featured.slice(0, 5).map((_, i) => (
+                        <div key={i} className={`h-1.5 rounded-full transition-all duration-300 ${i === 0 ? "w-5 bg-[#E5484D]" : "w-1.5 bg-white/20"}`} />
+                      ))}
+                    </div>
                   </div>
                 )}
 
@@ -255,28 +264,30 @@ export function Marketplace() {
                     </div>
                   </Rail>
                 )}
-
+                
                 {/* Top Sellers */}
                 {sellers.length > 0 && (
                   <Rail title="Top Sellers">
-                    <div className="no-scrollbar flex gap-4 overflow-x-auto px-4">
+                    <div className="no-scrollbar flex gap-4 overflow-x-auto px-4 pb-2">
                       {sellers.map((s) => (
                         <button
                           key={s.id}
                           type="button"
-                          onClick={() => openShop(s.slug)}
-                          className="flex w-[64px] shrink-0 flex-col items-center gap-1.5"
+                          onClick={() => navigate({ to: "/profile/$id", params: { id: s.slug } })}
+                          className="group flex w-[64px] shrink-0 flex-col items-center gap-2"
                         >
-                          <span className="grid h-[58px] w-[58px] place-items-center overflow-hidden rounded-full bg-black ring-2 ring-[#E5484D]">
-                            {s.avatarUrl ? (
-                              <img src={s.avatarUrl} alt={s.name} className="h-full w-full object-cover" />
-                            ) : (
-                              <span className="text-[13px] font-black text-white">
-                                {s.name.slice(0, 2).toUpperCase()}
-                              </span>
-                            )}
+                          <span className="relative h-[62px] w-[62px] shrink-0 rounded-full bg-gradient-to-tr from-[#E5484D] to-[#FF7A7F] p-[1.5px] transition-transform group-active:scale-95">
+                            <span className="flex h-full w-full items-center justify-center overflow-hidden rounded-full border-[2.5px] border-[#0A0A0B] bg-black">
+                              {s.avatarUrl ? (
+                                <img src={s.avatarUrl} alt={s.name} className="h-full w-full object-cover" />
+                              ) : (
+                                <span className="text-[14px] font-black text-white/40">
+                                  {s.name.slice(0, 2).toUpperCase()}
+                                </span>
+                              )}
+                            </span>
                           </span>
-                          <span className="w-full truncate text-center text-[11px] text-white/60">{s.name}</span>
+                          <span className="w-full truncate text-center text-[10.5px] font-medium text-white/50">{s.name}</span>
                         </button>
                       ))}
                     </div>
@@ -301,22 +312,22 @@ export function Marketplace() {
                         <button
                           key={s.id}
                           type="button"
-                          onClick={() => openShop(s.slug)}
-                          className="w-[150px] shrink-0 rounded-2xl bg-[#111113] p-4 text-center"
+                          onClick={() => navigate({ to: "/profile/$id", params: { id: s.slug } })}
+                          className="group w-[160px] shrink-0 rounded-[28px] bg-[#131316] p-4 text-center ring-1 ring-white/[0.04] transition-transform active:scale-95"
                         >
-                          <span className="mx-auto grid h-14 w-14 place-items-center overflow-hidden rounded-full bg-black ring-1 ring-white/10">
+                          <span className="relative mx-auto grid h-16 w-16 place-items-center overflow-hidden rounded-full bg-black ring-[1.5px] ring-white/10 group-hover:ring-[#E5484D]">
                             {s.avatarUrl ? (
                               <img src={s.avatarUrl} alt={s.name} className="h-full w-full object-cover" />
                             ) : (
-                              <span className="text-[13px] font-black text-white">
+                              <span className="text-[14px] font-black text-white/40">
                                 {s.name.slice(0, 2).toUpperCase()}
                               </span>
                             )}
                           </span>
-                          <span className="mt-2 block truncate text-[13.5px] font-semibold text-white">{s.name}</span>
-                          <span className="block text-[11.5px] text-white/40">{s.productsCount} products</span>
-                          <span className="mt-3 block rounded-xl bg-[#E5484D] py-2 text-[11.5px] font-bold text-white">
-                            View shop
+                          <span className="mt-3 block truncate text-[14px] font-bold text-white">{s.name}</span>
+                          <span className="block text-[11px] font-medium text-white/30">{s.productsCount} products</span>
+                          <span className="mt-4 block rounded-xl border border-[#E5484D]/30 bg-[#E5484D]/10 py-2.5 text-[11px] font-bold text-[#E5484D] group-hover:bg-[#E5484D] group-hover:text-white transition-colors">
+                            View Profile
                           </span>
                         </button>
                       ))}
@@ -344,8 +355,8 @@ export function Marketplace() {
                       scrollTop();
                     }}
                   >
-                    <div className="no-scrollbar overflow-x-auto px-4">
-                      <div className="grid grid-flow-col grid-rows-2 gap-x-3 gap-y-5">
+                    <div className="no-scrollbar overflow-x-auto px-4 pb-2">
+                      <div className="grid grid-flow-col grid-rows-2 gap-x-4 gap-y-6">
                         {items.slice(0, 10).map((p) => (
                           <div key={p.id} className="w-[150px]">
                             <GridCard product={p} onClick={() => openProduct(p)} />

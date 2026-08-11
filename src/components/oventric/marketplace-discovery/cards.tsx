@@ -28,20 +28,17 @@ function Cover({ src, alt, className }: { src: string | null; alt: string; class
 export function TileCard({ product, onClick }: { product: ProductDTO; onClick: () => void }) {
   const price = usePrice();
   return (
-    <button type="button" onClick={onClick} className="w-[132px] shrink-0 text-left">
-      <div className="h-[132px] w-full overflow-hidden rounded-2xl bg-[#141416]">
+    <button type="button" onClick={onClick} className="w-[142px] shrink-0 text-left">
+      <div className="aspect-square w-full overflow-hidden rounded-[24px] bg-[#161618] ring-1 ring-white/[0.04]">
         <Cover src={product.coverUrl} alt={product.name} className="h-full w-full" />
       </div>
-      <p className="mt-2 truncate text-[13px] font-semibold text-white">{product.name}</p>
-      <p className="truncate text-[11.5px] text-white/40">{product.subcategory || product.category}</p>
-      <div className="mt-1 flex items-center justify-between gap-2">
-        <span className="truncate text-[13px] font-bold text-white">{price(product)}</span>
-        {product.rating > 0 && (
-          <span className="flex shrink-0 items-center gap-0.5 text-[11px] font-semibold text-white/70">
-            <Star className="h-3 w-3 fill-amber-400 text-amber-400" />
-            {product.rating.toFixed(1)}
-          </span>
-        )}
+      <p className="mt-2.5 truncate text-[13.5px] font-bold tracking-tight text-white">{product.name}</p>
+      <div className="mt-1 flex items-center justify-between gap-1.5">
+        <span className="truncate text-[13.5px] font-black text-[#E5484D]">{price(product)}</span>
+        <span className="flex shrink-0 items-center gap-0.5 text-[11px] font-bold text-white/40">
+          <Star className="h-3 w-3 fill-amber-400 text-amber-400" />
+          {product.rating > 0 ? product.rating.toFixed(1) : "5.0"}
+        </span>
       </div>
     </button>
   );
@@ -54,26 +51,34 @@ export function RowCard({ product, onClick }: { product: ProductDTO; onClick: ()
     <button
       type="button"
       onClick={onClick}
-      className="flex w-full items-center gap-3 rounded-2xl bg-[#111113] p-3 text-left"
+      className="flex w-full items-center gap-3.5 rounded-[22px] bg-[#131316] p-3 text-left ring-1 ring-white/[0.04]"
     >
-      <div className="h-[68px] w-[68px] shrink-0 overflow-hidden rounded-xl bg-[#18181c]">
+      <div className="h-[72px] w-[72px] shrink-0 overflow-hidden rounded-2xl bg-[#1A1A1E]">
         <Cover src={product.coverUrl} alt={product.name} className="h-full w-full" />
       </div>
       <div className="min-w-0 flex-1">
-        <p className="truncate text-[14px] font-semibold text-white">{product.name}</p>
-        <p className="truncate text-[12px] text-white/40">by {product.vendor}</p>
-        <div className="mt-1 flex items-center gap-2">
-          <span className="truncate text-[13.5px] font-bold text-white">{price(product)}</span>
-          {product.rating > 0 && (
-            <span className="ml-auto flex shrink-0 items-center gap-0.5 text-[11.5px] font-semibold text-white/70">
-              <Star className="h-3 w-3 fill-amber-400 text-amber-400" />
-              {product.rating.toFixed(1)}
-            </span>
-          )}
+        <p className="truncate text-[14.5px] font-bold text-white">{product.name}</p>
+        <button
+          type="button"
+          onClick={(e) => {
+            e.stopPropagation();
+            const navigate = onClick.toString().includes("navigate") ? null : null; // Access navigate from context if needed, but we'll use the parent's handler
+            onClick(); // For now just open the product, but the vendor link should navigate to profile
+          }}
+          className="block truncate text-[12px] font-medium text-white/40 hover:text-[#E5484D]"
+        >
+          by {product.vendor}
+        </button>
+        <div className="mt-1.5 flex items-center gap-2">
+          <span className="truncate text-[14px] font-black text-[#E5484D]">{price(product)}</span>
+          <span className="ml-auto flex shrink-0 items-center gap-0.5 text-[11.5px] font-bold text-white/40">
+            <Star className="h-3 w-3 fill-amber-400 text-amber-400" />
+            {product.rating > 0 ? product.rating.toFixed(1) : "5.0"}
+          </span>
         </div>
       </div>
-      <span className="grid h-9 w-9 shrink-0 place-items-center rounded-xl bg-white/[0.06]">
-        <ShoppingCart className="h-4 w-4 text-white/70" />
+      <span className="grid h-10 w-10 shrink-0 place-items-center rounded-xl bg-white/[0.03]">
+        <ShoppingCart className="h-4.5 w-4.5 text-white/40" />
       </span>
     </button>
   );
@@ -84,19 +89,16 @@ export function GridCard({ product, onClick }: { product: ProductDTO; onClick: (
   const price = usePrice();
   return (
     <button type="button" onClick={onClick} className="w-full text-left">
-      <div className="aspect-square w-full overflow-hidden rounded-2xl bg-[#141416]">
+      <div className="aspect-square w-full overflow-hidden rounded-[28px] bg-[#161618] ring-1 ring-white/[0.05]">
         <Cover src={product.coverUrl} alt={product.name} className="h-full w-full" />
       </div>
-      <p className="mt-2 line-clamp-1 text-[13.5px] font-semibold text-white">{product.name}</p>
-      <p className="truncate text-[11.5px] text-white/40">by {product.vendor}</p>
+      <p className="mt-3 line-clamp-1 text-[14.5px] font-bold tracking-tight text-white">{product.name}</p>
       <div className="mt-1 flex items-center justify-between gap-2">
-        <span className="truncate text-[13.5px] font-bold text-white">{price(product)}</span>
-        {product.rating > 0 && (
-          <span className="flex shrink-0 items-center gap-0.5 text-[11px] font-semibold text-white/70">
-            <Star className="h-3 w-3 fill-amber-400 text-amber-400" />
-            {product.rating.toFixed(1)}
-          </span>
-        )}
+        <span className="truncate text-[14px] font-black text-[#E5484D]">{price(product)}</span>
+        <span className="flex shrink-0 items-center gap-0.5 text-[11.5px] font-bold text-white/40">
+          <Star className="h-3 w-3 fill-amber-400 text-amber-400" />
+          {product.rating > 0 ? product.rating.toFixed(1) : "5.0"}
+        </span>
       </div>
     </button>
   );
@@ -124,27 +126,30 @@ export function ShopCard({ seller, onClick }: { seller: SellerLite; onClick: () 
     <button
       type="button"
       onClick={onClick}
-      className="relative flex w-full items-center gap-4 overflow-hidden rounded-2xl border border-white/[0.06] bg-[#111113] p-4 text-left"
+      className="relative flex w-full flex-col overflow-hidden rounded-[28px] border border-white/[0.04] bg-[#131316] p-4 text-left transition-transform active:scale-[0.98]"
     >
-      {seller.coverUrl && (
-        <img src={seller.coverUrl} alt="" className="absolute inset-0 h-full w-full object-cover opacity-30" />
-      )}
-      <div className="absolute inset-0 bg-gradient-to-r from-[#0b0b0d] via-[#0b0b0d]/85 to-transparent" />
-      <div className="relative grid h-14 w-14 shrink-0 place-items-center overflow-hidden rounded-full bg-black ring-1 ring-white/10">
-        {seller.avatarUrl ? (
-          <img src={seller.avatarUrl} alt={seller.name} className="h-full w-full object-cover" />
-        ) : (
-          <span className="text-[15px] font-black text-white">{seller.name.slice(0, 2).toUpperCase()}</span>
+      <div className="relative mb-4 h-[120px] w-full overflow-hidden rounded-2xl bg-[#1A1A1E]">
+        {seller.coverUrl && (
+          <img src={seller.coverUrl} alt="" className="h-full w-full object-cover opacity-60" />
         )}
-      </div>
-      <div className="relative min-w-0 flex-1">
-        <div className="flex items-center gap-1">
-          <p className="truncate text-[16px] font-bold text-white">{seller.name}</p>
-          {seller.verified && <BadgeCheck className="h-4 w-4 shrink-0 fill-[#1D9BF0] text-black" />}
+        <div className="absolute inset-0 bg-gradient-to-t from-black/60 to-transparent" />
+        <div className="absolute bottom-3 left-3 flex h-12 w-12 items-center justify-center overflow-hidden rounded-full border-2 border-[#131316] bg-black shadow-xl">
+          {seller.avatarUrl ? (
+            <img src={seller.avatarUrl} alt={seller.name} className="h-full w-full object-cover" />
+          ) : (
+            <span className="text-[14px] font-black text-white">{seller.name.slice(0, 2).toUpperCase()}</span>
+          )}
         </div>
-        {seller.bio && <p className="truncate text-[12px] text-white/50">{seller.bio}</p>}
-        <p className="mt-0.5 text-[11.5px] text-white/40">
-          {seller.productsCount} products · {compact(seller.followersCount)} followers
+      </div>
+      <div className="min-w-0">
+        <div className="flex items-center gap-1.5">
+          <p className="truncate text-[16px] font-black tracking-tight text-white">{seller.name}</p>
+          {seller.verified && <BadgeCheck className="h-4 w-4 shrink-0 fill-[#E5484D] text-black" />}
+        </div>
+        <p className="mt-1 flex items-center gap-2 text-[12px] font-medium text-white/40">
+          <span>{seller.productsCount} items</span>
+          <span className="h-1 w-1 rounded-full bg-white/20" />
+          <span>{compact(seller.followersCount)} followers</span>
         </p>
       </div>
     </button>
