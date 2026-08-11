@@ -549,7 +549,7 @@ function CheckoutPage() {
                       className={`w-full text-left rounded-[10px] border p-4 flex items-center gap-4 transition-all ${
                         m.disabled
                           ? isAppShell
-                            ? "bg-[#16161A]/50 border-white/5 opacity-40 cursor-not-allowed"
+                            ? "bg-white/[0.01] border-white/5 opacity-40 cursor-not-allowed"
                             : "bg-slate-50 border-slate-200 opacity-50 cursor-not-allowed"
                           : active
                             ? "bg-[#E5484D]/10 border-[#E5484D]/50"
