@@ -153,6 +153,27 @@ async function signCovers(
   return paths.map((p) => (p ? map.get(p) ?? null : null));
 }
 
+/** Sign paths from any bucket; passes through absolute URLs and falls back to public URLs. */
+async function signBucket(
+  sb: ReturnType<typeof serverPublicClient>,
+  bucket: string,
+  paths: (string | null)[],
+): Promise<(string | null)[]> {
+  const unique = Array.from(new Set(paths.filter((p): p is string => !!p && !/^https?:\/\//i.test(p))));
+  const map = new Map<string, string>();
+  if (unique.length > 0) {
+    const { data } = await sb.storage.from(bucket).createSignedUrls(unique, 60 * 60 * 24 * 7);
+    (data ?? []).forEach((r) => { if (r.path && r.signedUrl) map.set(r.path, r.signedUrl); });
+    for (const p of unique) {
+      if (!map.has(p)) {
+        const pub = sb.storage.from(bucket).getPublicUrl(p).data.publicUrl;
+        if (pub) map.set(p, pub);
+      }
+    }
+  }
+  return paths.map((p) => (!p ? null : /^https?:\/\//i.test(p) ? p : map.get(p) ?? null));
+}
+
 // Sensitive contact columns (seller_phone, whatsapp_number, social_link) are excluded here;
 // anon has no column-level grant on them. Owner/admin flows fetch them via dedicated RPCs
 // or the authenticated context.supabase client (see PRODUCT_COLS_OWNER).
