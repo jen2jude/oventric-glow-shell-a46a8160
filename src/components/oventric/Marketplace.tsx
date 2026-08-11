@@ -374,7 +374,9 @@ export function Marketplace() {
                     }}
                   >
                     <div className="no-scrollbar overflow-x-auto px-4 pb-2">
-                      <div className="grid grid-flow-col grid-rows-2 gap-x-4 gap-y-6">
+                      <div
+                        className={`grid grid-flow-col gap-x-4 gap-y-6 ${items.length <= 2 ? "grid-rows-1" : "grid-rows-2"}`}
+                      >
                         {items.slice(0, 10).map((p) => (
                           <div key={p.id} className="w-[150px]">
                             <GridCard product={p} onClick={() => openProduct(p)} />
