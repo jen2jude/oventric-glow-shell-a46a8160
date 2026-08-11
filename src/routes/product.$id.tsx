@@ -699,14 +699,34 @@ function ProductPage() {
                 )}
               </div>
 
-              <div className="text-[11px] text-slate-500 md:text-slate-500 inline-flex items-center gap-1">
-                <Sparkles className="w-3 h-3 text-emerald-400" />
+              {isAppShell && (
+                <div className="mt-5 flex items-center gap-3 rounded-2xl border border-white/[0.06] bg-[#141416] p-3.5">
+                  <div className="h-11 w-11 shrink-0 overflow-hidden rounded-full bg-white/10 grid place-items-center text-[13px] font-black text-white">
+                    {product.vendor?.slice(0, 2).toUpperCase()}
+                  </div>
+                  <div className="min-w-0 flex-1">
+                    <div className="truncate text-[14px] font-bold text-white">{product.vendor}</div>
+                    <div className="text-[11.5px] text-white/45">Seller on Oventric</div>
+                  </div>
+                  <Link
+                    to="/shop/$id"
+                    params={{ id: product.sellerSlug ?? product.sellerId }}
+                    className="shrink-0 rounded-xl border border-white/10 bg-white/[0.04] px-3.5 py-2 text-[12.5px] font-bold text-white"
+                  >
+                    View Shop
+                  </Link>
+                </div>
+              )}
+
+              <div className={`${isAppShell ? "mt-4" : ""} text-[11px] text-slate-500 md:text-slate-500 inline-flex items-center gap-1`}>
+                <Sparkles className={`w-3 h-3 ${isAppShell ? "text-[#E5484D]" : "text-emerald-400"}`} />
                 {product.kind === "service"
                   ? "Service listing — message the provider to agree scope, timeline and price."
                   : product.kind === "physical"
                     ? "Deal directly with the seller — Oventric does not mediate."
                     : "Instant download after payment · Buyer protection covered"}
               </div>
+
 
             </div>
             
