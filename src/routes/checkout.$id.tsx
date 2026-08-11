@@ -976,7 +976,7 @@ function CheckoutPage() {
               value={topUpAmount}
               onChange={(e) => setTopUpAmount(e.target.value)}
               className={`w-full border rounded-[10px] px-3 py-2 text-sm mb-4 outline-none focus:border-[#E5484D]/60 ${
-                isAppShell ? "bg-[#0A0A0B] border-white/10 text-white" : "bg-slate-50 border-slate-200 text-slate-900"
+                isAppShell ? "bg-white/[0.03] border-white/10 text-white focus:border-[#E5484D]/60" : "bg-slate-50 border-slate-200 text-slate-900"
               }`}
             />
             <label className="block text-xs font-semibold uppercase tracking-wider text-slate-400 md:text-slate-500 mb-1.5">
