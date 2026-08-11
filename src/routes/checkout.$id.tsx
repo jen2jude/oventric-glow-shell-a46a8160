@@ -607,8 +607,8 @@ function CheckoutPage() {
                                 on
                                   ? "bg-[#E5484D]/10 border-[#E5484D]/50"
                                   : isAppShell
-                                    ? "bg-[#0A0A0B] border-white/5 hover:border-white/10"
-                                    : "bg-white border-slate-200 hover:border-slate-300 shadow-sm"
+                                  ? "bg-white/[0.03] border-white/5 hover:border-white/10"
+                                  : "bg-white border-slate-200 hover:border-slate-300 shadow-sm"
                               }`}
                             >
                               <g.Icon
