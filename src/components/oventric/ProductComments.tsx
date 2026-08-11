@@ -87,43 +87,36 @@ export function ProductComments({ productId }: { productId: string }) {
   }
 
   return (
-    <div className={`${isAppShell ? "mt-12" : "mt-0"} space-y-8 pb-12`}>
-      <div className={`flex items-center justify-between border-b ${isAppShell ? "border-white/10" : "border-slate-200"} pb-4`}>
-        <h2 className={`text-xl font-bold ${isAppShell ? "text-white" : "text-slate-900"} flex items-center gap-2`}>
-          <MessageSquare className="w-5 h-5" />
-          Customer Reviews ({count})
+    <div className={`${isAppShell ? "mt-8" : "mt-0"} space-y-6 pb-12`}>
+      <div className={`flex items-center justify-between border-b ${isAppShell ? "border-white/5" : "border-slate-200"} pb-3`}>
+        <h2 className={`text-[15px] font-black ${isAppShell ? "text-white" : "text-slate-900"} flex items-center gap-2`}>
+          Reviews ({count})
         </h2>
-        <div className="flex items-center gap-2">
+        <div className="flex items-center gap-1.5">
           <div className="flex text-amber-400">
-            {[1, 2, 3, 4, 5].map((s) => (
-              <Star 
-                key={s} 
-                className={`w-4 h-4 ${s <= Math.round(average) ? 'fill-current' : ''}`} 
-              />
-            ))}
+            <Star className="w-3.5 h-3.5 fill-current" />
           </div>
-          <span className={`text-lg font-bold ${isAppShell ? "text-white" : "text-slate-900"}`}>{average.toFixed(1)}</span>
+          <span className={`text-[15px] font-black ${isAppShell ? "text-white" : "text-slate-900"}`}>{average.toFixed(1)}</span>
         </div>
       </div>
 
       {/* Write a review */}
-      <div className={`${isAppShell ? "bg-[#16161A] border-white/5" : "bg-white border-slate-200 shadow-sm"} md:bg-white md:shadow-sm border rounded-xl p-6`}>
-        <h3 className={`text-sm font-bold uppercase tracking-wider ${isAppShell ? "text-slate-400" : "text-slate-500"} mb-4`}>
-          {myRating ? "Update your review" : "Write a review"}
-        </h3>
+      <div className={`${isAppShell ? "bg-white/[0.03] border-white/[0.05]" : "bg-white border-slate-200 shadow-sm"} border rounded-2xl p-4`}>
         <form onSubmit={handleSubmit} className="space-y-4">
-          <div className="flex items-center gap-2 mb-2">
-            {[1, 2, 3, 4, 5].map((s) => (
-              <button
-                key={s}
-                type="button"
-                onClick={() => setRating(s)}
-                className={`p-1 transition-transform hover:scale-110 ${s <= rating ? "text-amber-400" : isAppShell ? "text-slate-600" : "text-slate-300"}`}
-              >
-                <Star className={`w-6 h-6 ${s <= rating ? 'fill-current' : ''}`} />
-              </button>
-            ))}
-            <span className={`ml-2 text-xs ${isAppShell ? "text-slate-400" : "text-slate-500"}`}>
+          <div className="flex items-center justify-between">
+            <div className="flex items-center gap-1">
+              {[1, 2, 3, 4, 5].map((s) => (
+                <button
+                  key={s}
+                  type="button"
+                  onClick={() => setRating(s)}
+                  className={`p-0.5 transition-transform active:scale-90 ${s <= rating ? "text-amber-400" : isAppShell ? "text-white/10" : "text-slate-200"}`}
+                >
+                  <Star className={`w-5 h-5 ${s <= rating ? 'fill-current' : ''}`} />
+                </button>
+              ))}
+            </div>
+            <span className={`text-[10px] font-bold uppercase tracking-wider ${isAppShell ? "text-white/30" : "text-slate-400"}`}>
               {rating === 5 ? "Excellent" : rating === 4 ? "Very Good" : rating === 3 ? "Good" : rating === 2 ? "Fair" : "Poor"}
             </span>
           </div>
@@ -132,15 +125,15 @@ export function ProductComments({ productId }: { productId: string }) {
             <textarea
               value={newComment}
               onChange={(e) => setNewComment(e.target.value)}
-              placeholder="Tell others what you think about this product and the seller..."
-              className={`w-full ${isAppShell ? "bg-black/20 border-white/5 text-white" : "bg-slate-50 border-slate-200 text-slate-900"} md:bg-slate-50 border md:border-slate-200 rounded-lg p-4 text-sm focus:ring-2 focus:ring-emerald-500 min-h-[100px] resize-none`}
+              placeholder="Write your experience..."
+              className={`w-full ${isAppShell ? "bg-black/20 border-white/[0.05] text-white placeholder:text-white/20" : "bg-slate-50 border-slate-200 text-slate-900"} border rounded-xl p-3 text-[13px] focus:ring-1 focus:ring-[#E5484D]/50 outline-none min-h-[80px] resize-none transition-all`}
             />
           </div>
 
           <button
             type="submit"
             disabled={submitting}
-            className="inline-flex items-center gap-2 px-6 py-2.5 bg-emerald-500 hover:bg-emerald-400 text-black font-bold text-sm rounded-lg disabled:opacity-50 transition-colors"
+            className={`w-full inline-flex items-center justify-center gap-2 py-3 rounded-xl ${isAppShell ? "bg-[#E5484D] text-white" : "bg-emerald-500 text-black"} font-black text-sm disabled:opacity-50 transition-all active:scale-[0.98]`}
           >
             {submitting ? <Loader2 className="w-4 h-4 animate-spin" /> : <Send className="w-4 h-4" />}
             {myRating ? "Update Review" : "Post Review"}
@@ -149,48 +142,48 @@ export function ProductComments({ productId }: { productId: string }) {
       </div>
 
       {/* Review list */}
-      <div className="space-y-6">
+      <div className="space-y-3">
         {reviews.length === 0 ? (
-          <div className="text-center py-12 text-slate-500">
-            No reviews yet. Be the first to share your experience!
+          <div className="text-center py-8 text-white/20 text-xs">
+            No reviews yet.
           </div>
         ) : (
           reviews.map((rev) => (
             <div 
               key={rev.id} 
-              className={`${isAppShell ? "bg-[#16161A] border-white/5" : "bg-white border-slate-200 shadow-sm"} md:bg-white md:shadow-sm border rounded-xl p-5`}
+              className={`${isAppShell ? "bg-white/[0.02] border-white/[0.04]" : "bg-white border-slate-200 shadow-sm"} border rounded-2xl p-4`}
             >
-              <div className="flex items-start justify-between mb-4">
-                <div className="flex items-center gap-3">
-                  <div className={`w-10 h-10 rounded-full overflow-hidden ${isAppShell ? "bg-white/5 border-white/10" : "bg-slate-100 border-slate-200"}`}>
+              <div className="flex items-start justify-between mb-3">
+                <div className="flex items-center gap-2.5">
+                  <div className={`w-8 h-8 rounded-full overflow-hidden ${isAppShell ? "bg-white/5 border-white/10" : "bg-slate-100 border-slate-200"} border`}>
                     <AvatarImage src={rev.user.avatarUrl} alt={rev.user.fullName || "User"} className="w-full h-full object-cover" />
                   </div>
                   <div>
-                    <div className="flex items-center gap-2">
-                      <span className={`font-bold text-sm ${isAppShell ? "text-white" : "text-slate-900"}`}>
+                    <div className="flex items-center gap-1.5">
+                      <span className={`font-bold text-[13px] ${isAppShell ? "text-white" : "text-slate-900"}`}>
                         {rev.user.fullName || "Anonymous User"}
                       </span>
                       {rev.user.country && COUNTRY_META[rev.user.country] && (
-                        <span className="text-sm" title={COUNTRY_META[rev.user.country].name}>
+                        <span className="text-[10px]" title={COUNTRY_META[rev.user.country].name}>
                           {COUNTRY_META[rev.user.country].flag}
                         </span>
                       )}
                     </div>
-                    <div className="text-[11px] text-slate-500 md:text-slate-400">
+                    <div className="text-[10px] text-white/30">
                       {format(new Date(rev.createdAt), "MMM d, yyyy")}
                     </div>
                   </div>
                 </div>
-                <div className="flex text-amber-400">
+                <div className="flex text-amber-400 gap-0.5">
                   {[1, 2, 3, 4, 5].map((s) => (
                     <Star 
                       key={s} 
-                      className={`w-3 h-3 ${s <= rev.rating ? 'fill-current' : ''}`} 
+                      className={`w-2.5 h-2.5 ${s <= rev.rating ? 'fill-current' : 'text-white/5'}`} 
                     />
                   ))}
                 </div>
               </div>
-              <p className={`text-sm ${isAppShell ? "text-slate-300" : "text-slate-600"} leading-relaxed whitespace-pre-wrap`}>
+              <p className={`text-[13px] ${isAppShell ? "text-white/70" : "text-slate-600"} leading-snug whitespace-pre-wrap`}>
                 {rev.comment}
               </p>
             </div>
