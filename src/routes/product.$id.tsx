@@ -354,7 +354,7 @@ function ProductPage() {
                   const cur = gallery[activeImage] ?? gallery[0];
                   return (
                     <>
-                        <div className={`relative ${isAppShell ? "w-full aspect-[4/3] rounded-2xl bg-[#141416] border border-white/[0.06]" : "aspect-[4/3] rounded-2xl bg-white border border-slate-100 shadow-sm md:bg-slate-100"} overflow-hidden flex items-center justify-center`}>
+                        <div className={`relative ${isAppShell ? "w-full aspect-[4/3] rounded-b-2xl bg-[#141416] border-b border-white/[0.06]" : "aspect-[4/3] rounded-2xl bg-white border border-slate-100 shadow-sm md:bg-slate-100"} overflow-hidden flex items-center justify-center`}>
                           {cur ? (
                             <ResponsiveImage
                               sizes="(min-width: 1024px) 640px, 100vw"
