@@ -152,8 +152,8 @@ function CheckoutPage() {
   const [minipayOpen, setMinipayOpen] = useState(false);
   // Gateway picker shown under "Debit/Credit Card".
   const [cardOpen, setCardOpen] = useState(true);
-  const [gateway, setGateway] = useState<"flutterwave" | "paystack" | "minipay">("minipay");
-  const [recommended, setRecommended] = useState<"flutterwave" | "paystack" | "minipay">("minipay");
+  const [gateway, setGateway] = useState<"flutterwave" | "paystack" | "minipay">("paystack");
+  const [recommended, setRecommended] = useState<"flutterwave" | "paystack" | "minipay">("paystack");
   const loadOptions = useServerFn(getPaymentOptions);
   const loadPackages = useServerFn(getServicePackages);
   const [servicePackage, setServicePackage] = useState<ServicePackage | null>(null);
@@ -170,9 +170,9 @@ function CheckoutPage() {
       .then((o) => {
         if (cancelled) return;
         setMinipay({ available: true });
-        // Flutterwave is greyed out, default to MiniPay as first choice for manual verification
-        setRecommended("minipay");
-        setGateway("minipay");
+        // Paystack is now recommended, Flutterwave remains unavailable
+        setRecommended("paystack");
+        setGateway("paystack");
       })
       .catch(() => {});
     return () => {
