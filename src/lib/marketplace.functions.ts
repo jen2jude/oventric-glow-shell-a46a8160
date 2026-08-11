@@ -1473,40 +1473,50 @@ export const searchMyProductsForTagging = createServerFn({ method: "GET" })
 
 /** Discovery data for the new marketplace: Featured, Trending, New, Top Sellers. */
 export const getMarketplaceDiscovery = createServerFn({ method: "GET" })
-  .handler(async () => {
+  .inputValidator((input: { kind?: "digital" | "physical" | "all" } | undefined) => {
+    const kind = (input?.kind ?? "all") as "digital" | "physical" | "all";
+    return { kind };
+  })
+  .handler(async ({ data }) => {
     const sb = serverPublicClient();
-    
+    const { kind } = data;
+    const withKind = (q: any) => (kind !== "all" ? q.eq("kind", kind) : q);
+
     // 1. Featured Products (promoted or top rated)
-    const { data: featuredRows } = await sb
-      .from("products")
-      .select(PRODUCT_COLS)
-      .eq("status", "active")
-      .eq("promoted", true)
-      .order("rating", { ascending: false })
-      .limit(6);
-      
+    const { data: featuredRows } = await withKind(
+      sb
+        .from("products")
+        .select(PRODUCT_COLS)
+        .eq("status", "active")
+        .eq("promoted", true)
+        .order("rating", { ascending: false })
+        .limit(6),
+    );
+
     // 2. Trending (most reviews/high rating)
-    const { data: trendingRows } = await sb
-      .from("products")
-      .select(PRODUCT_COLS)
-      .eq("status", "active")
-      .order("reviews", { ascending: false, nullsFirst: false })
-      .limit(10);
+    const { data: trendingRows } = await withKind(
+      sb
+        .from("products")
+        .select(PRODUCT_COLS)
+        .eq("status", "active")
+        .order("reviews", { ascending: false, nullsFirst: false })
+        .limit(10),
+    );
 
     // 3. New Arrivals
-    const { data: newRows } = await sb
-      .from("products")
-      .select(PRODUCT_COLS)
-      .eq("status", "active")
-      .order("created_at", { ascending: false })
-      .limit(10);
+    const { data: newRows } = await withKind(
+      sb
+        .from("products")
+        .select(PRODUCT_COLS)
+        .eq("status", "active")
+        .order("created_at", { ascending: false })
+        .limit(10),
+    );
 
-    // 4. Sellers (profiles that actually have active products)
-    const { data: sellerIdRows } = await sb
-      .from("products")
-      .select("seller_id")
-      .eq("status", "active")
-      .limit(500);
+    // 4. Sellers (profiles that actually have active products of the selected kind)
+    let sellerQuery = sb.from("products").select("seller_id").eq("status", "active");
+    if (kind !== "all") sellerQuery = sellerQuery.eq("kind", kind);
+    const { data: sellerIdRows } = await sellerQuery.limit(500);
     const sellerCounts = new Map<string, number>();
     (sellerIdRows ?? []).forEach((r) => {
       const id = r.seller_id as string;
