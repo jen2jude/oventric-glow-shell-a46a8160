@@ -14,6 +14,14 @@ import { CategoryDiscoverySheet } from "./marketplace-discovery/CategoryDiscover
 import { GridCard, Rail, RowCard, ShopCard, TileCard, type SellerLite } from "./marketplace-discovery/cards";
 
 type Mode = "all" | "digital" | "physical";
+type SortKey = "popular" | "newest" | "best_selling" | "top_rated";
+
+const SORTS: { key: SortKey; label: string }[] = [
+  { key: "popular", label: "Popular" },
+  { key: "newest", label: "Newest" },
+  { key: "best_selling", label: "Best Selling" },
+  { key: "top_rated", label: "Top Rated" },
+];
 
 interface Discovery {
   featured: ProductDTO[];
