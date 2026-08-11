@@ -745,7 +745,7 @@ function CheckoutPage() {
                       placeholder="you@example.com"
                       className={`mt-1 w-full border rounded-[10px] px-3 py-2 text-sm outline-none focus:border-[#E5484D]/60 ${
                         isAppShell
-                          ? "bg-[#0A0A0B] border-white/10 text-white"
+                          ? "bg-white/[0.03] border-white/10 text-white focus:border-[#E5484D]/60"
                           : "bg-slate-50 border-slate-200 text-slate-900"
                       }`}
                     />
