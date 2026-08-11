@@ -427,7 +427,7 @@ function CheckoutPage() {
     <div
       className={`min-h-screen overflow-x-hidden ${
         isAppShell
-          ? "bg-[#0A0A0B] text-slate-200"
+          ? "bg-[#0A0A0B] text-slate-200 selection:bg-[#E5484D]/30"
           : "page-light bg-white text-slate-900"
       }`}
     >
@@ -444,7 +444,7 @@ function CheckoutPage() {
           className={`inline-flex items-center gap-2 text-sm transition-all ${
             isAppShell
               ? "relative ml-4 mt-2 mb-4 z-20 w-10 h-10 items-center justify-center bg-white/10 backdrop-blur-md border border-white/10 rounded-full text-white hover:bg-white/20"
-              : "text-slate-600 hover:text-slate-900 bg-white shadow-sm border border-slate-200 rounded-lg px-3 py-2 mb-6"
+              : "text-slate-600 hover:text-slate-900 bg-white shadow-sm border border-slate-200 rounded-[10px] px-3 py-2 mb-6"
           }`}
         >
           {isAppShell ? (
@@ -459,7 +459,7 @@ function CheckoutPage() {
         {/* No H1 needed as Header provides context */}
 
         {loadErr && (
-          <div className={`${isAppShell ? "bg-[#16161A] border-white/5 mx-4" : "bg-white shadow-sm border-red-200"} border rounded-xl p-6 text-sm text-red-500`}>
+          <div className={`${isAppShell ? "bg-white/[0.03] border-[#E5484D]/20 mx-4 shadow-sm" : "bg-white shadow-sm border-red-200"} border rounded-[10px] p-6 text-sm text-[#E5484D]`}>
             {loadErr}
           </div>
         )}
@@ -475,19 +475,19 @@ function CheckoutPage() {
             className={`grid grid-cols-1 lg:grid-cols-3 gap-6 min-w-0 ${isAppShell ? "p-0" : ""}`}
           >
             {/* Payment methods */}
-            <div className={`lg:col-span-2 space-y-3 min-w-0 ${isAppShell ? "px-4 pt-16" : ""}`}>
+            <div className={`lg:col-span-2 space-y-4 min-w-0 ${isAppShell ? "px-4 pt-12" : ""}`}>
               {isAppShell && (
-                <div className="flex items-center gap-4 mb-6">
+                <div className="flex items-center gap-4 mb-8 bg-white/[0.03] p-4 rounded-[10px] border border-white/5 shadow-sm">
                   {product.coverUrl && (
                     <ResponsiveImage
                       src={product.coverUrl}
                       alt={product.name}
-                      className="w-16 h-16 object-cover rounded-xl border border-white/5"
+                      className="w-16 h-16 object-cover rounded-[10px] border border-white/10"
                     />
                   )}
-                  <div>
-                    <h1 className="text-xl font-black text-white">{product.name}</h1>
-                    <div className="text-xs text-slate-500">Checkout · Qty {qty}</div>
+                  <div className="flex-1 min-w-0">
+                    <h1 className="text-lg font-black text-white truncate">{product.name}</h1>
+                    <div className="text-[11px] text-slate-500 uppercase tracking-wider font-bold">Qty {qty} · Checkout</div>
                   </div>
                 </div>
               )}
@@ -546,23 +546,23 @@ function CheckoutPage() {
                           ? "Wallet is reserved for bounties & ads. Pay directly instead."
                           : undefined
                       }
-                      className={`w-full text-left rounded-xl border p-4 flex items-center gap-4 transition-all ${
+                      className={`w-full text-left rounded-[10px] border p-4 flex items-center gap-4 transition-all ${
                         m.disabled
                           ? isAppShell
-                            ? "bg-[#16161A]/50 border-white/5 opacity-40 cursor-not-allowed"
+                            ? "bg-white/[0.01] border-white/5 opacity-40 cursor-not-allowed"
                             : "bg-slate-50 border-slate-200 opacity-50 cursor-not-allowed"
                           : active
-                            ? "bg-emerald-500/10 border-emerald-500/50"
+                            ? "bg-[#E5484D]/10 border-[#E5484D]/50"
                             : isAppShell
-                              ? "bg-[#16161A] border-white/5 hover:border-white/10"
+                              ? "bg-white/[0.03] border-white/5 hover:border-white/10"
                               : "bg-white border-slate-200 hover:border-slate-300 shadow-sm"
                       }`}
                     >
                       <span
-                        className={`w-10 h-10 rounded-lg flex items-center justify-center ${active && !m.disabled ? "bg-emerald-500/20" : isAppShell ? "bg-white/5" : "bg-slate-100"}`}
+                        className={`w-10 h-10 rounded-[10px] flex items-center justify-center ${active && !m.disabled ? "bg-[#E5484D]/20" : isAppShell ? "bg-white/5" : "bg-slate-100"}`}
                       >
                         <Icon
-                          className={`w-5 h-5 ${active && !m.disabled ? (isAppShell ? "text-emerald-300" : "text-emerald-600") : isAppShell ? "text-slate-300" : "text-slate-500"}`}
+                          className={`w-5 h-5 ${active && !m.disabled ? (isAppShell ? "text-[#E5484D]" : "text-[#E5484D]") : isAppShell ? "text-slate-300" : "text-slate-500"}`}
                         />
                       </span>
                       <span className="flex-1 min-w-0">
@@ -603,22 +603,22 @@ function CheckoutPage() {
                             <button
                               key={g.id}
                               onClick={() => setGateway(g.id)}
-                              className={`w-full text-left rounded-lg border p-3 flex items-center gap-3 transition-all ${
+                              className={`w-full text-left rounded-[10px] border p-3 flex items-center gap-3 transition-all ${
                                 on
-                                  ? "bg-emerald-500/10 border-emerald-500/50"
+                                  ? "bg-[#E5484D]/10 border-[#E5484D]/50"
                                   : isAppShell
-                                    ? "bg-[#0A0A0B] border-white/5 hover:border-white/10"
-                                    : "bg-white border-slate-200 hover:border-slate-300 shadow-sm"
+                                  ? "bg-white/[0.03] border-white/5 hover:border-white/10"
+                                  : "bg-white border-slate-200 hover:border-slate-300 shadow-sm"
                               }`}
                             >
                               <g.Icon
-                                className={`w-4 h-4 shrink-0 ${on ? "text-emerald-300" : "text-slate-400"}`}
+                                className={`w-4 h-4 shrink-0 ${on ? "text-[#E5484D]" : "text-slate-400"}`}
                               />
                               <span className="flex-1 min-w-0">
                                 <span className={`block text-sm font-semibold ${isAppShell ? "text-white" : "text-slate-900"}`}>
                                   {g.label}
                                   {g.id === recommended && (
-                                    <span className="ml-2 text-[9px] font-bold uppercase tracking-wider text-emerald-300">
+                                    <span className="ml-2 text-[9px] font-bold uppercase tracking-wider text-[#E5484D]">
                                       Recommended
                                     </span>
                                   )}
@@ -627,7 +627,7 @@ function CheckoutPage() {
                                   {g.hint}
                                 </span>
                               </span>
-                              {on && <Check className="w-4 h-4 text-emerald-300 shrink-0" />}
+                              {on && <Check className="w-4 h-4 text-[#E5484D] shrink-0" />}
                             </button>
                           );
                         })}
@@ -639,7 +639,7 @@ function CheckoutPage() {
 
               {insufficient && (
                 <div
-                  className={`mt-2 flex items-start gap-3 text-xs rounded-lg p-3 ${
+                  className={`mt-2 flex items-start gap-3 text-xs rounded-[10px] p-3 ${
                     isAppShell
                       ? "text-amber-300 bg-amber-500/5 border border-amber-500/20"
                       : "text-amber-700 bg-amber-50 border border-amber-200"
@@ -670,9 +670,9 @@ function CheckoutPage() {
                 <>
                   {servicePackage && (
                     <div
-                      className={`mt-2 rounded-xl border p-4 ${
+                      className={`mt-2 rounded-[10px] border p-4 ${
                         isAppShell
-                          ? "border-white/5 bg-[#16161A]"
+                          ? "border-white/5 bg-white/[0.03] shadow-sm"
                           : "border-slate-200 bg-white shadow-sm"
                       }`}
                     >
@@ -722,9 +722,9 @@ function CheckoutPage() {
 
               {needsDelivery && (
                 <div
-                  className={`mt-2 rounded-xl border p-4 ${
+                  className={`mt-2 rounded-[10px] border p-4 ${
                     isAppShell
-                      ? "border-white/5 bg-[#16161A]"
+                      ? "border-white/5 bg-white/[0.03] shadow-sm"
                       : "border-slate-200 bg-white shadow-sm"
                   }`}
                 >
@@ -743,9 +743,9 @@ function CheckoutPage() {
                       value={deliveryEmail}
                       onChange={(e) => setDeliveryEmail(e.target.value)}
                       placeholder="you@example.com"
-                      className={`mt-1 w-full border rounded-lg px-3 py-2 text-sm outline-none focus:border-emerald-500/60 ${
+                      className={`mt-1 w-full border rounded-[10px] px-3 py-2 text-sm outline-none focus:border-[#E5484D]/60 ${
                         isAppShell
-                          ? "bg-[#0A0A0B] border-white/10 text-white"
+                          ? "bg-white/[0.03] border-white/10 text-white focus:border-[#E5484D]/60"
                           : "bg-slate-50 border-slate-200 text-slate-900"
                       }`}
                     />
@@ -755,7 +755,7 @@ function CheckoutPage() {
                       Enter a valid email address.
                     </div>
                   )}
-                  <div className={`mt-3 rounded-md border px-3 py-2 text-[11px] leading-relaxed ${isAppShell ? "border-emerald-500/30 bg-emerald-500/5 text-emerald-100" : "border-emerald-200 bg-emerald-50 text-emerald-800"}`}>
+                  <div className={`mt-3 rounded-md border px-3 py-2 text-[11px] leading-relaxed ${isAppShell ? "border-[#E5484D]/30 bg-[#E5484D]/5 text-emerald-100" : "border-emerald-200 bg-emerald-50 text-emerald-800"}`}>
                     <strong className={isAppShell ? "text-emerald-200" : "text-emerald-900"}>
                       Delivery happens in your Oventric chat.
                     </strong>{" "}
@@ -772,7 +772,7 @@ function CheckoutPage() {
               className={`h-max min-w-0 ${
                 isAppShell
                   ? "lg:col-span-1 space-y-4 px-4 pb-8"
-                  : "bg-white shadow-sm border border-slate-200 rounded-xl p-5 lg:col-span-1"
+                  : "bg-white shadow-sm border border-slate-200 rounded-[10px] p-5 lg:col-span-1"
               }`}
             >
               {!isAppShell && (
@@ -785,12 +785,12 @@ function CheckoutPage() {
                   src={product.coverUrl}
                   alt={product.name}
                   sizes="(min-width: 1024px) 384px, 100vw"
-                  className={`w-full h-32 object-cover rounded-lg mb-3 border ${isAppShell ? "border-white/5 bg-white/5" : "border-slate-200 bg-slate-100"}`}
+                  className={`w-full h-32 object-cover rounded-[10px] mb-3 border ${isAppShell ? "border-white/5 bg-white/5" : "border-slate-200 bg-slate-100"}`}
                   loading="eager"
                   fetchPriority="high"
                 />
               ) : (
-                <div className="h-20 rounded-lg bg-white/5 md:bg-slate-100 mb-3" />
+                <div className="h-20 rounded-[10px] bg-white/5 md:bg-slate-100 mb-3" />
               )}
               {!isAppShell && (
                 <>
@@ -813,13 +813,13 @@ function CheckoutPage() {
                   Cashback Wallet
                 </div>
                 <label
-                  className={`flex items-start gap-3 rounded-lg px-3 py-2.5 border transition-all ${
+                  className={`flex items-start gap-3 rounded-[10px] px-3 py-3 border transition-all ${
                     cashbackUSD > 0
                       ? isAppShell
-                        ? "bg-emerald-500/5 border-emerald-500/20 cursor-pointer"
-                        : "bg-emerald-500/10 border-emerald-500/40 cursor-pointer"
+                        ? "bg-[#E5484D]/5 border-[#E5484D]/20 cursor-pointer shadow-sm"
+                        : "bg-[#E5484D]/10 border-[#E5484D]/40 cursor-pointer shadow-sm"
                       : isAppShell
-                        ? "bg-[#0A0A0B] border-white/5 opacity-50 cursor-not-allowed"
+                        ? "bg-white/[0.01] border-white/5 opacity-50 cursor-not-allowed"
                         : "bg-slate-100 border-slate-200 opacity-70 cursor-not-allowed"
                   }`}
                 >
@@ -828,14 +828,14 @@ function CheckoutPage() {
                     checked={useCashback}
                     disabled={cashbackUSD <= 0}
                     onChange={(e) => setUseCashback(e.target.checked)}
-                    className="mt-0.5 w-4 h-4 accent-emerald-500"
+                    className="mt-0.5 w-4 h-4 accent-[#E5484D] cursor-pointer"
                   />
                   <div className="flex-1 min-w-0">
                     <div className={`text-xs font-semibold ${isAppShell ? "text-white" : "text-slate-900"}`}>
                       Use Cashback
                     </div>
                     <div
-                      className={`text-[11px] ${cashbackUSD > 0 ? (isAppShell ? "text-emerald-300" : "text-emerald-600") : "text-slate-500"}`}
+                      className={`text-[11px] ${cashbackUSD > 0 ? (isAppShell ? "text-[#E5484D]" : "text-[#E5484D]") : "text-slate-500"}`}
                     >
                       Available: {fmt(cashbackUSD, baseCurrency)} · spend-only, not withdrawable
                     </div>
@@ -856,7 +856,7 @@ function CheckoutPage() {
                   <span>{fmtPrice(subtotalUSD, baseCurrency, product, subtotalLocal)}</span>
                 </div>
                 {cashbackApplyUSD > 0 && (
-                  <div className="flex justify-between text-emerald-600">
+                  <div className="flex justify-between text-[#E5484D]">
                     <span>Cashback applied</span>
                     <span>
                       − {fmtPrice(cashbackApplyUSD, baseCurrency, product, cashbackApplyLocal)}
@@ -865,7 +865,7 @@ function CheckoutPage() {
                 )}
                 <div className={`flex justify-between ${isAppShell ? "text-slate-400" : "text-slate-600"}`}>
                   <span>Processing</span>
-                  <span className="text-[10px] uppercase font-bold text-emerald-600">Free</span>
+                  <span className="text-[10px] uppercase font-bold text-[#E5484D]">Free</span>
                 </div>
                 <div
                   className={`flex justify-between font-black text-lg pt-2 border-t ${
@@ -890,7 +890,7 @@ function CheckoutPage() {
                   <button
                     onClick={pay}
                     disabled={submitting || (needsDelivery && !deliveryValid)}
-                    className="w-full inline-flex items-center justify-center gap-2 py-3.5 rounded-xl bg-emerald-500 hover:bg-emerald-400 text-black font-black text-sm transition-all active:scale-[0.98] disabled:opacity-60 disabled:cursor-not-allowed shadow-[0_4px_20px_-5px_rgba(16,185,129,0.4)]"
+                    className="w-full inline-flex items-center justify-center gap-2 py-4 rounded-[10px] bg-[#E5484D] hover:bg-[#d13a3f] text-white font-black text-sm transition-all active:scale-[0.98] disabled:opacity-60 disabled:cursor-not-allowed shadow-[0_8px_30px_rgb(229,72,77,0.2)]"
                   >
                     {submitting ? (
                       <>
@@ -905,7 +905,7 @@ function CheckoutPage() {
                     )}
                   </button>
                   <div className="text-[10px] text-slate-500 flex items-center justify-center gap-1 opacity-60">
-                    <ShieldCheck className="w-3 h-3 text-emerald-500/50" /> Secured by Oventric
+                    <ShieldCheck className="w-3 h-3 text-[#E5484D]/50" /> Secured by Oventric
                     escrow
                   </div>
                 </div>
@@ -914,7 +914,7 @@ function CheckoutPage() {
                   <button
                     onClick={pay}
                     disabled={submitting || (needsDelivery && !deliveryValid)}
-                    className="w-full mt-4 inline-flex items-center justify-center gap-2 py-3 rounded-lg bg-emerald-500 hover:bg-emerald-400 text-black font-black text-sm transition-colors disabled:opacity-60 disabled:cursor-not-allowed"
+                    className="w-full mt-4 inline-flex items-center justify-center gap-2 py-3 rounded-[10px] bg-[#E5484D] hover:bg-[#d13a3f] text-white font-black text-sm transition-colors disabled:opacity-60 disabled:cursor-not-allowed"
                   >
                     {submitting ? (
                       <>
@@ -932,12 +932,12 @@ function CheckoutPage() {
                   </button>
                   <div className="mt-3 flex items-center justify-between">
                     <div className="text-[11px] text-slate-500 inline-flex items-center gap-1">
-                      <ShieldCheck className="w-3 h-3 text-emerald-400" /> Secured by Oventric buyer
+                      <ShieldCheck className="w-3 h-3 text-[#E5484D]" /> Secured by Oventric buyer
                       protection
                     </div>
                     <Link
                       to="/help-board"
-                      className="text-[11px] font-medium text-emerald-600 hover:text-emerald-500 inline-flex items-center gap-1"
+                      className="text-[11px] font-medium text-[#E5484D] hover:text-emerald-500 inline-flex items-center gap-1"
                     >
                       <Headphones className="w-3 h-3" /> Get help
                     </Link>
@@ -956,7 +956,7 @@ function CheckoutPage() {
         >
           <div
             className={`w-full max-w-md border rounded-2xl p-6 ${
-              isAppShell ? "bg-[#16161A] border-white/5" : "bg-white shadow-sm border-slate-200"
+              isAppShell ? "bg-white/[0.03] backdrop-blur-xl border-white/5" : "bg-white shadow-sm border-slate-200"
             }`}
             onClick={(e) => e.stopPropagation()}
           >
@@ -975,8 +975,8 @@ function CheckoutPage() {
               min={1}
               value={topUpAmount}
               onChange={(e) => setTopUpAmount(e.target.value)}
-              className={`w-full border rounded-lg px-3 py-2 text-sm mb-4 outline-none focus:border-emerald-500/60 ${
-                isAppShell ? "bg-[#0A0A0B] border-white/10 text-white" : "bg-slate-50 border-slate-200 text-slate-900"
+              className={`w-full border rounded-[10px] px-3 py-2 text-sm mb-4 outline-none focus:border-[#E5484D]/60 ${
+                isAppShell ? "bg-white/[0.03] border-white/10 text-white focus:border-[#E5484D]/60" : "bg-slate-50 border-slate-200 text-slate-900"
               }`}
             />
             <label className="block text-xs font-semibold uppercase tracking-wider text-slate-400 md:text-slate-500 mb-1.5">
@@ -992,16 +992,16 @@ function CheckoutPage() {
                     <button
                       key={m.id}
                       onClick={() => setTopUpMethod(m.id)}
-                      className={`w-full text-left rounded-lg border p-3 flex items-center gap-3 transition-all ${
+                      className={`w-full text-left rounded-[10px] border p-3 flex items-center gap-3 transition-all ${
                         active
-                          ? "bg-emerald-500/10 border-emerald-500/50"
+                          ? "bg-[#E5484D]/10 border-[#E5484D]/50"
                           : isAppShell
-                            ? "bg-[#0A0A0B] border-white/5"
+                            ? "bg-white/[0.03] border-white/5"
                             : "bg-white border-slate-200"
                       }`}
                     >
                       <Icon
-                        className={`w-4 h-4 ${active ? "text-emerald-300" : "text-slate-400"}`}
+                        className={`w-4 h-4 ${active ? "text-[#E5484D]" : "text-slate-400"}`}
                       />
                       <span className={`text-sm ${isAppShell ? "text-white" : "text-slate-900"}`}>{m.label}</span>
                     </button>
@@ -1012,14 +1012,14 @@ function CheckoutPage() {
               <button
                 onClick={() => setTopUpOpen(false)}
                 disabled={topUpBusy}
-                className="flex-1 py-2 rounded-lg bg-white/5 md:bg-slate-100 hover:bg-white/10 text-slate-200 md:text-slate-700 text-sm font-semibold"
+                className="flex-1 py-2 rounded-[10px] bg-white/5 md:bg-slate-100 hover:bg-white/10 text-slate-200 md:text-slate-700 text-sm font-semibold"
               >
                 Cancel
               </button>
               <button
                 onClick={runTopUp}
                 disabled={topUpBusy}
-                className="flex-1 py-2 rounded-lg bg-emerald-500 hover:bg-emerald-400 text-black text-sm font-black inline-flex items-center justify-center gap-2"
+                className="flex-1 py-2 rounded-[10px] bg-[#E5484D] hover:bg-[#d13a3f] text-black text-sm font-black inline-flex items-center justify-center gap-2"
               >
                 {topUpBusy ? (
                   <>
