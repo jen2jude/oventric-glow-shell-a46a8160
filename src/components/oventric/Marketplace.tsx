@@ -43,6 +43,8 @@ export function Marketplace() {
   const [products, setProducts] = useState<ProductDTO[]>([]);
   const [cats, setCats] = useState<CategoryNode[]>([]);
   const [mode, setMode] = useState<Mode>("all");
+  const [sort, setSort] = useState<SortKey>("popular");
+  const [catalogLimit, setCatalogLimit] = useState(8);
   const [query, setQuery] = useState("");
   const [loading, setLoading] = useState(true);
   const [showCategories, setShowCategories] = useState(false);
