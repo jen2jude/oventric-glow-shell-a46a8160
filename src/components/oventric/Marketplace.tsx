@@ -86,7 +86,10 @@ export function Marketplace() {
 
   return (
     <div className={`marketplace-discovery bg-[#0A0A0B] min-h-full pb-20 text-white`}>
-      <MarketplaceBanner />
+      <div className="pt-10 px-6 max-w-[1400px] mx-auto w-full space-y-2">
+        <h1 className="text-5xl font-black text-white italic uppercase tracking-tighter">Marketplace</h1>
+        <p className="text-slate-400 font-medium text-lg">Discover people, products and opportunities.</p>
+      </div>
 
       <div className="max-w-[1400px] mx-auto w-full px-4 sm:px-6 py-8 space-y-16">
         
