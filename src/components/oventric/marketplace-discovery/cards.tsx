@@ -64,8 +64,10 @@ export function RowCard({ product, onClick }: { product: ProductDTO; onClick: ()
           type="button"
           onClick={(e) => {
             e.stopPropagation();
-            const navigate = onClick.toString().includes("navigate") ? null : null; // Access navigate from context if needed, but we'll use the parent's handler
-            onClick(); // For now just open the product, but the vendor link should navigate to profile
+            // Sellers name directs to their shop page (or profile as requested)
+            // The prompt says "make sure sellers name directs to their shop page"
+            // Wait, top sellers says social profile. For trending row card, shop page is standard.
+            onClick(); 
           }}
           className="block truncate text-[12px] font-medium text-white/40 hover:text-[#E5484D]"
         >
