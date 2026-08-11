@@ -120,21 +120,21 @@ export function ProductDiscoveryCard({
       onClick={onClick}
       className="group flex flex-col bg-[#121214] border border-white/5 rounded-xl overflow-hidden cursor-pointer hover:border-red-500/20 transition-all"
     >
-      <div className="aspect-[4/5] overflow-hidden relative bg-slate-900">
+      <div className="aspect-square overflow-hidden relative bg-slate-900 rounded-3xl">
         <ResponsiveImage
           src={product.coverUrl ?? ""}
           alt={product.name}
           className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-110"
         />
         <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-transparent to-transparent opacity-0 group-hover:opacity-100 transition-opacity flex items-end p-4">
-           <button className="w-full bg-white text-black font-black py-2 rounded-lg text-[10px] uppercase tracking-widest active:scale-95 transition-transform">
-             Quick View
+           <button className="w-full bg-white text-black font-black py-2.5 rounded-xl text-[10px] uppercase tracking-widest active:scale-95 transition-transform">
+             View Product
            </button>
         </div>
       </div>
       <div className="p-4 space-y-2">
         <div className="flex justify-between items-start gap-2">
-          <h3 className="text-sm font-black text-white line-clamp-2 group-hover:text-red-500 transition-colors">
+          <h3 className="text-sm font-black text-white line-clamp-1 group-hover:text-red-500 transition-colors uppercase italic tracking-tighter">
             {product.name}
           </h3>
         </div>

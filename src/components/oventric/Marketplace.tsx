@@ -178,7 +178,7 @@ export function Marketplace() {
           <ScrollArea className="w-full whitespace-nowrap">
             <div className="flex gap-6 pb-4">
               {discovery?.trending?.slice(0, 6).map((p: ProductDTO) => (
-                <div key={p.id} className="w-48 shrink-0">
+                <div key={p.id} className="w-64 shrink-0">
                    <ProductDiscoveryCard product={p} onClick={() => onOpenProduct(p)} />
                 </div>
               ))}
@@ -210,8 +210,8 @@ export function Marketplace() {
                 title="New on Oventric"
                 onViewAll={() => {}}
               />
-              <div className="grid grid-cols-2 md:grid-cols-3 gap-6">
-                {discovery?.newArrivals?.slice(0, 6).map((p: ProductDTO) => (
+              <div className="grid grid-cols-2 md:grid-cols-2 gap-6">
+                {discovery?.newArrivals?.slice(0, 4).map((p: ProductDTO) => (
                   <ProductDiscoveryCard key={p.id} product={p} onClick={() => onOpenProduct(p)} />
                 ))}
               </div>
