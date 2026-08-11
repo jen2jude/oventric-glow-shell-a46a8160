@@ -479,6 +479,18 @@ export function Marketplace() {
           scrollTop();
         }}
       />
+
+      {showTopSellers && (
+        <TopSellersPanel
+          sellers={sellers}
+          onClose={() => setShowTopSellers(false)}
+          onOpenShop={(slug) => {
+            setShowTopSellers(false);
+            openShop(slug);
+          }}
+        />
+      )}
+
     </div>
   );
 }
