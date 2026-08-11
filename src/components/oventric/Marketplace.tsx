@@ -182,33 +182,42 @@ export function Marketplace() {
               </section>
             ) : (
               <div className="space-y-8 pt-6">
-                {/* Featured banner */}
-                {featured && (
+                {/* Featured carousel */}
+                {discovery && discovery.featured.length > 0 && (
                   <div className="px-4">
-                    <button
-                      type="button"
-                      onClick={() => openProduct(featured)}
-                      className="relative block h-[190px] w-full overflow-hidden rounded-3xl bg-gradient-to-br from-[#3B1E86] to-[#16092F] text-left"
-                    >
-                      {featured.coverUrl && (
-                        <img
-                          src={featured.coverUrl}
-                          alt=""
-                          className="absolute right-0 top-0 h-full w-1/2 object-cover opacity-80"
-                        />
-                      )}
-                      <div className="absolute inset-0 bg-gradient-to-r from-[#2A1266] via-[#2A1266]/85 to-transparent" />
-                      <div className="relative flex h-full w-[62%] min-w-0 flex-col justify-center gap-1.5 p-5">
-                        <span className="w-fit rounded-md bg-white/15 px-2 py-1 text-[9.5px] font-bold uppercase tracking-[0.15em] text-white">
-                          Featured
-                        </span>
-                        <p className="line-clamp-2 text-[19px] font-bold leading-tight text-white">{featured.name}</p>
-                        <p className="line-clamp-1 text-[12px] text-white/60">{featured.description}</p>
-                        <span className="mt-1 w-fit rounded-full bg-white px-4 py-2 text-[12px] font-bold text-black">
-                          Explore Now
-                        </span>
-                      </div>
-                    </button>
+                    <div className="no-scrollbar flex snap-x snap-mandatory gap-4 overflow-x-auto pb-2">
+                      {discovery.featured.slice(0, 5).map((item) => (
+                        <button
+                          key={item.id}
+                          type="button"
+                          onClick={() => openProduct(item)}
+                          className="relative h-[190px] w-full min-w-full shrink-0 snap-center overflow-hidden rounded-[32px] bg-[#1A1A1E] text-left ring-1 ring-white/5"
+                        >
+                          {item.coverUrl && (
+                            <img
+                              src={item.coverUrl}
+                              alt=""
+                              className="absolute inset-0 h-full w-full object-cover opacity-60 transition-transform duration-500 group-hover:scale-110"
+                            />
+                          )}
+                          <div className="absolute inset-0 bg-gradient-to-t from-black via-black/40 to-transparent" />
+                          <div className="relative flex h-full flex-col justify-end p-6 pb-7">
+                            <span className="mb-2 w-fit rounded-lg bg-[#E5484D] px-2.5 py-1 text-[10px] font-black uppercase tracking-widest text-white shadow-lg">
+                              {item.kind === "digital" ? "Digital" : item.kind === "physical" ? "Physical" : "Featured"}
+                            </span>
+                            <h3 className="line-clamp-2 text-[22px] font-bold leading-[1.1] tracking-tight text-white drop-shadow-md">
+                              {item.name}
+                            </h3>
+                          </div>
+                        </button>
+                      ))}
+                    </div>
+                    {/* Dots indicator */}
+                    <div className="mt-3 flex justify-center gap-1.5">
+                      {discovery.featured.slice(0, 5).map((_, i) => (
+                        <div key={i} className={`h-1.5 rounded-full transition-all duration-300 ${i === 0 ? "w-4 bg-[#E5484D]" : "w-1.5 bg-white/20"}`} />
+                      ))}
+                    </div>
                   </div>
                 )}
 
@@ -255,28 +264,30 @@ export function Marketplace() {
                     </div>
                   </Rail>
                 )}
-
+                
                 {/* Top Sellers */}
                 {sellers.length > 0 && (
                   <Rail title="Top Sellers">
-                    <div className="no-scrollbar flex gap-4 overflow-x-auto px-4">
+                    <div className="no-scrollbar flex gap-4 overflow-x-auto px-4 pb-2">
                       {sellers.map((s) => (
                         <button
                           key={s.id}
                           type="button"
-                          onClick={() => openShop(s.slug)}
-                          className="flex w-[64px] shrink-0 flex-col items-center gap-1.5"
+                          onClick={() => navigate({ to: "/profile/$id", params: { id: s.slug } })}
+                          className="group flex w-[64px] shrink-0 flex-col items-center gap-2"
                         >
-                          <span className="grid h-[58px] w-[58px] place-items-center overflow-hidden rounded-full bg-black ring-2 ring-[#E5484D]">
-                            {s.avatarUrl ? (
-                              <img src={s.avatarUrl} alt={s.name} className="h-full w-full object-cover" />
-                            ) : (
-                              <span className="text-[13px] font-black text-white">
-                                {s.name.slice(0, 2).toUpperCase()}
-                              </span>
-                            )}
+                          <span className="relative h-[62px] w-[62px] shrink-0 rounded-full bg-gradient-to-tr from-[#E5484D] to-[#FF7A7F] p-[1.5px] transition-transform group-active:scale-95">
+                            <span className="flex h-full w-full items-center justify-center overflow-hidden rounded-full border-[2.5px] border-[#0A0A0B] bg-black">
+                              {s.avatarUrl ? (
+                                <img src={s.avatarUrl} alt={s.name} className="h-full w-full object-cover" />
+                              ) : (
+                                <span className="text-[14px] font-black text-white/40">
+                                  {s.name.slice(0, 2).toUpperCase()}
+                                </span>
+                              )}
+                            </span>
                           </span>
-                          <span className="w-full truncate text-center text-[11px] text-white/60">{s.name}</span>
+                          <span className="w-full truncate text-center text-[10.5px] font-medium text-white/50">{s.name}</span>
                         </button>
                       ))}
                     </div>
