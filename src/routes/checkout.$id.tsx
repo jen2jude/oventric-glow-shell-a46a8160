@@ -914,7 +914,7 @@ function CheckoutPage() {
                   <button
                     onClick={pay}
                     disabled={submitting || (needsDelivery && !deliveryValid)}
-                    className="w-full mt-4 inline-flex items-center justify-center gap-2 py-3 rounded-[10px] bg-[#E5484D] hover:bg-[#d13a3f] text-black font-black text-sm transition-colors disabled:opacity-60 disabled:cursor-not-allowed"
+                    className="w-full mt-4 inline-flex items-center justify-center gap-2 py-3 rounded-[10px] bg-[#E5484D] hover:bg-[#d13a3f] text-white font-black text-sm transition-colors disabled:opacity-60 disabled:cursor-not-allowed"
                   >
                     {submitting ? (
                       <>
