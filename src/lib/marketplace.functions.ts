@@ -192,20 +192,29 @@ async function signImagePaths(
 }
 
 /** Public catalog. Anyone (including anon) can list. RLS filters to status='active'. */
-export const listProducts = createServerFn({ method: "GET" }).handler(async () => {
-  const sb = serverPublicClient();
-  const { data, error } = await sb
-    .from("products")
-    .select(PRODUCT_COLS)
-    .eq("status", "active")
-    .order("promoted", { ascending: false })
-    .order("created_at", { ascending: false })
-    .limit(400);
-  if (error) throw new Error(error.message);
-  const rows = data ?? [];
-  const urls = await signCovers(sb, rows.map((r) => (r.cover_path as string) ?? null));
-  return rows.map((r, i) => mapProduct(r as Record<string, unknown>, urls[i]));
-});
+export const listProducts = createServerFn({ method: "GET" })
+  .inputValidator((input: { kind?: "digital" | "physical" | "all" } | undefined) => {
+    const kind = (input?.kind ?? "all") as "digital" | "physical" | "all";
+    return { kind };
+  })
+  .handler(async ({ data }) => {
+    const sb = serverPublicClient();
+    let q = sb
+      .from("products")
+      .select(PRODUCT_COLS)
+      .eq("status", "active")
+      .order("promoted", { ascending: false })
+      .order("created_at", { ascending: false })
+      .limit(400);
+    if (data.kind !== "all") {
+      q = q.eq("kind", data.kind);
+    }
+    const { data: rows, error } = await q;
+    if (error) throw new Error(error.message);
+    const items = rows ?? [];
+    const urls = await signCovers(sb, items.map((r) => (r.cover_path as string) ?? null));
+    return items.map((r, i) => mapProduct(r as Record<string, unknown>, urls[i]));
+  });
 
 export interface CategoryNode {
   id: string;
