@@ -219,12 +219,12 @@ export function Marketplace() {
           <aside className="space-y-16">
             <section>
               <SectionHeader
-                title="Top Sellers"
-                subtitle="Verified creators"
+                title="Trending Products"
+                onViewAll={() => {}}
               />
               <div className="flex flex-col gap-6">
-                {discovery?.topSellers?.slice(0, 5).map((seller: any) => (
-                  <SellerDiscoveryCard key={seller.id} seller={seller} onClick={() => navigate({ to: `/shop/$id`, params: { id: seller.slug } })} />
+                {discovery?.trending?.slice(0, 5).map((p: ProductDTO) => (
+                  <ProductDiscoveryCard key={p.id} variant="compact" product={p} onClick={() => onOpenProduct(p)} />
                 ))}
               </div>
             </section>
