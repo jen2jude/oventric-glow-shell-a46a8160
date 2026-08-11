@@ -193,10 +193,9 @@ async function signImagePaths(
 
 /** Public catalog. Anyone (including anon) can list. RLS filters to status='active'. */
 export const listProducts = createServerFn({ method: "GET" })
-  .inputValidator((input: { kind?: "digital" | "physical" | "all" } | undefined) => {
-    const kind = (input?.kind ?? "all") as "digital" | "physical" | "all";
-    return { kind };
-  })
+  .inputValidator((input: unknown) =>
+    z.object({ kind: z.enum(["digital", "physical", "all"]).default("all") }).default({}).parse(input),
+  )
   .handler(async ({ data }) => {
     const sb = serverPublicClient();
     let q = sb
