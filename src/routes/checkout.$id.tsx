@@ -475,19 +475,19 @@ function CheckoutPage() {
             className={`grid grid-cols-1 lg:grid-cols-3 gap-6 min-w-0 ${isAppShell ? "p-0" : ""}`}
           >
             {/* Payment methods */}
-            <div className={`lg:col-span-2 space-y-3 min-w-0 ${isAppShell ? "px-4 pt-16" : ""}`}>
+            <div className={`lg:col-span-2 space-y-4 min-w-0 ${isAppShell ? "px-4 pt-12" : ""}`}>
               {isAppShell && (
-                <div className="flex items-center gap-4 mb-6">
+                <div className="flex items-center gap-4 mb-8 bg-white/[0.03] p-4 rounded-[10px] border border-white/5 shadow-sm">
                   {product.coverUrl && (
                     <ResponsiveImage
                       src={product.coverUrl}
                       alt={product.name}
-                      className="w-16 h-16 object-cover rounded-[10px] border border-white/5"
+                      className="w-16 h-16 object-cover rounded-[10px] border border-white/10"
                     />
                   )}
-                  <div>
-                    <h1 className="text-xl font-black text-white">{product.name}</h1>
-                    <div className="text-xs text-slate-500">Checkout · Qty {qty}</div>
+                  <div className="flex-1 min-w-0">
+                    <h1 className="text-lg font-black text-white truncate">{product.name}</h1>
+                    <div className="text-[11px] text-slate-500 uppercase tracking-wider font-bold">Qty {qty} · Checkout</div>
                   </div>
                 </div>
               )}
