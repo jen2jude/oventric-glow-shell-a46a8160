@@ -294,6 +294,23 @@ export async function settleOrder(
     const orderId = oRow.id as string;
     const productName = (pRow.name as string) ?? "your listing";
     try {
+      // Automatic Buyer to Seller message
+      await supabaseAdmin.from("direct_messages").insert({
+        sender_id: buyerId,
+        recipient_id: pRow.seller_id as string,
+        order_id: orderId,
+        body: `hey i just paid for ${productName} please deliver as soon as possible.`,
+      });
+
+      // Automatic Seller to Buyer reply
+      await supabaseAdmin.from("direct_messages").insert({
+        sender_id: pRow.seller_id as string,
+        recipient_id: buyerId,
+        order_id: orderId,
+        body: `Thank you for your payment!. We are preparing your order and will ship it as soon as possible. Thank you and we will make sure everything goes smoothly.`,
+      });
+
+      // Detailed escrow instructions for the seller
       await supabaseAdmin.from("direct_messages").insert({
         sender_id: buyerId,
         recipient_id: pRow.seller_id as string,
