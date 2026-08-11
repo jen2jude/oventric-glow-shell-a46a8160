@@ -43,8 +43,8 @@ export function TopSellersPanel({
     const next = !following[s.id];
     setFollowing((f) => ({ ...f, [s.id]: next }));
     try {
-      if (next) await follow({ data: { targetUserId: s.id } });
-      else await unfollowFn({ data: { targetUserId: s.id } });
+      if (next) await follow({ data: { targetId: s.id } });
+      else await unfollowFn({ data: { targetId: s.id } });
     } catch {
       setFollowing((f) => ({ ...f, [s.id]: !next }));
     }
