@@ -646,13 +646,14 @@ function ProductPage() {
                 )}
                 {product.kind === "service" ? (
                   isAppShell ? (
-                    <button
-                      onClick={openSellerChat}
-                      className="w-full inline-flex items-center justify-center gap-2 py-3.5 text-[14px] rounded-2xl bg-[#E5484D] hover:bg-[#d13a3f] text-white font-black transition-colors"
-                    >
-                      <MessageCircle className="w-4 h-4" /> Contact for this service
-                    </button>
-
+                    <div className="fixed bottom-[84px] left-0 right-0 z-20 px-4 py-3 bg-[#0A0A0B]/80 backdrop-blur-xl border-t border-white/[0.06]">
+                      <button
+                        onClick={openSellerChat}
+                        className="w-full inline-flex items-center justify-center gap-2 py-3.5 text-[14px] rounded-2xl bg-[#E5484D] hover:bg-[#d13a3f] text-white font-black transition-colors"
+                      >
+                        <MessageCircle className="w-4 h-4" /> Contact for this service
+                      </button>
+                    </div>
                   ) : (
                     <button
                       onClick={openSellerChat}
@@ -662,23 +663,42 @@ function ProductPage() {
                     </button>
                   )
                 ) : isAppShell ? (
-                  <div className={`grid ${product.kind !== "physical" ? "grid-cols-2" : "grid-cols-1"} gap-3`}>
-                    {product.kind !== "physical" && (
-                      <button
-                        onClick={openSellerChat}
-                        className="inline-flex items-center justify-center gap-2 py-3.5 text-[14px] bg-[#1C1C1F] border border-white/[0.06] text-white rounded-2xl hover:bg-[#222226] font-bold transition-colors"
-                      >
-                        <MessageCircle className="w-4 h-4" /> Chat
-                      </button>
-                    )}
-                    <button
-                      onClick={product.kind === "physical" ? openContact : startCheckout}
-                      className="inline-flex items-center justify-center gap-2 py-3.5 text-[14px] rounded-2xl bg-[#E5484D] hover:bg-[#d13a3f] text-white font-black transition-colors"
-                    >
-                      <ShoppingCart className="w-4 h-4" /> Buy Now
-                    </button>
+                  <div className="fixed bottom-[84px] left-0 right-0 z-20 px-4 py-3 bg-[#0A0A0B]/80 backdrop-blur-xl border-t border-white/[0.06]">
+                    <div className="flex flex-col gap-3">
+                      <div className="flex items-center gap-3 bg-white/[0.02] border border-white/[0.04] p-2.5 rounded-2xl mb-1">
+                        <div className="h-9 w-9 shrink-0 overflow-hidden rounded-full bg-white/10 grid place-items-center text-[11px] font-black text-white">
+                          {product.vendor?.slice(0, 2).toUpperCase()}
+                        </div>
+                        <div className="min-w-0 flex-1">
+                          <div className="truncate text-[13px] font-bold text-white">{product.vendor}</div>
+                          <div className="text-[10px] text-white/40">Seller on Oventric</div>
+                        </div>
+                        <Link
+                          to="/shop/$id"
+                          params={{ id: product.sellerSlug ?? product.sellerId }}
+                          className="shrink-0 rounded-xl border border-white/10 bg-white/[0.04] px-3 py-1.5 text-[11px] font-bold text-white"
+                        >
+                          View Shop
+                        </Link>
+                      </div>
+                      <div className={`grid ${product.kind !== "physical" ? "grid-cols-2" : "grid-cols-1"} gap-3`}>
+                        {product.kind !== "physical" && (
+                          <button
+                            onClick={openSellerChat}
+                            className="inline-flex items-center justify-center gap-2 py-3.5 text-[14px] bg-[#1C1C1F] border border-white/[0.06] text-white rounded-2xl hover:bg-[#222226] font-bold transition-colors"
+                          >
+                            <MessageCircle className="w-4 h-4" /> Chat
+                          </button>
+                        )}
+                        <button
+                          onClick={product.kind === "physical" ? openContact : startCheckout}
+                          className="inline-flex items-center justify-center gap-2 py-3.5 text-[14px] rounded-2xl bg-[#E5484D] hover:bg-[#d13a3f] text-white font-black transition-colors"
+                        >
+                          <ShoppingCart className="w-4 h-4" /> Buy Now
+                        </button>
+                      </div>
+                    </div>
                   </div>
-
                 ) : (
                   <div className="space-y-2">
                     <button
@@ -699,7 +719,7 @@ function ProductPage() {
                 )}
               </div>
 
-              {isAppShell && (
+              {!isAppShell && (
                 <div className="mt-5 flex items-center gap-3 rounded-2xl border border-white/[0.06] bg-[#141416] p-3.5">
                   <div className="h-11 w-11 shrink-0 overflow-hidden rounded-full bg-white/10 grid place-items-center text-[13px] font-black text-white">
                     {product.vendor?.slice(0, 2).toUpperCase()}
