@@ -1,7 +1,7 @@
 import { useEffect, useMemo, useRef, useState } from "react";
 import { useNavigate } from "@tanstack/react-router";
 import { useServerFn } from "@tanstack/react-start";
-import { ChevronLeft, LayoutGrid, Search, ShoppingCart, SlidersHorizontal } from "lucide-react";
+import { ChevronLeft, LayoutGrid, Search, SlidersHorizontal } from "lucide-react";
 import { useOnboarding } from "@/lib/onboarding/OnboardingContext";
 import {
   listProducts,
@@ -12,7 +12,6 @@ import {
 } from "@/lib/marketplace.functions";
 import { CategoryDiscoverySheet } from "./marketplace-discovery/CategoryDiscoverySheet";
 import { GridCard, Rail, RowCard, ShopCard, TileCard, type SellerLite } from "./marketplace-discovery/cards";
-import oventricFull from "@/assets/oventric-full.asset.json";
 
 type Mode = "all" | "digital" | "physical";
 
