@@ -82,31 +82,35 @@ export function ProductDiscoveryCard({
     return (
       <div
         onClick={onClick}
-        className="group flex items-center gap-3 bg-[#121214] p-2 rounded-xl border border-white/5 cursor-pointer hover:border-red-500/20 transition-all"
+        className="group flex items-center gap-4 bg-[#121214] p-4 rounded-3xl border border-white/5 cursor-pointer hover:border-red-500/20 transition-all shadow-xl"
       >
-        <div className="w-16 h-16 shrink-0 rounded-lg overflow-hidden bg-slate-900">
+        <div className="w-20 h-20 shrink-0 rounded-2xl overflow-hidden bg-slate-900">
           <ResponsiveImage
             src={product.coverUrl ?? ""}
             alt={product.name}
             className="w-full h-full object-cover transition-transform group-hover:scale-110"
           />
         </div>
-        <div className="flex-1 min-w-0">
-          <h4 className="text-sm font-black text-white truncate group-hover:text-red-500 transition-colors">
+        <div className="flex-1 min-w-0 space-y-1">
+          <h4 className="text-base font-black text-white truncate group-hover:text-red-500 transition-colors uppercase italic tracking-tighter">
             {product.name}
           </h4>
-          <div className="flex items-center gap-2 mt-0.5">
-            <span className="text-xs font-black text-red-500">
+          <p className="text-[10px] font-bold text-slate-500 uppercase tracking-widest truncate">
+            by {product.vendor}
+          </p>
+          <div className="flex items-center justify-between mt-1">
+            <span className="text-sm font-black text-white">
               {displayPrice.formatted}
             </span>
-            {product.location && (
-              <span className="text-[10px] text-slate-500 flex items-center gap-0.5 truncate">
-                <MapPin className="w-2.5 h-2.5" />
-                {product.location}
-              </span>
-            )}
+            <div className="flex items-center gap-1 text-emerald-400">
+              <Star className="w-2.5 h-2.5 fill-current" />
+              <span className="text-[10px] font-bold">{product.rating || 4.8}</span>
+            </div>
           </div>
         </div>
+        <button className="p-3 bg-white/5 rounded-2xl hover:bg-red-600 hover:text-white transition-all">
+          <ShoppingCart className="w-5 h-5" />
+        </button>
       </div>
     );
   }
@@ -116,21 +120,21 @@ export function ProductDiscoveryCard({
       onClick={onClick}
       className="group flex flex-col bg-[#121214] border border-white/5 rounded-xl overflow-hidden cursor-pointer hover:border-red-500/20 transition-all"
     >
-      <div className="aspect-[4/5] overflow-hidden relative bg-slate-900">
+      <div className="aspect-square overflow-hidden relative bg-slate-900 rounded-3xl">
         <ResponsiveImage
           src={product.coverUrl ?? ""}
           alt={product.name}
           className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-110"
         />
         <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-transparent to-transparent opacity-0 group-hover:opacity-100 transition-opacity flex items-end p-4">
-           <button className="w-full bg-white text-black font-black py-2 rounded-lg text-[10px] uppercase tracking-widest active:scale-95 transition-transform">
-             Quick View
+           <button className="w-full bg-white text-black font-black py-2.5 rounded-xl text-[10px] uppercase tracking-widest active:scale-95 transition-transform">
+             View Product
            </button>
         </div>
       </div>
       <div className="p-4 space-y-2">
         <div className="flex justify-between items-start gap-2">
-          <h3 className="text-sm font-black text-white line-clamp-2 group-hover:text-red-500 transition-colors">
+          <h3 className="text-sm font-black text-white line-clamp-1 group-hover:text-red-500 transition-colors uppercase italic tracking-tighter">
             {product.name}
           </h3>
         </div>

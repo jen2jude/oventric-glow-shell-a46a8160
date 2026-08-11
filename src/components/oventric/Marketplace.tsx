@@ -11,6 +11,9 @@ import {
   ShoppingBag,
   Heart,
   ArrowRight,
+  Filter,
+  Globe,
+  LayoutGrid,
 } from "lucide-react";
 import { useOnboarding } from "@/lib/onboarding/OnboardingContext";
 import {
@@ -27,8 +30,11 @@ import { SectionHeader } from "./marketplace-discovery/SectionHeader";
 import { ProductDiscoveryCard } from "./marketplace-discovery/ProductDiscoveryCard";
 import { SellerDiscoveryCard } from "./marketplace-discovery/SellerDiscoveryCard";
 import { FeaturedHero } from "./marketplace-discovery/FeaturedHero";
+import { CategoryDiscoverySheet } from "./marketplace-discovery/CategoryDiscoverySheet";
 import { ScrollArea, ScrollBar } from "@/components/ui/scroll-area";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import marketplace01 from "@/assets/marketplace01.png.asset.json";
+import marketplace04 from "@/assets/marketplace04.png.asset.json";
 
 type Mode = "digital" | "physical";
 
@@ -47,6 +53,8 @@ export function Marketplace() {
   const [mode, setMode] = useState<Mode>("digital");
   const [searchQuery, setSearchQuery] = useState("");
   const [loading, setLoading] = useState(true);
+  const [showCategories, setShowCategories] = useState(false);
+  const [selectedCategory, setSelectedCategory] = useState<CategoryNode | null>(null);
 
   useEffect(() => {
     const refresh = async () => {
@@ -78,42 +86,63 @@ export function Marketplace() {
 
   return (
     <div className={`marketplace-discovery bg-[#0A0A0B] min-h-full pb-20 text-white`}>
-      <MarketplaceBanner />
+      <div className="pt-10 px-6 max-w-[1400px] mx-auto w-full space-y-2">
+        <h1 className="text-5xl font-black text-white italic uppercase tracking-tighter">Marketplace</h1>
+        <p className="text-slate-400 font-medium text-lg">Discover people, products and opportunities.</p>
+      </div>
 
       <div className="max-w-[1400px] mx-auto w-full px-4 sm:px-6 py-8 space-y-16">
         
-        {/* ── Search & Mode Selection ─────────────────────────── */}
-        <div className="flex flex-col md:flex-row items-center justify-between gap-6">
-          <div className="flex items-center bg-[#121214] border border-white/5 rounded-2xl p-1 w-fit">
-            <button
-              onClick={() => setMode("digital")}
-              className={`flex items-center gap-2 px-6 py-3 rounded-xl text-xs font-black uppercase tracking-widest transition-all ${
-                mode === "digital" ? "bg-red-600 text-white shadow-lg shadow-red-600/20" : "text-slate-400 hover:text-white"
-              }`}
-            >
-              <Cloud className="w-4 h-4" />
-              Digital Assets
-            </button>
-            <button
-              onClick={() => setMode("physical")}
-              className={`flex items-center gap-2 px-6 py-3 rounded-xl text-xs font-black uppercase tracking-widest transition-all ${
-                mode === "physical" ? "bg-red-600 text-white shadow-lg shadow-red-600/20" : "text-slate-400 hover:text-white"
-              }`}
-            >
-              <Truck className="w-4 h-4" />
-              Physical Goods
-            </button>
+        {/* ── Discovery Filters & Mode Selection ─────────────────────────── */}
+        <div className="flex flex-col gap-8">
+          <div className="flex items-center justify-between">
+            <div className="flex items-center bg-[#121214] border border-white/5 rounded-2xl p-1 w-fit shadow-2xl">
+              <button
+                onClick={() => { setMode("digital"); setSelectedCategory(null); }}
+                className={`flex items-center gap-2 px-8 py-3.5 rounded-xl text-[10px] font-black uppercase tracking-[0.2em] transition-all ${
+                  mode === "digital" && !selectedCategory ? "bg-red-600 text-white shadow-lg shadow-red-600/20" : "text-slate-500 hover:text-white"
+                }`}
+              >
+                All
+              </button>
+              <button
+                onClick={() => { setMode("digital"); setSelectedCategory(null); }}
+                className={`flex items-center gap-2 px-8 py-3.5 rounded-xl text-[10px] font-black uppercase tracking-[0.2em] transition-all ${
+                  mode === "digital" ? "bg-[#1A1A1C] text-slate-300" : "text-slate-500 hover:text-white"
+                }`}
+              >
+                Digital
+              </button>
+              <button
+                onClick={() => { setMode("physical"); setSelectedCategory(null); }}
+                className={`flex items-center gap-2 px-8 py-3.5 rounded-xl text-[10px] font-black uppercase tracking-[0.2em] transition-all ${
+                  mode === "physical" ? "bg-[#1A1A1C] text-slate-300" : "text-slate-500 hover:text-white"
+                }`}
+              >
+                Physical
+              </button>
+              <button
+                onClick={() => setShowCategories(true)}
+                className={`flex items-center gap-2 px-8 py-3.5 rounded-xl text-[10px] font-black uppercase tracking-[0.2em] transition-all text-slate-500 hover:text-white`}
+              >
+                <LayoutGrid className="w-3.5 h-3.5" />
+                Categories
+              </button>
+            </div>
           </div>
 
-          <div className="relative w-full max-w-md group">
-            <Search className="absolute left-4 top-1/2 -translate-y-1/2 w-5 h-5 text-slate-500 group-focus-within:text-red-500 transition-colors" />
+          <div className="relative w-full group">
+            <Search className="absolute left-6 top-1/2 -translate-y-1/2 w-5 h-5 text-slate-500 group-focus-within:text-red-500 transition-colors" />
             <input
               type="text"
-              placeholder="Search marketplace..."
+              placeholder="Search products, shops, opportunities..."
               value={searchQuery}
               onChange={(e) => setSearchQuery(e.target.value)}
-              className="w-full bg-[#121214] border border-white/5 focus:border-red-500/50 rounded-2xl pl-12 pr-4 py-4 text-sm font-medium focus:outline-none transition-all placeholder:text-slate-600"
+              className="w-full bg-[#121214] border border-white/5 focus:border-red-500/50 rounded-3xl pl-16 pr-6 py-6 text-sm font-medium focus:outline-none transition-all placeholder:text-slate-600 shadow-xl"
             />
+            <button className="absolute right-6 top-1/2 -translate-y-1/2 p-2 bg-white/5 rounded-xl hover:bg-white/10 transition-colors">
+              <Filter className="w-4 h-4 text-slate-400" />
+            </button>
           </div>
         </div>
 
@@ -123,8 +152,8 @@ export function Marketplace() {
             title={discovery.featured[0].name}
             description={discovery.featured[0].description}
             image={discovery.featured[0].coverUrl || ""}
-            accentTitle="Featured Product"
-            ctaText="View Product"
+            accentTitle="Featured"
+            ctaText="Explore Now"
             onCtaClick={() => onOpenProduct(discovery.featured[0])}
           />
         )}
@@ -149,7 +178,7 @@ export function Marketplace() {
           <ScrollArea className="w-full whitespace-nowrap">
             <div className="flex gap-6 pb-4">
               {discovery?.trending?.slice(0, 6).map((p: ProductDTO) => (
-                <div key={p.id} className="w-48 shrink-0">
+                <div key={p.id} className="w-64 shrink-0">
                    <ProductDiscoveryCard product={p} onClick={() => onOpenProduct(p)} />
                 </div>
               ))}
@@ -166,8 +195,7 @@ export function Marketplace() {
             
             <section>
               <SectionHeader
-                title="Trending Now"
-                subtitle="Most sought-after items"
+                title="What's Moving 🔥"
                 onViewAll={() => {}}
               />
               <div className="grid grid-cols-1 sm:grid-cols-2 gap-8">
@@ -179,12 +207,11 @@ export function Marketplace() {
 
             <section>
               <SectionHeader
-                title="New Arrivals"
-                subtitle="Fresh from our creators"
+                title="New on Oventric"
                 onViewAll={() => {}}
               />
-              <div className="grid grid-cols-2 md:grid-cols-3 gap-6">
-                {discovery?.newArrivals?.slice(0, 6).map((p: ProductDTO) => (
+              <div className="grid grid-cols-2 md:grid-cols-2 gap-6">
+                {discovery?.newArrivals?.slice(0, 4).map((p: ProductDTO) => (
                   <ProductDiscoveryCard key={p.id} product={p} onClick={() => onOpenProduct(p)} />
                 ))}
               </div>
@@ -195,12 +222,12 @@ export function Marketplace() {
           <aside className="space-y-16">
             <section>
               <SectionHeader
-                title="Top Sellers"
-                subtitle="Verified creators"
+                title="Trending Products"
+                onViewAll={() => {}}
               />
               <div className="flex flex-col gap-6">
-                {discovery?.topSellers?.slice(0, 5).map((seller: any) => (
-                  <SellerDiscoveryCard key={seller.id} seller={seller} onClick={() => navigate({ to: `/shop/$id`, params: { id: seller.slug } })} />
+                {discovery?.trending?.slice(0, 5).map((p: ProductDTO) => (
+                  <ProductDiscoveryCard key={p.id} variant="compact" product={p} onClick={() => onOpenProduct(p)} />
                 ))}
               </div>
             </section>
@@ -222,30 +249,55 @@ export function Marketplace() {
           </aside>
         </div>
 
-        {/* ── Category Discovery ────────────────────────────── */}
-        <section>
-          <SectionHeader
-            title="Browse Categories"
-            subtitle="Explore by niche"
-          />
-          <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-6 gap-4">
-            {catRoots.filter(c => c.kind === mode).slice(0, 12).map((cat) => (
-              <button
-                key={cat.id}
-                className="group flex flex-col items-center justify-center p-6 bg-[#121214] border border-white/5 rounded-2xl hover:border-red-500/30 transition-all text-center"
-              >
-                <div className="w-12 h-12 bg-white/5 rounded-xl flex items-center justify-center mb-4 group-hover:scale-110 transition-transform">
-                  <ShoppingBag className="w-6 h-6 text-slate-400 group-hover:text-red-500" />
+        {/* ── Full Catalog Recommendation Sections ────────────────── */}
+        <section className="space-y-16">
+          <SectionHeader title="Recommended Products" onViewAll={() => {}} />
+          <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 gap-6">
+            {products?.slice(0, 10).map(p => (
+              <ProductDiscoveryCard key={p.id} product={p} onClick={() => onOpenProduct(p)} />
+            ))}
+          </div>
+        </section>
+
+        <section className="space-y-16">
+          <SectionHeader title="Recommended Shops" onViewAll={() => {}} />
+          <ScrollArea className="w-full whitespace-nowrap pb-4">
+            <div className="flex gap-6">
+              {discovery?.topSellers?.map((seller: any) => (
+                <SellerDiscoveryCard key={seller.id} seller={seller} onClick={() => navigate({ to: `/shop/$id`, params: { id: seller.slug } })} />
+              ))}
+            </div>
+            <ScrollBar orientation="horizontal" className="bg-white/5" />
+          </ScrollArea>
+        </section>
+
+        <section className="pb-20">
+          <SectionHeader title="Top Sellers" onViewAll={() => {}} />
+          <div className="flex gap-8 overflow-x-auto pb-8 no-scrollbar">
+            {discovery?.topSellers?.map((seller: any) => (
+              <div key={seller.id} className="flex flex-col items-center gap-3 shrink-0">
+                <div className="w-20 h-20 rounded-full border-2 border-red-500 p-1">
+                   <div className="w-full h-full rounded-full overflow-hidden grayscale hover:grayscale-0 transition-all">
+                      <img src={seller.avatarUrl || ""} className="w-full h-full object-cover" alt="" />
+                   </div>
                 </div>
-                <span className="text-xs font-black text-white uppercase tracking-widest truncate w-full px-2">
-                  {cat.name}
-                </span>
-              </button>
+                <span className="text-[10px] font-black text-white uppercase tracking-widest">{seller.name.split(' ')[0]}</span>
+              </div>
             ))}
           </div>
         </section>
 
       </div>
+
+      <CategoryDiscoverySheet 
+        open={showCategories}
+        onClose={() => setShowCategories(false)}
+        categories={catRoots}
+        onSelectCategory={(cat) => {
+          setSelectedCategory(cat);
+          setMode(cat.kind);
+        }}
+      />
     </div>
   );
 }
