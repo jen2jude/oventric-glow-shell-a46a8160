@@ -1607,3 +1607,122 @@ export const getMarketplaceDiscovery = createServerFn({ method: "GET" })
   });
 
 
+
+export interface TopSellerDTO {
+  id: string;
+  name: string;
+  slug: string;
+  bio: string;
+  avatarUrl: string | null;
+  coverUrl: string | null;
+  verified: boolean;
+  rating: number;
+  reviewsCount: number;
+  followersCount: number;
+  productsCount: number;
+  salesCount: number;
+}
+
+/** Live leaderboard of sellers ranked by paid sales, with live ratings and follower counts. */
+export const getTopSellers = createServerFn({ method: "GET" })
+  .inputValidator((input: unknown) =>
+    z.object({ kind: z.enum(["digital", "physical", "all"]).default("all") }).default({}).parse(input),
+  )
+  .handler(async ({ data }): Promise<TopSellerDTO[]> => {
+    const sb = serverPublicClient();
+
+    let productQuery = sb.from("products").select("id, seller_id").eq("status", "active").limit(2000);
+    if (data.kind !== "all") productQuery = productQuery.eq("kind", data.kind);
+    const { data: productRows } = await productQuery;
+
+    const productsBySeller = new Map<string, string[]>();
+    const sellerByProduct = new Map<string, string>();
+    (productRows ?? []).forEach((r: any) => {
+      const sid = r.seller_id as string;
+      if (!sid) return;
+      sellerByProduct.set(r.id as string, sid);
+      productsBySeller.set(sid, [...(productsBySeller.get(sid) ?? []), r.id as string]);
+    });
+    const sellerIds = Array.from(productsBySeller.keys()).slice(0, 200);
+    if (sellerIds.length === 0) return [];
+
+    // Paid sales per seller (best-effort).
+    const salesBySeller = new Map<string, number>();
+    try {
+      const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
+      const { data: orderRows } = await supabaseAdmin
+        .from("orders")
+        .select("product_id, quantity, status")
+        .in("status", ["paid", "delivered", "completed", "released"])
+        .limit(5000);
+      (orderRows ?? []).forEach((o: any) => {
+        const sid = sellerByProduct.get(o.product_id as string);
+        if (!sid) return;
+        salesBySeller.set(sid, (salesBySeller.get(sid) ?? 0) + Number(o.quantity ?? 1));
+      });
+    } catch {
+      /* best-effort */
+    }
+
+    // Live ratings from product reviews.
+    const ratingSum = new Map<string, number>();
+    const ratingCount = new Map<string, number>();
+    const productIds = Array.from(sellerByProduct.keys()).slice(0, 1000);
+    if (productIds.length > 0) {
+      const { data: reviewRows } = await sb
+        .from("product_reviews")
+        .select("product_id, rating")
+        .in("product_id", productIds)
+        .limit(5000);
+      (reviewRows ?? []).forEach((r: any) => {
+        const sid = sellerByProduct.get(r.product_id as string);
+        if (!sid) return;
+        ratingSum.set(sid, (ratingSum.get(sid) ?? 0) + Number(r.rating ?? 0));
+        ratingCount.set(sid, (ratingCount.get(sid) ?? 0) + 1);
+      });
+    }
+
+    const { data: sellerRows } = await sb
+      .from("profiles")
+      .select("user_id, slug, display_name, username, avatar_path, cover_path, verification_tier, bio")
+      .in("user_id", sellerIds);
+
+    const rows = sellerRows ?? [];
+    const avatars = await signBucket(sb, "avatars", rows.map((s: any) => s.avatar_path ?? null));
+    const covers = await signBucket(sb, "profile-covers", rows.map((s: any) => s.cover_path ?? null));
+
+    const followers = new Map<string, number>();
+    const { data: followRows } = await sb
+      .from("follows")
+      .select("followee_id")
+      .in("followee_id", sellerIds)
+      .limit(10000);
+    (followRows ?? []).forEach((f: any) => {
+      const id = f.followee_id as string;
+      followers.set(id, (followers.get(id) ?? 0) + 1);
+    });
+
+    const sellers: TopSellerDTO[] = rows.map((s: any, i: number) => {
+      const id = s.user_id as string;
+      const count = ratingCount.get(id) ?? 0;
+      return {
+        id,
+        name: (s.display_name || s.username || s.slug) as string,
+        slug: s.slug as string,
+        bio: (s.bio as string) ?? "",
+        avatarUrl: avatars[i] ?? null,
+        coverUrl: covers[i] ?? null,
+        verified: s.verification_tier !== "none",
+        rating: count > 0 ? Math.round(((ratingSum.get(id) ?? 0) / count) * 10) / 10 : 0,
+        reviewsCount: count,
+        followersCount: followers.get(id) ?? 0,
+        productsCount: (productsBySeller.get(id) ?? []).length,
+        salesCount: salesBySeller.get(id) ?? 0,
+      };
+    });
+
+    sellers.sort(
+      (a, b) => b.salesCount - a.salesCount || b.productsCount - a.productsCount || b.followersCount - a.followersCount,
+    );
+    return sellers;
+  });

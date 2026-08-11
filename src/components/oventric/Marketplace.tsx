@@ -482,7 +482,7 @@ export function Marketplace() {
 
       {showTopSellers && (
         <TopSellersPanel
-          sellers={sellers}
+          kind={mode}
           onClose={() => setShowTopSellers(false)}
           onOpenShop={(slug) => {
             setShowTopSellers(false);
