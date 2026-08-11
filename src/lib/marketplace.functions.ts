@@ -1034,6 +1034,25 @@ export const createOrder = createServerFn({ method: "POST" })
     // know a paid order is waiting for them to deliver via URL, file upload, or
     // chat. Escrow stays "held" until the buyer confirms receipt.
     if (holdEscrow) {
+      const origin = process.env.VITE_SITE_URL || "https://oventric.com";
+      const productLink = `${origin}/product/${product.id}`;
+
+      // Automatic Buyer to Seller message
+      await supabaseAdmin.from("direct_messages").insert({
+        sender_id: userId,
+        recipient_id: product.sellerId,
+        order_id: oRow.id as string,
+        body: `hey i just paid for ${product.name} please deliver as soon as possible. ${productLink}`,
+      });
+
+      // Automatic Seller to Buyer reply
+      await supabaseAdmin.from("direct_messages").insert({
+        sender_id: product.sellerId,
+        recipient_id: userId,
+        order_id: oRow.id as string,
+        body: `Thank you for your payment!. We are preparing your order and will ship it as soon as possible. Thank you and we will make sure everything goes smoothly. ${productLink}`,
+      });
+
       const dmBody =
         `📦 New paid order — "${product.name}" (Qty ${data.quantity})\n\n` +
         `The buyer has paid and is waiting for delivery. Please deliver here on Oventric ` +
