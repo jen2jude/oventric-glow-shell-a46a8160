@@ -312,22 +312,22 @@ export function Marketplace() {
                         <button
                           key={s.id}
                           type="button"
-                          onClick={() => openShop(s.slug)}
-                          className="w-[150px] shrink-0 rounded-2xl bg-[#111113] p-4 text-center"
+                          onClick={() => navigate({ to: "/profile/$id", params: { id: s.slug } })}
+                          className="group w-[160px] shrink-0 rounded-[28px] bg-[#131316] p-4 text-center ring-1 ring-white/[0.04] transition-transform active:scale-95"
                         >
-                          <span className="mx-auto grid h-14 w-14 place-items-center overflow-hidden rounded-full bg-black ring-1 ring-white/10">
+                          <span className="relative mx-auto grid h-16 w-16 place-items-center overflow-hidden rounded-full bg-black ring-[1.5px] ring-white/10 group-hover:ring-[#E5484D]">
                             {s.avatarUrl ? (
                               <img src={s.avatarUrl} alt={s.name} className="h-full w-full object-cover" />
                             ) : (
-                              <span className="text-[13px] font-black text-white">
+                              <span className="text-[14px] font-black text-white/40">
                                 {s.name.slice(0, 2).toUpperCase()}
                               </span>
                             )}
                           </span>
-                          <span className="mt-2 block truncate text-[13.5px] font-semibold text-white">{s.name}</span>
-                          <span className="block text-[11.5px] text-white/40">{s.productsCount} products</span>
-                          <span className="mt-3 block rounded-xl bg-[#E5484D] py-2 text-[11.5px] font-bold text-white">
-                            View shop
+                          <span className="mt-3 block truncate text-[14px] font-bold text-white">{s.name}</span>
+                          <span className="block text-[11px] font-medium text-white/30">{s.productsCount} products</span>
+                          <span className="mt-4 block rounded-xl border border-[#E5484D]/30 bg-[#E5484D]/10 py-2.5 text-[11px] font-bold text-[#E5484D] group-hover:bg-[#E5484D] group-hover:text-white transition-colors">
+                            View Profile
                           </span>
                         </button>
                       ))}
