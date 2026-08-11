@@ -294,12 +294,15 @@ export async function settleOrder(
     const orderId = oRow.id as string;
     const productName = (pRow.name as string) ?? "your listing";
     try {
+      const origin = process.env.VITE_SITE_URL || "https://oventric.com";
+      const productLink = `${origin}/product/${pRow.id}`;
+
       // Automatic Buyer to Seller message
       await supabaseAdmin.from("direct_messages").insert({
         sender_id: buyerId,
         recipient_id: pRow.seller_id as string,
         order_id: orderId,
-        body: `hey i just paid for ${productName} please deliver as soon as possible.`,
+        body: `hey i just paid for ${productName} please deliver as soon as possible. ${productLink}`,
       });
 
       // Automatic Seller to Buyer reply
@@ -307,7 +310,7 @@ export async function settleOrder(
         sender_id: pRow.seller_id as string,
         recipient_id: buyerId,
         order_id: orderId,
-        body: `Thank you for your payment!. We are preparing your order and will ship it as soon as possible. Thank you and we will make sure everything goes smoothly.`,
+        body: `Thank you for your payment!. We are preparing your order and will ship it as soon as possible. Thank you and we will make sure everything goes smoothly. ${productLink}`,
       });
 
       // Detailed escrow instructions for the seller
