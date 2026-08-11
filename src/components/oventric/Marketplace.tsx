@@ -177,7 +177,43 @@ export function Marketplace() {
               </section>
             ) : (
               <div className="space-y-8 pt-6">
-                {/* Featured carousel — split card: caption panel + product image */}
+                {/* Catalog — sort tabs + grid (Digital / Physical modes) */}
+                {mode !== "all" && byMode.length > 0 && (
+                  <section className="px-4">
+                    <div className="no-scrollbar -mx-1 mb-4 flex gap-5 overflow-x-auto px-1">
+                      {SORTS.map((s) => (
+                        <button
+                          key={s.key}
+                          type="button"
+                          onClick={() => setSort(s.key)}
+                          className={`shrink-0 whitespace-nowrap pb-2 text-[14px] font-semibold transition-colors ${
+                            sort === s.key
+                              ? "border-b-2 border-[#E5484D] text-white"
+                              : "border-b-2 border-transparent text-white/40"
+                          }`}
+                        >
+                          {s.label}
+                        </button>
+                      ))}
+                    </div>
+                    <div className="grid grid-cols-2 gap-x-3 gap-y-5">
+                      {sortedCatalog.slice(0, catalogLimit).map((p) => (
+                        <GridCard key={p.id} product={p} onClick={() => openProduct(p)} />
+                      ))}
+                    </div>
+                    {sortedCatalog.length > catalogLimit && (
+                      <button
+                        type="button"
+                        onClick={() => setCatalogLimit((n) => n + 8)}
+                        className="mt-5 w-full rounded-2xl bg-[#141416] py-3 text-[13px] font-semibold text-white/70 ring-1 ring-white/5"
+                      >
+                        Show more
+                      </button>
+                    )}
+                  </section>
+                )}
+
+
                 {discovery && discovery.featured.length > 0 && (
                   <div className="px-4">
                     <div
