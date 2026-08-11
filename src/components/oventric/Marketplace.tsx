@@ -182,37 +182,46 @@ export function Marketplace() {
               </section>
             ) : (
               <div className="space-y-8 pt-6">
-                {/* Featured carousel */}
+                {/* Featured carousel — split card: caption panel + product image */}
                 {discovery && discovery.featured.length > 0 && (
                   <div className="px-4">
-                    <div className="no-scrollbar flex snap-x snap-mandatory gap-4 overflow-x-auto pb-2">
+                    <div
+                      onScroll={(e) => {
+                        const el = e.currentTarget;
+                        setFeaturedIndex(Math.round(el.scrollLeft / Math.max(el.clientWidth, 1)));
+                      }}
+                      className="no-scrollbar flex snap-x snap-mandatory gap-4 overflow-x-auto pb-2"
+                    >
                       {discovery.featured.slice(0, 8).map((item) => (
                         <button
                           key={item.id}
                           type="button"
                           onClick={() => openProduct(item)}
-                          className="relative h-[200px] w-full min-w-full shrink-0 snap-center overflow-hidden rounded-[32px] bg-[#1A1A1E] text-left ring-1 ring-white/5"
+                          className="grid h-[200px] w-full min-w-full shrink-0 snap-center grid-cols-[1.05fr_1fr] overflow-hidden rounded-[32px] bg-[#141416] text-left ring-1 ring-white/5"
                         >
-                          {item.coverUrl && (
-                            <img
-                              src={item.coverUrl}
-                              alt=""
-                              className="absolute inset-0 h-full w-full object-cover opacity-60"
-                            />
-                          )}
-                          <div className="absolute inset-0 bg-gradient-to-t from-black via-black/30 to-transparent" />
-                          <div className="relative flex h-full flex-col justify-end p-7 pb-8">
-                            <span className="mb-2 w-fit rounded-lg bg-[#E5484D] px-2.5 py-1 text-[10px] font-black uppercase tracking-widest text-white shadow-lg">
+                          <span className="flex h-full flex-col justify-center gap-2 bg-gradient-to-br from-[#E5484D] to-[#B5333A] p-6">
+                            <span className="w-fit rounded-lg bg-black/25 px-2.5 py-1 text-[10px] font-black uppercase tracking-widest text-white">
                               {item.kind === "digital"
                                 ? "Digital Asset"
                                 : item.kind === "physical"
                                   ? "Physical Product"
                                   : "Featured"}
                             </span>
-                            <h3 className="line-clamp-2 text-[23px] font-bold leading-[1.1] tracking-tight text-white drop-shadow-md">
+                            <span className="line-clamp-3 text-[21px] font-bold leading-[1.1] tracking-tight text-white">
                               {item.name}
-                            </h3>
-                          </div>
+                            </span>
+                            <span className="text-[13px] font-black text-white/85">Shop now →</span>
+                          </span>
+                          <span className="relative h-full w-full overflow-hidden bg-[#1A1A1E]">
+                            {item.coverUrl && (
+                              <img
+                                src={item.coverUrl}
+                                alt={item.name}
+                                loading="lazy"
+                                className="h-full w-full object-cover"
+                              />
+                            )}
+                          </span>
                         </button>
                       ))}
                     </div>
@@ -221,7 +230,7 @@ export function Marketplace() {
                       {discovery.featured.slice(0, 8).map((_, i) => (
                         <div
                           key={i}
-                          className={`h-1.5 rounded-full transition-all duration-300 ${i === 0 ? "w-5 bg-[#E5484D]" : "w-1.5 bg-white/20"}`}
+                          className={`h-1.5 rounded-full transition-all duration-300 ${i === featuredIndex ? "w-5 bg-[#E5484D]" : "w-1.5 bg-white/20"}`}
                         />
                       ))}
                     </div>
