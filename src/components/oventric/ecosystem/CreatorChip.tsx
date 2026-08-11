@@ -86,7 +86,6 @@ export function EcosystemLinks({
           key={s.key}
           to="/profile/$id"
           params={{ id: idOrSlug }}
-          search={{ tab: s.key }}
           search={(prev: Record<string, unknown>) => ({ ...prev, tab: s.key, pages: 1, y: 0 })}
           className={`inline-flex items-center gap-1.5 rounded-full border px-3 py-1.5 text-xs font-semibold transition-colors ${
             dark
