@@ -10,6 +10,7 @@ import {
   type ProductDTO,
   type CategoryNode,
 } from "@/lib/marketplace.functions";
+import { TopSellersPanel } from "./marketplace-discovery/TopSellersPanel";
 import { CategoryDiscoverySheet } from "./marketplace-discovery/CategoryDiscoverySheet";
 import { GridCard, Rail, RowCard, ShopCard, TileCard, type SellerLite } from "./marketplace-discovery/cards";
 
@@ -48,6 +49,7 @@ export function Marketplace() {
   const [query, setQuery] = useState("");
   const [loading, setLoading] = useState(true);
   const [showCategories, setShowCategories] = useState(false);
+  const [showTopSellers, setShowTopSellers] = useState(false);
   const [activeCategory, setActiveCategory] = useState<CategoryNode | null>(null);
   const topRef = useRef<HTMLDivElement>(null);
 
@@ -360,7 +362,7 @@ export function Marketplace() {
                 
                 {/* Top Sellers */}
                 {sellers.length > 0 && (
-                  <Rail title="Top Sellers">
+                  <Rail title="Top Sellers" onSeeAll={() => setShowTopSellers(true)}>
                     <div className="no-scrollbar flex gap-4 overflow-x-auto px-4 pb-2">
                       {sellers.map((s) => (
                         <button
@@ -477,6 +479,18 @@ export function Marketplace() {
           scrollTop();
         }}
       />
+
+      {showTopSellers && (
+        <TopSellersPanel
+          sellers={sellers}
+          onClose={() => setShowTopSellers(false)}
+          onOpenShop={(slug) => {
+            setShowTopSellers(false);
+            openShop(slug);
+          }}
+        />
+      )}
+
     </div>
   );
 }
