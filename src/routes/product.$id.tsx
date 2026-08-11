@@ -10,7 +10,7 @@ import {
   Share2,
   Check,
   Star,
-
+  ShoppingBag,
   ShoppingCart,
   Flame,
   Sparkles,
