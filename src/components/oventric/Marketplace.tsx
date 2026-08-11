@@ -177,7 +177,7 @@ export function Marketplace() {
 
             {/* Search */}
             <div className="px-4 pt-5">
-              <div className="flex items-center gap-3 rounded-2xl bg-[#141416] px-4 py-3.5">
+              <div className="flex items-center gap-3 rounded-[10px] bg-[#141416] px-4 py-3.5">
                 <Search className="h-[18px] w-[18px] shrink-0 text-white/40" />
                 <input
                   value={query}
@@ -243,7 +243,7 @@ export function Marketplace() {
                       <button
                         type="button"
                         onClick={() => setCatalogLimit((n) => n + 8)}
-                        className="mt-5 w-full rounded-2xl bg-[#141416] py-3 text-[13px] font-semibold text-white/70 ring-1 ring-white/5"
+                        className="mt-5 w-full rounded-[10px] bg-[#141416] py-3 text-[13px] font-semibold text-white/70 ring-1 ring-white/5"
                       >
                         Show more
                       </button>
@@ -266,7 +266,7 @@ export function Marketplace() {
                           key={item.id}
                           type="button"
                           onClick={() => openProduct(item)}
-                          className="grid h-[200px] w-full min-w-full shrink-0 snap-center grid-cols-[1.05fr_1fr] overflow-hidden rounded-[32px] bg-[#141416] text-left ring-1 ring-white/5"
+                          className="grid h-[200px] w-full min-w-full shrink-0 snap-center grid-cols-[1.05fr_1fr] overflow-hidden rounded-[10px] bg-[#141416] text-left ring-1 ring-white/5"
                         >
                           {/* Left caption panel */}
                           <span className="relative z-10 flex h-full flex-col justify-center gap-2 bg-gradient-to-br from-[#E5484D] to-[#B5333A] p-6">
@@ -421,7 +421,7 @@ export function Marketplace() {
                           </span>
                           <span className="mt-3 block truncate text-[14px] font-bold text-white">{s.name}</span>
                           <span className="block text-[11px] font-medium text-white/30">{s.productsCount} products</span>
-                          <span className="mt-4 block rounded-xl border border-[#E5484D]/30 bg-[#E5484D]/10 py-2.5 text-[11px] font-bold text-[#E5484D] group-hover:bg-[#E5484D] group-hover:text-white transition-colors">
+                          <span className="mt-4 block rounded-[10px] border border-[#E5484D]/30 bg-[#E5484D]/10 py-2.5 text-[11px] font-bold text-[#E5484D] group-hover:bg-[#E5484D] group-hover:text-white transition-colors">
                             View Profile
                           </span>
                         </button>
@@ -563,8 +563,8 @@ function CategoryResults({
 function MarketplaceSkeleton() {
   return (
     <div className="min-h-full animate-pulse space-y-5 bg-[#0A0A0B] px-4 pt-12">
-      <div className="h-10 w-2/3 rounded-2xl bg-white/5" />
-      <div className="h-12 w-full rounded-2xl bg-white/5" />
+      <div className="h-10 w-2/3 rounded-[10px] bg-white/5" />
+      <div className="h-12 w-full rounded-[10px] bg-white/5" />
       <div className="flex gap-2">
         {[0, 1, 2, 3].map((i) => (
           <div key={i} className="h-10 w-24 rounded-full bg-white/5" />
@@ -573,7 +573,7 @@ function MarketplaceSkeleton() {
       <div className="h-[190px] w-full rounded-3xl bg-white/5" />
       <div className="grid grid-cols-2 gap-3">
         {[0, 1, 2, 3].map((i) => (
-          <div key={i} className="h-40 rounded-2xl bg-white/5" />
+          <div key={i} className="h-40 rounded-[10px] bg-white/5" />
         ))}
       </div>
     </div>

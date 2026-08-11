@@ -322,7 +322,7 @@ function ProductPage() {
 
 
         {error && (
-          <div className={`${isAppShell ? "bg-[#16161A] border-red-500/20" : "bg-white border-red-200 shadow-sm"} md:shadow-sm md:bg-white border rounded-xl p-8 text-center`}>
+          <div className={`${isAppShell ? "bg-[#16161A] border-red-500/20" : "bg-white border-red-200 shadow-sm"} md:shadow-sm md:bg-white border rounded-[10px] p-8 text-center`}>
             <div className="text-red-300 font-bold mb-1">Couldn't load product</div>
             <div className="text-sm text-slate-400 md:text-slate-500 mb-4">{error}</div>
             <Link
@@ -354,7 +354,7 @@ function ProductPage() {
                   const cur = gallery[activeImage] ?? gallery[0];
                   return (
                     <>
-                        <div className={`relative ${isAppShell ? "w-full aspect-[4/3] rounded-b-2xl bg-[#141416] border-b border-white/[0.06]" : "aspect-[4/3] rounded-2xl bg-white border border-slate-100 shadow-sm md:bg-slate-100"} overflow-hidden flex items-center justify-center`}>
+                        <div className={`relative ${isAppShell ? "w-full aspect-[4/3] rounded-b-[10px] bg-[#141416] border-b border-white/[0.06]" : "aspect-[4/3] rounded-[10px] bg-white border border-slate-100 shadow-sm md:bg-slate-100"} overflow-hidden flex items-center justify-center`}>
                           {cur ? (
                             <ResponsiveImage
                               sizes="(min-width: 1024px) 640px, 100vw"
@@ -426,7 +426,7 @@ function ProductPage() {
                             <button
                               key={url}
                               onClick={() => setActiveImage(i)}
-                              className={`shrink-0 w-16 h-16 rounded-xl overflow-hidden border-2 ${i === activeImage ? (isAppShell ? "border-[#E5484D]" : "border-emerald-500") : isAppShell ? "border-white/10" : "border-slate-200"}`}
+                              className={`shrink-0 w-16 h-16 rounded-[10px] overflow-hidden border-2 ${i === activeImage ? (isAppShell ? "border-[#E5484D]" : "border-emerald-500") : isAppShell ? "border-white/10" : "border-slate-200"}`}
                             >
                               <img
                                 src={url}
@@ -542,7 +542,7 @@ function ProductPage() {
                 );
               })()}
 
-              <div className={`${isAppShell ? "bg-transparent border-transparent p-0 mb-5" : "bg-white border-slate-200 shadow-sm md:shadow-sm md:bg-white border rounded-xl p-5 mb-4"}`}>
+              <div className={`${isAppShell ? "bg-transparent border-transparent p-0 mb-5" : "bg-white border-slate-200 shadow-sm md:shadow-sm md:bg-white border rounded-[10px] p-5 mb-4"}`}>
 
                 <div className="flex items-baseline justify-between mb-4">
                   <div>
@@ -592,7 +592,7 @@ function ProductPage() {
                           key={pk.id}
                           type="button"
                           onClick={() => setSelectedPkg(pk.id)}
-                          className={`w-full rounded-xl border p-3 text-left transition-colors ${
+                          className={`w-full rounded-[10px] border p-3 text-left transition-colors ${
                             active
                               ? "border-emerald-500 bg-emerald-500/10"
                               : isAppShell
@@ -649,7 +649,7 @@ function ProductPage() {
                     <div className="fixed bottom-[84px] left-0 right-0 z-20 px-4 py-3 bg-[#0A0A0B]/80 backdrop-blur-xl border-t border-white/[0.06]">
                       <button
                         onClick={openSellerChat}
-                        className="w-full inline-flex items-center justify-center gap-2 py-3.5 text-[14px] rounded-2xl bg-[#E5484D] hover:bg-[#d13a3f] text-white font-black transition-colors"
+                        className="w-full inline-flex items-center justify-center gap-2 py-3.5 text-[14px] rounded-[10px] bg-[#E5484D] hover:bg-[#d13a3f] text-white font-black transition-colors"
                       >
                         <MessageCircle className="w-4 h-4" /> Contact for this service
                       </button>
@@ -665,7 +665,7 @@ function ProductPage() {
                 ) : isAppShell ? (
                   <div className="fixed bottom-[84px] left-0 right-0 z-20 px-4 py-3 bg-[#0A0A0B]/80 backdrop-blur-xl border-t border-white/[0.06]">
                     <div className="flex flex-col gap-3">
-                      <div className="flex items-center gap-3 bg-white/[0.02] border border-white/[0.04] p-2.5 rounded-2xl mb-1">
+                      <div className="flex items-center gap-3 bg-white/[0.02] border border-white/[0.04] p-2.5 rounded-[10px] mb-1">
                         <div className="h-9 w-9 shrink-0 overflow-hidden rounded-full bg-white/10 grid place-items-center text-[11px] font-black text-white">
                           {product.vendor?.slice(0, 2).toUpperCase()}
                         </div>
@@ -676,7 +676,7 @@ function ProductPage() {
                         <Link
                           to="/shop/$id"
                           params={{ id: product.sellerSlug ?? product.sellerId }}
-                          className="shrink-0 rounded-xl border border-white/10 bg-white/[0.04] px-3 py-1.5 text-[11px] font-bold text-white"
+                          className="shrink-0 rounded-[10px] border border-white/10 bg-white/[0.04] px-3 py-1.5 text-[11px] font-bold text-white"
                         >
                           View Shop
                         </Link>
@@ -685,14 +685,14 @@ function ProductPage() {
                         {product.kind !== "physical" && (
                           <button
                             onClick={openSellerChat}
-                            className="inline-flex items-center justify-center gap-2 py-3.5 text-[14px] bg-[#1C1C1F] border border-white/[0.06] text-white rounded-2xl hover:bg-[#222226] font-bold transition-colors"
+                            className="inline-flex items-center justify-center gap-2 py-3.5 text-[14px] bg-[#1C1C1F] border border-white/[0.06] text-white rounded-[10px] hover:bg-[#222226] font-bold transition-colors"
                           >
                             <MessageCircle className="w-4 h-4" /> Chat
                           </button>
                         )}
                         <button
                           onClick={product.kind === "physical" ? openContact : startCheckout}
-                          className="inline-flex items-center justify-center gap-2 py-3.5 text-[14px] rounded-2xl bg-[#E5484D] hover:bg-[#d13a3f] text-white font-black transition-colors"
+                          className="inline-flex items-center justify-center gap-2 py-3.5 text-[14px] rounded-[10px] bg-[#E5484D] hover:bg-[#d13a3f] text-white font-black transition-colors"
                         >
                           <ShoppingCart className="w-4 h-4" /> Buy Now
                         </button>
@@ -720,7 +720,7 @@ function ProductPage() {
               </div>
 
               {!isAppShell && (
-                <div className="mt-5 flex items-center gap-3 rounded-2xl border border-white/[0.06] bg-[#141416] p-3.5">
+                <div className="mt-5 flex items-center gap-3 rounded-[10px] border border-white/[0.06] bg-[#141416] p-3.5">
                   <div className="h-11 w-11 shrink-0 overflow-hidden rounded-full bg-white/10 grid place-items-center text-[13px] font-black text-white">
                     {product.vendor?.slice(0, 2).toUpperCase()}
                   </div>
@@ -731,7 +731,7 @@ function ProductPage() {
                   <Link
                     to="/shop/$id"
                     params={{ id: product.sellerSlug ?? product.sellerId }}
-                    className="shrink-0 rounded-xl border border-white/10 bg-white/[0.04] px-3.5 py-2 text-[12.5px] font-bold text-white"
+                    className="shrink-0 rounded-[10px] border border-white/10 bg-white/[0.04] px-3.5 py-2 text-[12.5px] font-bold text-white"
                   >
                     View Shop
                   </Link>
@@ -874,7 +874,7 @@ function ContactSellerModal({
       aria-modal="true"
     >
       <div className="absolute inset-0 bg-black/70" onClick={onClose} />
-      <div className={`slide-up relative w-full max-w-md ${isAppShell ? "bg-[#1E1E24] border-white/10" : "bg-white border-slate-200 shadow-sm"} md:shadow-sm md:bg-white border rounded-t-2xl sm:rounded-2xl p-6 shadow-2xl max-h-[92vh] overflow-y-auto`}>
+      <div className={`slide-up relative w-full max-w-md ${isAppShell ? "bg-[#1E1E24] border-white/10" : "bg-white border-slate-200 shadow-sm"} md:shadow-sm md:bg-white border rounded-t-2xl sm:rounded-[10px] p-6 shadow-2xl max-h-[92vh] overflow-y-auto`}>
         <div className="flex items-start justify-between mb-3">
           <div className="flex items-center gap-2">
             <AlertTriangle className="w-5 h-5 text-amber-400" />
@@ -889,7 +889,7 @@ function ContactSellerModal({
         </div>
 
         {/* Live preview card — mirrors what the seller will see */}
-        <div className={`mb-4 rounded-xl border ${isAppShell ? "border-white/10 bg-[#121214]" : "border-slate-200 bg-slate-50"} md:border-slate-200 md:bg-slate-50 overflow-hidden`}>
+        <div className={`mb-4 rounded-[10px] border ${isAppShell ? "border-white/10 bg-[#121214]" : "border-slate-200 bg-slate-50"} md:border-slate-200 md:bg-slate-50 overflow-hidden`}>
           <div className="flex gap-3 p-3">
             <div className="shrink-0 w-20 h-20 rounded-lg overflow-hidden bg-white/5 md:bg-slate-100 flex items-center justify-center">
               {cover ? (

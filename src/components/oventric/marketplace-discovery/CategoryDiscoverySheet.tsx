@@ -126,18 +126,18 @@ export function CategoryDiscoverySheet({ open, onClose, categories, counts, onSe
               value={query}
               onChange={(e) => setQuery(e.target.value)}
               placeholder="Search categories"
-              className="mt-3 w-full rounded-2xl bg-[#141416] px-4 py-3 text-[14px] text-white outline-none placeholder:text-white/35"
+              className="mt-3 w-full rounded-[10px] bg-[#141416] px-4 py-3 text-[14px] text-white outline-none placeholder:text-white/35"
             />
           )}
 
           {!parent && (
-            <div className="mt-3 flex gap-2 rounded-2xl bg-[#141416] p-1.5">
+            <div className="mt-3 flex gap-2 rounded-[10px] bg-[#141416] p-1.5">
               {(["physical", "digital"] as const).map((k) => (
                 <button
                   key={k}
                   type="button"
                   onClick={() => setKind(k)}
-                  className={`flex-1 rounded-xl py-2.5 text-[13px] font-bold capitalize transition-colors ${
+                  className={`flex-1 rounded-[10px] py-2.5 text-[13px] font-bold capitalize transition-colors ${
                     kind === k ? "bg-[#E5484D] text-white" : "text-white/50"
                   }`}
                 >
@@ -159,9 +159,9 @@ export function CategoryDiscoverySheet({ open, onClose, categories, counts, onSe
                   key={cat.id}
                   type="button"
                   onClick={() => (cat.children.length > 0 ? setParent(cat) : (onSelectCategory(cat), onClose()))}
-                  className="flex w-full items-center gap-3.5 rounded-2xl bg-[#131316] p-3 text-left active:scale-[0.995]"
+                  className="flex w-full items-center gap-3.5 rounded-[10px] bg-[#131316] p-3 text-left active:scale-[0.995]"
                 >
-                  <span className={`grid h-11 w-11 shrink-0 place-items-center rounded-xl bg-gradient-to-br ${hue}`}>
+                  <span className={`grid h-11 w-11 shrink-0 place-items-center rounded-[10px] bg-gradient-to-br ${hue}`}>
                     <Icon className="h-5 w-5 text-white" />
                   </span>
                   <span className="min-w-0 flex-1">
@@ -186,7 +186,7 @@ export function CategoryDiscoverySheet({ open, onClose, categories, counts, onSe
                 onSelectCategory(parent);
                 onClose();
               }}
-              className="mt-4 w-full rounded-2xl bg-[#E5484D] py-3.5 text-[13.5px] font-bold text-white"
+              className="mt-4 w-full rounded-[10px] bg-[#E5484D] py-3.5 text-[13.5px] font-bold text-white"
             >
               View all in {parent.name}
             </button>
