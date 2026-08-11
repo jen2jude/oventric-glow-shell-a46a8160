@@ -284,7 +284,7 @@ export function Marketplace() {
                           className="group flex w-[64px] shrink-0 flex-col items-center gap-2"
                         >
                           <span className="relative h-[62px] w-[62px] shrink-0 rounded-full bg-gradient-to-tr from-[#E5484D] to-[#FF7A7F] p-[1.5px] transition-transform group-active:scale-95">
-                            <span className="flex h-full w-full items-center justify-center overflow-hidden rounded-full border-[2.5px] border-[#0A0A0B] bg-black">
+                            <span className="flex h-full w-full items-center justify-center overflow-hidden rounded-full border-[1.5px] border-[#0A0A0B] bg-black">
                               {s.avatarUrl ? (
                                 <img src={s.avatarUrl} alt={s.name} className="h-full w-full object-cover" />
                               ) : (
