@@ -828,7 +828,7 @@ function CheckoutPage() {
                     checked={useCashback}
                     disabled={cashbackUSD <= 0}
                     onChange={(e) => setUseCashback(e.target.checked)}
-                    className="mt-0.5 w-4 h-4 accent-[#E5484D]"
+                    className="mt-0.5 w-4 h-4 accent-[#E5484D] cursor-pointer"
                   />
                   <div className="flex-1 min-w-0">
                     <div className={`text-xs font-semibold ${isAppShell ? "text-white" : "text-slate-900"}`}>
