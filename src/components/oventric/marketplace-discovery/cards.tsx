@@ -32,7 +32,9 @@ export function TileCard({ product, onClick }: { product: ProductDTO; onClick: (
       <div className="aspect-square w-full overflow-hidden rounded-[24px] bg-[#161618] ring-1 ring-white/[0.04]">
         <Cover src={product.coverUrl} alt={product.name} className="h-full w-full" />
       </div>
-      <p className="mt-2.5 truncate text-[13.5px] font-bold tracking-tight text-white">{product.name}</p>
+      <p className="mt-2.5 line-clamp-1 text-[13.5px] font-bold tracking-tight text-white">
+        {product.name}
+      </p>
       <div className="mt-1 flex items-center justify-between gap-1.5">
         <span className="truncate text-[13.5px] font-black text-[#E5484D]">{price(product)}</span>
         <span className="flex shrink-0 items-center gap-0.5 text-[11px] font-bold text-white/40">
@@ -57,7 +59,7 @@ export function RowCard({ product, onClick }: { product: ProductDTO; onClick: ()
         <Cover src={product.coverUrl} alt={product.name} className="h-full w-full" />
       </div>
       <div className="min-w-0 flex-1">
-        <p className="truncate text-[14.5px] font-bold text-white">{product.name}</p>
+        <p className="line-clamp-1 text-[14.5px] font-bold text-white">{product.name}</p>
         <button
           type="button"
           onClick={(e) => {
@@ -92,7 +94,9 @@ export function GridCard({ product, onClick }: { product: ProductDTO; onClick: (
       <div className="aspect-square w-full overflow-hidden rounded-[28px] bg-[#161618] ring-1 ring-white/[0.05]">
         <Cover src={product.coverUrl} alt={product.name} className="h-full w-full" />
       </div>
-      <p className="mt-3 line-clamp-1 text-[14.5px] font-bold tracking-tight text-white">{product.name}</p>
+      <p className="mt-3 line-clamp-1 text-[14.5px] font-bold tracking-tight text-white">
+        {product.name}
+      </p>
       <div className="mt-1 flex items-center justify-between gap-2">
         <span className="truncate text-[14px] font-black text-[#E5484D]">{price(product)}</span>
         <span className="flex shrink-0 items-center gap-0.5 text-[11.5px] font-bold text-white/40">

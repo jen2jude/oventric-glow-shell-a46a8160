@@ -186,7 +186,7 @@ export function Marketplace() {
                 {discovery && discovery.featured.length > 0 && (
                   <div className="px-4">
                     <div className="no-scrollbar flex snap-x snap-mandatory gap-4 overflow-x-auto pb-2">
-                      {discovery.featured.slice(0, 5).map((item) => (
+                      {discovery.featured.slice(0, 8).map((item) => (
                         <button
                           key={item.id}
                           type="button"
@@ -203,7 +203,11 @@ export function Marketplace() {
                           <div className="absolute inset-0 bg-gradient-to-t from-black via-black/30 to-transparent" />
                           <div className="relative flex h-full flex-col justify-end p-7 pb-8">
                             <span className="mb-2 w-fit rounded-lg bg-[#E5484D] px-2.5 py-1 text-[10px] font-black uppercase tracking-widest text-white shadow-lg">
-                              {item.kind === "digital" ? "Digital Asset" : item.kind === "physical" ? "Physical Product" : "Featured"}
+                              {item.kind === "digital"
+                                ? "Digital Asset"
+                                : item.kind === "physical"
+                                  ? "Physical Product"
+                                  : "Featured"}
                             </span>
                             <h3 className="line-clamp-2 text-[23px] font-bold leading-[1.1] tracking-tight text-white drop-shadow-md">
                               {item.name}
@@ -214,8 +218,11 @@ export function Marketplace() {
                     </div>
                     {/* Dots indicator */}
                     <div className="mt-3 flex justify-center gap-2">
-                      {discovery.featured.slice(0, 5).map((_, i) => (
-                        <div key={i} className={`h-1.5 rounded-full transition-all duration-300 ${i === 0 ? "w-5 bg-[#E5484D]" : "w-1.5 bg-white/20"}`} />
+                      {discovery.featured.slice(0, 8).map((_, i) => (
+                        <div
+                          key={i}
+                          className={`h-1.5 rounded-full transition-all duration-300 ${i === 0 ? "w-5 bg-[#E5484D]" : "w-1.5 bg-white/20"}`}
+                        />
                       ))}
                     </div>
                   </div>
