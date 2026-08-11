@@ -664,39 +664,33 @@ function ProductPage() {
                   )
                 ) : isAppShell ? (
                   <div className="fixed bottom-[84px] left-0 right-0 z-20 px-4 py-3 bg-[#0A0A0B]/80 backdrop-blur-xl border-t border-white/[0.06]">
-                    <div className="flex flex-col gap-3">
-                      <div className="flex items-center gap-3 bg-white/[0.02] border border-white/[0.04] p-2.5 rounded-[10px] mb-1">
-                        <div className="h-9 w-9 shrink-0 overflow-hidden rounded-full bg-white/10 grid place-items-center text-[11px] font-black text-white">
-                          {product.vendor?.slice(0, 2).toUpperCase()}
-                        </div>
-                        <div className="min-w-0 flex-1">
-                          <div className="truncate text-[13px] font-bold text-white">{product.vendor}</div>
-                          <div className="text-[10px] text-white/40">Seller on Oventric</div>
-                        </div>
-                        <Link
-                          to="/shop/$id"
-                          params={{ id: product.sellerSlug ?? product.sellerId }}
-                          className="shrink-0 rounded-[10px] border border-white/10 bg-white/[0.04] px-3 py-1.5 text-[11px] font-bold text-white"
-                        >
-                          View Shop
-                        </Link>
-                      </div>
-                      <div className={`grid ${product.kind !== "physical" ? "grid-cols-2" : "grid-cols-1"} gap-3`}>
-                        {product.kind !== "physical" && (
-                          <button
-                            onClick={openSellerChat}
-                            className="inline-flex items-center justify-center gap-2 py-3.5 text-[14px] bg-[#1C1C1F] border border-white/[0.06] text-white rounded-[10px] hover:bg-[#222226] font-bold transition-colors"
-                          >
-                            <MessageCircle className="w-4 h-4" /> Chat
-                          </button>
-                        )}
+                    <div className="flex items-center gap-2">
+                      <Link
+                        to="/shop/$id"
+                        params={{ id: product.sellerSlug ?? product.sellerId }}
+                        className="flex-1 inline-flex items-center justify-center gap-2 py-3 text-[13px] bg-white/[0.04] border border-white/10 text-white rounded-[10px] font-bold transition-colors"
+                      >
+                        <ShoppingBag className="w-4 h-4" />
+                        <span>Shop</span>
+                      </Link>
+                      
+                      {product.kind !== "physical" && (
                         <button
-                          onClick={product.kind === "physical" ? openContact : startCheckout}
-                          className="inline-flex items-center justify-center gap-2 py-3.5 text-[14px] rounded-[10px] bg-[#E5484D] hover:bg-[#d13a3f] text-white font-black transition-colors"
+                          onClick={openSellerChat}
+                          className="flex-1 inline-flex items-center justify-center gap-2 py-3 text-[13px] bg-[#1C1C1F] border border-white/[0.06] text-white rounded-[10px] font-bold transition-colors"
                         >
-                          <ShoppingCart className="w-4 h-4" /> Buy Now
+                          <MessageCircle className="w-4 h-4" />
+                          <span>Chat</span>
                         </button>
-                      </div>
+                      )}
+                      
+                      <button
+                        onClick={product.kind === "physical" ? openContact : startCheckout}
+                        className="flex-[1.5] inline-flex items-center justify-center gap-2 py-3 text-[13px] rounded-[10px] bg-[#E5484D] hover:bg-[#d13a3f] text-white font-black transition-colors"
+                      >
+                        <ShoppingCart className="w-4 h-4" />
+                        <span>Buy Now</span>
+                      </button>
                     </div>
                   </div>
                 ) : (
