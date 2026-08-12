@@ -73,7 +73,7 @@ function CourseTile({
   if (isAppShell) {
     return (
       <div className="bg-[#1A1A1C] rounded-xl border border-white/5 shadow-lg overflow-hidden flex flex-col">
-        <button onClick={() => onOpen(c.id)} className="block w-full text-left relative aspect-video bg-[#121214]">
+        <button onClick={() => onOpen(c.id)} className="block w-full text-left relative aspect-video bg-[#0A0A0B]">
           {c.coverUrl ? (
             <ResponsiveImage
               src={c.coverUrl}
@@ -155,7 +155,7 @@ function ProductTile({ p, currency, isAppShell }: { p: DiscoveryProduct; currenc
         params={{ id: p.id }}
         className="bg-[#1A1A1C] rounded-xl border border-white/5 shadow-lg overflow-hidden flex flex-col"
       >
-        <div className="relative aspect-square bg-[#121214]">
+        <div className="relative aspect-square bg-[#0A0A0B]">
           {p.coverUrl ? (
             <ResponsiveImage
               src={p.coverUrl}

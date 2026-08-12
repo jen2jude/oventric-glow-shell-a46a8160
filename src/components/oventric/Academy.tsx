@@ -606,7 +606,7 @@ function CourseCard({
   if (isAppShell) {
     return (
       <div className="bg-[#1A1A1C] rounded-xl border border-white/5 shadow-lg overflow-hidden flex flex-col">
-        <button onClick={onOpen} className="block w-full text-left relative aspect-video bg-[#121214]">
+        <button onClick={onOpen} className="block w-full text-left relative aspect-video bg-[#0A0A0B]">
           {course.coverUrl ? (
             <ResponsiveImage
               src={course.coverUrl}
