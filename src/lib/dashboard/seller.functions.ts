@@ -99,20 +99,23 @@ export const updateShopSettings = createServerFn({ method: "POST" })
     logoPath: z.string().optional(),
     coverPath: z.string().optional(),
     description: z.string().optional(),
-    about: z.string().optional()
+    about: z.string().optional(),
+    shopName: z.string().optional()
   }))
   .handler(async ({ data, context }) => {
     const sb = context.supabase;
     const me = context.userId;
 
+    // Use specific shop fields if available, otherwise fallback to profile fields
     const { error } = await sb
       .from("profiles")
       .update({
-        avatar_path: data.logoPath ?? null,
-        cover_path: data.coverPath ?? null,
+        shop_logo_path: data.logoPath ?? null,
+        shop_cover_path: data.coverPath ?? null,
         bio: data.description ?? null,
-        about_me: data.about ?? null
-      })
+        shop_about: data.about ?? null,
+        shop_name: data.shopName ?? null
+      } as any)
       .eq("user_id", me);
 
     if (error) throw new Error(error.message);
