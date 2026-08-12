@@ -564,7 +564,7 @@ function FeaturedHeroCard({ item, onClick }: { item: ProductDTO; onClick: () => 
           <span className="mb-2 w-fit rounded-full bg-white/25 px-2.5 py-1 text-[10px] font-bold uppercase tracking-wider text-white">
             {item.kind === "digital" ? "Digital Asset" : "Physical Product"}
           </span>
-          <h2 className="mb-3 line-clamp-1 text-xl font-black leading-tight tracking-tighter drop-shadow-sm md:text-2xl">
+          <h2 className="mb-3 line-clamp-2 text-lg font-black leading-tight tracking-tighter drop-shadow-sm md:text-xl">
             {item.name}
           </h2>
           <button
