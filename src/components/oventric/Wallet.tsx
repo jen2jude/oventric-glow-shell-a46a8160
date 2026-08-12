@@ -1,5 +1,4 @@
-import { useEffect, useState } from "react";
-import { supabase } from "@/integrations/supabase/client";
+import { useState } from "react";
 import { Link } from "@tanstack/react-router";
 import { useQuery } from "@tanstack/react-query";
 import { toast } from "sonner";
@@ -27,8 +26,11 @@ import {
   Download,
   Award,
   ArrowLeftRight,
+  Fingerprint,
+  ArrowRight,
 } from "lucide-react";
 import { useOnboarding, type Currency } from "@/lib/onboarding/OnboardingContext";
+import { useAuthGate } from "@/lib/auth-gate/AuthGateProvider";
 import { getWalletBalances, listWalletTransactions, type WalletTxType } from "@/lib/wallet.functions";
 import { formatMoney, usdRate } from "@/lib/fx-display";
 
@@ -62,26 +64,13 @@ export function Wallet() {
   const [payoutOpen, setPayoutOpen] = useState(false);
   const [subOpen, setSubOpen] = useState(true);
 
-  const [authed, setAuthed] = useState(false);
-  useEffect(() => {
-    let active = true;
-    supabase.auth.getSession().then(({ data }) => {
-      if (active) setAuthed(!!data.session);
-    });
-    const { data: sub } = supabase.auth.onAuthStateChange((_e, session) => {
-      setAuthed(!!session);
-    });
-    return () => {
-      active = false;
-      sub.subscription.unsubscribe();
-    };
-  }, []);
+  const { isAuthenticated, checked, openGate } = useAuthGate();
 
   const fetchBalances = useServerFn(getWalletBalances);
   const { data } = useQuery({
     queryKey: ["wallet-balances"],
     queryFn: () => fetchBalances({}),
-    enabled: authed,
+    enabled: isAuthenticated,
     retry: false,
   });
 
@@ -89,7 +78,7 @@ export function Wallet() {
   const { data: txData, isLoading: txLoading } = useQuery({
     queryKey: ["wallet-recent-tx"],
     queryFn: () => fetchTx({ data: { page: 1, pageSize: 5 } }),
-    enabled: authed,
+    enabled: isAuthenticated,
     retry: false,
   });
   const recentTx = txData?.items ?? [];
@@ -116,8 +105,12 @@ export function Wallet() {
   const annual = spend * 12 * (tier.pct / 100);
   const sliderPct = Math.min(100, (spend / (tierMid * 10)) * 100);
 
-  const mask = (v: string) => (hide ? "••••••" : v);
+  const mask = (v: string) => (hide || !isAuthenticated ? "••••••" : v);
 
+  const requireAuth = (cb: () => void) => {
+    if (isAuthenticated) cb();
+    else openGate("funding");
+  };
 
   const actions = [
     {
@@ -125,28 +118,28 @@ export function Wallet() {
       icon: Plus,
       ring: "bg-[#8B5CF6]",
       text: "text-white",
-      onClick: () => setAddFundsOpen(true),
+      onClick: () => requireAuth(() => setAddFundsOpen(true)),
     },
     {
       label: "Withdraw",
       icon: ArrowUp,
       ring: "bg-transparent",
       text: "text-[#60A5FA]",
-      onClick: () => setPayoutOpen(true),
+      onClick: () => requireAuth(() => setPayoutOpen(true)),
     },
     {
       label: "Send",
       icon: Send,
       ring: "bg-transparent",
       text: "text-emerald-400",
-      onClick: () => setTransferOpen(true),
+      onClick: () => requireAuth(() => setTransferOpen(true)),
     },
     {
       label: "Request",
       icon: ArrowDown,
       ring: "bg-[#6366F1]",
       text: "text-white",
-      onClick: () => toast.info("Payment requests are coming soon"),
+      onClick: () => requireAuth(() => toast.info("Payment requests are coming soon")),
     },
   ];
 
@@ -219,13 +212,37 @@ export function Wallet() {
             </p>
           </div>
           <button
-            onClick={toggleBalancesHidden}
+            onClick={() => requireAuth(toggleBalancesHidden)}
             aria-label={hide ? "Show balances" : "Hide balances"}
             className="w-11 h-11 shrink-0 rounded-[10px] bg-[#141418] border border-white/10 flex items-center justify-center text-white/80 hover:text-white"
           >
             {hide ? <EyeOff className="w-5 h-5" /> : <Eye className="w-5 h-5" />}
           </button>
         </div>
+
+        {/* Sign-in prompt for anonymous visitors */}
+        {!isAuthenticated && checked && (
+          <div className="rounded-[10px] border border-[#E5484D]/30 bg-gradient-to-br from-[#1A1012] via-[#141216] to-[#0F0F16] p-4">
+            <div className="flex items-start gap-3">
+              <div className="w-10 h-10 rounded-full bg-[#E5484D]/15 flex items-center justify-center shrink-0">
+                <Fingerprint className="w-5 h-5 text-[#E5484D]" />
+              </div>
+              <div className="min-w-0 flex-1">
+                <h2 className="text-white font-bold text-[15px]">Your wallet is locked</h2>
+                <p className="text-[13px] text-slate-400 mt-1 leading-relaxed">
+                  Sign in to view your balance, add funds, and manage your sub-wallets.
+                </p>
+                <button
+                  onClick={() => openGate("funding")}
+                  className="mt-3 inline-flex items-center gap-2 h-9 px-4 rounded-full bg-[#E5484D] text-white text-[13px] font-bold hover:bg-[#D63D42] transition-colors"
+                >
+                  Sign in to Wallet
+                  <ArrowRight className="w-4 h-4" />
+                </button>
+              </div>
+            </div>
+          </div>
+        )}
 
         {/* Main balance card */}
         <div className="relative overflow-hidden rounded-[10px] border border-white/10 bg-gradient-to-br from-[#151327] via-[#101020] to-[#0C0C16] p-5">
@@ -300,29 +317,44 @@ export function Wallet() {
 
           {subOpen && (
             <div className="grid grid-cols-2 gap-3">
-              {subWallets.map((s) => (
-                <Link
-                  key={s.label}
-                  to={s.to}
-                  className="rounded-[10px] bg-[#17171C] border border-white/5 p-3.5 hover:border-white/15 transition-colors"
-                >
-                  <div className="flex items-center gap-2.5">
-                    <span className={`w-8 h-8 rounded-[10px] flex items-center justify-center ${s.tone}`}>
-                      <s.icon className="w-4 h-4" />
-                    </span>
-                    <span className="text-[13px] font-semibold text-white leading-tight">{s.label}</span>
-                  </div>
-                  <div className="mt-3 flex items-end justify-between gap-2">
-                    <div className="min-w-0">
-                      <div className="text-xl font-black text-white tabular-nums truncate">
-                        {mask(s.value)}
-                      </div>
-                      <div className="text-[11px] text-slate-500 mt-1 truncate">{s.sub}</div>
+              {subWallets.map((s) => {
+                const body = (
+                  <>
+                    <div className="flex items-center gap-2.5">
+                      <span className={`w-8 h-8 rounded-[10px] flex items-center justify-center ${s.tone}`}>
+                        <s.icon className="w-4 h-4" />
+                      </span>
+                      <span className="text-[13px] font-semibold text-white leading-tight">{s.label}</span>
                     </div>
-                    <ChevronRight className="w-4 h-4 text-slate-600 shrink-0 mb-1" />
-                  </div>
-                </Link>
-              ))}
+                    <div className="mt-3 flex items-end justify-between gap-2">
+                      <div className="min-w-0">
+                        <div className="text-xl font-black text-white tabular-nums truncate">
+                          {mask(s.value)}
+                        </div>
+                        <div className="text-[11px] text-slate-500 mt-1 truncate">{s.sub}</div>
+                      </div>
+                      <ChevronRight className="w-4 h-4 text-slate-600 shrink-0 mb-1" />
+                    </div>
+                  </>
+                );
+                return isAuthenticated ? (
+                  <Link
+                    key={s.label}
+                    to={s.to}
+                    className="rounded-[10px] bg-[#17171C] border border-white/5 p-3.5 hover:border-white/15 transition-colors"
+                  >
+                    {body}
+                  </Link>
+                ) : (
+                  <button
+                    key={s.label}
+                    onClick={() => openGate("funding")}
+                    className="rounded-[10px] bg-[#17171C] border border-white/5 p-3.5 text-left opacity-70 hover:opacity-100 transition-opacity"
+                  >
+                    {body}
+                  </button>
+                );
+              })}
             </div>
           )}
         </section>
@@ -410,13 +442,34 @@ export function Wallet() {
         <section>
           <div className="flex items-center justify-between mb-3">
             <h2 className="text-white text-lg font-bold">Recent Transactions</h2>
-            <Link to="/wallet/history" className="text-[13px] font-semibold text-[#60A5FA]">
-              View all
-            </Link>
+            {isAuthenticated ? (
+              <Link to="/wallet/history" className="text-[13px] font-semibold text-[#60A5FA]">
+                View all
+              </Link>
+            ) : (
+              <button
+                onClick={() => openGate("funding")}
+                className="text-[13px] font-semibold text-[#60A5FA]"
+              >
+                View all
+              </button>
+            )}
           </div>
           <div className="rounded-[10px] bg-[#111114] border border-white/5 divide-y divide-white/5">
             {txLoading ? (
               <div className="p-6 text-center text-[13px] text-slate-500">Loading activity…</div>
+            ) : !isAuthenticated ? (
+              <div className="p-6 text-center">
+                <div className="text-[13px] text-slate-400">
+                  Sign in to see your recent wallet activity.
+                </div>
+                <button
+                  onClick={() => openGate("funding")}
+                  className="mt-3 inline-flex items-center gap-1.5 text-[13px] font-semibold text-[#E5484D] hover:text-[#F87171]"
+                >
+                  Sign in <ArrowRight className="w-4 h-4" />
+                </button>
+              </div>
             ) : recentTx.length === 0 ? (
               <div className="p-6 text-center text-[13px] text-slate-500">No transactions yet.</div>
             ) : (
