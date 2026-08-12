@@ -26,8 +26,6 @@ import {
   Download,
   Award,
   ArrowLeftRight,
-  Fingerprint,
-  ArrowRight,
 } from "lucide-react";
 import { useOnboarding, type Currency } from "@/lib/onboarding/OnboardingContext";
 import { useAuthGate } from "@/lib/auth-gate/AuthGateProvider";
@@ -222,26 +220,14 @@ export function Wallet() {
 
         {/* Sign-in prompt for anonymous visitors */}
         {!isAuthenticated && checked && (
-          <div className="rounded-[10px] border border-[#E5484D]/30 bg-gradient-to-br from-[#1A1012] via-[#141216] to-[#0F0F16] p-4">
-            <div className="flex items-start gap-3">
-              <div className="w-10 h-10 rounded-full bg-[#E5484D]/15 flex items-center justify-center shrink-0">
-                <Fingerprint className="w-5 h-5 text-[#E5484D]" />
-              </div>
-              <div className="min-w-0 flex-1">
-                <h2 className="text-white font-bold text-[15px]">Your wallet is locked</h2>
-                <p className="text-[13px] text-slate-400 mt-1 leading-relaxed">
-                  Sign in to view your balance, add funds, and manage your sub-wallets.
-                </p>
-                <button
-                  onClick={() => openGate("funding")}
-                  className="mt-3 inline-flex items-center gap-2 h-9 px-4 rounded-full bg-[#E5484D] text-white text-[13px] font-bold hover:bg-[#D63D42] transition-colors"
-                >
-                  Sign in to Wallet
-                  <ArrowRight className="w-4 h-4" />
-                </button>
-              </div>
-            </div>
-          </div>
+          <button
+            onClick={() => openGate("funding")}
+            className="w-full rounded-[10px] border border-[#E5484D]/30 bg-[#E5484D]/10 px-4 py-3 text-left"
+          >
+            <span className="text-[14px] font-semibold text-[#E5484D]">
+              Wallet is Locked, Sign in to view
+            </span>
+          </button>
         )}
 
         {/* Main balance card */}
@@ -465,9 +451,9 @@ export function Wallet() {
                 </div>
                 <button
                   onClick={() => openGate("funding")}
-                  className="mt-3 inline-flex items-center gap-1.5 text-[13px] font-semibold text-[#E5484D] hover:text-[#F87171]"
+                  className="mt-3 text-[13px] font-semibold text-[#E5484D] hover:text-[#F87171]"
                 >
-                  Sign in <ArrowRight className="w-4 h-4" />
+                  Sign in to view
                 </button>
               </div>
             ) : recentTx.length === 0 ? (
