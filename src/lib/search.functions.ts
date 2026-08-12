@@ -12,6 +12,8 @@ export interface SearchResultPeer {
   avatarUrl: string | null;
   stars: number;
   description?: string;
+  hasShop?: boolean;
+  hasServices?: boolean;
 }
 
 export interface SearchResultBounty {
@@ -31,6 +33,7 @@ export interface SearchResultProduct {
   priceUsd: number;
   vendor: string;
   coverUrl: string | null;
+  sellerSlug?: string;
 }
 
 export interface SearchResultCircle {
@@ -52,12 +55,45 @@ export interface SearchResultPost {
   createdAt: string;
 }
 
+export interface SearchResultShop {
+  kind: "shop";
+  id: string;
+  slug: string;
+  name: string;
+  avatarUrl: string | null;
+  productCount: number;
+  salesCount: number;
+  stars: number;
+}
+
+export interface SearchResultService {
+  kind: "service";
+  id: string;
+  title: string;
+  providerName: string;
+  providerSlug: string;
+  priceUsd: number;
+  coverUrl: string | null;
+}
+
+export interface SearchResultCourse {
+  kind: "course";
+  id: string;
+  title: string;
+  creatorName: string;
+  creatorSlug: string;
+  coverUrl: string | null;
+}
+
 export type SearchResult =
   | SearchResultPeer
   | SearchResultBounty
   | SearchResultProduct
   | SearchResultCircle
-  | SearchResultPost;
+  | SearchResultPost
+  | SearchResultShop
+  | SearchResultService
+  | SearchResultCourse;
 
 export interface SearchResults {
   peers: SearchResultPeer[];
@@ -65,6 +101,9 @@ export interface SearchResults {
   products: SearchResultProduct[];
   circles: SearchResultCircle[];
   posts: SearchResultPost[];
+  shops: SearchResultShop[];
+  services: SearchResultService[];
+  courses: SearchResultCourse[];
 }
 
 function serverPublicClient() {
@@ -109,23 +148,22 @@ export const searchGlobal = createServerFn({ method: "GET" })
       sb
         .from("profiles")
         .select("user_id, slug, display_name, username, avatar_path, reputation_stars, bio")
-        .or(
-          `display_name.ilike.${like},username.ilike.${like},slug.ilike.${like}`,
-        )
+        .or(`display_name.ilike.${like},username.ilike.${like},slug.ilike.${like}`)
         .limit(8),
       sb
         .from("bounties")
-        .select("id, title, price_usd, cover_path, category, status")
+        .select("id, title, price_usd, cover_path, category")
         .eq("status", "active")
         .or(`title.ilike.${like},category.ilike.${like}`)
         .order("price_usd", { ascending: false })
         .limit(8),
       sb
         .from("products")
-        .select("id, name, category, price_usd, cover_path, vendor")
+        .select("id, name, category, price_usd, cover_path, vendor, seller_id, kind")
+        .eq("status", "active")
         .or(`name.ilike.${like},category.ilike.${like},vendor.ilike.${like}`)
         .order("reviews", { ascending: false, nullsFirst: false })
-        .limit(8),
+        .limit(16), // Fetch more to separate into categories
       sb
         .from("circles")
         .select("id, slug, name, emoji")
@@ -143,6 +181,17 @@ export const searchGlobal = createServerFn({ method: "GET" })
       (p) => !!p.display_name && p.slug && !/^user-[a-f0-9]+$/i.test(p.slug as string),
     );
     const peerAvatars = await signBucket(sb, "avatars", peerRows.map((p) => p.avatar_path));
+    
+    // Check if peers have shop/services
+    const pIds = peerRows.map(p => p.user_id);
+    const { data: pChecks } = await sb.from("products").select("seller_id, kind").in("seller_id", pIds);
+    const peerHasShop = new Set<string>();
+    const peerHasServices = new Set<string>();
+    (pChecks ?? []).forEach(p => {
+        if (p.kind !== 'service') peerHasShop.add(p.seller_id);
+        else peerHasServices.add(p.seller_id);
+    });
+
     const peers: SearchResultPeer[] = peerRows.map((p, i) => ({
       kind: "peer",
       id: p.user_id as string,
@@ -152,6 +201,8 @@ export const searchGlobal = createServerFn({ method: "GET" })
       avatarUrl: peerAvatars[i],
       stars: Number(p.reputation_stars ?? 0),
       description: (p.bio as string) ?? undefined,
+      hasShop: peerHasShop.has(p.user_id as string),
+      hasServices: peerHasServices.has(p.user_id as string),
     }));
 
     const bRows = bountiesRes.data ?? [];
@@ -165,8 +216,13 @@ export const searchGlobal = createServerFn({ method: "GET" })
       coverUrl: bCovers[i],
     }));
 
-    const pRows = productsRes.data ?? [];
+    const pRows = (productsRes.data ?? []).filter(p => p.kind !== 'service' && p.kind !== 'course');
     const pCovers = await signBucket(sb, "product-covers", pRows.map((p) => p.cover_path));
+    
+    const sellerIds = Array.from(new Set(pRows.map(p => p.seller_id)));
+    const { data: sellerProfiles } = await sb.from("profiles").select("user_id, slug").in("user_id", sellerIds);
+    const sellerSlugMap = new Map((sellerProfiles ?? []).map(s => [s.user_id, s.slug]));
+
     const products: SearchResultProduct[] = pRows.map((p, i) => ({
       kind: "product",
       id: p.id as string,
@@ -175,16 +231,15 @@ export const searchGlobal = createServerFn({ method: "GET" })
       priceUsd: Number(p.price_usd ?? 0),
       vendor: (p.vendor as string) ?? "",
       coverUrl: pCovers[i],
+      sellerSlug: sellerSlugMap.get(p.seller_id as string),
     }));
 
-    // Fetch member counts for circles
+    // Circles
     const cRows = circlesRes.data ?? [];
     const cIds = cRows.map((c) => c.id);
     let countsMap = new Map<string, number>();
     if (cIds.length > 0) {
-      const { data: mCounts } = await sb
-        .from("circle_members")
-        .select("circle_id");
+      const { data: mCounts } = await sb.from("circle_members").select("circle_id").in("circle_id", cIds);
       (mCounts ?? []).forEach((m) => {
         countsMap.set(m.circle_id, (countsMap.get(m.circle_id) ?? 0) + 1);
       });
@@ -198,7 +253,7 @@ export const searchGlobal = createServerFn({ method: "GET" })
       memberCount: countsMap.get(c.id) ?? 0,
     }));
 
-    // Fetch authors for posts
+    // Posts
     const postRows = postsRes.data ?? [];
     const postAuthorIds = Array.from(new Set(postRows.map((p) => p.author_id)));
     let authorMap = new Map<string, { name: string; slug: string; avatarUrl: string | null }>();
@@ -207,9 +262,7 @@ export const searchGlobal = createServerFn({ method: "GET" })
         .from("profiles")
         .select("user_id, display_name, username, slug, avatar_path")
         .in("user_id", postAuthorIds);
-      
       const authorAvatars = await signBucket(sb, "avatars", (authorProfiles ?? []).map(p => p.avatar_path));
-      
       (authorProfiles ?? []).forEach((p, i) => {
         authorMap.set(p.user_id, {
           name: (p.display_name || p.username || p.slug) as string,
@@ -218,7 +271,6 @@ export const searchGlobal = createServerFn({ method: "GET" })
         });
       });
     }
-
     const posts: SearchResultPost[] = postRows.map((p) => {
       const author = authorMap.get(p.author_id);
       return {
@@ -232,5 +284,30 @@ export const searchGlobal = createServerFn({ method: "GET" })
       };
     });
 
-    return { peers, bounties, products, circles, posts };
+    // Extract Services
+    const serviceRows = (productsRes.data ?? []).filter(p => p.kind === 'service');
+    const sCovers = await signBucket(sb, "product-covers", serviceRows.map(s => s.cover_path));
+    const services: SearchResultService[] = serviceRows.map((s, i) => ({
+        kind: "service",
+        id: s.id as string,
+        title: s.name as string,
+        providerName: (s.vendor as string) ?? "Member",
+        providerSlug: sellerSlugMap.get(s.seller_id as string) ?? "",
+        priceUsd: Number(s.price_usd ?? 0),
+        coverUrl: sCovers[i],
+    }));
+
+    // Extract Courses
+    const courseRows = (productsRes.data ?? []).filter(p => p.kind === 'course');
+    const courseCovers = await signBucket(sb, "product-covers", courseRows.map(c => c.cover_path));
+    const courses: SearchResultCourse[] = courseRows.map((c, i) => ({
+        kind: "course",
+        id: c.id as string,
+        title: c.name as string,
+        creatorName: (c.vendor as string) ?? "Member",
+        creatorSlug: sellerSlugMap.get(c.seller_id as string) ?? "",
+        coverUrl: courseCovers[i],
+    }));
+
+    return { peers, bounties, products, circles, posts, shops: [], services, courses };
   });

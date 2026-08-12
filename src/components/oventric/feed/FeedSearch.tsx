@@ -5,6 +5,13 @@ import { Search, X, Loader2, Coins, Store, User, Star, Users, MessageSquare } fr
 import { AvatarImage } from "@/components/oventric/AvatarImage";
 import { navigateSection } from "@/components/oventric/DiscoveryPanel";
 import { searchGlobal, type SearchResults } from "@/lib/search.functions";
+import { 
+  PersonCard, 
+  SearchProductCard, 
+  ShopCard, 
+  ServiceCard, 
+  CourseCard 
+} from "@/components/oventric/search/ResultCards";
 
 export type FeedCategory = "all" | "posts" | "media" | "bounties" | "assets" | "people";
 
@@ -20,7 +27,16 @@ export const FEED_CATEGORIES: Array<{ id: FeedCategory; label: string }> = [
 /** Categories that resolve against the global index rather than feed posts. */
 export const GLOBAL_CATEGORIES: FeedCategory[] = ["bounties", "assets", "people"];
 
-const EMPTY: SearchResults = { peers: [], bounties: [], products: [], circles: [], posts: [] };
+const EMPTY: SearchResults = { 
+  peers: [], 
+  bounties: [], 
+  products: [], 
+  circles: [], 
+  posts: [], 
+  shops: [], 
+  services: [], 
+  courses: [] 
+};
 
 export function FeedSearchBar({
   q,
@@ -172,10 +188,33 @@ export function FeedGlobalResults({ q, category }: { q: string; category: FeedCa
         onTabChange={setActiveExploreTab} 
       />
 
-      <div className="flex-1">
+      <div className="flex-1 pb-32">
+        {activeExploreTab === "All" && (
+           <div className="flex flex-col gap-8 p-4">
+              {results.peers.length > 0 && (
+                <section>
+                   <h3 className="mb-3 text-[12px] font-black uppercase tracking-widest text-white/30">People</h3>
+                   <div className="flex flex-col gap-1">
+                      {results.peers.slice(0, 3).map(p => <PersonCard key={p.id} peer={p} />)}
+                   </div>
+                </section>
+              )}
+              {results.products.length > 0 && (
+                <section>
+                   <h3 className="mb-3 text-[12px] font-black uppercase tracking-widest text-white/30">Marketplace</h3>
+                   <div className="grid grid-cols-2 gap-3">
+                      {results.products.slice(0, 2).map(p => <SearchProductCard key={p.id} product={p} />)}
+                   </div>
+                </section>
+              )}
+           </div>
+        )}
+
         {activeExploreTab === "People" && (
           results.peers.length > 0 ? (
-            <PeopleExploreList users={results.peers} />
+            <div className="flex flex-col">
+               {results.peers.map(p => <PersonCard key={p.id} peer={p} />)}
+            </div>
           ) : (
             <EmptyState message="No people found" />
           )
@@ -189,7 +228,7 @@ export function FeedGlobalResults({ q, category }: { q: string; category: FeedCa
                   key={p.id}
                   to="/post/$id"
                   params={{ id: p.id }}
-                  className="block rounded-2xl border border-white/[0.06] bg-[#141416] p-4 active:scale-[0.98] transition-transform"
+                  className="block rounded-[10px] border border-white/[0.06] bg-[#141416] p-4 active:scale-[0.98] transition-transform"
                 >
                   <div className="flex items-center gap-3 mb-2">
                     <div className="h-8 w-8 rounded-full overflow-hidden bg-[#1A1A1F]">
@@ -212,91 +251,39 @@ export function FeedGlobalResults({ q, category }: { q: string; category: FeedCa
         )}
 
         {activeExploreTab === "Products" && (
-          <div className="flex flex-col divide-y divide-white/[0.06]">
-            {results.products.length > 0 && (
-              <div className="p-3">
-                <h3 className="px-1 py-2 text-[10px] font-bold uppercase tracking-wider text-white/30">Marketplace</h3>
-                <div className="grid grid-cols-2 gap-3">
-                  {results.products.map((p) => (
-                    <Link
-                      key={p.id}
-                      to="/product/$id"
-                      params={{ id: p.id }}
-                      className="overflow-hidden rounded-2xl border border-white/[0.06] bg-[#141416] active:scale-[0.98]"
-                    >
-                      {p.coverUrl ? (
-                        <img src={p.coverUrl} alt="" className="h-28 w-full object-cover" />
-                      ) : (
-                        <div className="h-28 w-full bg-sky-500/10" />
-                      )}
-                      <div className="p-2.5">
-                        <p className="line-clamp-2 text-[12.5px] font-medium text-white">{p.title}</p>
-                        <p className="mt-1 text-[12.5px] font-bold text-[#E5484D]">
-                          ${p.priceUsd.toLocaleString()}
-                        </p>
-                      </div>
-                    </Link>
-                  ))}
-                </div>
-              </div>
-            )}
-            {results.bounties.length > 0 && (
-              <div className="p-3">
-                <h3 className="px-1 py-2 text-[10px] font-bold uppercase tracking-wider text-white/30">Bounties</h3>
-                <div className="space-y-3">
-                  {results.bounties.map((b) => (
-                    <button
-                      key={b.id}
-                      type="button"
-                      onClick={() => navigateSection("Bounties")}
-                      className="w-full text-left flex items-center gap-4 p-3 rounded-2xl border border-white/[0.06] bg-[#141416] active:scale-[0.98]"
-                    >
-                      {b.coverUrl ? (
-                        <img src={b.coverUrl} alt="" className="w-14 h-14 rounded-xl object-cover" />
-                      ) : (
-                        <div className="w-14 h-14 rounded-xl bg-amber-500/10 flex items-center justify-center">
-                          <Coins className="w-6 h-6 text-amber-500" />
-                        </div>
-                      )}
-                      <div className="flex-1 min-w-0">
-                        <h4 className="text-[14px] font-bold text-white truncate">{b.title}</h4>
-                        <p className="text-[12px] text-[#E5484D] font-bold mt-0.5">
-                          ${b.amountUsd.toLocaleString()}
-                        </p>
-                      </div>
-                    </button>
-
-                  ))}
-                </div>
-              </div>
-            )}
-            {results.products.length === 0 && results.bounties.length === 0 && (
-              <EmptyState message="No products or bounties found" />
-            )}
-          </div>
+           results.products.length > 0 ? (
+             <div className="grid grid-cols-2 gap-3 p-4">
+                {results.products.map(p => <SearchProductCard key={p.id} product={p} />)}
+             </div>
+           ) : <EmptyState message="No products found" />
         )}
 
-        {activeExploreTab === "Topics" && (
-          results.circles.length > 0 ? (
-            <div className="grid grid-cols-1 gap-3 p-4">
-              {results.circles.map((c) => (
-                <button
-                  key={c.id}
-                  type="button"
-                  onClick={() => navigateSection("Circles")}
-                  className="flex items-center gap-3 w-full rounded-2xl border border-white/[0.06] bg-[#141416] p-4 text-left active:scale-[0.98]"
-                >
-                  <span className="text-3xl">{c.emoji}</span>
-                  <div>
-                    <p className="text-[15px] font-bold text-white">{c.name}</p>
-                    <p className="text-[12px] text-white/40">{c.memberCount} members</p>
-                  </div>
-                </button>
-              ))}
+        {activeExploreTab === "Shops" && (
+          results.shops.length > 0 ? (
+            <div className="flex flex-col gap-3 p-4">
+                {results.shops.map(s => <ShopCard key={s.id} shop={s} />)}
             </div>
-          ) : (
-            <EmptyState message="No topics found" />
-          )
+          ) : <EmptyState message="No shops found" />
+        )}
+
+        {activeExploreTab === "Services" && (
+          results.services.length > 0 ? (
+            <div className="flex flex-col gap-3 p-4">
+                {results.services.map(s => <ServiceCard key={s.id} service={s} />)}
+            </div>
+          ) : <EmptyState message="No services found" />
+        )}
+
+        {activeExploreTab === "Courses" && (
+          results.courses.length > 0 ? (
+            <div className="grid grid-cols-1 gap-4 p-4">
+                {results.courses.map(c => <CourseCard key={c.id} course={c} />)}
+            </div>
+          ) : <EmptyState message="No courses found" />
+        )}
+
+        {activeExploreTab === "Jobs" && (
+            <EmptyState message="No jobs found yet. We're opening the Oventric Career hub soon." />
         )}
       </div>
     </div>

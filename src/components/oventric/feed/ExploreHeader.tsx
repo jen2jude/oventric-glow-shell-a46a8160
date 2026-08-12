@@ -1,9 +1,9 @@
 import { useState } from "react";
 import { ArrowLeft } from "lucide-react";
 
-export type ExploreTab = "People" | "Posts" | "Products" | "Topics";
+export type ExploreTab = "All" | "People" | "Products" | "Shops" | "Services" | "Posts" | "Courses" | "Jobs";
 
-const TABS: ExploreTab[] = ["People", "Posts", "Products", "Topics"];
+const TABS: ExploreTab[] = ["All", "People", "Products", "Shops", "Services", "Posts", "Courses", "Jobs"];
 
 export function ExploreHeader({
   activeTab,

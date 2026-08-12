@@ -1,7 +1,7 @@
 import { useEffect, useMemo, useRef, useState } from "react";
 import { useNavigate } from "@tanstack/react-router";
 import { useServerFn } from "@tanstack/react-start";
-import { Search, X, Star, Coins, Store, User, Loader2, Users, MessageSquare } from "lucide-react";
+import { Search, X, Loader2, Store, User, Star, MessageSquare } from "lucide-react";
 import { navigateSection } from "@/components/oventric/DiscoveryPanel";
 import { searchGlobal, type SearchResults } from "@/lib/search.functions";
 
@@ -12,7 +12,16 @@ interface GlobalSearchProps {
   autoFocus?: boolean;
 }
 
-const EMPTY: SearchResults = { peers: [], bounties: [], products: [], circles: [], posts: [] };
+const EMPTY: SearchResults = { 
+  peers: [], 
+  bounties: [], 
+  products: [], 
+  circles: [], 
+  posts: [], 
+  shops: [], 
+  services: [], 
+  courses: [] 
+};
 
 export function GlobalSearch({
   variant = "inline",
@@ -89,19 +98,6 @@ export function GlobalSearch({
         onSelect: () => navigate({ to: "/profile/$id", params: { id: p.slug } }),
       }),
     );
-    results.bounties.forEach((b) =>
-      items.push({
-        key: `bounty-${b.id}`,
-        label: b.title,
-        sub: `$${b.amountUsd.toLocaleString()}${b.category ? ` · ${b.category}` : ""}`,
-        icon: (
-          <div className="w-7 h-7 rounded-md bg-amber-500/20 text-amber-300 flex items-center justify-center">
-            <Coins className="w-3.5 h-3.5" />
-          </div>
-        ),
-        onSelect: () => navigateSection("Bounties"),
-      }),
-    );
     results.products.forEach((p) =>
       items.push({
         key: `product-${p.id}`,
@@ -115,19 +111,6 @@ export function GlobalSearch({
           </div>
         ),
         onSelect: () => navigate({ to: "/product/$id", params: { id: p.id } }),
-      }),
-    );
-    results.circles.forEach((c) =>
-      items.push({
-        key: `circle-${c.id}`,
-        label: c.name,
-        sub: `${c.emoji} ${c.memberCount} members`,
-        icon: (
-          <div className="w-7 h-7 rounded-md bg-violet-500/20 text-violet-300 flex items-center justify-center">
-            <Users className="w-3.5 h-3.5" />
-          </div>
-        ),
-        onSelect: () => navigateSection("Circles"),
       }),
     );
     results.posts.forEach((p) =>
@@ -176,12 +159,12 @@ export function GlobalSearch({
   return (
     <div ref={wrapRef} className="relative w-full">
       <div className="relative group">
-        <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-500 group-focus-within:text-emerald-400 transition-colors" />
+        <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-500 group-focus-within:text-[#E5484D] transition-colors" />
         <input
           ref={inputRef}
           type="search"
           role="searchbox"
-          aria-label="Search creators, bounties and assets"
+          aria-label="Search creators, products and more"
           value={q}
           onChange={(e) => {
             setQ(e.target.value);
@@ -195,8 +178,8 @@ export function GlobalSearch({
             }
             if (e.key === "Enter" && flat[0]) handleSelect(flat[0].onSelect);
           }}
-          placeholder="Search creators, bounties, assets…"
-          className={`w-full h-10 pl-10 pr-9 rounded-lg text-sm ${light ? "bg-slate-100 border border-slate-200 text-slate-900 placeholder:text-slate-500" : "bg-[#1E1E24] border border-white/10 text-slate-200 placeholder:text-slate-500"} focus:outline-none focus:border-emerald-500/60 focus:ring-2 focus:ring-emerald-500/20 transition-all`}
+          placeholder="Search creators, products..."
+          className={`w-full h-10 pl-10 pr-9 rounded-lg text-sm ${light ? "bg-slate-100 border border-slate-200 text-slate-900 placeholder:text-slate-500" : "bg-[#1E1E24] border border-white/10 text-slate-200 placeholder:text-slate-500"} focus:outline-none focus:border-[#E5484D]/60 focus:ring-2 focus:ring-[#E5484D]/20 transition-all`}
         />
         {q && (
           <button
@@ -220,7 +203,7 @@ export function GlobalSearch({
         >
           {loading && flat.length === 0 ? (
             <div className="px-4 py-6 text-center text-slate-400 text-sm inline-flex items-center justify-center gap-2 w-full">
-              <Loader2 className="w-3.5 h-3.5 animate-spin" /> Searching…
+              <Loader2 className="w-3.5 h-3.5 animate-spin text-[#E5484D]" /> Searching…
             </div>
           ) : empty ? (
             <div className="px-4 py-6 text-center text-slate-400 text-sm">
@@ -230,7 +213,7 @@ export function GlobalSearch({
             <ul className={`${listMaxH} overflow-y-auto py-1`}>
               {results.peers.length > 0 && (
                 <li className="px-4 pt-2 pb-1 text-[10px] uppercase tracking-widest text-slate-500 flex items-center gap-1.5">
-                  <User className="w-3 h-3" /> Peers
+                  <User className="w-3 h-3" /> People
                 </li>
               )}
               {flat
@@ -243,26 +226,6 @@ export function GlobalSearch({
                     trailing={item.trailing}
                     trailingLabel={item.trailingLabel}
                   />
-                ))}
-              {results.bounties.length > 0 && (
-                <li className="px-4 pt-3 pb-1 text-[10px] uppercase tracking-widest text-slate-500 flex items-center gap-1.5">
-                  <Coins className="w-3 h-3" /> Bounties
-                </li>
-              )}
-              {flat
-                .filter((f) => f.key.startsWith("bounty-"))
-                .map((item) => (
-                  <ResultRow key={item.key} item={item} onSelect={handleSelect} />
-                ))}
-              {results.circles.length > 0 && (
-                <li className="px-4 pt-3 pb-1 text-[10px] uppercase tracking-widest text-slate-500 flex items-center gap-1.5">
-                  <Users className="w-3 h-3" /> Communities
-                </li>
-              )}
-              {flat
-                .filter((f) => f.key.startsWith("circle-"))
-                .map((item) => (
-                  <ResultRow key={item.key} item={item} onSelect={handleSelect} />
                 ))}
 
               {results.posts.length > 0 && (
