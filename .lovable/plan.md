@@ -1,42 +1,40 @@
-# Plan: Oventric Stage 6 — Explore / All Products
+# Plan: Stage 10 - Universal Search & Discovery
 
-Redesign the Oventric Marketplace and Explore experience to support product-first discovery, advanced filtering, and enhanced search.
+Building a unified Oventric discovery hub that organizes people, commerce, and content into an intelligent, relationship-driven experience.
 
 ## User Review Required
 
 > [!IMPORTANT]
-> - Should "Recommended Products" at the bottom of the product page be a horizontal rail or a grid?
-> - For "Related Products", should we prioritize items from the same seller or similar items across the marketplace?
+> - The new search will feature more tabs (Shops, Services, Courses, Jobs) than the current "Explore" header. I will align the tabs with the requested list.
+> - I will extend the `searchGlobal` server function to include more specific queries for Shops, Services, and Courses.
+
+- [ ] Does the proposed tab order (All, People, Products, Shops, Services, Content, Courses, Jobs) meet your expectations?
 
 ## Proposed Changes
 
-### Marketplace Discovery Redesign (`src/components/oventric/Marketplace.tsx`)
-- **Product-First Discovery:** Ensure the marketplace defaults to showing products across all sellers, supporting the "Show me available products" purpose.
-- **Enhanced Search Integration:** Integrate `GlobalSearch` logic for consistent search behavior across names, categories, keywords, and seller names.
-- **Mobile Filter Drawer:** Implement a bottom sheet or drawer for advanced filters (Category, Price, Product type, Rating, Seller, Availability) to maintain a clean mobile UI.
-- **Sorting Logic:** Add sort options: Recommended, Newest, Popular, Best Selling, Top Rated, Price Low → High, Price High → Low.
-- **Conventional Grid:** Transition parts of the full catalogue to a more conventional 2nd grid layout while maintaining Oventric's visual language (`#0A0A0B` and crimson accents).
+### Database & Server Logic
+- **`src/lib/search.functions.ts`**:
+    - Update `searchGlobal` to return more granular categories.
+    - Add specific logic to distinguish between "Shops" (sellers with active products) and "People".
+    - Implement filtering for `kind: 'service'` and `kind: 'course'` within the marketplace search.
+    - Add basic job search logic (or placeholders if the jobs table is not yet mature).
 
-### Explore Experience Hub (`src/components/oventric/feed/FeedDiscoverExplore.tsx`)
-- **Product Hub:** Enhance the "Products" tab in the Explore hub to match the new Marketplace discovery layout.
-- **Unified Search:** Ensure the search bar in Explore behaves like a marketplace-wide product discovery tool.
+### Search UI Components
+- **`src/components/oventric/search/SearchTabs.tsx`** (New):
+    - Unified tab rail following the Stage 10 blueprint.
+- **`src/components/oventric/search/ResultCards.tsx`** (New):
+    - **PersonCard**: Shows image, name, verification, interests, skills, followers, and "Shop/Services" indicators.
+    - **ProductCard**: Replaces generic cards with a discovery-focused version (Price, Seller, Rating, Category).
+    - **ShopCard**: Identity-focused card with product count, sales, and follower stats.
+    - **ServiceCard**: Contextual card leading to the provider's hub.
 
-### Product & Seller Connection (`src/routes/product.$id.tsx`)
-- **Seller Visibility:** Maintain prominent seller identity while browsing.
-- **Related Products Section:** Implement "Similar Products", "Recommended for You", and "More Like This" sections at the bottom of the product page.
-- **Cross-Seller Recommendations:** Include related products from other sellers to enhance discovery.
-
-### Component & Library Updates
-- **`src/lib/marketplace.functions.ts`:** Update `listProducts` and search functions to support new filter and sort parameters.
-- **`src/components/oventric/marketplace-discovery/cards.tsx`:** Ensure card layouts support the new discovery grid requirements.
+### Integration
+- **`src/components/oventric/feed/FeedSearch.tsx`**:
+    - Refactor `FeedGlobalResults` to use the new unified categories and specialized cards.
+- **`src/components/oventric/feed/ExploreHeader.tsx`**:
+    - Align tabs with the new universal discovery structure.
 
 ## Technical Details
-- **Filtering:** Use `useMemo` for client-side filtering where feasible, and extend server functions for larger data sets.
-- **UI Consistency:** Use `rounded-[10px]` and crimson accents (`#E5484D`) for all new discovery components.
-- **Performance:** Implement lazy loading for large product grids to maintain a smooth experience.
-
-## Verification Plan
-- **Manual Discovery Check:** Navigate to Marketplace and verify products from various sellers are displayed.
-- **Filter/Sort Validation:** Apply filters and sort options, confirming the grid updates correctly.
-- **Related Products Check:** Open a product page and verify the recommendation sections at the bottom.
-- **Mobile Responsiveness:** Test the filter drawer and grid on mobile viewports.
+- Use `rounded-[10px]` for all new card designs.
+- Maintain the #0A0A0B dark theme with #E5484D crimson accents.
+- Ensure "Contextual Discovery" by including deep links (e.g., `Product → Seller Storefront`).
