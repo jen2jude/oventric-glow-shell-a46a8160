@@ -1,7 +1,8 @@
 import { useEffect, useMemo, useRef, useState } from "react";
 import { useNavigate } from "@tanstack/react-router";
 import { useServerFn } from "@tanstack/react-start";
-import { ChevronLeft, ChevronRight, LayoutGrid, Search, SlidersHorizontal, ShoppingBag } from "lucide-react";
+import { ChevronLeft, ChevronRight, LayoutGrid, Search, SlidersHorizontal, ShoppingBag, GraduationCap } from "lucide-react";
+import { useDominantColor } from "@/hooks/use-dominant-color";
 import { useOnboarding } from "@/lib/onboarding/OnboardingContext";
 import {
   listProducts,
