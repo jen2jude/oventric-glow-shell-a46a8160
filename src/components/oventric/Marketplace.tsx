@@ -294,7 +294,7 @@ export function Marketplace() {
                         return (
                           <div
                             key={item.id}
-                            className={`relative flex h-[320px] w-full min-w-full shrink-0 snap-center overflow-hidden rounded-[10px] bg-gradient-to-br ${gradient} ring-1 ring-white/5`}
+                            className={`relative flex aspect-[16/9] w-full min-w-full shrink-0 snap-center overflow-hidden rounded-3xl bg-gradient-to-br ${gradient} ring-1 ring-white/5`}
                           >
                             <div className="absolute inset-0 flex">
                               <div className="z-10 flex flex-1 flex-col justify-center p-6 text-white md:p-8">
