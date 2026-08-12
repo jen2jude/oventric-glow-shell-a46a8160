@@ -268,7 +268,7 @@ function CircleTile({ c, isAppShell }: { c: RecoCircle; isAppShell: boolean }) {
   return (
     <button
       onClick={open}
-      className={`text-left border rounded-xl overflow-hidden transition-colors block w-full ${!isAppShell ? "bg-white border-slate-200 hover:border-indigo-400/60 shadow-sm" : "bg-[#1E1E24] border-white/10 hover:border-indigo-400/40"}`}
+      className={`text-left border rounded-xl overflow-hidden transition-colors block w-full ${!isAppShell ? "bg-white border-slate-200 hover:border-[#E5484D]/30 shadow-sm" : "bg-[#1A1A1C] border-white/5 hover:border-[#E5484D]/40"}`}
     >
       <div className="relative aspect-[3/1] bg-gradient-to-br from-indigo-600/40 to-fuchsia-600/40">
         {c.coverUrl ? (
