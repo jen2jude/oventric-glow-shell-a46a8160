@@ -253,14 +253,18 @@ export function Marketplace() {
 
                 {/* Horizontal Category Shortcuts */}
                 <div className="no-scrollbar flex gap-4 overflow-x-auto snap-x snap-mandatory scroll-smooth no-scrollbar px-4">
-                  {cats.slice(0, 10).map((cat) => (
+                  {cats.map((cat) => (
                     <button
                       key={cat.id}
                       onClick={() => setActiveCategory(cat)}
-                      className="flex flex-col items-center gap-2 shrink-0 group"
+                      className="flex flex-col items-center gap-2 shrink-0 group snap-start"
                     >
                       <div className="w-16 h-16 rounded-full bg-[#141416] ring-1 ring-white/5 flex items-center justify-center group-active:scale-90 transition-transform">
-                        <LayoutGrid className="w-6 h-6 text-white/40 group-hover:text-[#E5484D] transition-colors" />
+                        <img 
+                          src={`https://api.dicebear.com/7.x/identicon/svg?seed=${cat.slug}&backgroundColor=141416&fontFamily=Arial&fontSize=32`}
+                          alt=""
+                          className="w-8 h-8 opacity-40 group-hover:opacity-100 group-hover:scale-110 transition-all"
+                        />
                       </div>
                       <span className="text-[11px] font-bold text-white/60 group-hover:text-white transition-colors">{cat.name}</span>
                     </button>
@@ -282,7 +286,7 @@ export function Marketplace() {
                           key={item.id}
                           type="button"
                           onClick={() => openProduct(item)}
-                          className="relative flex h-[360px] w-full min-w-full shrink-0 snap-center flex-col overflow-hidden rounded-[10px] bg-[#141416] text-left ring-1 ring-white/5"
+                          className="relative flex h-[360px] w-[80%] min-w-[80%] shrink-0 snap-center flex-col overflow-hidden rounded-[10px] bg-[#141416] text-left ring-1 ring-white/5"
                         >
                           <div className="absolute inset-0">
                             {item.coverUrl ? (
