@@ -26,8 +26,6 @@ import {
   Download,
   Award,
   ArrowLeftRight,
-  Fingerprint,
-  ArrowRight,
 } from "lucide-react";
 import { useOnboarding, type Currency } from "@/lib/onboarding/OnboardingContext";
 import { useAuthGate } from "@/lib/auth-gate/AuthGateProvider";
