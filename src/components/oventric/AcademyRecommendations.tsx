@@ -354,7 +354,7 @@ function PromotedStrip({ ads, isAppShell }: { ads: DiscoveryAd[]; isAppShell: bo
             href={a.ctaUrl}
             target="_blank"
             rel="noreferrer"
-            className={`flex gap-3 items-center border rounded-[10px] p-3 transition-colors ${!isAppShell ? "bg-white border-slate-200 hover:border-emerald-300 shadow-sm" : "bg-[#1E1E24] border-white/10 hover:border-emerald-400/40"}`}
+            className={`flex gap-3 items-center border rounded-[10px] p-3 transition-colors ${!isAppShell ? "bg-white border-slate-200 hover:border-[#E5484D]/30 shadow-sm" : "bg-[#1A1A1C] border-white/5 hover:border-[#E5484D]/40"}`}
           >
             {a.coverUrl ? (
               <img loading="lazy" decoding="async"
