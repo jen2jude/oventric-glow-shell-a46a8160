@@ -467,7 +467,7 @@ export function Wallet() {
           <div className="flex items-center justify-between mb-3">
             <h2 className="text-white text-lg font-bold">Recent Transactions</h2>
             {isAuthenticated ? (
-              <Link to="/wallet/history" className="text-[13px] font-semibold text-[#60A5FA]">
+              <Link to="/wallet/ledger" className="text-[13px] font-semibold text-[#60A5FA]">
                 View all
               </Link>
             ) : (
@@ -479,59 +479,74 @@ export function Wallet() {
               </button>
             )}
           </div>
-          <div className="rounded-[10px] bg-[#111114] border border-white/5 divide-y divide-white/5">
-            {txLoading ? (
-              <div className="p-6 text-center text-[13px] text-slate-500">Loading activity…</div>
-            ) : !isAuthenticated ? (
-              <div className="p-6 text-center">
-                <div className="text-[13px] text-slate-400">
-                  Sign in to see your recent wallet activity.
-                </div>
-                <button
-                  onClick={() => openGate("funding")}
-                  className="mt-3 text-[13px] font-semibold text-[#E5484D] hover:text-[#F87171]"
-                >
-                  Sign in to view
-                </button>
+          {txLoading ? (
+            <div className="rounded-[10px] bg-[#111114] border border-white/5 p-6 text-center text-[13px] text-slate-500">
+              Loading activity…
+            </div>
+          ) : !isAuthenticated ? (
+            <div className="rounded-[10px] bg-[#111114] border border-white/5 p-6 text-center">
+              <div className="text-[13px] text-slate-400">
+                Sign in to see your recent wallet activity.
               </div>
-            ) : recentTx.length === 0 ? (
-              <div className="p-6 text-center text-[13px] text-slate-500">No transactions yet.</div>
-            ) : (
-              recentTx.map((t) => {
-                const style = txStyle(t.type, t.inflow);
-                return (
-                  <div key={t.id} className="p-3.5 flex items-center gap-3">
-                    <span
-                      className={`w-10 h-10 rounded-full shrink-0 flex items-center justify-center ${style.tone}`}
-                    >
-                      <style.icon className="w-5 h-5" />
-                    </span>
-                    <div className="min-w-0 flex-1">
-                      <div className="text-[14px] font-semibold text-white truncate">{t.type}</div>
-                      <div className="text-[12px] text-slate-500 truncate capitalize">{t.status}</div>
-                    </div>
-                    <div className="text-right shrink-0">
-                      <div
-                        className={`text-[14px] font-bold tabular-nums ${
-                          t.inflow ? "text-emerald-400" : "text-white"
-                        }`}
-                      >
-                        {t.inflow ? "+ " : "- "}
-                        {mask(fmt(t.amount, t.currency))}
-                      </div>
-                      <div className="text-[12px] text-slate-500">
-                        {new Date(t.occurredAt).toLocaleDateString(undefined, {
-                          month: "short",
-                          day: "numeric",
-                          year: "numeric",
-                        })}
-                      </div>
-                    </div>
+              <button
+                onClick={() => openGate("funding")}
+                className="mt-3 text-[13px] font-semibold text-[#E5484D] hover:text-[#F87171]"
+              >
+                Sign in to view
+              </button>
+            </div>
+          ) : monthGroups.length === 0 ? (
+            <div className="rounded-[10px] bg-[#111114] border border-white/5 p-6 text-center text-[13px] text-slate-500">
+              No transactions yet.
+            </div>
+          ) : (
+            <div className="space-y-5">
+              {monthGroups.map((g) => (
+                <div key={g.label}>
+                  <div className="mb-2 text-[13px] font-semibold text-slate-400">{g.label}</div>
+                  <div className="rounded-[10px] bg-[#111114] border border-white/5 divide-y divide-white/5">
+                    {g.items.map((t) => {
+                      const style = txStyle(t.type, t.inflow);
+                      return (
+                        <div key={t.id} className="p-3.5 flex items-center gap-3">
+                          <span
+                            className={`w-10 h-10 rounded-full shrink-0 flex items-center justify-center ${style.tone}`}
+                          >
+                            <style.icon className="w-5 h-5" />
+                          </span>
+                          <div className="min-w-0 flex-1">
+                            <div className="text-[14px] font-semibold text-white truncate">
+                              {t.type}
+                            </div>
+                            <div className="text-[12px] text-slate-500 truncate capitalize">
+                              {t.status}
+                            </div>
+                          </div>
+                          <div className="text-right shrink-0">
+                            <div
+                              className={`text-[14px] font-bold tabular-nums ${
+                                t.inflow ? "text-emerald-400" : "text-white"
+                              }`}
+                            >
+                              {t.inflow ? "+ " : "- "}
+                              {mask(fmt(t.amount, t.currency))}
+                            </div>
+                            <div className="text-[12px] text-slate-500">
+                              {new Date(t.occurredAt).toLocaleDateString(undefined, {
+                                month: "short",
+                                day: "numeric",
+                                year: "numeric",
+                              })}
+                            </div>
+                          </div>
+                        </div>
+                      );
+                    })}
                   </div>
-                );
-              })
-            )}
-          </div>
+                </div>
+              ))}
+            </div>
+          )}
         </section>
       </main>
 
