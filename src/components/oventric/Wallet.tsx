@@ -180,22 +180,39 @@ export function Wallet() {
     <div className="min-h-screen bg-[#0A0A0B] pb-24 md:pb-10">
       {/* Header */}
       <header className="sticky top-0 z-40 bg-[#0A0A0B] px-4 h-14 flex items-center justify-between">
-        <button aria-label="Menu" className="text-white/80 hover:text-white">
+        <button
+          aria-label="Menu"
+          onClick={() => setMenuOpen(true)}
+          className="text-white/80 hover:text-white active:scale-95 transition-transform"
+        >
           <Menu className="w-6 h-6" />
         </button>
         <Link to="/" className="flex items-center">
           <img src={logoFull} alt="Oventric" className="h-6 w-auto" />
         </Link>
         <div className="flex items-center gap-4">
-          <button aria-label="Notifications" className="relative text-white/80 hover:text-white">
+          <button
+            aria-label="Notifications"
+            onClick={() => (isAuthenticated ? setNotifOpen(true) : openGate("funding"))}
+            className="relative text-white/80 hover:text-white active:scale-95 transition-transform"
+          >
             <Bell className="w-5 h-5" />
-            <span className="absolute -top-0.5 -right-0.5 w-2 h-2 rounded-full bg-[#E5484D]" />
+            {unreadNotifs > 0 && (
+              <span className="absolute -top-0.5 -right-0.5 w-2 h-2 rounded-full bg-[#E5484D]" />
+            )}
           </button>
-          <button aria-label="Scan" className="text-white/80 hover:text-white">
+          <button
+            aria-label="Scan to pay"
+            onClick={() => requireAuth(() => setScanOpen(true))}
+            className="text-white/80 hover:text-white active:scale-95 transition-transform"
+          >
             <ScanLine className="w-5 h-5" />
           </button>
         </div>
       </header>
+
+      <MegaMenu open={menuOpen} onClose={() => setMenuOpen(false)} />
+      <NotificationsDrawer open={notifOpen} onClose={() => setNotifOpen(false)} />
 
       <main className="max-w-2xl mx-auto px-5 pt-3 space-y-5">
         {/* Title row */}
