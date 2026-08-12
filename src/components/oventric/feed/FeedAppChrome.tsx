@@ -4,6 +4,8 @@ import { useServerFn } from "@tanstack/react-start";
 import { Bell, MessageSquare, Search, Plus } from "lucide-react";
 import logoFull from "@/assets/oventric-full-transparent.png";
 import { AvatarImage } from "@/components/oventric/AvatarImage";
+import { ProfileDropdown } from "@/components/oventric/ProfileDropdown";
+
 import { CountBadge } from "@/components/oventric/CountBadge";
 import {
   NotificationsDrawer,
