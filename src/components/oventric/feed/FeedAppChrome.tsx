@@ -132,20 +132,10 @@ export function FeedAppChrome({
             <MessageSquare className="h-[22px] w-[22px]" strokeWidth={1.8} />
             <CountBadge count={messages ?? 0} ariaLabel={`${messages ?? 0} unread messages`} />
           </button>
-          {meSlug ? (
-            <Link
-              to="/profile/$id"
-              params={{ id: meSlug }}
-              aria-label="Your profile"
-              className="ml-1 h-8 w-8 shrink-0 overflow-hidden rounded-full bg-[#1A1A1F] ring-1 ring-white/10 active:scale-95"
-            >
-              <AvatarImage src={meAvatarUrl} alt="You" initials={meInitials} />
-            </Link>
-          ) : (
-            <span className="ml-1 h-8 w-8 shrink-0 overflow-hidden rounded-full bg-[#1A1A1F] ring-1 ring-white/10">
-              <AvatarImage src={meAvatarUrl} alt="You" initials={meInitials} />
-            </span>
-          )}
+          <div className="ml-1">
+            <ProfileDropdown />
+          </div>
+
         </div>
         </div>
         </div>
