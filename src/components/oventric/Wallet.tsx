@@ -216,7 +216,9 @@ export function Wallet() {
             src={wallet3d.url}
             alt=""
             aria-hidden
-            className="pointer-events-none absolute right-3 top-10 w-36 opacity-95 select-none"
+            width={1024}
+            height={1024}
+            className="pointer-events-none absolute right-2 top-8 w-[42%] max-w-[170px] select-none drop-shadow-[0_12px_24px_rgba(0,0,0,0.45)]"
           />
 
           <div className="flex items-center gap-2">
