@@ -1,7 +1,8 @@
 import { useEffect, useMemo, useRef, useState } from "react";
 import { useNavigate } from "@tanstack/react-router";
 import { useServerFn } from "@tanstack/react-start";
-import { ChevronLeft, ChevronRight, LayoutGrid, Search, SlidersHorizontal, ShoppingBag } from "lucide-react";
+import { ChevronLeft, ChevronRight, LayoutGrid, Search, SlidersHorizontal, ShoppingBag, GraduationCap } from "lucide-react";
+import { useDominantColor } from "@/hooks/use-dominant-color";
 import { useOnboarding } from "@/lib/onboarding/OnboardingContext";
 import {
   listProducts,
@@ -283,60 +284,13 @@ export function Marketplace() {
                       }}
                       className="no-scrollbar flex snap-x snap-mandatory gap-4 overflow-x-auto snap-x snap-mandatory scroll-smooth no-scrollbar pb-2"
                     >
-                      {discovery.featured.slice(0, 8).map((item, idx) => {
-                        const gradients = [
-                          "from-[#8B5CF6] via-[#A78BFA] to-[#C4B5FD]",
-                          "from-[#F87171] via-[#FB7185] to-[#FCA5A5]",
-                          "from-[#3B82F6] via-[#60A5FA] to-[#93C5FD]",
-                          "from-[#F59E0B] via-[#FBBF24] to-[#FCD34D]",
-                        ];
-                        const gradient = gradients[idx % gradients.length];
-                        return (
-                          <div
-                            key={item.id}
-                            className={`relative flex aspect-[16/9] w-full min-w-full shrink-0 snap-center overflow-hidden rounded-3xl bg-gradient-to-br ${gradient} ring-1 ring-white/5`}
-                          >
-                            <div className="absolute inset-0 flex">
-                              <div className="z-10 flex flex-1 flex-col justify-center p-6 text-white md:p-8">
-                                <span className="mb-2 w-fit rounded-full bg-white/25 px-2.5 py-1 text-[10px] font-bold uppercase tracking-wider text-white">
-                                  {item.kind === "digital" ? "Digital Asset" : "Physical Product"}
-                                </span>
-                                <h2 className="mb-3 line-clamp-2 text-2xl font-black leading-tight tracking-tighter drop-shadow-sm md:text-3xl">
-                                  {item.name}
-                                </h2>
-                                <button
-                                  type="button"
-                                  onClick={() => openProduct(item)}
-                                  className="self-start rounded-full bg-[#E5484D] px-6 py-2.5 text-xs font-bold text-white shadow-lg transition-transform active:scale-95 hover:bg-[#F35E62]"
-                                >
-                                  Shop Now
-                                </button>
-                              </div>
-                              <div className="relative flex-1 min-w-0">
-                                {item.coverUrl ? (
-                                  <img
-                                    src={item.coverUrl}
-                                    alt={item.name}
-                                    loading="lazy"
-                                    className="absolute right-0 bottom-0 h-full w-full object-cover object-center"
-                                  />
-                                ) : (
-                                  <div className="h-full w-full bg-white/10 flex items-center justify-center">
-                                    <ShoppingBag className="w-16 h-16 text-white/20" />
-                                  </div>
-                                )}
-                                <div className="absolute inset-0 bg-gradient-to-r from-black/20 via-transparent to-transparent" />
-                              </div>
-                            </div>
-                            
-                            {item.rating > 4.5 && (
-                              <div className="absolute top-3 right-3 rounded-full bg-white/25 px-2.5 py-1 text-[10px] font-bold uppercase tracking-wider text-white">
-                                Top Rated
-                              </div>
-                            )}
-                          </div>
-                        );
-                      })}
+                      {discovery.featured.slice(0, 8).map((item, idx) => (
+                        <FeaturedHeroCard 
+                          key={item.id} 
+                          item={item} 
+                          onClick={() => openProduct(item)} 
+                        />
+                      ))}
                     </div>
                     {/* Dots indicator */}
                     <div className="mt-3 flex justify-center gap-2">
@@ -589,6 +543,59 @@ function CategoryResults({
         <p className="px-4 py-24 text-center text-[13px] text-white/40">
           No live products in this category yet.
         </p>
+      )}
+    </div>
+  );
+}
+
+function FeaturedHeroCard({ item, onClick }: { item: ProductDTO; onClick: () => void }) {
+  const dominantColor = useDominantColor(item.coverUrl);
+  
+  return (
+    <div
+      className="relative flex aspect-[16/9] w-full min-w-full shrink-0 snap-center overflow-hidden rounded-3xl ring-1 ring-white/5"
+      style={{ 
+        backgroundColor: dominantColor,
+        background: `linear-gradient(135deg, ${dominantColor}, rgba(0,0,0,0.8))`
+      }}
+    >
+      <div className="absolute inset-0 flex">
+        <div className="z-10 flex flex-1 flex-col justify-center p-6 text-white md:p-8">
+          <span className="mb-2 w-fit rounded-full bg-white/25 px-2.5 py-1 text-[10px] font-bold uppercase tracking-wider text-white">
+            {item.kind === "digital" ? "Digital Asset" : "Physical Product"}
+          </span>
+          <h2 className="mb-3 line-clamp-2 text-2xl font-black leading-tight tracking-tighter drop-shadow-sm md:text-3xl">
+            {item.name}
+          </h2>
+          <button
+            type="button"
+            onClick={onClick}
+            className="self-start rounded-full bg-[#E5484D] px-6 py-2.5 text-xs font-bold text-white shadow-lg transition-transform active:scale-95 hover:bg-[#F35E62]"
+          >
+            Shop Now
+          </button>
+        </div>
+        <div className="relative flex-1 min-w-0">
+          {item.coverUrl ? (
+            <img
+              src={item.coverUrl}
+              alt={item.name}
+              loading="lazy"
+              className="absolute right-0 bottom-0 h-full w-full object-contain object-right"
+            />
+          ) : (
+            <div className="h-full w-full bg-white/10 flex items-center justify-center">
+              <ShoppingBag className="w-16 h-16 text-white/20" />
+            </div>
+          )}
+          <div className="absolute inset-0 bg-gradient-to-r from-black/20 via-transparent to-transparent" />
+        </div>
+      </div>
+      
+      {item.rating > 4.5 && (
+        <div className="absolute top-3 right-3 rounded-full bg-white/25 px-2.5 py-1 text-[10px] font-bold uppercase tracking-wider text-white">
+          Top Rated
+        </div>
       )}
     </div>
   );

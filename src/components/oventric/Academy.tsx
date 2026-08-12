@@ -1,6 +1,7 @@
 import { useEffect, useState, useMemo, useRef, useCallback } from "react";
 import { useServerFn } from "@tanstack/react-start";
 import { Link } from "@tanstack/react-router";
+import { useDominantColor } from "@/hooks/use-dominant-color";
 import {
   ArrowLeft,
   ArrowRight,
@@ -446,46 +447,12 @@ export const Academy = ({ hubMode = false }: { hubMode?: boolean }) => {
                       "bg-gradient-to-br from-[#3B82F6] via-[#60A5FA] to-[#93C5FD]",
                       "bg-gradient-to-br from-[#F59E0B] via-[#FBBF24] to-[#FCD34D]",
                     ];
-                    const gradient = gradients[idx % gradients.length];
                     return (
-                      <div
-                        key={course.id}
-                        className={`shrink-0 snap-start ${isAppShell ? "w-full" : "w-full md:w-[calc(50%-8px)]"} aspect-[16/9] relative rounded-3xl overflow-hidden ${gradient}`}
-                      >
-                        <div className="absolute inset-0 flex">
-                          <div className="flex-1 p-5 md:p-8 flex flex-col justify-center text-white z-10">
-                            <h4 className="text-xl md:text-2xl lg:text-3xl font-black mb-2 leading-tight line-clamp-3">
-                              {course.title}
-                            </h4>
-                            <p className="text-xs md:text-sm text-white/80 mb-4 line-clamp-2">
-                              {course.instructorName || "Learn from industry experts"}
-                            </p>
-                            <button
-                              onClick={() => { setSelectedId(course.id); setView("course"); }}
-                              className="self-start bg-red-500 hover:bg-red-600 text-white px-5 md:px-6 py-3 md:py-2.5 rounded-full text-xs md:text-sm font-bold active:scale-95 transition-transform shadow-lg"
-                            >
-                              Start Now
-                            </button>
-                          </div>
-                          <div className="flex-1 relative min-w-0">
-                            {course.coverUrl ? (
-                              <img loading="lazy" decoding="async"
-                                src={course.coverUrl}
-                                className="absolute right-0 bottom-0 h-full w-full object-cover object-center"
-                                alt={course.title}
-                              />
-                            ) : (
-                              <div className="absolute inset-0 flex items-center justify-center">
-                                <GraduationCap className="w-16 h-16 md:w-20 md:h-20 text-white/20" />
-                              </div>
-                            )}
-                            <div className="absolute inset-0 bg-gradient-to-r from-black/20 via-transparent to-transparent" />
-                          </div>
-                        </div>
-                        <div className="absolute top-3 right-3 md:top-4 md:right-4 bg-white/25 text-white text-[10px] font-bold px-2.5 py-1 rounded-full uppercase tracking-wider">
-                          Top Rated
-                        </div>
-                      </div>
+                      <AcademyTrendingCard 
+                        key={course.id} 
+                        course={course} 
+                        onClick={() => { setSelectedId(course.id); setView("course"); }}
+                      />
                     );
                   })}
                 </div>
@@ -572,6 +539,55 @@ export const Academy = ({ hubMode = false }: { hubMode?: boolean }) => {
           }}
         />
       )}
+    </div>
+  );
+}
+
+function AcademyTrendingCard({ course, onClick }: { course: CourseDTO; onClick: () => void }) {
+  const dominantColor = useDominantColor(course.coverUrl);
+  const isAppShell = useIsAppShell();
+  
+  return (
+    <div
+      className={`shrink-0 snap-start ${isAppShell ? "w-full" : "w-full md:w-[calc(50%-8px)]"} aspect-[16/9] relative rounded-3xl overflow-hidden`}
+      style={{ 
+        backgroundColor: dominantColor,
+        background: `linear-gradient(135deg, ${dominantColor}, rgba(0,0,0,0.8))`
+      }}
+    >
+      <div className="absolute inset-0 flex">
+        <div className="flex-1 p-5 md:p-8 flex flex-col justify-center text-white z-10">
+          <h4 className="text-xl md:text-2xl lg:text-3xl font-black mb-2 leading-tight line-clamp-3">
+            {course.title}
+          </h4>
+          <p className="text-xs md:text-sm text-white/80 mb-4 line-clamp-2">
+            {course.instructorName || "Learn from industry experts"}
+          </p>
+          <button
+            onClick={onClick}
+            className="self-start bg-red-500 hover:bg-red-600 text-white px-5 md:px-6 py-3 md:py-2.5 rounded-full text-xs md:text-sm font-bold active:scale-95 transition-transform shadow-lg"
+          >
+            Start Now
+          </button>
+        </div>
+        <div className="flex-1 relative min-w-0">
+          {course.coverUrl ? (
+            <img loading="lazy" decoding="async"
+              src={course.coverUrl}
+              className="absolute right-0 bottom-0 h-full w-full object-contain object-right"
+              alt={course.title}
+            />
+          ) : (
+            <div className="absolute inset-0 flex items-center justify-center">
+              <GraduationCap className="w-16 h-16 md:w-20 md:h-20 text-white/20" />
+            </div>
+          )}
+          <div className="absolute inset-0 bg-gradient-to-r from-black/20 via-transparent to-transparent" />
+        </div>
+      </div>
+      <div className="absolute top-3 right-3 md:top-4 md:right-4 bg-white/25 text-white text-[10px] font-bold px-2.5 py-1 rounded-full uppercase tracking-wider">
+        Top Rated
+      </div>
     </div>
   );
 }
