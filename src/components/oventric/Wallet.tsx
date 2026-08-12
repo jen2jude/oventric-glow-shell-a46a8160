@@ -84,18 +84,23 @@ export function Wallet() {
              {/* Action Row */}
              <div className="grid grid-cols-4 gap-2">
                  {[
-                    { icon: ArrowDownToLine, label: "Fund" },
-                    { icon: ArrowUpFromLine, label: "Withdraw" },
-                    { icon: Send, label: "Send" },
-                    { icon: Sparkles, label: "Request" }
+                    { icon: ArrowDownToLine, label: "Fund", onClick: () => setAddFundsOpen(true) },
+                    { icon: ArrowUpFromLine, label: "Withdraw", onClick: () => setPayoutOpen(true) },
+                    { icon: Send, label: "Send", onClick: () => setTransferOpen(true) },
+                    { icon: Sparkles, label: "Request", onClick: () => {} }
                  ].map((btn, i) => (
-                    <button key={i} className="flex flex-col items-center gap-1.5 p-2 rounded-[10px] hover:bg-white/5 transition-colors">
+                    <button 
+                      key={i} 
+                      onClick={btn.onClick}
+                      className="flex flex-col items-center gap-1.5 p-2 rounded-[10px] hover:bg-white/5 transition-colors"
+                    >
                         <div className="w-10 h-10 rounded-full bg-[#1E1E24] flex items-center justify-center text-[#E5484D]">
                             <btn.icon className="w-5 h-5" />
                         </div>
                         <span className="text-[10px] text-slate-400">{btn.label}</span>
                     </button>
                  ))}
+
              </div>
         </div>
 
