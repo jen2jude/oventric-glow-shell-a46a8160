@@ -1,5 +1,4 @@
-import { useEffect, useState } from "react";
-import { supabase } from "@/integrations/supabase/client";
+import { useState } from "react";
 import { Link } from "@tanstack/react-router";
 import { useQuery } from "@tanstack/react-query";
 import { toast } from "sonner";
@@ -27,8 +26,11 @@ import {
   Download,
   Award,
   ArrowLeftRight,
+  Fingerprint,
+  ArrowRight,
 } from "lucide-react";
 import { useOnboarding, type Currency } from "@/lib/onboarding/OnboardingContext";
+import { useAuthGate } from "@/lib/auth-gate/AuthGateProvider";
 import { getWalletBalances, listWalletTransactions, type WalletTxType } from "@/lib/wallet.functions";
 import { formatMoney, usdRate } from "@/lib/fx-display";
 
