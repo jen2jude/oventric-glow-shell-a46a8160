@@ -12,7 +12,7 @@ interface GlobalSearchProps {
   autoFocus?: boolean;
 }
 
-const EMPTY: SearchResults = { peers: [], bounties: [], products: [], circles: [], posts: [] };
+const EMPTY: SearchResults = { peers: [], bounties: [], products: [], circles: [], posts: [], shops: [], services: [], courses: [] };
 
 export function GlobalSearch({
   variant = "inline",
