@@ -5,7 +5,9 @@ import {
   ShieldCheck,
   LayoutDashboard,
   Users,
+  ShoppingBag,
   Package,
+
   Megaphone,
   Tags,
   ToggleLeft,

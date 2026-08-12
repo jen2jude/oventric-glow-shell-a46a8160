@@ -30,7 +30,9 @@ export const ROLE_DESCRIPTIONS: Record<ManagementRole, string> = {
 export const SECTION_ACCESS: Record<string, ManagementRole[]> = {
   "/admin": ["admin", "moderator", "finance", "content", "support"],
   "/admin/users": ["admin", "support"],
+  "/admin/sellers": ["admin", "moderator", "support"],
   "/admin/products": ["admin", "moderator", "content"],
+
   "/admin/campaigns": ["admin", "content"],
   "/admin/ad-inquiries": ["admin", "content"],
   "/admin/bounties": ["admin", "moderator", "finance"],
