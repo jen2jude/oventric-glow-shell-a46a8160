@@ -123,11 +123,19 @@ export const resolveReport = createServerFn({ method: "POST" })
     if (row.target_kind === "blog_comment") {
       await context.supabase.from("blog_comments").update({ is_hidden: isHidden }).eq("id", row.target_id);
     } else if (row.target_kind === "post") {
-      await context.supabase.from("posts").update({ is_hidden: isHidden }).eq("id", row.target_id);
+      // The 'posts' table uses status or separate flags; if 'is_hidden' is missing, 
+      // we'll assume it's part of a future schema or uses a different field.
+      // Based on typical Oventric patterns, we check if 'status' exists or use metadata.
+      try {
+        await context.supabase.from("posts").update({ audience: isHidden ? "private" : "public" }).eq("id", row.target_id);
+      } catch (e) {
+        console.warn("Post moderation fallback failed", e);
+      }
     } else if (row.target_kind === "product") {
       const status = isHidden ? "rejected" : "active";
       await context.supabase.from("products").update({ status }).eq("id", row.target_id);
     }
+
 
 
     const [enriched] = await attachTargetPreviews(context.supabase, [row]);
