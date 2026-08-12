@@ -100,6 +100,8 @@ export function SellAssetModal({ open, onClose }: { open: boolean; onClose: () =
   const [mode, setMode] = useState<"file" | "url">("file");
   const [file, setFile] = useState<File | null>(null);
   const [externalUrl, setExternalUrl] = useState("");
+  const [basicInfo, setBasicInfo] = useState("");
+  const [activationGuide, setActivationGuide] = useState("");
   const [requiresManualDelivery, setRequiresManualDelivery] = useState(false);
   const [agreedToSplit, setAgreedToSplit] = useState(false);
   const [images, setImages] = useState<File[]>([]);
@@ -115,6 +117,8 @@ export function SellAssetModal({ open, onClose }: { open: boolean; onClose: () =
   const reset = () => {
     setName("");
     setDescription("");
+    setBasicInfo("");
+    setActivationGuide("");
     setPriceInput("");
     setDiscountInput("");
     setIsFree(false);
@@ -275,6 +279,8 @@ export function SellAssetModal({ open, onClose }: { open: boolean; onClose: () =
           coverPath: imagePaths[0] ?? null,
           imagePaths,
           requiresManualDelivery,
+          basicInfo: basicInfo.trim() || null,
+          activationGuide: activationGuide.trim() || null,
         },
       });
       setSuccess(true);
@@ -522,6 +528,35 @@ export function SellAssetModal({ open, onClose }: { open: boolean; onClose: () =
                   className="mt-1 w-full min-h-[80px] bg-[#121214] sm:bg-white border border-white/10 sm:border-slate-300 rounded-lg px-3 py-2 text-sm text-white sm:text-slate-900 placeholder-slate-500 sm:placeholder-slate-400 focus:border-emerald-500/60 sm:focus:border-emerald-500 outline-none resize-y"
                 />
               </label>
+
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                <label className="block">
+                  <span className="text-xs font-medium text-slate-300 sm:text-slate-700">
+                    Basic Info
+                  </span>
+                  <textarea
+                    value={basicInfo}
+                    onChange={(e) => setBasicInfo(e.target.value)}
+                    rows={3}
+                    placeholder="Key specifications, requirements..."
+                    style={{ fieldSizing: "content" } as React.CSSProperties}
+                    className="mt-1 w-full min-h-[80px] bg-[#121214] sm:bg-white border border-white/10 sm:border-slate-300 rounded-lg px-3 py-2 text-sm text-white sm:text-slate-900 placeholder-slate-500 sm:placeholder-slate-400 focus:border-emerald-500/60 sm:focus:border-emerald-500 outline-none resize-y"
+                  />
+                </label>
+                <label className="block">
+                  <span className="text-xs font-medium text-slate-300 sm:text-slate-700">
+                    Activation Guide
+                  </span>
+                  <textarea
+                    value={activationGuide}
+                    onChange={(e) => setActivationGuide(e.target.value)}
+                    rows={3}
+                    placeholder="How to activate/install the product..."
+                    style={{ fieldSizing: "content" } as React.CSSProperties}
+                    className="mt-1 w-full min-h-[80px] bg-[#121214] sm:bg-white border border-white/10 sm:border-slate-300 rounded-lg px-3 py-2 text-sm text-white sm:text-slate-900 placeholder-slate-500 sm:placeholder-slate-400 focus:border-emerald-500/60 sm:focus:border-emerald-500 outline-none resize-y"
+                  />
+                </label>
+              </div>
 
               <div>
                 <span className="text-xs font-medium text-slate-300 sm:text-slate-700">
