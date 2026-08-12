@@ -87,7 +87,7 @@ import { AnalyticsWidget } from "@/components/oventric/dashboard/AnalyticsWidget
 import { AnalyticsCharts } from "@/components/oventric/dashboard/AnalyticsCharts";
 import { ActivityFeedWidget } from "@/components/oventric/dashboard/ActivityFeedWidget";
 import { NotificationsPanel } from "@/components/oventric/dashboard/NotificationsPanel";
-import { NotificationSettingsPanel } from "@/components/oventric/dashboard/NotificationSettingsPanel";
+
 import { SalesFulfilmentList } from "@/components/oventric/SalesFulfilmentList";
 import { Truck } from "lucide-react";
 import { SellerDashboard } from "@/components/oventric/dashboard/SellerDashboard";
