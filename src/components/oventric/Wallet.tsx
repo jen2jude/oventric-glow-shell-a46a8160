@@ -34,6 +34,8 @@ import {
 import { currencySymbol, formatMoney } from "@/lib/fx-display";
 import { currencyMeta } from "@/components/oventric/wallet/shared";
 import { TransferModal } from "@/components/oventric/wallet/TransferModal";
+import { AddCapitalModal } from "@/components/oventric/wallet/AddCapitalModal";
+import { PayoutModal } from "@/components/oventric/wallet/PayoutModal";
 import logoFull from "@/assets/oventric-full-transparent.png";
 import { useIsAppShell } from "@/hooks/use-launch-context";
 
@@ -45,7 +47,10 @@ export function Wallet() {
   const { balances, balancesHidden: hide, toggleBalancesHidden, baseCurrency, country } = useOnboarding();
   const [ledgerOpen, setLedgerOpen] = useState(false);
   const [transferOpen, setTransferOpen] = useState(false);
+  const [addFundsOpen, setAddFundsOpen] = useState(false);
+  const [payoutOpen, setPayoutOpen] = useState(false);
   const isAppShell = useIsAppShell();
+
   
   return (
     <div className="min-h-screen bg-[#0A0A0B] pb-20 md:pb-0">
