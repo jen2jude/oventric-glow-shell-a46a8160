@@ -223,7 +223,7 @@ function BountyTile({ b, currency, isAppShell }: { b: DiscoveryBounty; currency:
   return (
     <button
       onClick={open}
-      className={`text-left border rounded-xl overflow-hidden transition-colors block w-full ${!isAppShell ? "bg-white border-slate-200 hover:border-amber-400/60 shadow-sm" : "bg-[#1E1E24] border-white/10 hover:border-amber-400/40"}`}
+      className={`text-left border rounded-xl overflow-hidden transition-colors block w-full ${!isAppShell ? "bg-white border-slate-200 hover:border-[#E5484D]/30 shadow-sm" : "bg-[#1A1A1C] border-white/5 hover:border-[#E5484D]/40"}`}
     >
       <div className="relative aspect-video bg-gradient-to-br from-amber-500/30 to-rose-600/30">
         {b.coverUrl ? (
