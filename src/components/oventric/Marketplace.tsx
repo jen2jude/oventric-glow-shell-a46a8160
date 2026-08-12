@@ -564,7 +564,7 @@ function FeaturedHeroCard({ item, onClick }: { item: ProductDTO; onClick: () => 
           <span className="mb-2 w-fit rounded-full bg-white/25 px-2.5 py-1 text-[10px] font-bold uppercase tracking-wider text-white">
             {item.kind === "digital" ? "Digital Asset" : "Physical Product"}
           </span>
-          <h2 className="mb-3 line-clamp-2 text-2xl font-black leading-tight tracking-tighter drop-shadow-sm md:text-3xl">
+          <h2 className="mb-3 line-clamp-1 text-xl font-black leading-tight tracking-tighter drop-shadow-sm md:text-2xl">
             {item.name}
           </h2>
           <button
@@ -581,7 +581,7 @@ function FeaturedHeroCard({ item, onClick }: { item: ProductDTO; onClick: () => 
               src={item.coverUrl}
               alt={item.name}
               loading="lazy"
-              className="absolute right-0 bottom-0 h-full w-full object-contain object-right"
+              className="h-full w-full object-cover"
             />
           ) : (
             <div className="h-full w-full bg-white/10 flex items-center justify-center">
