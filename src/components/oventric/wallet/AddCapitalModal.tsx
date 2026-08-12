@@ -1,102 +1,259 @@
-import { useState } from "react";
-import { CheckCircle2, CreditCard, Landmark, Smartphone, Globe, ArrowRight } from "lucide-react";
-import { ModalShell } from "./shared";
+import { useState, useMemo } from "react";
+import {
+  ArrowLeft,
+  Landmark,
+  CreditCard,
+  Bitcoin,
+  Lock,
+  Check,
+  X,
+} from "lucide-react";
 import { useOnboarding } from "@/lib/onboarding/OnboardingContext";
-import { formatMoney } from "@/lib/fx-display";
+import { useServerFn } from "@tanstack/react-start";
+import { initPayment } from "@/lib/payments.functions";
+import { toast } from "sonner";
+
+const PRESETS = ["500", "1000", "5000", "10000"];
+
+function formatNumberInput(raw: string) {
+  const digits = raw.replace(/\D/g, "").slice(0, 9);
+  if (!digits) return "";
+  return Number(digits).toLocaleString("en-US");
+}
+
+function parseAmount(formatted: string) {
+  return Number(formatted.replace(/,/g, "")) || 0;
+}
+
+function TetherIcon({ className }: { className?: string }) {
+  return (
+    <svg
+      viewBox="0 0 24 24"
+      className={className}
+      fill="currentColor"
+      aria-hidden="true"
+    >
+      <text
+        x="12"
+        y="17.5"
+        textAnchor="middle"
+        fontSize="13"
+        fontWeight="800"
+      >
+        T
+      </text>
+    </svg>
+  );
+}
 
 export function AddCapitalModal({ onClose }: { onClose: () => void }) {
   const { baseCurrency } = useOnboarding();
-  const [step, setStep] = useState<"amount" | "method" | "qr">("amount");
-  const [amount, setAmount] = useState("10000");
+  const [method, setMethod] = useState<string>("bank");
+  const [amountDisplay, setAmountDisplay] = useState<string>("5,000");
+  const [loading, setLoading] = useState(false);
+  const startPayment = useServerFn(initPayment);
+
+  const amount = parseAmount(amountDisplay);
+  const symbol = useMemo(() => {
+    if (baseCurrency === "NGN") return "₦";
+    if (baseCurrency === "GHS") return "₵";
+    if (baseCurrency === "USD") return "$";
+    return "₦";
+  }, [baseCurrency]);
 
   const methods = [
-    { id: 'bank', label: 'Bank Transfer', icon: Landmark, color: 'text-blue-400', desc: 'Instant via virtual account' },
-    { id: 'card', label: 'Debit/Credit Card', icon: CreditCard, color: 'text-emerald-400', desc: 'Secure online payment' },
-    { id: 'usdt', label: 'USDT (TRC20)', icon: Globe, color: 'text-teal-400', desc: 'Crypto settlement' },
-    { id: 'minipay', label: 'MiniPay', icon: Smartphone, color: 'text-amber-400', desc: 'Fast mobile payment' },
+    {
+      id: "bank",
+      label: "Bank Transfer",
+      desc: "Direct to your Oventric bank account",
+      icon: Landmark,
+      iconBg: "bg-indigo-500/20 text-indigo-300",
+    },
+    {
+      id: "card",
+      label: "Debit / Credit Card",
+      desc: "Visa, Mastercard, Verve instant funding",
+      icon: CreditCard,
+      iconBg: "bg-amber-500/20 text-amber-300",
+    },
+    {
+      id: "usdt",
+      label: "USDT (TRC20)",
+      desc: "Fund with USDT stablecoin",
+      icon: TetherIcon,
+      iconBg: "bg-emerald-500/20 text-emerald-300",
+    },
+    {
+      id: "crypto",
+      label: "Other Cryptocurrencies",
+      desc: "BTC, ETH, USDC & more",
+      icon: Bitcoin,
+      iconBg: "bg-orange-500/20 text-orange-300",
+    },
   ];
 
+  const handlePreset = (v: string) => {
+    setAmountDisplay(formatNumberInput(v));
+  };
+
+  const handleInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    setAmountDisplay(formatNumberInput(e.target.value));
+  };
+
+  const clearAmount = () => setAmountDisplay("");
+
+  const handleContinue = async () => {
+    if (amount <= 0) {
+      toast.error("Enter a valid amount");
+      return;
+    }
+    if (method === "usdt" || method === "crypto") {
+      toast("Crypto funding is coming soon.");
+      return;
+    }
+
+    setLoading(true);
+    try {
+      const result = await startPayment({
+        data: {
+          purpose: "wallet_topup",
+          amount,
+          currency: baseCurrency,
+          channel: method === "bank" ? "bank_transfer" : "card",
+          returnTo: "/wallet",
+        },
+      });
+      if (result?.authorizationUrl) {
+        window.location.assign(result.authorizationUrl);
+      } else {
+        toast.error("Unable to start payment. Try again.");
+      }
+    } catch (err) {
+      toast.error(err instanceof Error ? err.message : "Payment failed");
+    } finally {
+      setLoading(false);
+    }
+  };
+
   return (
-    <ModalShell title="Add Funds" onClose={onClose}>
-      {step === "amount" && (
-        <div className="space-y-4">
-          <div className="grid grid-cols-3 gap-2">
-            {["10000", "20000", "50000", "100000", "250000", "500000"].map((v) => (
-              <button
-                key={v}
-                onClick={() => setAmount(v)}
-                className={`p-3 rounded-[10px] border text-sm font-bold transition-all ${
-                  amount === v 
-                  ? "bg-[#E5484D] border-[#E5484D] text-white shadow-[0_0_15px_rgba(229,72,77,0.3)]" 
-                  : "bg-white/5 border-white/10 text-slate-400 hover:border-white/20"
-                }`}
-              >
-                {formatMoney(Number(v), baseCurrency)}
-              </button>
-            ))}
+    <div className="fixed inset-0 z-[60] flex flex-col bg-[#0A0A0B]">
+      {/* Header */}
+      <div className="relative flex h-14 shrink-0 items-center justify-center border-b border-white/5 px-4">
+        <button
+          onClick={onClose}
+          className="absolute left-4 top-1/2 -translate-y-1/2 rounded-full p-2 text-white hover:bg-white/10"
+          aria-label="Go back"
+        >
+          <ArrowLeft className="h-5 w-5" />
+        </button>
+        <h1 className="text-base font-bold text-white">Add Funds</h1>
+      </div>
+
+      {/* Body */}
+      <div className="flex-1 overflow-y-auto px-5 py-6">
+        <section>
+          <h2 className="mb-4 text-lg font-semibold text-white">
+            Choose Payment Method
+          </h2>
+          <div className="space-y-3">
+            {methods.map((m) => {
+              const Icon = m.icon;
+              const selected = method === m.id;
+              return (
+                <button
+                  key={m.id}
+                  onClick={() => setMethod(m.id)}
+                  className={`flex w-full items-center gap-4 rounded-[16px] border bg-[#141418] p-4 text-left transition-all ${
+                    selected
+                      ? "border-purple-500/40 ring-1 ring-purple-500/30"
+                      : "border-white/5 hover:border-white/10"
+                  }`}
+                >
+                  <div
+                    className={`flex h-12 w-12 shrink-0 items-center justify-center rounded-full ${m.iconBg}`}
+                  >
+                    <Icon className="h-6 w-6" />
+                  </div>
+                  <div className="min-w-0 flex-1">
+                    <div className="truncate text-sm font-semibold text-white">
+                      {m.label}
+                    </div>
+                    <div className="truncate text-xs text-slate-400">
+                      {m.desc}
+                    </div>
+                  </div>
+                  <div
+                    className={`flex h-6 w-6 shrink-0 items-center justify-center rounded-full transition-colors ${
+                      selected
+                        ? "bg-purple-500 text-white"
+                        : "border-2 border-slate-600 bg-transparent"
+                    }`}
+                  >
+                    {selected && <Check className="h-3.5 w-3.5" />}
+                  </div>
+                </button>
+              );
+            })}
           </div>
-          <div className="relative">
-            <span className="absolute left-4 top-1/2 -translate-y-1/2 text-slate-500 font-bold">₦</span>
+        </section>
+
+        <section className="mt-8">
+          <h2 className="mb-3 text-lg font-semibold text-white">Amount</h2>
+          <div className="flex items-center gap-3 rounded-[16px] border border-white/5 bg-[#141418] px-4 py-4">
+            <span className="text-xl font-bold text-slate-400">{symbol}</span>
             <input
-              type="number"
-              value={amount}
-              onChange={(e) => setAmount(e.target.value)}
-              className="w-full bg-white/5 border border-white/10 rounded-[10px] py-4 pl-10 pr-4 text-xl font-black text-white outline-none focus:border-[#E5484D]/50"
-              placeholder="0.00"
+              inputMode="numeric"
+              value={amountDisplay}
+              onChange={handleInputChange}
+              placeholder="0"
+              className="flex-1 bg-transparent text-2xl font-bold text-white outline-none placeholder:text-slate-600"
             />
+            {amountDisplay && (
+              <button
+                onClick={clearAmount}
+                className="rounded-full p-1 text-slate-500 hover:bg-white/10 hover:text-slate-300"
+                aria-label="Clear amount"
+              >
+                <X className="h-4 w-4" />
+              </button>
+            )}
           </div>
-          <button
-            onClick={() => setStep("method")}
-            className="w-full bg-[#E5484D] text-white font-bold py-4 rounded-[10px] hover:brightness-110 flex items-center justify-center gap-2"
-          >
-            Continue <ArrowRight className="w-4 h-4" />
-          </button>
-        </div>
-      )}
 
-      {step === "method" && (
-        <div className="space-y-3">
-          <p className="text-xs text-slate-500 uppercase tracking-widest mb-2 font-bold">Select Payment Method</p>
-          {methods.map((m) => (
-            <button
-              key={m.id}
-              onClick={() => m.id === 'minipay' ? setStep('qr') : null}
-              className="w-full flex items-center gap-4 p-4 rounded-[10px] bg-white/5 border border-white/10 hover:border-white/20 hover:bg-white/[0.07] transition-all text-left group"
-            >
-              <div className={`w-12 h-12 rounded-full bg-white/5 flex items-center justify-center ${m.color}`}>
-                <m.icon className="w-6 h-6" />
-              </div>
-              <div className="flex-1">
-                <div className="text-sm font-bold text-white group-hover:text-[#E5484D] transition-colors">{m.label}</div>
-                <div className="text-xs text-slate-500">{m.desc}</div>
-              </div>
-              <ArrowRight className="w-4 h-4 text-slate-700 group-hover:text-white" />
-            </button>
-          ))}
-        </div>
-      )}
+          <div className="mt-4 flex flex-wrap gap-3">
+            {PRESETS.map((v) => {
+              const formatted = formatNumberInput(v);
+              const selected = amountDisplay === formatted;
+              return (
+                <button
+                  key={v}
+                  onClick={() => handlePreset(v)}
+                  className={`rounded-full px-4 py-2 text-sm font-semibold transition-colors ${
+                    selected
+                      ? "bg-purple-600 text-white"
+                      : "border border-white/10 bg-[#141418] text-slate-300 hover:border-white/20"
+                  }`}
+                >
+                  {symbol}
+                  {formatted}
+                </button>
+              );
+            })}
+          </div>
+        </section>
 
-      {step === "qr" && (
-        <div className="text-center space-y-6 py-4">
-          <div className="bg-white p-4 rounded-[20px] inline-block shadow-[0_0_30px_rgba(255,255,255,0.1)]">
-            <div className="w-48 h-48 bg-slate-200 flex items-center justify-center text-slate-400">
-              <Globe className="w-12 h-12" />
-            </div>
-          </div>
-          <div className="space-y-2">
-            <h4 className="text-lg font-bold text-white">Scan to Pay</h4>
-            <p className="text-sm text-slate-400 max-w-[240px] mx-auto">
-              Scan the QR code with your MiniPay enabled wallet to complete payment of <b>{formatMoney(Number(amount), baseCurrency)}</b>
-            </p>
-          </div>
-          <button
-            onClick={() => setStep("method")}
-            className="text-[#E5484D] text-sm font-bold hover:underline"
-          >
-            Cancel and try another method
-          </button>
+        <button
+          onClick={handleContinue}
+          disabled={loading || amount <= 0}
+          className="mt-8 w-full rounded-[14px] bg-gradient-to-r from-purple-600 to-indigo-600 py-4 text-base font-bold text-white shadow-lg shadow-purple-900/20 transition-all hover:brightness-110 disabled:cursor-not-allowed disabled:opacity-50"
+        >
+          {loading ? "Please wait..." : "Continue"}
+        </button>
+
+        <div className="mt-4 flex items-center justify-center gap-1.5 text-xs text-slate-500">
+          <Lock className="h-3 w-3" />
+          <span>Secured by Oventric</span>
         </div>
-      )}
-    </ModalShell>
+      </div>
+    </div>
   );
 }
