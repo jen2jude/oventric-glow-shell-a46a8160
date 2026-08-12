@@ -264,7 +264,138 @@ export function Wallet() {
             </div>
           )}
         </section>
+
+        {/* Cashback Optimization Estimator */}
+        <section className="rounded-[10px] bg-[#111114] border border-white/5 p-4">
+          <div className="flex items-center justify-between gap-3">
+            <div className="flex items-center gap-2 min-w-0">
+              <TrendingUp className="w-4 h-4 text-[#818CF8] shrink-0" />
+              <h2 className="text-white text-[13px] font-bold uppercase tracking-wide truncate">
+                Cashback Optimization Estimator
+              </h2>
+            </div>
+            <button
+              onClick={() => toast.info("Cashback tiers scale with your monthly volume on Oventric")}
+              className="shrink-0 px-2.5 py-1 rounded-md bg-white/10 text-[11px] font-semibold text-white/80 hover:text-white"
+            >
+              Learn more
+            </button>
+          </div>
+          <p className="mt-2 text-[13px] leading-relaxed text-slate-500">
+            Plan your spending or gigs to estimate your monthly cashback and yearly earnings on
+            Oventric.
+          </p>
+
+          <div className="mt-4 flex items-center justify-between gap-3">
+            <span className="text-[13px] text-slate-400">Projected Monthly Spend / Gig Volume</span>
+            <span className="text-lg font-black text-white tabular-nums">{fmt(spend, cur)}</span>
+          </div>
+          <input
+            type="range"
+            min={0}
+            max={Math.round(tierMid * 10)}
+            step={Math.max(1, Math.round(tierMid / 100))}
+            value={spend}
+            onChange={(e) => setSpend(Number(e.target.value))}
+            aria-label="Projected monthly spend"
+            className="mt-3 w-full h-1.5 appearance-none rounded-full bg-white/10 accent-[#6366F1]
+              [&::-webkit-slider-thumb]:appearance-none [&::-webkit-slider-thumb]:w-4
+              [&::-webkit-slider-thumb]:h-4 [&::-webkit-slider-thumb]:rounded-full
+              [&::-webkit-slider-thumb]:bg-[#818CF8] [&::-webkit-slider-thumb]:border-2
+              [&::-webkit-slider-thumb]:border-white/70"
+            style={{
+              background: `linear-gradient(to right, #6366F1 ${sliderPct}%, rgba(255,255,255,0.1) ${sliderPct}%)`,
+            }}
+          />
+
+          <div className="mt-4 grid grid-cols-3 gap-2.5">
+            {tiers.map((t) => {
+              const active = t.key === tier.key;
+              return (
+                <div
+                  key={t.key}
+                  className={`rounded-[10px] p-3 text-center border ${
+                    active
+                      ? "bg-[#12122A] border-[#6366F1]"
+                      : "bg-[#17171C] border-white/5"
+                  }`}
+                >
+                  <div className="text-[13px] font-semibold text-white">{t.label}</div>
+                  <div className="mt-1 text-[11px] text-slate-500 leading-snug">{t.range}</div>
+                  <div className={`mt-1 text-[13px] font-bold ${active ? "text-white" : "text-slate-400"}`}>
+                    {t.pct}%
+                  </div>
+                </div>
+              );
+            })}
+          </div>
+
+          <div className="mt-4 rounded-[10px] border border-[#6366F1]/30 bg-gradient-to-b from-[#14142B] to-[#0F0F1C] p-5 text-center">
+            <div className="text-[11px] font-bold uppercase tracking-widest text-slate-300">
+              Estimated Annual Cashback Earnings
+            </div>
+            <div className="mt-2 text-[34px] leading-none font-black text-[#818CF8] tabular-nums">
+              {mask(fmt(annual, cur))}
+            </div>
+            <div className="mt-2 text-[13px] text-slate-400">
+              at <span className="text-[#818CF8] font-semibold">{tier.pct}%</span> {tier.label}{" "}
+              multiplier
+            </div>
+          </div>
+        </section>
+
+        {/* Recent transactions */}
+        <section>
+          <div className="flex items-center justify-between mb-3">
+            <h2 className="text-white text-lg font-bold">Recent Transactions</h2>
+            <Link to="/wallet/history" className="text-[13px] font-semibold text-[#60A5FA]">
+              View all
+            </Link>
+          </div>
+          <div className="rounded-[10px] bg-[#111114] border border-white/5 divide-y divide-white/5">
+            {txLoading ? (
+              <div className="p-6 text-center text-[13px] text-slate-500">Loading activity…</div>
+            ) : recentTx.length === 0 ? (
+              <div className="p-6 text-center text-[13px] text-slate-500">No transactions yet.</div>
+            ) : (
+              recentTx.map((t) => {
+                const style = txStyle(t.type, t.inflow);
+                return (
+                  <div key={t.id} className="p-3.5 flex items-center gap-3">
+                    <span
+                      className={`w-10 h-10 rounded-full shrink-0 flex items-center justify-center ${style.tone}`}
+                    >
+                      <style.icon className="w-5 h-5" />
+                    </span>
+                    <div className="min-w-0 flex-1">
+                      <div className="text-[14px] font-semibold text-white truncate">{t.type}</div>
+                      <div className="text-[12px] text-slate-500 truncate capitalize">{t.status}</div>
+                    </div>
+                    <div className="text-right shrink-0">
+                      <div
+                        className={`text-[14px] font-bold tabular-nums ${
+                          t.inflow ? "text-emerald-400" : "text-white"
+                        }`}
+                      >
+                        {t.inflow ? "+ " : "- "}
+                        {mask(fmt(t.amount, t.currency))}
+                      </div>
+                      <div className="text-[12px] text-slate-500">
+                        {new Date(t.occurredAt).toLocaleDateString(undefined, {
+                          month: "short",
+                          day: "numeric",
+                          year: "numeric",
+                        })}
+                      </div>
+                    </div>
+                  </div>
+                );
+              })
+            )}
+          </div>
+        </section>
       </main>
+
 
       {transferOpen && (
         <TransferModal
