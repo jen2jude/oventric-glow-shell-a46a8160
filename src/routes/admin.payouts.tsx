@@ -34,7 +34,7 @@ export const Route = createFileRoute("/admin/payouts")({
     <div className="p-6 text-red-300">
       <div className="font-bold mb-2">Payout queue error</div>
       <div className="text-sm text-red-200/80 mb-3">{error.message}</div>
-      <button onClick={reset} className="px-3 py-1.5 rounded-lg border border-red-500/40 text-sm">
+      <button onClick={reset} className="px-3 py-1.5 rounded-[10px] border border-red-500/40 text-sm">
         Retry
       </button>
     </div>
@@ -129,7 +129,7 @@ function AdminPayoutsPage() {
           <button
             key={s}
             onClick={() => setStatus(s)}
-            className={`px-3 py-1.5 rounded-lg text-xs font-bold uppercase tracking-wider transition-colors ${
+            className={`px-3 py-1.5 rounded-[10px] text-xs font-bold uppercase tracking-wider transition-colors ${
               status === s
                 ? "border border-sky-500/60 bg-sky-500/10 text-sky-200"
                 : "border border-[#222226] bg-[#0A0A0C] text-slate-400 hover:text-white"
@@ -219,7 +219,7 @@ function HeldEscrowPanel() {
           </div>
           <button
             onClick={() => release(r.orderId)}
-            className="px-3 py-1.5 rounded-lg bg-emerald-500 hover:bg-emerald-400 text-black text-xs font-bold"
+            className="px-3 py-1.5 rounded-[10px] bg-emerald-500 hover:bg-emerald-400 text-black text-xs font-bold"
           >
             Release to seller
           </button>
@@ -267,7 +267,7 @@ function PayoutRow({
         <div className="min-w-0">
           <div className="flex items-center gap-2 flex-wrap">
             <span
-              className={`inline-flex items-center gap-1 rounded-md border px-2 py-0.5 text-[11px] font-bold uppercase ${tone[p.status]}`}
+              className={`inline-flex items-center gap-1 rounded-[10px] border px-2 py-0.5 text-[11px] font-bold uppercase ${tone[p.status]}`}
             >
               <Icon className="w-3 h-3" /> {p.status}
             </span>
@@ -289,7 +289,7 @@ function PayoutRow({
         </div>
         <button
           onClick={onToggle}
-          className="shrink-0 inline-flex items-center gap-1 rounded-lg border border-[#222226] bg-[#0A0A0C] px-3 py-1.5 text-xs text-slate-300 hover:border-white/30"
+          className="shrink-0 inline-flex items-center gap-1 rounded-[10px] border border-[#222226] bg-[#0A0A0C] px-3 py-1.5 text-xs text-slate-300 hover:border-white/30"
         >
           Details{" "}
           {expanded ? <ChevronUp className="w-3 h-3" /> : <ChevronDown className="w-3 h-3" />}
@@ -299,7 +299,7 @@ function PayoutRow({
       {expanded && (
         <div className="px-4 pb-4 space-y-3">
           <div className="grid grid-cols-1 sm:grid-cols-3 gap-2">
-            <div className="rounded-lg border border-[#222226] bg-[#0A0A0C] p-3">
+            <div className="rounded-[10px] border border-[#222226] bg-[#0A0A0C] p-3">
               <div className="text-[10px] uppercase tracking-wider text-slate-500 mb-1">
                 Balance before
               </div>
@@ -310,7 +310,7 @@ function PayoutRow({
                 })}
               </div>
             </div>
-            <div className="rounded-lg border border-[#222226] bg-[#0A0A0C] p-3">
+            <div className="rounded-[10px] border border-[#222226] bg-[#0A0A0C] p-3">
               <div className="text-[10px] uppercase tracking-wider text-slate-500 mb-1">
                 Available now
               </div>
@@ -321,7 +321,7 @@ function PayoutRow({
                 })}
               </div>
             </div>
-            <div className="rounded-lg border border-[#222226] bg-[#0A0A0C] p-3">
+            <div className="rounded-[10px] border border-[#222226] bg-[#0A0A0C] p-3">
               <div className="text-[10px] uppercase tracking-wider text-slate-500 mb-1">
                 In escrow
               </div>
@@ -334,15 +334,15 @@ function PayoutRow({
             </div>
           </div>
 
-          <div className="rounded-lg border border-[#222226] bg-[#0A0A0C] p-3 flex items-center gap-3 flex-wrap">
+          <div className="rounded-[10px] border border-[#222226] bg-[#0A0A0C] p-3 flex items-center gap-3 flex-wrap">
             <div className="text-[10px] uppercase tracking-wider text-slate-500">KYC</div>
             {p.kyc_completed_at ? (
-              <span className="inline-flex items-center gap-1 rounded-md border border-emerald-500/40 bg-emerald-500/10 text-emerald-300 px-2 py-0.5 text-[11px] font-bold">
+              <span className="inline-flex items-center gap-1 rounded-[10px] border border-emerald-500/40 bg-emerald-500/10 text-emerald-300 px-2 py-0.5 text-[11px] font-bold">
                 <CheckCircle2 className="w-3 h-3" /> Verified{" "}
                 {new Date(p.kyc_completed_at).toLocaleDateString()}
               </span>
             ) : (
-              <span className="inline-flex items-center gap-1 rounded-md border border-red-500/40 bg-red-500/10 text-red-300 px-2 py-0.5 text-[11px] font-bold">
+              <span className="inline-flex items-center gap-1 rounded-[10px] border border-red-500/40 bg-red-500/10 text-red-300 px-2 py-0.5 text-[11px] font-bold">
                 <AlertTriangle className="w-3 h-3" /> Not verified
               </span>
             )}
@@ -354,7 +354,7 @@ function PayoutRow({
             )}
           </div>
 
-          <div className="rounded-lg border border-[#222226] bg-[#0A0A0C] p-3">
+          <div className="rounded-[10px] border border-[#222226] bg-[#0A0A0C] p-3">
             <div className="text-[11px] uppercase tracking-wider text-slate-500 mb-2">
               Destination
             </div>
@@ -408,19 +408,19 @@ function PayoutRow({
               <>
                 <button
                   onClick={onApprove}
-                  className="inline-flex items-center gap-1.5 rounded-lg bg-sky-500 hover:bg-sky-400 text-black font-bold px-3 py-1.5 text-xs"
+                  className="inline-flex items-center gap-1.5 rounded-[10px] bg-sky-500 hover:bg-sky-400 text-black font-bold px-3 py-1.5 text-xs"
                 >
                   <CheckCircle2 className="w-3.5 h-3.5" /> Approve
                 </button>
                 <button
                   onClick={onMarkPaid}
-                  className="inline-flex items-center gap-1.5 rounded-lg bg-emerald-500 hover:bg-emerald-400 text-black font-bold px-3 py-1.5 text-xs"
+                  className="inline-flex items-center gap-1.5 rounded-[10px] bg-emerald-500 hover:bg-emerald-400 text-black font-bold px-3 py-1.5 text-xs"
                 >
                   <Send className="w-3.5 h-3.5" /> Mark paid
                 </button>
                 <button
                   onClick={onReject}
-                  className="inline-flex items-center gap-1.5 rounded-lg border border-red-500/50 text-red-300 hover:bg-red-500/10 font-bold px-3 py-1.5 text-xs"
+                  className="inline-flex items-center gap-1.5 rounded-[10px] border border-red-500/50 text-red-300 hover:bg-red-500/10 font-bold px-3 py-1.5 text-xs"
                 >
                   <XCircle className="w-3.5 h-3.5" /> Reject & refund
                 </button>
@@ -430,13 +430,13 @@ function PayoutRow({
               <>
                 <button
                   onClick={onMarkPaid}
-                  className="inline-flex items-center gap-1.5 rounded-lg bg-emerald-500 hover:bg-emerald-400 text-black font-bold px-3 py-1.5 text-xs"
+                  className="inline-flex items-center gap-1.5 rounded-[10px] bg-emerald-500 hover:bg-emerald-400 text-black font-bold px-3 py-1.5 text-xs"
                 >
                   <Send className="w-3.5 h-3.5" /> Mark paid
                 </button>
                 <button
                   onClick={onReject}
-                  className="inline-flex items-center gap-1.5 rounded-lg border border-red-500/50 text-red-300 hover:bg-red-500/10 font-bold px-3 py-1.5 text-xs"
+                  className="inline-flex items-center gap-1.5 rounded-[10px] border border-red-500/50 text-red-300 hover:bg-red-500/10 font-bold px-3 py-1.5 text-xs"
                 >
                   <XCircle className="w-3.5 h-3.5" /> Reject & refund
                 </button>
@@ -470,7 +470,7 @@ function PayoutAuditTrail({ payoutId, expanded }: { payoutId: string; expanded: 
   const entries: PayoutAuditEntry[] = q.data ?? [];
 
   return (
-    <div className="rounded-lg border border-[#222226] bg-[#0A0A0C] p-3">
+    <div className="rounded-[10px] border border-[#222226] bg-[#0A0A0C] p-3">
       <div className="text-[11px] uppercase tracking-wider text-slate-500 mb-2">Audit trail</div>
       {q.isLoading && (
         <div className="text-xs text-slate-500 inline-flex items-center gap-2">
@@ -498,7 +498,7 @@ function PayoutAuditTrail({ payoutId, expanded }: { payoutId: string; expanded: 
             return (
               <li key={e.id} className="grid grid-cols-[auto_minmax(0,1fr)] gap-2 text-xs">
                 <span
-                  className={`inline-flex items-center rounded-md border px-2 py-0.5 text-[10px] font-bold uppercase tracking-wider ${meta.tone}`}
+                  className={`inline-flex items-center rounded-[10px] border px-2 py-0.5 text-[10px] font-bold uppercase tracking-wider ${meta.tone}`}
                 >
                   {meta.label}
                 </span>

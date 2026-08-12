@@ -114,7 +114,7 @@ export function AppShellGestures() {
         opacity: visible ? 1 : 0,
       }}
     >
-      <span className="mt-2 flex h-9 w-9 items-center justify-center rounded-full border border-white/15 bg-[#1E1E24] shadow-lg">
+      <span className="mt-2 flex h-11 w-11 items-center justify-center rounded-full border border-white/15 bg-[#1E1E24] shadow-lg">
         <span
           className={`block h-4 w-4 rounded-full border-2 border-white/25 border-t-emerald-400 ${
             refreshing ? "animate-spin" : ""

@@ -30,12 +30,12 @@ export function CreatorChip({
       className={`inline-flex min-w-0 items-center gap-2.5 ${className}`}
     >
       <span
-        className={`flex h-9 w-9 shrink-0 items-center justify-center overflow-hidden rounded-full text-xs font-bold ${
+        className={`flex h-11 w-11 shrink-0 items-center justify-center overflow-hidden rounded-full text-xs font-bold ${
           dark ? "bg-white/10 text-white" : "bg-slate-100 text-slate-700"
         }`}
       >
         {avatarUrl ? (
-          <img src={avatarUrl} alt="" className="h-full w-full object-cover" loading="lazy" />
+          <img loading="lazy" decoding="async" src={avatarUrl} alt="" className="h-full w-full object-cover" loading="lazy" />
         ) : (
           initial
         )}

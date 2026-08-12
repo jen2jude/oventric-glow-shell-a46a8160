@@ -59,7 +59,7 @@ function Page() {
         </div>
         <button
           onClick={() => setEditing({ enabled: true, sortOrder: rows?.length ?? 0 })}
-          className="inline-flex items-center gap-1 px-3 py-2 rounded-lg bg-emerald-500 text-black text-sm font-bold hover:bg-emerald-400"
+          className="inline-flex items-center gap-1 px-3 py-2 rounded-[10px] bg-emerald-500 text-black text-sm font-bold hover:bg-emerald-400"
         >
           <Plus className="w-4 h-4" /> New
         </button>
@@ -86,7 +86,7 @@ function Page() {
               </div>
               <button
                 onClick={() => setEditing(c)}
-                className="px-2 py-1 rounded-lg bg-white/5 hover:bg-white/10 border border-white/10 text-xs text-slate-200"
+                className="px-2 py-1 rounded-[10px] bg-white/5 hover:bg-white/10 border border-white/10 text-xs text-slate-200"
               >
                 Edit
               </button>
@@ -97,7 +97,7 @@ function Page() {
                     refresh();
                   }
                 }}
-                className="p-2 rounded-lg bg-red-500/10 hover:bg-red-500/20 border border-red-500/30 text-red-300"
+                className="p-2 rounded-[10px] bg-red-500/10 hover:bg-red-500/20 border border-red-500/30 text-red-300"
               >
                 <Trash2 className="w-4 h-4" />
               </button>
@@ -159,13 +159,13 @@ function Page() {
             <div className="flex justify-end gap-2 mt-5">
               <button
                 onClick={() => setEditing(null)}
-                className="px-3 py-2 rounded-lg text-slate-300 hover:bg-white/5 text-sm"
+                className="px-3 py-2 rounded-[10px] text-slate-300 hover:bg-white/5 text-sm"
               >
                 Cancel
               </button>
               <button
                 onClick={save}
-                className="px-4 py-2 rounded-lg bg-emerald-500 hover:bg-emerald-400 text-black text-sm font-bold"
+                className="px-4 py-2 rounded-[10px] bg-emerald-500 hover:bg-emerald-400 text-black text-sm font-bold"
               >
                 Save
               </button>
@@ -177,7 +177,7 @@ function Page() {
   );
 }
 
-const inp = "w-full bg-[#0b0b0d] border border-white/10 rounded-lg px-3 py-2 text-sm text-white";
+const inp = "w-full bg-[#0b0b0d] border border-white/10 rounded-[10px] px-3 py-2 text-sm text-white";
 function F({ label, children }: { label: string; children: React.ReactNode }) {
   return (
     <label className="block">

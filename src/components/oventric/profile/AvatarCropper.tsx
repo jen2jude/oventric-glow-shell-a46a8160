@@ -73,7 +73,7 @@ export function AvatarCropper({
       ctx.fillStyle = "#000";
       ctx.fillRect(0, 0, outW, outH);
 
-      // The <img> is rendered with object-fit: cover inside the frame, then
+      // The <img loading="lazy" decoding="async"> is rendered with object-fit: cover inside the frame, then
       // scaled by `zoom` and translated by `offset`. Mirror that maths here.
       const baseScale = Math.max(rect.width / natural.w, rect.height / natural.h);
       const scale = baseScale * zoom;
@@ -102,7 +102,7 @@ export function AvatarCropper({
           type="button"
           onClick={onCancel}
           aria-label="Cancel crop"
-          className="w-7 h-7 rounded-lg flex items-center justify-center text-slate-400 hover:text-white md:hover:text-slate-900 hover:bg-white/10 md:hover:bg-slate-200"
+          className="w-7 h-7 rounded-[10px] flex items-center justify-center text-slate-400 hover:text-white md:hover:text-slate-900 hover:bg-white/10 md:hover:bg-slate-200"
         >
           <X className="w-4 h-4" />
         </button>
@@ -119,7 +119,7 @@ export function AvatarCropper({
           aspect === 1 ? "rounded-full max-w-[220px] mx-auto" : "rounded-xl"
         }`}
       >
-        <img
+        <img loading="lazy" decoding="async"
           ref={imgRef}
           src={src}
           alt="Crop preview"
@@ -149,7 +149,7 @@ export function AvatarCropper({
           type="button"
           onClick={reset}
           aria-label="Reset crop"
-          className="w-8 h-8 rounded-lg flex items-center justify-center text-slate-400 hover:text-white md:hover:text-slate-900 hover:bg-white/10 md:hover:bg-slate-200"
+          className="w-8 h-8 rounded-[10px] flex items-center justify-center text-slate-400 hover:text-white md:hover:text-slate-900 hover:bg-white/10 md:hover:bg-slate-200"
         >
           <RotateCcw className="w-4 h-4" />
         </button>
@@ -159,7 +159,7 @@ export function AvatarCropper({
         <button
           type="button"
           onClick={onCancel}
-          className="px-3 py-1.5 rounded-lg text-xs font-semibold text-slate-300 md:text-slate-600 hover:bg-white/10 md:hover:bg-slate-200"
+          className="px-3 py-1.5 rounded-[10px] text-xs font-semibold text-slate-300 md:text-slate-600 hover:bg-white/10 md:hover:bg-slate-200"
         >
           Cancel
         </button>
@@ -167,7 +167,7 @@ export function AvatarCropper({
           type="button"
           onClick={confirm}
           disabled={busy || !natural}
-          className="inline-flex items-center gap-1.5 px-4 py-1.5 rounded-lg bg-emerald-500 hover:bg-emerald-400 disabled:opacity-60 text-black text-xs font-black"
+          className="inline-flex items-center gap-1.5 px-4 py-1.5 rounded-[10px] bg-emerald-500 hover:bg-emerald-400 disabled:opacity-60 text-black text-xs font-black"
         >
           {busy && <Loader2 className="w-3.5 h-3.5 animate-spin" />}
           Use image

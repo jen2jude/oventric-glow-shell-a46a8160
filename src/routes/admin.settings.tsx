@@ -73,7 +73,7 @@ function SettingsPage() {
           <select
             value={s.base_currency}
             onChange={(e) => setS({ ...s, base_currency: e.target.value })}
-            className="w-full bg-[#0b0b0d] border border-white/10 rounded-lg px-3 py-2 text-sm text-white"
+            className="w-full bg-[#0b0b0d] border border-white/10 rounded-[10px] px-3 py-2 text-sm text-white"
           >
             <option value="USD">USD</option>
             <option value="NGN">NGN</option>
@@ -105,7 +105,7 @@ function SettingsPage() {
                   onChange={(e) =>
                     setS({ ...s, fx_rates: { ...s.fx_rates, [code]: Number(e.target.value) } })
                   }
-                  className="w-full bg-[#0b0b0d] border border-white/10 rounded-lg px-3 py-2 text-sm text-white"
+                  className="w-full bg-[#0b0b0d] border border-white/10 rounded-[10px] px-3 py-2 text-sm text-white"
                 />
               </label>
             ))}
@@ -116,7 +116,7 @@ function SettingsPage() {
           <button
             onClick={save}
             disabled={saving}
-            className="px-4 py-2 rounded-lg bg-emerald-500 hover:bg-emerald-400 text-black text-sm font-bold disabled:opacity-50"
+            className="px-4 py-2 rounded-[10px] bg-emerald-500 hover:bg-emerald-400 text-black text-sm font-bold disabled:opacity-50"
           >
             {saving ? "Saving…" : "Save settings"}
           </button>

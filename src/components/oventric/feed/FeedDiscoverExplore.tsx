@@ -126,7 +126,7 @@ export function FeedDiscoverExplore({
                   className="overflow-hidden rounded-2xl border border-white/[0.06] bg-[#141416] active:scale-[0.98]"
                 >
                   {p.coverUrl ? (
-                    <img src={p.coverUrl} alt="" loading="lazy" className="h-28 w-full object-cover" />
+                    <img loading="lazy" decoding="async" src={p.coverUrl} alt="" loading="lazy" className="h-28 w-full object-cover" />
                   ) : (
                     <div className={`h-28 w-full bg-gradient-to-br ${p.hue}`} />
                   )}
@@ -196,7 +196,7 @@ export function FeedDiscoverExplore({
               >
                 {g.items[0]?.mediaType === "video" ? (
                   g.items[0]?.posterUrl ? (
-                    <img
+                    <img loading="lazy" decoding="async"
                       src={g.items[0].posterUrl}
                       alt=""
                       loading="lazy"
@@ -213,7 +213,7 @@ export function FeedDiscoverExplore({
                     />
                   )
                 ) : (
-                  <img
+                  <img loading="lazy" decoding="async"
                     src={g.items[0]?.mediaUrl}
                     alt=""
                     loading="lazy"
@@ -293,7 +293,7 @@ export function FeedDiscoverExplore({
                 className="w-[200px] shrink-0 snap-start overflow-hidden rounded-2xl border border-white/[0.06] bg-[#141416] text-left active:scale-[0.98]"
               >
                 {b.coverUrl ? (
-                  <img src={b.coverUrl} alt="" loading="lazy" className="h-24 w-full object-cover" />
+                  <img loading="lazy" decoding="async" src={b.coverUrl} alt="" loading="lazy" className="h-24 w-full object-cover" />
                 ) : (
                   <div className="h-24 w-full bg-gradient-to-br from-[#E5484D]/30 to-[#7C6CF6]/25" />
                 )}
@@ -325,7 +325,7 @@ export function FeedDiscoverExplore({
                 className="w-[152px] shrink-0 snap-start overflow-hidden rounded-2xl border border-white/[0.06] bg-[#141416] active:scale-[0.98]"
               >
                 {p.coverUrl ? (
-                  <img src={p.coverUrl} alt="" loading="lazy" className="h-28 w-full object-cover" />
+                  <img loading="lazy" decoding="async" src={p.coverUrl} alt="" loading="lazy" className="h-28 w-full object-cover" />
                 ) : (
                   <div className={`h-28 w-full bg-gradient-to-br ${p.hue}`} />
                 )}
@@ -357,7 +357,7 @@ export function FeedDiscoverExplore({
                 className="w-[200px] shrink-0 snap-start overflow-hidden rounded-2xl border border-white/[0.06] bg-[#141416] text-left active:scale-[0.98]"
               >
                 {c.coverUrl ? (
-                  <img src={c.coverUrl} alt="" loading="lazy" className="h-24 w-full object-cover" />
+                  <img loading="lazy" decoding="async" src={c.coverUrl} alt="" loading="lazy" className="h-24 w-full object-cover" />
                 ) : (
                   <div className="h-24 w-full bg-gradient-to-br from-[#7C6CF6]/35 to-[#30A46C]/25" />
                 )}

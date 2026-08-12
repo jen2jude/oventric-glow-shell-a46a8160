@@ -25,12 +25,12 @@ function FieldLabel({ children }: { children: React.ReactNode }) {
 }
 
 const inputCls =
-  "w-full bg-[#121214] border border-white/10 rounded-lg px-3 py-2 text-sm text-white placeholder:text-slate-600 focus:outline-none focus:border-emerald-500/60";
+  "w-full bg-[#121214] border border-white/10 rounded-[10px] px-3 py-3 text-sm text-white placeholder:text-slate-600 focus:outline-none focus:border-emerald-500/60";
 
 /** Merge error-state ring into the base input class. */
 function fieldCls(hasError: boolean): string {
   return hasError
-    ? "w-full bg-[#121214] border border-red-500/60 rounded-lg px-3 py-2 text-sm text-white placeholder:text-slate-600 focus:outline-none focus:border-red-400"
+    ? "w-full bg-[#121214] border border-red-500/60 rounded-[10px] px-3 py-3 text-sm text-white placeholder:text-slate-600 focus:outline-none focus:border-red-400"
     : inputCls;
 }
 
@@ -70,7 +70,7 @@ export function Admin() {
       <div className="sticky top-0 z-30 -mx-4 px-4 py-3 bg-[#121214] border-b border-white/5 mb-6">
         <div className="flex gap-2 overflow-x-auto scrollbar-none">
           <button
-            className={`shrink-0 px-4 py-2 rounded-full text-sm font-semibold border whitespace-nowrap ${
+            className={`shrink-0 px-4 py-3 rounded-full text-sm font-semibold border whitespace-nowrap ${
               tab === "factory"
                 ? "bg-emerald-500/15 border-emerald-500/50 text-emerald-300"
                 : "bg-[#1E1E24] border-white/10 text-slate-300"
@@ -220,7 +220,7 @@ function MarketplaceForge() {
         className="bg-[#1E1E24] border border-white/5 rounded-xl p-6 space-y-4"
       >
         <div className="flex items-center gap-2 mb-1">
-          <span className="w-9 h-9 rounded-lg bg-emerald-500/15 border border-emerald-500/30 flex items-center justify-center">
+          <span className="w-9 h-9 rounded-[10px] bg-emerald-500/15 border border-emerald-500/30 flex items-center justify-center">
             <Store className="w-4 h-4 text-emerald-300" />
           </span>
           <div>
@@ -345,7 +345,7 @@ function MarketplaceForge() {
 
         <button
           type="submit"
-          className="w-full py-2.5 rounded-lg bg-emerald-500 hover:bg-emerald-400 text-black font-black text-sm transition-colors inline-flex items-center justify-center gap-2"
+          className="w-full py-2.5 rounded-[10px] bg-emerald-500 hover:bg-emerald-400 text-black font-black text-sm transition-colors inline-flex items-center justify-center gap-2"
         >
           <Eye className="w-4 h-4" /> Preview & Forge
         </button>
@@ -360,7 +360,7 @@ function MarketplaceForge() {
         subtitle={`Marketplace stream • ${category}`}
         accent="emerald"
         icon={
-          <span className="w-9 h-9 rounded-lg bg-emerald-500/15 border border-emerald-500/30 flex items-center justify-center shrink-0">
+          <span className="w-9 h-9 rounded-[10px] bg-emerald-500/15 border border-emerald-500/30 flex items-center justify-center shrink-0">
             <Store className="w-4 h-4 text-emerald-300" />
           </span>
         }
@@ -555,7 +555,7 @@ function AdInjector() {
         className="bg-[#1E1E24] border border-white/5 rounded-xl p-6 space-y-4"
       >
         <div className="flex items-center gap-2 mb-1">
-          <span className="w-9 h-9 rounded-lg bg-fuchsia-500/15 border border-fuchsia-500/30 flex items-center justify-center">
+          <span className="w-9 h-9 rounded-[10px] bg-fuchsia-500/15 border border-fuchsia-500/30 flex items-center justify-center">
             <Megaphone className="w-4 h-4 text-fuchsia-300" />
           </span>
           <div>
@@ -692,7 +692,7 @@ function AdInjector() {
 
         <button
           type="submit"
-          className="w-full py-2.5 rounded-lg bg-fuchsia-500 hover:bg-fuchsia-400 text-black font-black text-sm transition-colors inline-flex items-center justify-center gap-2"
+          className="w-full py-2.5 rounded-[10px] bg-fuchsia-500 hover:bg-fuchsia-400 text-black font-black text-sm transition-colors inline-flex items-center justify-center gap-2"
         >
           <Eye className="w-4 h-4" /> Preview & Launch
         </button>
@@ -707,7 +707,7 @@ function AdInjector() {
         subtitle={`${tierLabel} • ${placement} loop`}
         accent="fuchsia"
         icon={
-          <span className="w-9 h-9 rounded-lg bg-fuchsia-500/15 border border-fuchsia-500/30 flex items-center justify-center shrink-0">
+          <span className="w-9 h-9 rounded-[10px] bg-fuchsia-500/15 border border-fuchsia-500/30 flex items-center justify-center shrink-0">
             <Megaphone className="w-4 h-4 text-fuchsia-300" />
           </span>
         }
@@ -722,7 +722,7 @@ function AdInjector() {
               <span className="text-[10px] font-mono text-slate-500">{tierLabel}</span>
             </div>
             {tier !== "text" && mediaUrl.trim() && (
-              <div className="aspect-[16/9] rounded-lg bg-[#121214] border border-white/10 mb-3 overflow-hidden">
+              <div className="aspect-[16/9] rounded-[10px] bg-[#121214] border border-white/10 mb-3 overflow-hidden">
                 {/* eslint-disable-next-line @next/next/no-img-element */}
                 <ResponsiveImage
                   sizes="(min-width: 640px) 480px, 100vw"
@@ -742,7 +742,7 @@ function AdInjector() {
             </div>
             <button
               type="button"
-              className="w-full py-2 rounded-lg bg-fuchsia-500 text-black font-black text-xs"
+              className="w-full py-3 rounded-[10px] bg-fuchsia-500 text-black font-black text-xs"
             >
               {cta.trim() || "Learn more"}
             </button>
@@ -862,7 +862,7 @@ function MegaBountyIssuer() {
         className="bg-[#1E1E24] border border-white/5 rounded-xl p-6 space-y-4"
       >
         <div className="flex items-center gap-2 mb-1">
-          <span className="w-9 h-9 rounded-lg bg-amber-500/15 border border-amber-500/30 flex items-center justify-center">
+          <span className="w-9 h-9 rounded-[10px] bg-amber-500/15 border border-amber-500/30 flex items-center justify-center">
             <Target className="w-4 h-4 text-amber-300" />
           </span>
           <div>
@@ -958,7 +958,7 @@ function MegaBountyIssuer() {
                 aria-invalid={!!errors.escrow}
               />
             </div>
-            <div className="flex rounded-lg border border-white/10 overflow-hidden">
+            <div className="flex rounded-[10px] border border-white/10 overflow-hidden">
               {(["USD", "NGN", "GHS"] as const).map((c) => (
                 <button
                   type="button"
@@ -976,7 +976,7 @@ function MegaBountyIssuer() {
 
         <button
           type="submit"
-          className=" w-full py-2.5 rounded-lg bg-[#121214] text-white font-black text-sm inline-flex items-center justify-center gap-2"
+          className=" w-full py-2.5 rounded-[10px] bg-[#121214] text-white font-black text-sm inline-flex items-center justify-center gap-2"
         >
           <Eye className="w-4 h-4" /> Preview & Deploy Bounty
         </button>
@@ -991,7 +991,7 @@ function MegaBountyIssuer() {
         subtitle={`Escrow ${CURRENCY_SYMBOL[currency]}${escN.toLocaleString()} • ${timeframe.trim()}`}
         accent="amber"
         icon={
-          <span className="w-9 h-9 rounded-lg bg-amber-500/15 border border-amber-500/30 flex items-center justify-center shrink-0">
+          <span className="w-9 h-9 rounded-[10px] bg-amber-500/15 border border-amber-500/30 flex items-center justify-center shrink-0">
             <Target className="w-4 h-4 text-amber-300" />
           </span>
         }
@@ -1017,7 +1017,7 @@ function MegaBountyIssuer() {
                 {currency} • {timeframe.trim()}
               </span>
             </div>
-            <pre className="text-[11px] font-mono text-slate-400 whitespace-pre-wrap max-h-32 overflow-y-auto bg-[#121214] rounded-lg p-2 border border-white/5">
+            <pre className="text-[11px] font-mono text-slate-400 whitespace-pre-wrap max-h-32 overflow-y-auto bg-[#121214] rounded-[10px] p-2 border border-white/5">
               {scope.trim() || "(no scope)"}
             </pre>
           </div>

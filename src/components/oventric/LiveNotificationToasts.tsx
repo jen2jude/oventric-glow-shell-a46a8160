@@ -131,12 +131,12 @@ export function LiveNotificationToasts() {
             className="w-full max-w-sm text-left flex items-start gap-3 rounded-2xl border border-border bg-popover px-3.5 py-3 shadow-lg shadow-black/20 transition-transform active:scale-[0.98]"
           >
             <span className="relative shrink-0">
-              <span className="block h-10 w-10 rounded-full overflow-hidden">
+              <span className="block h-11 w-11 rounded-full overflow-hidden">
                 {avatar ? (
                   <AvatarImage src={avatar} alt={name ?? "User"} loading="eager" />
                 ) : (
                   <span
-                    className={`flex h-10 w-10 items-center justify-center rounded-full ${ring}`}
+                    className={`flex h-11 w-11 items-center justify-center rounded-full ${ring}`}
                   >
                     <Icon className="h-5 w-5 text-white" strokeWidth={2.5} />
                   </span>

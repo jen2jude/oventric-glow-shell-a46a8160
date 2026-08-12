@@ -285,7 +285,7 @@ function CircleTile({ c, isAppShell }: { c: RecoCircle; isAppShell: boolean }) {
       <div className="p-3 flex items-center gap-3">
         <div className={`w-10 h-10 rounded-full flex items-center justify-center text-lg shrink-0 overflow-hidden border ${!isAppShell ? "bg-slate-100 border-slate-200 shadow-inner" : "bg-black/50 border-white/20"}`}>
           {c.avatarUrl ? (
-            <img src={c.avatarUrl} alt="" className="w-full h-full object-cover" />
+            <img loading="lazy" decoding="async" src={c.avatarUrl} alt="" className="w-full h-full object-cover" />
           ) : (
             <span>{c.emoji}</span>
           )}
@@ -354,17 +354,17 @@ function PromotedStrip({ ads, isAppShell }: { ads: DiscoveryAd[]; isAppShell: bo
             href={a.ctaUrl}
             target="_blank"
             rel="noreferrer"
-            className={`flex gap-3 items-center border rounded-lg p-3 transition-colors ${!isAppShell ? "bg-white border-slate-200 hover:border-emerald-300 shadow-sm" : "bg-[#1E1E24] border-white/10 hover:border-emerald-400/40"}`}
+            className={`flex gap-3 items-center border rounded-[10px] p-3 transition-colors ${!isAppShell ? "bg-white border-slate-200 hover:border-emerald-300 shadow-sm" : "bg-[#1E1E24] border-white/10 hover:border-emerald-400/40"}`}
           >
             {a.coverUrl ? (
-              <img
+              <img loading="lazy" decoding="async"
                 src={a.coverUrl}
                 alt=""
-                className="w-16 h-16 rounded-lg object-cover shrink-0"
+                className="w-16 h-16 rounded-[10px] object-cover shrink-0"
                 loading="lazy"
               />
             ) : (
-              <div className="w-16 h-16 rounded-lg bg-gradient-to-br from-emerald-500/40 to-indigo-600/40 shrink-0" />
+              <div className="w-16 h-16 rounded-[10px] bg-gradient-to-br from-emerald-500/40 to-indigo-600/40 shrink-0" />
             )}
             <div className="min-w-0 flex-1">
               <div className="text-[10px] uppercase tracking-wider text-slate-500">

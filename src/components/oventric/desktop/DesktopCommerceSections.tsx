@@ -49,7 +49,7 @@ export function TradeSecurelyBanner({ onLearnMore }: { onLearnMore: () => void }
           <div className="relative grid h-16 w-16 shrink-0 place-items-center sm:h-20 sm:w-20 lg:hidden">
             <span className="absolute inset-0 rounded-full bg-white/20 blur-xl" />
             <ShieldCheck
-              className="relative h-10 w-10 text-white drop-shadow-[0_8px_20px_rgba(0,0,0,0.25)] sm:h-12 sm:w-12"
+              className="relative h-11 w-11 text-white drop-shadow-[0_8px_20px_rgba(0,0,0,0.25)] sm:h-12 sm:w-12"
               strokeWidth={1.5}
             />
           </div>
@@ -58,7 +58,7 @@ export function TradeSecurelyBanner({ onLearnMore }: { onLearnMore: () => void }
         <div className="mt-6 grid max-w-2xl grid-cols-1 gap-5 sm:mt-8 sm:grid-cols-3 sm:gap-8">
           {PILLARS.map((p) => (
             <div key={p.title} className="flex items-start gap-3 sm:block">
-              <div className="grid h-9 w-9 shrink-0 place-items-center rounded-xl bg-white/15 sm:mb-3 sm:h-auto sm:w-auto sm:bg-transparent">
+              <div className="grid h-11 w-11 shrink-0 place-items-center rounded-xl bg-white/15 sm:mb-3 sm:h-auto sm:w-auto sm:bg-transparent">
                 <p.Icon className="h-5 w-5 text-white sm:h-6 sm:w-6" strokeWidth={2.5} />
               </div>
               <div>
@@ -118,7 +118,7 @@ function ProductCard({ p }: { p: ProductDTO }) {
     >
       <div className="relative aspect-square w-full overflow-hidden">
         {p.coverUrl ? (
-          <img
+          <img loading="lazy" decoding="async"
             src={p.coverUrl}
             alt={p.name}
             loading="lazy"

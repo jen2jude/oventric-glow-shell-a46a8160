@@ -17,7 +17,7 @@ export const Route = createFileRoute("/admin/manual-payments")({
     <div className="p-6 text-red-300">
       <div className="font-bold mb-2">MiniPay queue error</div>
       <div className="text-sm text-red-200/80 mb-3">{error.message}</div>
-      <button onClick={reset} className="px-3 py-1.5 rounded-lg border border-red-500/40 text-sm">
+      <button onClick={reset} className="px-3 py-1.5 rounded-[10px] border border-red-500/40 text-sm">
         Retry
       </button>
     </div>
@@ -82,7 +82,7 @@ function AdminManualPaymentsPage() {
           <button
             key={s}
             onClick={() => setStatus(s)}
-            className={`px-3 py-1.5 rounded-lg text-xs font-bold uppercase tracking-wider border ${
+            className={`px-3 py-1.5 rounded-[10px] text-xs font-bold uppercase tracking-wider border ${
               status === s
                 ? "bg-emerald-500/15 border-emerald-500/50 text-emerald-300"
                 : "bg-[#1E1E24] border-white/10 text-slate-400"
@@ -131,7 +131,7 @@ function AdminManualPaymentsPage() {
               {r.proofPath ? (
                 <button
                   onClick={() => openProof(r.proofPath!)}
-                  className="px-3 py-1.5 rounded-lg bg-white/5 hover:bg-white/10 text-xs font-semibold text-slate-200 inline-flex items-center gap-1.5"
+                  className="px-3 py-1.5 rounded-[10px] bg-white/5 hover:bg-white/10 text-xs font-semibold text-slate-200 inline-flex items-center gap-1.5"
                 >
                   <ExternalLink className="w-3.5 h-3.5" /> View receipt
                 </button>
@@ -144,7 +144,7 @@ function AdminManualPaymentsPage() {
                   <button
                     onClick={() => review(r.id, true)}
                     disabled={busyId === r.id}
-                    className="px-3 py-1.5 rounded-lg bg-emerald-500 hover:bg-emerald-400 disabled:opacity-60 text-black text-xs font-black inline-flex items-center gap-1.5"
+                    className="px-3 py-1.5 rounded-[10px] bg-emerald-500 hover:bg-emerald-400 disabled:opacity-60 text-black text-xs font-black inline-flex items-center gap-1.5"
                   >
                     {busyId === r.id ? (
                       <Loader2 className="w-3.5 h-3.5 animate-spin" />
@@ -156,7 +156,7 @@ function AdminManualPaymentsPage() {
                   <button
                     onClick={() => review(r.id, false)}
                     disabled={busyId === r.id}
-                    className="px-3 py-1.5 rounded-lg bg-rose-500/15 hover:bg-rose-500/25 border border-rose-500/40 disabled:opacity-60 text-rose-300 text-xs font-bold inline-flex items-center gap-1.5"
+                    className="px-3 py-1.5 rounded-[10px] bg-rose-500/15 hover:bg-rose-500/25 border border-rose-500/40 disabled:opacity-60 text-rose-300 text-xs font-bold inline-flex items-center gap-1.5"
                   >
                     <XCircle className="w-3.5 h-3.5" /> Reject
                   </button>

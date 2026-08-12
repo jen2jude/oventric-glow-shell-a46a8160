@@ -140,7 +140,7 @@ export function RelationshipsSection({ userId, name, viewerId, tab, onTabChange,
           role="tablist"
           aria-label="Followers and following"
           onKeyDown={onTabKeyDown}
-          className="inline-flex items-center gap-1 rounded-lg border border-white/10 bg-white/5 p-1 md:border-slate-200 md:bg-slate-100"
+          className="inline-flex items-center gap-1 rounded-[10px] border border-white/10 bg-white/5 p-1 md:border-slate-200 md:bg-slate-100"
         >
           {TABS.map((t) => {
             const active = t.key === tab;
@@ -154,7 +154,7 @@ export function RelationshipsSection({ userId, name, viewerId, tab, onTabChange,
                 aria-controls={`rel-panel-${t.key}`}
                 tabIndex={active ? 0 : -1}
                 onClick={() => onTabChange(t.key)}
-                className={`rounded-md px-3 py-1.5 text-xs font-bold transition-colors focus:outline-none focus-visible:ring-2 focus-visible:ring-emerald-400/70 ${
+                className={`rounded-[10px] px-3 py-1.5 text-xs font-bold transition-colors focus:outline-none focus-visible:ring-2 focus-visible:ring-emerald-400/70 ${
                   active
                     ? "bg-emerald-500 text-black"
                     : "text-slate-400 hover:text-white md:text-slate-600 md:hover:text-slate-900"
@@ -220,7 +220,7 @@ export function RelationshipsSection({ userId, name, viewerId, tab, onTabChange,
         className="px-4 pb-4 pt-4 sm:px-6 sm:pb-6 focus:outline-none focus-visible:ring-2 focus-visible:ring-emerald-400/50 rounded-b-xl"
       >
         {current.error ? (
-          <div className="rounded-lg border border-red-500/30 bg-red-500/5 p-5 text-center md:border-red-200 md:bg-red-50">
+          <div className="rounded-[10px] border border-red-500/30 bg-red-500/5 p-5 text-center md:border-red-200 md:bg-red-50">
             <AlertTriangle
               className="mx-auto mb-2 h-4 w-4 text-red-300 md:text-red-500"
               aria-hidden
@@ -228,7 +228,7 @@ export function RelationshipsSection({ userId, name, viewerId, tab, onTabChange,
             <p className="text-sm font-semibold text-red-200 md:text-red-700">{current.error}</p>
             <button
               onClick={() => load(tab)}
-              className="mt-3 inline-flex items-center gap-1.5 rounded-lg bg-emerald-500 px-3 py-1.5 text-xs font-bold text-black hover:bg-emerald-400 focus:outline-none focus-visible:ring-2 focus-visible:ring-emerald-400/70"
+              className="mt-3 inline-flex items-center gap-1.5 rounded-[10px] bg-emerald-500 px-3 py-1.5 text-xs font-bold text-black hover:bg-emerald-400 focus:outline-none focus-visible:ring-2 focus-visible:ring-emerald-400/70"
             >
               <RefreshCw className="h-3.5 w-3.5" aria-hidden /> Try again
             </button>
@@ -244,7 +244,7 @@ export function RelationshipsSection({ userId, name, viewerId, tab, onTabChange,
                 key={i}
                 className="flex animate-pulse items-center gap-3 rounded-xl border border-white/10 bg-white/[0.03] p-3 md:border-slate-200 md:bg-slate-50"
               >
-                <span className="h-10 w-10 shrink-0 rounded-full bg-white/10 md:bg-slate-200" />
+                <span className="h-11 w-11 shrink-0 rounded-full bg-white/10 md:bg-slate-200" />
                 <span className="min-w-0 flex-1">
                   <span className="mb-2 block h-3 w-2/3 rounded bg-white/10 md:bg-slate-200" />
                   <span className="block h-2.5 w-1/3 rounded bg-white/10 md:bg-slate-200" />
@@ -253,8 +253,8 @@ export function RelationshipsSection({ userId, name, viewerId, tab, onTabChange,
             ))}
           </ul>
         ) : shown.length === 0 ? (
-          <div className="rounded-lg border border-white/10 bg-white/[0.02] p-8 text-center md:border-slate-200 md:bg-slate-50">
-            <div className="mx-auto mb-3 flex h-10 w-10 items-center justify-center rounded-full border border-emerald-500/30 bg-emerald-500/10 text-emerald-300 md:border-emerald-200 md:bg-emerald-50 md:text-emerald-600">
+          <div className="rounded-[10px] border border-white/10 bg-white/[0.02] p-8 text-center md:border-slate-200 md:bg-slate-50">
+            <div className="mx-auto mb-3 flex h-11 w-11 items-center justify-center rounded-full border border-emerald-500/30 bg-emerald-500/10 text-emerald-300 md:border-emerald-200 md:bg-emerald-50 md:text-emerald-600">
               <UserPlus className="h-4 w-4" aria-hidden />
             </div>
             <p className="text-sm font-semibold text-slate-200 md:text-slate-900">
@@ -284,7 +284,7 @@ export function RelationshipsSection({ userId, name, viewerId, tab, onTabChange,
                       className="relative shrink-0 rounded-full focus:outline-none focus-visible:ring-2 focus-visible:ring-emerald-400/70"
                       aria-label={`Open ${p.displayName}'s profile`}
                     >
-                      <span className="block h-10 w-10 overflow-hidden rounded-full">
+                      <span className="block h-11 w-11 overflow-hidden rounded-full">
                         <AvatarImage src={p.avatarUrl} alt={p.displayName} />
                       </span>
                       <span
@@ -330,7 +330,7 @@ export function RelationshipsSection({ userId, name, viewerId, tab, onTabChange,
               {remaining > 0 ? (
                 <button
                   onClick={() => setVisible((v) => ({ ...v, [tab]: v[tab] + PAGE }))}
-                  className="inline-flex items-center gap-2 rounded-lg border border-white/10 px-4 py-2 text-sm font-semibold text-slate-300 hover:bg-white/5 hover:text-white md:border-slate-200 md:text-slate-600 md:hover:bg-slate-50 md:hover:text-slate-900 focus:outline-none focus-visible:ring-2 focus-visible:ring-emerald-400/70"
+                  className="inline-flex items-center gap-2 rounded-[10px] border border-white/10 px-4 py-3 text-sm font-semibold text-slate-300 hover:bg-white/5 hover:text-white md:border-slate-200 md:text-slate-600 md:hover:bg-slate-50 md:hover:text-slate-900 focus:outline-none focus-visible:ring-2 focus-visible:ring-emerald-400/70"
                 >
                   Show more ({remaining} left)
                 </button>

@@ -353,7 +353,7 @@ function ReportedBadge({ details }: { details?: ReportDetails }) {
     <span
       title={tooltip}
       aria-label={tooltip}
-      className={`ml-auto inline-flex items-center gap-1 rounded-md border ${style.border} ${style.bg} px-2 py-0.5 text-[10px] font-semibold uppercase tracking-wider ${style.text} cursor-help`}
+      className={`ml-auto inline-flex items-center gap-1 rounded-[10px] border ${style.border} ${style.bg} px-2 py-0.5 text-[10px] font-semibold uppercase tracking-wider ${style.text} cursor-help`}
     >
       <Icon className="w-3 h-3" aria-hidden="true" /> Reported
     </span>
@@ -1355,7 +1355,7 @@ export function Feed() {
                 )}
                 {p.media.length > 0 && (
                   <div
-                    className={`mt-3 grid gap-1.5 rounded-lg overflow-hidden ${p.media.length > 1 ? "grid-cols-2" : "grid-cols-1"}`}
+                    className={`mt-3 grid gap-1.5 rounded-[10px] overflow-hidden ${p.media.length > 1 ? "grid-cols-2" : "grid-cols-1"}`}
                   >
                     {p.media
                       .slice(0, 4)
@@ -1366,14 +1366,14 @@ export function Feed() {
                             src={m.url}
                             muted
                             playsInline
-                            className="w-full max-h-72 object-cover rounded-lg bg-black/40"
+                            className="w-full max-h-72 object-cover rounded-[10px] bg-black/40"
                           />
                         ) : (
-                          <img
+                          <img loading="lazy" decoding="async"
                             key={m.url}
                             src={m.url}
                             alt=""
-                            className="w-full max-h-72 object-cover rounded-lg bg-black/40"
+                            className="w-full max-h-72 object-cover rounded-[10px] bg-black/40"
                           />
                         ),
                       )}
@@ -1401,7 +1401,7 @@ export function Feed() {
                             type="button"
                             onClick={() => setIntent({ react: liked ? null : "love" })}
                             aria-pressed={liked}
-                            className={`flex items-center gap-1.5 px-3 py-1.5 rounded-lg transition-colors hover:bg-white/5 md:hover:bg-slate-100 ${
+                            className={`flex items-center gap-1.5 px-3 py-1.5 rounded-[10px] transition-colors hover:bg-white/5 md:hover:bg-slate-100 ${
                               liked ? "text-rose-400 md:text-rose-500" : ""
                             }`}
                           >
@@ -1411,7 +1411,7 @@ export function Feed() {
                           <button
                             type="button"
                             onClick={() => setIntent({ comment: true })}
-                            className={`flex items-center gap-1.5 px-3 py-1.5 rounded-lg transition-colors hover:bg-white/5 md:hover:bg-slate-100 ${
+                            className={`flex items-center gap-1.5 px-3 py-1.5 rounded-[10px] transition-colors hover:bg-white/5 md:hover:bg-slate-100 ${
                               intent.comment ? "text-[#E5484D] md:text-[#E5484D]" : ""
                             }`}
                           >
@@ -1420,7 +1420,7 @@ export function Feed() {
                           <button
                             type="button"
                             onClick={() => setIntent({ share: true })}
-                            className={`flex items-center gap-1.5 px-3 py-1.5 rounded-lg transition-colors ml-auto hover:bg-white/5 md:hover:bg-slate-100 ${
+                            className={`flex items-center gap-1.5 px-3 py-1.5 rounded-[10px] transition-colors ml-auto hover:bg-white/5 md:hover:bg-slate-100 ${
                               intent.share ? "text-[#E5484D] md:text-[#E5484D]" : ""
                             }`}
                           >
@@ -1440,7 +1440,7 @@ export function Feed() {
                     <button
                       type="button"
                       onClick={() => dismissPending(p.tempId)}
-                      className="text-xs font-semibold text-slate-300 md:text-slate-600 hover:text-white md:hover:text-slate-900 px-3 py-1.5 rounded-lg border border-white/10 md:border-slate-300"
+                      className="text-xs font-semibold text-slate-300 md:text-slate-600 hover:text-white md:hover:text-slate-900 px-3 py-1.5 rounded-[10px] border border-white/10 md:border-slate-300"
                     >
                       Dismiss
                     </button>
@@ -1471,7 +1471,7 @@ export function Feed() {
                   <div className="h-3 w-4/5 bg-white/[0.06] md:bg-slate-200 rounded" />
                   <div className="h-3 w-2/3 bg-white/[0.05] md:bg-slate-200 rounded" />
                 </div>
-                <div className="h-40 w-full bg-white/[0.04] md:bg-slate-100 rounded-lg mb-4" />
+                <div className="h-40 w-full bg-white/[0.04] md:bg-slate-100 rounded-[10px] mb-4" />
                 <div className="flex gap-6">
                   <div className="h-3 w-10 bg-white/[0.05] md:bg-slate-200 rounded" />
                   <div className="h-3 w-10 bg-white/[0.05] md:bg-slate-200 rounded" />
@@ -1503,7 +1503,7 @@ export function Feed() {
                   setQuery("");
                   setCategory("all");
                 }}
-                className="mt-3 inline-flex items-center rounded-lg bg-[#E5484D] px-3 py-1.5 text-xs font-semibold text-black hover:bg-[#E5484D] transition-colors"
+                className="mt-3 inline-flex items-center rounded-[10px] bg-[#E5484D] px-3 py-1.5 text-xs font-semibold text-black hover:bg-[#E5484D] transition-colors"
               >
                 Clear filters
               </button>
@@ -1584,7 +1584,7 @@ export function Feed() {
                           <span className="text-[11px] text-slate-500 md:text-slate-500">
                             By {b.author_name}
                           </span>
-                          <span className="inline-flex items-center gap-1 px-3 py-1.5 rounded-lg bg-[#E5484D] text-black text-xs font-bold">
+                          <span className="inline-flex items-center gap-1 px-3 py-1.5 rounded-[10px] bg-[#E5484D] text-black text-xs font-bold">
                             Read article →
                           </span>
                         </div>
@@ -1699,7 +1699,7 @@ export function Feed() {
                             className="inline-flex items-center gap-1.5 text-emerald-300 md:text-emerald-700 font-semibold hover:underline"
                           >
                             {post.circle.avatarUrl ? (
-                              <img
+                              <img loading="lazy" decoding="async"
                                 src={post.circle.avatarUrl}
                                 alt=""
                                 className="w-4 h-4 rounded-full object-cover"
@@ -1742,7 +1742,7 @@ export function Feed() {
                   </header>
                   {isReported && (
                     <div
-                      className={`mb-3 flex items-center gap-2 rounded-lg bg-amber-500/10 border border-amber-500/30 px-3 py-2 text-[11px] text-amber-300 md:text-amber-600 ${isAppShell ? "mx-4 md:mx-0" : ""}`}
+                      className={`mb-3 flex items-center gap-2 rounded-[10px] bg-amber-500/10 border border-amber-500/30 px-3 py-3 text-[11px] text-amber-300 md:text-amber-600 ${isAppShell ? "mx-4 md:mx-0" : ""}`}
                     >
                       <Flag className="w-3 h-3" />
                       You reported this post. It's hidden from your feed pending review.
@@ -1798,10 +1798,10 @@ export function Feed() {
                             isAppShell
                               ? layout.wrapperClass.replace("gap-1", "gap-[2px]")
                               : layout.wrapperClass
-                          } overflow-hidden md:rounded-lg md:border md:border-slate-200 ${
+                          } overflow-hidden md:rounded-[10px] md:border md:border-slate-200 ${
                             isAppShell
                               ? "mx-4 mb-4 rounded-xl border border-white/[0.06] md:mx-0 md:mb-0"
-                              : "rounded-lg border border-white/10"
+                              : "rounded-[10px] border border-white/10"
                           }`}
                         >
                           {displayed.map((url, i) => {
@@ -1860,10 +1860,10 @@ export function Feed() {
                       <button
                         type="button"
                         onClick={() => setVideoStartId(post.id)}
-                        className={`relative block w-full aspect-video overflow-hidden group bg-black md:rounded-lg md:border md:border-slate-200 ${
+                        className={`relative block w-full aspect-video overflow-hidden group bg-black md:rounded-[10px] md:border md:border-slate-200 ${
                           isAppShell
                             ? "rounded-xl border border-white/[0.06]"
-                            : "rounded-lg border border-white/10"
+                            : "rounded-[10px] border border-white/10"
                         }`}
                         aria-label="Play video"
                       >
@@ -1899,7 +1899,7 @@ export function Feed() {
                     <div className={isAppShell ? "px-4 md:px-0" : ""}>
                       <div className="mt-3 flex gap-3 rounded-2xl border border-white/10 md:border-slate-200 bg-white/[0.03] md:bg-slate-50 p-3">
                         {(post.repost_of.media_url || post.repost_of.poster_url) && (
-                          <img
+                          <img loading="lazy" decoding="async"
                             src={post.repost_of.poster_url ?? post.repost_of.media_url ?? ""}
                             alt=""
                             loading="lazy"
@@ -1989,7 +1989,7 @@ export function Feed() {
                             setPickerFor((v) => (v === post.id ? null : post.id));
                           }
                         }}
-                        className="flex items-center gap-1.5 px-2.5 py-2 rounded-lg hover:bg-white/5 md:hover:bg-slate-100 transition-colors font-semibold"
+                        className="flex items-center gap-1.5 px-2.5 py-3 rounded-[10px] hover:bg-white/5 md:hover:bg-slate-100 transition-colors font-semibold"
                         style={{
                           color: post.viewer_reaction
                             ? REACTION_META[post.viewer_reaction].color
@@ -2021,7 +2021,7 @@ export function Feed() {
                     <button
                       type="button"
                       onClick={() => setCommentsSheetPostId(post.id)}
-                      className="flex items-center gap-1.5 px-2.5 py-2 rounded-lg hover:bg-white/5 md:hover:bg-slate-100 hover:text-white md:hover:text-slate-900 transition-colors font-semibold"
+                      className="flex items-center gap-1.5 px-2.5 py-3 rounded-[10px] hover:bg-white/5 md:hover:bg-slate-100 hover:text-white md:hover:text-slate-900 transition-colors font-semibold"
                       aria-label="Open comments"
                     >
                       <MessageCircle className="w-[18px] h-[18px]" />
@@ -2032,7 +2032,7 @@ export function Feed() {
                     <button
                       type="button"
                       onClick={() => setRepostTarget(post)}
-                      className="flex items-center gap-1.5 px-2.5 py-2 rounded-lg hover:bg-white/5 md:hover:bg-slate-100 hover:text-white md:hover:text-slate-900 transition-colors font-semibold"
+                      className="flex items-center gap-1.5 px-2.5 py-3 rounded-[10px] hover:bg-white/5 md:hover:bg-slate-100 hover:text-white md:hover:text-slate-900 transition-colors font-semibold"
                       style={{ color: post.viewer_reposted ? "#E5484D" : undefined }}
                       aria-label="Repost"
                     >
@@ -2044,7 +2044,7 @@ export function Feed() {
                     <button
                       type="button"
                       onClick={() => shareUrl(shareHref, `${post.author_name} on Oventric`)}
-                      className="ml-auto flex items-center gap-1.5 px-2.5 py-2 rounded-lg hover:bg-white/5 md:hover:bg-slate-100 hover:text-white md:hover:text-slate-900 transition-colors font-semibold"
+                      className="ml-auto flex items-center gap-1.5 px-2.5 py-3 rounded-[10px] hover:bg-white/5 md:hover:bg-slate-100 hover:text-white md:hover:text-slate-900 transition-colors font-semibold"
                       aria-label="Share"
                     >
                       <Share2 className="w-[18px] h-[18px]" />
@@ -2062,7 +2062,7 @@ export function Feed() {
                       <button
                         type="button"
                         onClick={() => setCommentsSheetPostId(post.id)}
-                        className="w-full rounded-lg border border-dashed border-white/10 md:border-slate-300 bg-black/20 md:bg-slate-50 px-3 py-3 text-left text-xs text-slate-500 hover:text-slate-300 md:hover:text-slate-700 hover:border-white/20 md:hover:border-slate-400 transition-colors"
+                        className="w-full rounded-[10px] border border-dashed border-white/10 md:border-slate-300 bg-black/20 md:bg-slate-50 px-3 py-3 text-left text-xs text-slate-500 hover:text-slate-300 md:hover:text-slate-700 hover:border-white/20 md:hover:border-slate-400 transition-colors"
                       >
                         No comments yet — be the first to reply.
                       </button>
@@ -2075,7 +2075,7 @@ export function Feed() {
                               <div className="w-7 h-7 shrink-0 rounded-full overflow-hidden bg-neutral-800 md:bg-slate-200 flex items-center justify-center text-white/85 md:text-slate-700">
                                 <User className="w-4 h-4" strokeWidth={1.75} />
                               </div>
-                              <div className="flex-1 min-w-0 bg-black/30 md:bg-slate-100 border border-white/5 md:border-slate-200 rounded-lg px-3 py-2">
+                              <div className="flex-1 min-w-0 bg-black/30 md:bg-slate-100 border border-white/5 md:border-slate-200 rounded-[10px] px-3 py-2">
                                 <div className="text-xs font-semibold text-white md:text-slate-900 truncate">
                                   {latest.author}
                                 </div>

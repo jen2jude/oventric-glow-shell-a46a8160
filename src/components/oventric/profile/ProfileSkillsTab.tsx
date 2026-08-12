@@ -132,7 +132,7 @@ export function ProfileSkillsTab({
                   key={id}
                   className="flex flex-col items-center gap-2 rounded-2xl border border-white/8 bg-[#17171C] p-4 md:border-slate-200 md:bg-slate-50"
                 >
-                  <img
+                  <img loading="lazy" decoding="async"
                     src={t?.imageUrl ?? toolIconUrl(id)}
                     alt={label}
                     loading="lazy"

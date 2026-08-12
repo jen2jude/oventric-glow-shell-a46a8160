@@ -70,7 +70,7 @@ export function FollowButton({ targetId, className, compact, onStatusChange }: P
     return (
       <button
         disabled
-        className={`inline-flex items-center justify-center gap-2 px-4 py-2 rounded-lg border border-white/10 text-slate-500 text-sm font-semibold opacity-70 ${className ?? ""}`}
+        className={`inline-flex items-center justify-center gap-2 px-4 py-3 rounded-[10px] border border-white/10 text-slate-500 text-sm font-semibold opacity-70 ${className ?? ""}`}
       >
         <Loader2 className="w-4 h-4 animate-spin" /> Loading…
       </button>
@@ -78,7 +78,7 @@ export function FollowButton({ targetId, className, compact, onStatusChange }: P
   }
 
   const base =
-    "inline-flex items-center justify-center gap-2 px-4 py-2 rounded-lg font-semibold text-sm transition-colors disabled:opacity-60";
+    "inline-flex items-center justify-center gap-2 px-4 py-3 rounded-[10px] font-semibold text-sm transition-colors disabled:opacity-60";
   const label = compact
     ? {
         follow: "Follow",

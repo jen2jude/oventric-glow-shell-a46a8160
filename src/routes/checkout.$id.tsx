@@ -432,7 +432,7 @@ function CheckoutPage() {
           : "page-light bg-white text-slate-900"
       }`}
     >
-      <div className="sticky top-0 z-50">
+      <div className="sticky top-0 z-50 backdrop-blur-xl bg-[#0A0A0B]/80 border-b border-white/5">
         <Header onOpenMessages={() => {}} light={!isAppShell} desktopNav={!isAppShell} forceSiteNavbar={!isAppShell} />
       </div>
       <main
@@ -667,7 +667,7 @@ function CheckoutPage() {
                         setTopUpAmount(String(Math.ceil(shortLocal)));
                         setTopUpOpen(true);
                       }}
-                      className="mt-2 inline-flex items-center gap-1.5 px-3 py-1.5 rounded-md bg-amber-400 hover:bg-amber-300 text-black text-[11px] font-black"
+                      className="mt-2 inline-flex items-center gap-1.5 px-3 py-1.5 rounded-[10px] bg-amber-400 hover:bg-amber-300 text-black text-[11px] font-black"
                     >
                       Fund Wallet
                     </button>
@@ -764,7 +764,7 @@ function CheckoutPage() {
                       Enter a valid email address.
                     </div>
                   )}
-                  <div className={`mt-3 rounded-md border px-3 py-2 text-[11px] leading-relaxed ${isAppShell ? "border-[#E5484D]/30 bg-[#E5484D]/5 text-emerald-100" : "border-emerald-200 bg-emerald-50 text-emerald-800"}`}>
+                  <div className={`mt-3 rounded-[10px] border px-3 py-2 text-[11px] leading-relaxed ${isAppShell ? "border-[#E5484D]/30 bg-[#E5484D]/5 text-emerald-100" : "border-emerald-200 bg-emerald-50 text-emerald-800"}`}>
                     <strong className={isAppShell ? "text-emerald-200" : "text-emerald-900"}>
                       Delivery happens in your Oventric chat.
                     </strong>{" "}

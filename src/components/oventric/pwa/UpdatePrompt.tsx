@@ -47,7 +47,7 @@ export function UpdatePrompt() {
       style={{ bottom: "calc(5.5rem + max(env(safe-area-inset-bottom), 0.5rem))" }}
     >
       <div className="flex items-start gap-3">
-        <span className="mt-0.5 flex h-9 w-9 shrink-0 items-center justify-center rounded-[10px] bg-emerald-500/15 text-emerald-400">
+        <span className="mt-0.5 flex h-11 w-11 shrink-0 items-center justify-center rounded-[10px] bg-emerald-500/15 text-emerald-400">
           <RefreshCw className={busy || checking ? "h-4 w-4 animate-spin" : "h-4 w-4"} />
         </span>
         <div className="min-w-0 flex-1">
@@ -59,14 +59,14 @@ export function UpdatePrompt() {
             <button
               onClick={updateNow}
               disabled={busy || checking}
-              className="rounded-[10px] bg-emerald-500 px-3 py-2 text-xs font-bold text-[#08130f] active:scale-[.98] disabled:opacity-60"
+              className="rounded-[10px] bg-emerald-500 px-3 py-3 text-xs font-bold text-[#08130f] active:scale-[.98] disabled:opacity-60"
             >
               {busy ? "Updating…" : "Update now"}
             </button>
             <button
               onClick={checkNow}
               disabled={busy || checking}
-              className="rounded-[10px] px-3 py-2 text-xs font-semibold text-slate-400 hover:text-slate-200 disabled:opacity-60"
+              className="rounded-[10px] px-3 py-3 text-xs font-semibold text-slate-400 hover:text-slate-200 disabled:opacity-60"
             >
               {checking ? "Checking…" : "Check again"}
             </button>

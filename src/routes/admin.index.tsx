@@ -149,7 +149,7 @@ function AdminOverview() {
         <button
           onClick={load}
           disabled={refreshing}
-          className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-white/5 hover:bg-white/10 border border-white/10 text-xs font-semibold text-slate-200"
+          className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-[10px] bg-white/5 hover:bg-white/10 border border-white/10 text-xs font-semibold text-slate-200"
         >
           <RefreshCw className={`w-3.5 h-3.5 ${refreshing ? "animate-spin" : ""}`} />
           Refresh
@@ -168,7 +168,7 @@ function AdminOverview() {
                 {k.label}
               </div>
               <div
-                className={`w-7 h-7 rounded-lg border flex items-center justify-center ${k.tint}`}
+                className={`w-7 h-7 rounded-[10px] border flex items-center justify-center ${k.tint}`}
               >
                 <k.icon className="w-3.5 h-3.5" />
               </div>

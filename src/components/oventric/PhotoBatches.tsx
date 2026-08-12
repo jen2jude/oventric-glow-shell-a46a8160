@@ -63,7 +63,7 @@ export function PhotoBatches({ photos, dense = false }: { photos: UserPhoto[]; d
               aria-label={`${b.label}, ${b.photos.length} photo${b.photos.length === 1 ? "" : "s"}`}
               className="group relative aspect-square overflow-hidden rounded-2xl border border-white/10 md:border-slate-200 bg-neutral-900 hover:border-emerald-500/40 focus:outline-none focus:ring-2 focus:ring-emerald-500/60 transition-colors"
             >
-              <img
+              <img loading="lazy" decoding="async"
                 src={cover.url}
                 alt=""
                 loading="lazy"
@@ -143,7 +143,7 @@ function BatchTileOverlay({
               aria-label={`Open photo ${i + 1} of ${batch.photos.length}`}
               className="relative aspect-square overflow-hidden rounded-xl border border-white/10 md:border-slate-200 bg-neutral-900 hover:border-emerald-500/40 focus:outline-none focus:ring-2 focus:ring-emerald-500/60 transition-colors"
             >
-              <img
+              <img loading="lazy" decoding="async"
                 src={p.url}
                 alt=""
                 loading="lazy"

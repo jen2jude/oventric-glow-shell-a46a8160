@@ -94,7 +94,7 @@ export function InstallPrompt() {
           <X className="h-4 w-4" />
         </button>
 
-        <img src={logoFull} alt="Oventric" className="h-7 w-auto" />
+        <img loading="lazy" decoding="async" src={logoFull} alt="Oventric" className="h-7 w-auto" />
         <h2 className="mt-4 text-lg font-bold text-white">Install the Oventric app</h2>
         <p className="mt-1 text-sm text-slate-400">
           Full-screen, faster launches, offline browsing and instant access from your home screen.
@@ -118,7 +118,7 @@ export function InstallPrompt() {
           </button>
         )}
 
-        <button onClick={dismiss} className="mt-3 w-full py-2 text-xs font-semibold text-slate-500">
+        <button onClick={dismiss} className="mt-3 w-full py-3 text-xs font-semibold text-slate-500">
           Not now
         </button>
       </div>

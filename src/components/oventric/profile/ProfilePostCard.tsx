@@ -68,7 +68,7 @@ export function ProfilePostCard({
         <Link
           to="/profile/$id"
           params={{ id: profileId }}
-          className="block h-10 w-10 shrink-0 overflow-hidden rounded-full"
+          className="block h-11 w-11 shrink-0 overflow-hidden rounded-full"
           aria-label={`Open ${authorName}'s profile`}
         >
           <AvatarImage src={authorAvatarUrl} alt={authorName} />
@@ -121,7 +121,7 @@ export function ProfilePostCard({
               className="w-full rounded-xl bg-black"
             />
           ) : media.length === 1 ? (
-            <img
+            <img loading="lazy" decoding="async"
               src={media[0]}
               alt=""
               loading="lazy"
@@ -130,7 +130,7 @@ export function ProfilePostCard({
           ) : (
             <div className="grid grid-cols-2 gap-1.5">
               {media.slice(0, 4).map((m, i) => (
-                <img
+                <img loading="lazy" decoding="async"
                   key={m + i}
                   src={m}
                   alt=""

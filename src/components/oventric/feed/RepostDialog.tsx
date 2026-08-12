@@ -85,7 +85,7 @@ export function RepostDialog({ open, onClose, post, onDone }: Props) {
 
         <div className="mt-3 flex gap-3 rounded-2xl border border-white/10 bg-white/[0.03] p-3">
           {thumb && (
-            <img
+            <img loading="lazy" decoding="async"
               src={thumb}
               alt=""
               className="h-14 w-14 shrink-0 rounded-xl object-cover"

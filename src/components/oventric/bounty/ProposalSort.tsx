@@ -59,7 +59,7 @@ export function ProposalSortDropdown({
       <select
         value={value}
         onChange={(e) => onChange(e.target.value as ProposalSortKey)}
-        className="bg-white/5 md:bg-slate-100 border border-white/10 md:border-slate-200 rounded-lg px-2 py-1 text-[11px] font-bold text-slate-200 md:text-slate-700 outline-none focus:border-sky-500/60"
+        className="bg-white/5 md:bg-slate-100 border border-white/10 md:border-slate-200 rounded-[10px] px-2 py-1 text-[11px] font-bold text-slate-200 md:text-slate-700 outline-none focus:border-sky-500/60"
       >
         {OPTIONS.map((o) => (
           <option key={o.key} value={o.key} className="text-black">

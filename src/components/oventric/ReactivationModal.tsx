@@ -181,7 +181,7 @@ export function ReactivationModal({ open, daysRemaining, onReactivated, onSignOu
 
           {phase === "confirm" && selfieUrl && (
             <>
-              <img
+              <img loading="lazy" decoding="async"
                 src={selfieUrl}
                 alt="Liveness selfie"
                 className="w-full rounded-2xl border border-white/10"

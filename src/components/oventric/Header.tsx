@@ -160,7 +160,7 @@ export function Header({
         <button
           onClick={() => setMobileSearchOpen(false)}
           aria-label="Close search"
-          className="p-2 rounded-lg text-slate-300 hover:bg-white/5"
+          className="p-2 rounded-[10px] text-slate-300 hover:bg-white/5"
         >
           <X className="w-5 h-5" />
         </button>
@@ -264,7 +264,7 @@ export function Header({
           <button
             onClick={() => setMegaOpen(true)}
             aria-label="Open menu"
-            className="p-2 -mr-1 rounded-lg text-slate-900 hover:bg-slate-100"
+            className="p-2 -mr-1 rounded-[10px] text-slate-900 hover:bg-slate-100"
           >
             <Menu className="w-6 h-6" strokeWidth={2.5} />
           </button>
@@ -287,14 +287,14 @@ export function Header({
             <button
               onClick={() => setMobileSearchOpen(true)}
               aria-label="Open search"
-              className="p-2 rounded-lg hover:bg-white/5 text-white"
+              className="p-2 rounded-[10px] hover:bg-white/5 text-white"
             >
               <Search className="w-5 h-5" strokeWidth={2.5} />
             </button>
             <button
               onClick={() => setMegaOpen(true)}
               aria-label="Open menu"
-              className="p-2 -mr-1 rounded-lg hover:bg-white/5 text-white"
+              className="p-2 -mr-1 rounded-[10px] hover:bg-white/5 text-white"
             >
               <Menu className="w-5 h-5" strokeWidth={2.5} />
             </button>
@@ -310,7 +310,7 @@ export function Header({
           {onMenuClick && (
             <button
               onClick={onMenuClick}
-              className={`hidden md:flex p-2.5 rounded-lg transition-colors shrink-0 ${flat}`}
+              className={`hidden md:flex p-2.5 rounded-[10px] transition-colors shrink-0 ${flat}`}
             >
               <Menu className="w-6 h-6" strokeWidth={2.5} />
             </button>
@@ -476,7 +476,7 @@ export function Header({
             <button
               onClick={() => setMobileSearchOpen(false)}
               aria-label="Close search"
-              className="p-2 rounded-lg text-slate-300 hover:bg-white/5"
+              className="p-2 rounded-[10px] text-slate-300 hover:bg-white/5"
             >
               <X className="w-5 h-5" />
             </button>

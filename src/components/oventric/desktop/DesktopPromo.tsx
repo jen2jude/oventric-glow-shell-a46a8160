@@ -154,7 +154,7 @@ function DesktopPromoBanners({ onSelect }: { onSelect: (section: string) => void
             onClick={() => scrollTo(i)}
             aria-label={`Show promotion ${i + 1}`}
             aria-current={i === active ? "true" : undefined}
-            className="group inline-flex h-9 w-9 items-center justify-center"
+            className="group inline-flex h-11 w-11 items-center justify-center"
           >
             <span
               className={`block h-1.5 rounded-full transition-all duration-300 ${
@@ -260,10 +260,10 @@ function DesktopPromoCard({
       <span className="relative mt-1.5 block max-w-[10rem] text-xs leading-relaxed text-slate-900/65 sm:max-w-[11rem]">
         {body}
       </span>
-      <span className="promo-tile-cta relative mt-3.5 inline-flex min-h-[2.5rem] items-center gap-1 rounded-full bg-slate-950 px-4 py-2 text-xs font-bold text-white sm:mt-4 sm:px-5">
+      <span className="promo-tile-cta relative mt-3.5 inline-flex min-h-[2.5rem] items-center gap-1 rounded-full bg-slate-950 px-4 py-3 text-xs font-bold text-white sm:mt-4 sm:px-5">
         {cta} <ChevronRight className="h-3.5 w-3.5" />
       </span>
-      <img
+      <img loading="lazy" decoding="async"
         src={art}
         alt=""
         aria-hidden

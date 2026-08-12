@@ -31,7 +31,7 @@ function CustomTooltip({
   return (
     <div
       role="tooltip"
-      className="rounded-lg border border-white/10 bg-[#1E1E24] px-3 py-2 text-xs shadow-xl"
+      className="rounded-[10px] border border-white/10 bg-[#1E1E24] px-3 py-3 text-xs shadow-xl"
     >
       <div className="font-bold text-white mb-1">{label}</div>
       {payload.map((p) => (

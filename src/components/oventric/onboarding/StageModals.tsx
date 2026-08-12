@@ -42,7 +42,7 @@ function ModalShell({
           </div>
           <button
             onClick={onClose}
-            className="p-2 -m-2 rounded-lg hover:bg-white/5 text-slate-400 hover:text-white"
+            className="p-2 -m-2 rounded-[10px] hover:bg-white/5 text-slate-400 hover:text-white"
           >
             <X className="w-4 h-4" />
           </button>
@@ -54,10 +54,10 @@ function ModalShell({
 }
 
 const inputCls =
-  "w-full h-11 px-3 bg-[#121214] border border-white/10 rounded-lg text-sm text-slate-200 placeholder:text-slate-500 focus:outline-none focus:border-emerald-500/60 focus:ring-2 focus:ring-emerald-500/20 transition-all";
+  "w-full h-11 px-3 bg-[#121214] border border-white/10 rounded-[10px] text-sm text-slate-200 placeholder:text-slate-500 focus:outline-none focus:border-emerald-500/60 focus:ring-2 focus:ring-emerald-500/20 transition-all";
 const labelCls = "block text-xs font-semibold text-slate-400 uppercase tracking-wide mb-1.5";
 const btnCls =
-  "w-full h-11 bg-emerald-500 hover:bg-emerald-400 text-black font-semibold text-sm rounded-lg transition-colors";
+  "w-full h-11 bg-emerald-500 hover:bg-emerald-400 text-black font-semibold text-sm rounded-[10px] transition-colors";
 
 function StageIndicator({ current }: { current: number }) {
   return (
@@ -220,7 +220,7 @@ function Stage2({ onClose }: { onClose: () => void }) {
       />
 
       {error && (
-        <div className="mt-3 rounded-md border border-rose-500/40 bg-rose-500/10 text-rose-200 text-xs px-3 py-2">
+        <div className="mt-3 rounded-[10px] border border-rose-500/40 bg-rose-500/10 text-rose-200 text-xs px-3 py-2">
           {error}
         </div>
       )}
@@ -321,12 +321,12 @@ function Stage4({ onClose }: { onClose: () => void }) {
         value={postal}
         onChange={(e) => setPostal(e.target.value)}
       />
-      <div className="mt-5 rounded-lg border border-emerald-500/30 bg-emerald-500/5 p-3">
+      <div className="mt-5 rounded-[10px] border border-emerald-500/30 bg-emerald-500/5 p-3">
         <div className="text-xs font-semibold text-emerald-300 uppercase tracking-wide mb-2">
           Baseline currency
         </div>
         <div className="flex items-center justify-between gap-3">
-          <div className="h-10 px-3 rounded-md bg-emerald-500 text-black text-sm font-bold flex items-center">
+          <div className="h-10 px-3 rounded-[10px] bg-emerald-500 text-black text-sm font-bold flex items-center">
             {baseCurrency}
           </div>
           <p className="text-[11px] text-slate-400 flex-1">
@@ -425,7 +425,7 @@ function Stage5({ onClose }: { onClose: () => void }) {
 
       {step === "bank" && (
         <div>
-          <div className="mb-4 rounded-lg border border-emerald-500/30 bg-emerald-500/5 p-3 text-xs text-emerald-300">
+          <div className="mb-4 rounded-[10px] border border-emerald-500/30 bg-emerald-500/5 p-3 text-xs text-emerald-300">
             Identity verified · configure your payout destination
           </div>
           {isNG && (

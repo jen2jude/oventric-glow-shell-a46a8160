@@ -47,7 +47,7 @@ export function AdCard({ ad, variant = "card" }: { ad: AdminAd; variant?: "card"
         <div className="text-[11px] text-slate-500 md:text-slate-500 line-clamp-2 flex-1">
           Promoted placement · {ad.tier}
         </div>
-        <span className="mt-auto inline-flex items-center justify-center px-3 py-1.5 bg-fuchsia-500 hover:bg-fuchsia-400 text-black font-semibold text-xs rounded-lg transition-colors">
+        <span className="mt-auto inline-flex items-center justify-center px-3 py-1.5 bg-fuchsia-500 hover:bg-fuchsia-400 text-black font-semibold text-xs rounded-[10px] transition-colors">
           {ad.cta}
         </span>
       </div>

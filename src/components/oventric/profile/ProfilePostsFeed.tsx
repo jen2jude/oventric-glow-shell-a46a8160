@@ -184,14 +184,14 @@ export function ProfilePostsFeed({ wallUserId, wallOwnerName, viewerId }: Props)
     <div className="pb-2">
       {/* Composer trigger — avatar, prompt, media shortcut */}
       <div className="mb-3 flex items-center gap-3 rounded-2xl border border-white/10 bg-[#141418] p-3 md:border-slate-200 md:bg-white md:shadow-sm">
-        <span className="h-10 w-10 shrink-0 overflow-hidden rounded-full bg-neutral-800 md:bg-slate-200">
+        <span className="h-11 w-11 shrink-0 overflow-hidden rounded-full bg-neutral-800 md:bg-slate-200">
           <AvatarImage src={meAvatarUrl} alt="Your profile" initials={meInitials} />
         </span>
         <button
           type="button"
           disabled={!viewerId}
           onClick={() => setComposerOpen(true)}
-          className="min-w-0 flex-1 truncate rounded-full px-3 py-2 text-left text-sm text-slate-400 md:bg-slate-100 md:text-slate-500 disabled:opacity-60"
+          className="min-w-0 flex-1 truncate rounded-full px-3 py-3 text-left text-sm text-slate-400 md:bg-slate-100 md:text-slate-500 disabled:opacity-60"
         >
           {!viewerId
             ? "Sign in to post"
@@ -227,7 +227,7 @@ export function ProfilePostsFeed({ wallUserId, wallOwnerName, viewerId }: Props)
                   <Link
                     to="/profile/$id"
                     params={{ id: p.author_slug || p.author_id }}
-                    className="block h-10 w-10 shrink-0 overflow-hidden rounded-full"
+                    className="block h-11 w-11 shrink-0 overflow-hidden rounded-full"
                   >
                     <AvatarImage
                       src={p.author_avatar_url}
@@ -293,7 +293,7 @@ export function ProfilePostsFeed({ wallUserId, wallOwnerName, viewerId }: Props)
                             className="max-h-[420px] w-full object-cover"
                           />
                         ) : (
-                          <img
+                          <img loading="lazy" decoding="async"
                             src={m.url}
                             alt=""
                             loading="lazy"
@@ -369,7 +369,7 @@ export function ProfilePostsFeed({ wallUserId, wallOwnerName, viewerId }: Props)
             <button
               type="button"
               onClick={() => setComposerOpen(true)}
-              className="mt-3 inline-flex items-center gap-2 rounded-lg bg-[#E5484D] px-3 py-1.5 text-sm font-semibold text-white hover:bg-[#C43D42]"
+              className="mt-3 inline-flex items-center gap-2 rounded-[10px] bg-[#E5484D] px-3 py-1.5 text-sm font-semibold text-white hover:bg-[#C43D42]"
             >
               <PenSquare className="h-3.5 w-3.5" /> Write a post
             </button>

@@ -102,7 +102,7 @@ export function ProfileCollectionsTab({
             >
               <div className="relative h-28 w-full overflow-hidden bg-white/[0.06]">
                 {b.coverUrl ? (
-                  <img
+                  <img loading="lazy" decoding="async"
                     src={b.coverUrl}
                     alt={b.title}
                     loading="lazy"
@@ -241,9 +241,9 @@ function BoardSheet({
             key={it.id}
             className="flex items-center gap-3 rounded-xl border border-white/10 bg-white/[0.04] p-2"
           >
-            <div className="h-12 w-12 shrink-0 overflow-hidden rounded-lg bg-white/[0.06]">
+            <div className="h-12 w-12 shrink-0 overflow-hidden rounded-[10px] bg-white/[0.06]">
               {it.imageUrl ? (
-                <img src={it.imageUrl} alt="" loading="lazy" className="h-full w-full object-cover" />
+                <img loading="lazy" decoding="async" src={it.imageUrl} alt="" loading="lazy" className="h-full w-full object-cover" />
               ) : (
                 <div className="flex h-full w-full items-center justify-center">
                   <Bookmark className="h-4 w-4 text-slate-500" />
@@ -288,19 +288,19 @@ function BoardSheet({
             value={title}
             onChange={(e) => setTitle(e.target.value)}
             placeholder="Title"
-            className="w-full rounded-lg border border-white/10 bg-white/[0.05] px-3 py-2 text-[12px] text-white placeholder:text-slate-500"
+            className="w-full rounded-[10px] border border-white/10 bg-white/[0.05] px-3 py-3 text-[12px] text-white placeholder:text-slate-500"
           />
           <input
             value={url}
             onChange={(e) => setUrl(e.target.value)}
             placeholder="Link (product, post, course or any URL)"
-            className="w-full rounded-lg border border-white/10 bg-white/[0.05] px-3 py-2 text-[12px] text-white placeholder:text-slate-500"
+            className="w-full rounded-[10px] border border-white/10 bg-white/[0.05] px-3 py-3 text-[12px] text-white placeholder:text-slate-500"
           />
           <input
             value={image}
             onChange={(e) => setImage(e.target.value)}
             placeholder="Image URL (optional)"
-            className="w-full rounded-lg border border-white/10 bg-white/[0.05] px-3 py-2 text-[12px] text-white placeholder:text-slate-500"
+            className="w-full rounded-[10px] border border-white/10 bg-white/[0.05] px-3 py-3 text-[12px] text-white placeholder:text-slate-500"
           />
           <button
             disabled={busy || (!url.trim() && !title.trim())}
@@ -326,7 +326,7 @@ function BoardSheet({
                 setBusy(false);
               }
             }}
-            className="w-full rounded-lg py-2 text-[12px] font-bold text-white disabled:opacity-50"
+            className="w-full rounded-[10px] py-3 text-[12px] font-bold text-white disabled:opacity-50"
             style={{ background: ACCENT }}
           >
             {busy ? "Saving…" : "Add item"}
@@ -369,24 +369,24 @@ function BoardEditor({
           value={title}
           onChange={(e) => setTitle(e.target.value)}
           placeholder="Board title (e.g. Minimalist Workspace)"
-          className="w-full rounded-lg border border-white/10 bg-white/[0.05] px-3 py-2 text-[13px] text-white placeholder:text-slate-500"
+          className="w-full rounded-[10px] border border-white/10 bg-white/[0.05] px-3 py-3 text-[13px] text-white placeholder:text-slate-500"
         />
         <textarea
           value={description}
           onChange={(e) => setDescription(e.target.value)}
           placeholder="What is this board about?"
           rows={3}
-          className="w-full resize-none rounded-lg border border-white/10 bg-white/[0.05] px-3 py-2 text-[12px] text-white placeholder:text-slate-500"
+          className="w-full resize-none rounded-[10px] border border-white/10 bg-white/[0.05] px-3 py-3 text-[12px] text-white placeholder:text-slate-500"
         />
         <input
           value={coverUrl}
           onChange={(e) => setCoverUrl(e.target.value)}
           placeholder="Cover image URL (optional)"
-          className="w-full rounded-lg border border-white/10 bg-white/[0.05] px-3 py-2 text-[12px] text-white placeholder:text-slate-500"
+          className="w-full rounded-[10px] border border-white/10 bg-white/[0.05] px-3 py-3 text-[12px] text-white placeholder:text-slate-500"
         />
         <button
           onClick={() => setIsPublic((v) => !v)}
-          className="flex w-full items-center justify-between rounded-lg border border-white/10 bg-white/[0.05] px-3 py-2 text-[12px] font-semibold text-white"
+          className="flex w-full items-center justify-between rounded-[10px] border border-white/10 bg-white/[0.05] px-3 py-3 text-[12px] font-semibold text-white"
         >
           <span className="flex items-center gap-2">
             {isPublic ? <Globe className="h-3.5 w-3.5" /> : <Lock className="h-3.5 w-3.5" />}
@@ -418,7 +418,7 @@ function BoardEditor({
                 setBusy(false);
               }
             }}
-            className="rounded-full border border-white/15 px-3 py-2 text-[12px] font-bold text-red-400"
+            className="rounded-full border border-white/15 px-3 py-3 text-[12px] font-bold text-red-400"
           >
             Delete
           </button>
@@ -445,7 +445,7 @@ function BoardEditor({
               setBusy(false);
             }
           }}
-          className="flex-1 rounded-full py-2 text-[12px] font-bold text-white disabled:opacity-50"
+          className="flex-1 rounded-full py-3 text-[12px] font-bold text-white disabled:opacity-50"
           style={{ background: ACCENT }}
         >
           {busy ? "Saving…" : board ? "Save changes" : "Create board"}

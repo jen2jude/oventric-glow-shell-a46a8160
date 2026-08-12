@@ -75,7 +75,7 @@ function EntryRow({
 }) {
   return (
     <div className="flex items-start gap-3 border-b border-white/[0.06] py-3 last:border-0 md:border-slate-100">
-      <span className="mt-0.5 grid h-9 w-9 shrink-0 place-items-center rounded-xl bg-white/[0.06] md:bg-slate-100">
+      <span className="mt-0.5 grid h-11 w-11 shrink-0 place-items-center rounded-xl bg-white/[0.06] md:bg-slate-100">
         <Icon className="h-4 w-4 text-[#E5484D]" />
       </span>
       <div className="min-w-0">

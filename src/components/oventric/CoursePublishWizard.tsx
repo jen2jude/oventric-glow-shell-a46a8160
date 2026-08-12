@@ -245,7 +245,7 @@ export function CoursePublishWizard({
           </div>
           <button
             onClick={onClose}
-            className="p-2 rounded-lg hover:bg-white/5 text-slate-400 hover:text-white"
+            className="p-2 rounded-[10px] hover:bg-white/5 text-slate-400 hover:text-white"
           >
             <X className="w-5 h-5" />
           </button>
@@ -377,10 +377,10 @@ export function CoursePublishWizard({
           <button
             onClick={() => setStep((s) => (s > 0 ? ((s - 1) as Step) : s))}
             disabled={step === 0 || saving !== null}
-            className={`inline-flex items-center gap-1 rounded-lg text-sm text-slate-300 disabled:opacity-40 ${
+            className={`inline-flex items-center gap-1 rounded-[10px] text-sm text-slate-300 disabled:opacity-40 ${
               isAppShell
                 ? "px-4 py-3 bg-white/5 hover:bg-white/10 border border-white/10 font-semibold"
-                : "px-3 py-2 bg-white/5 hover:bg-white/10 border border-white/10"
+                : "px-3 py-3 bg-white/5 hover:bg-white/10 border border-white/10"
             }`}
           >
             <ChevronLeft className="w-4 h-4" /> Back
@@ -392,7 +392,7 @@ export function CoursePublishWizard({
                 <button
                   onClick={() => handleSave(false)}
                   disabled={saving !== null}
-                  className={`inline-flex items-center gap-1 rounded-lg bg-white/5 hover:bg-white/10 border border-white/10 text-sm text-white disabled:opacity-40 ${
+                  className={`inline-flex items-center gap-1 rounded-[10px] bg-white/5 hover:bg-white/10 border border-white/10 text-sm text-white disabled:opacity-40 ${
                     isAppShell ? "px-4 py-3 font-semibold" : "px-3 py-2"
                   }`}
                 >
@@ -406,7 +406,7 @@ export function CoursePublishWizard({
                 <button
                   onClick={() => handleSave(true)}
                   disabled={saving !== null || totalLessons === 0 || !title.trim()}
-                  className={`inline-flex items-center gap-1 rounded-lg bg-emerald-500 hover:bg-emerald-400 text-black text-sm font-bold disabled:opacity-40 ${
+                  className={`inline-flex items-center gap-1 rounded-[10px] bg-emerald-500 hover:bg-emerald-400 text-black text-sm font-bold disabled:opacity-40 ${
                     isAppShell ? "px-5 py-3" : "px-4 py-2"
                   }`}
                 >
@@ -422,7 +422,7 @@ export function CoursePublishWizard({
               <button
                 onClick={() => canGoNext() && setStep((s) => Math.min(4, s + 1) as Step)}
                 disabled={!canGoNext()}
-                className={`inline-flex items-center gap-1 rounded-lg bg-emerald-500 hover:bg-emerald-400 text-black text-sm font-bold disabled:opacity-40 ${
+                className={`inline-flex items-center gap-1 rounded-[10px] bg-emerald-500 hover:bg-emerald-400 text-black text-sm font-bold disabled:opacity-40 ${
                   isAppShell ? "px-5 py-3" : "px-4 py-2"
                 }`}
               >
@@ -451,7 +451,7 @@ function Label({ children }: { children: React.ReactNode }) {
   );
 }
 const inputCls =
-  "w-full px-3 py-2 rounded-lg bg-[#121214] border border-white/10 text-white text-sm placeholder:text-slate-600 outline-none focus:border-emerald-500/50";
+  "w-full px-3 py-3 rounded-[10px] bg-[#121214] border border-white/10 text-white text-sm placeholder:text-slate-600 outline-none focus:border-emerald-500/50";
 
 function BasicsStep(props: {
   isAppShell: boolean;
@@ -524,7 +524,7 @@ function BasicsStep(props: {
         {isAppShell ? (
           <label className="cursor-pointer block relative w-full aspect-[16/10] rounded-xl bg-[#121214] border border-dashed border-white/15 overflow-hidden">
             {coverPreview ? (
-              <img src={coverPreview} alt="cover" className="w-full h-full object-cover" />
+              <img loading="lazy" decoding="async" src={coverPreview} alt="cover" className="w-full h-full object-cover" />
             ) : (
               <div className="absolute inset-0 flex flex-col items-center justify-center gap-2 text-slate-500">
                 <div className="w-14 h-14 rounded-full bg-white/5 grid place-items-center">
@@ -534,7 +534,7 @@ function BasicsStep(props: {
               </div>
             )}
             {coverPreview && (
-              <div className="absolute bottom-3 right-3 px-3 py-1.5 rounded-lg bg-black/70 text-white text-xs font-semibold backdrop-blur-sm">
+              <div className="absolute bottom-3 right-3 px-3 py-1.5 rounded-[10px] bg-black/70 text-white text-xs font-semibold backdrop-blur-sm">
                 {uploading ? "Uploading…" : "Change"}
               </div>
             )}
@@ -548,14 +548,14 @@ function BasicsStep(props: {
           </label>
         ) : (
           <div className="flex items-center gap-3">
-            <div className="w-32 h-20 rounded-lg bg-[#121214] border border-white/10 grid place-items-center overflow-hidden">
+            <div className="w-32 h-20 rounded-[10px] bg-[#121214] border border-white/10 grid place-items-center overflow-hidden">
               {coverPreview ? (
-                <img src={coverPreview} alt="cover" className="w-full h-full object-cover" />
+                <img loading="lazy" decoding="async" src={coverPreview} alt="cover" className="w-full h-full object-cover" />
               ) : (
                 <FileType2 className="w-6 h-6 text-slate-600" />
               )}
             </div>
-            <label className="cursor-pointer inline-flex items-center gap-2 px-3 py-2 rounded-lg bg-white/5 hover:bg-white/10 border border-white/10 text-sm text-white">
+            <label className="cursor-pointer inline-flex items-center gap-2 px-3 py-3 rounded-[10px] bg-white/5 hover:bg-white/10 border border-white/10 text-sm text-white">
               <Upload className="w-4 h-4" />
               {uploading ? "Uploading…" : coverPath ? "Replace" : "Upload"}
               <input
@@ -586,12 +586,12 @@ function BasicsStep(props: {
         </div>
         <div>
           <Label>Difficulty Level</Label>
-          <div className="flex gap-1 p-1 rounded-lg bg-[#121214] border border-white/10">
+          <div className="flex gap-1 p-1 rounded-[10px] bg-[#121214] border border-white/10">
             {LEVELS.map((l) => (
               <button
                 key={l.key}
                 onClick={() => setLevel(l.key)}
-                className={`flex-1 px-3 py-1.5 rounded-md text-xs font-semibold transition-colors ${
+                className={`flex-1 px-3 py-1.5 rounded-[10px] text-xs font-semibold transition-colors ${
                   level === l.key ? "bg-emerald-500 text-black" : "text-slate-300 hover:bg-white/5"
                 }`}
               >
@@ -662,7 +662,7 @@ function CurriculumStep({
         </p>
         <button
           onClick={addSection}
-          className={`inline-flex items-center gap-1 rounded-lg bg-emerald-500 hover:bg-emerald-400 text-black font-bold shrink-0 ${
+          className={`inline-flex items-center gap-1 rounded-[10px] bg-emerald-500 hover:bg-emerald-400 text-black font-bold shrink-0 ${
             isAppShell ? "px-4 py-2.5 text-sm" : "px-3 py-1.5 text-xs"
           }`}
         >
@@ -708,7 +708,7 @@ function CurriculumStep({
             ))}
             <button
               onClick={() => addLesson(section.id)}
-              className="w-full inline-flex items-center justify-center gap-1 px-3 py-2 rounded-lg bg-white/5 hover:bg-white/10 border border-dashed border-white/10 text-slate-300 text-xs font-semibold"
+              className="w-full inline-flex items-center justify-center gap-1 px-3 py-3 rounded-[10px] bg-white/5 hover:bg-white/10 border border-dashed border-white/10 text-slate-300 text-xs font-semibold"
             >
               <Plus className="w-4 h-4" /> Add Lesson
             </button>
@@ -731,7 +731,7 @@ function LessonRow({
   const [open, setOpen] = useState(false);
   const Icon = lesson.type === "text" ? FileText : lesson.type === "pdf" ? FileType2 : Video;
   return (
-    <div className="rounded-lg bg-[#1E1E24] border border-white/10">
+    <div className="rounded-[10px] bg-[#1E1E24] border border-white/10">
       <div className="flex items-center gap-2 p-2">
         <Icon className="w-4 h-4 text-emerald-400 shrink-0" />
         <input
@@ -869,7 +869,7 @@ function VideoLessonEditor({
       <div>
         <Label>Or upload a video file (≤ 500 MB)</Label>
         <div className="flex items-center gap-2">
-          <label className="inline-flex items-center gap-2 px-3 py-2 rounded-lg bg-white/5 hover:bg-white/10 border border-white/10 text-sm text-slate-200 cursor-pointer">
+          <label className="inline-flex items-center gap-2 px-3 py-3 rounded-[10px] bg-white/5 hover:bg-white/10 border border-white/10 text-sm text-slate-200 cursor-pointer">
             <Upload className="w-4 h-4" />
             {uploading ? "Uploading…" : videoPath ? "Replace video" : "Choose video"}
             <input
@@ -966,7 +966,7 @@ function QuizzesStep({
         </p>
         <button
           onClick={addQuiz}
-          className={`inline-flex items-center gap-1 rounded-lg bg-emerald-500 hover:bg-emerald-400 text-black font-bold shrink-0 ${
+          className={`inline-flex items-center gap-1 rounded-[10px] bg-emerald-500 hover:bg-emerald-400 text-black font-bold shrink-0 ${
             isAppShell ? "px-4 py-2.5 text-sm" : "px-3 py-1.5 text-xs"
           }`}
         >
@@ -1018,7 +1018,7 @@ function QuizzesStep({
             ))}
             <button
               onClick={() => addQuestion(quiz.id)}
-              className="w-full inline-flex items-center justify-center gap-1 px-3 py-2 rounded-lg bg-white/5 hover:bg-white/10 border border-dashed border-white/10 text-slate-300 text-xs font-semibold"
+              className="w-full inline-flex items-center justify-center gap-1 px-3 py-3 rounded-[10px] bg-white/5 hover:bg-white/10 border border-dashed border-white/10 text-slate-300 text-xs font-semibold"
             >
               <Plus className="w-4 h-4" /> Add Question
             </button>
@@ -1062,7 +1062,7 @@ function QuestionCard({
     }
   };
   return (
-    <div className="rounded-lg bg-[#1E1E24] border border-white/10 p-3 space-y-2">
+    <div className="rounded-[10px] bg-[#1E1E24] border border-white/10 p-3 space-y-2">
       <div className="flex items-center gap-2">
         <input
           value={question.text}
@@ -1168,16 +1168,16 @@ function SettingsStep(props: {
         <div className="flex gap-2">
           <button
             onClick={() => setIsFree(true)}
-            className={`flex-1 rounded-lg border font-semibold ${
-              isAppShell ? "px-4 py-3 text-base" : "px-3 py-2 text-sm"
+            className={`flex-1 rounded-[10px] border font-semibold ${
+              isAppShell ? "px-4 py-3 text-base" : "px-3 py-3 text-sm"
             } ${isFree ? "bg-emerald-500/15 border-emerald-500/50 text-emerald-300" : "bg-white/5 border-white/10 text-slate-300"}`}
           >
             Free
           </button>
           <button
             onClick={() => setIsFree(false)}
-            className={`flex-1 rounded-lg border font-semibold ${
-              isAppShell ? "px-4 py-3 text-base" : "px-3 py-2 text-sm"
+            className={`flex-1 rounded-[10px] border font-semibold ${
+              isAppShell ? "px-4 py-3 text-base" : "px-3 py-3 text-sm"
             } ${!isFree ? "bg-emerald-500/15 border-emerald-500/50 text-emerald-300" : "bg-white/5 border-white/10 text-slate-300"}`}
           >
             Paid
@@ -1289,7 +1289,7 @@ function ReviewStep(props: {
   return (
     <div className="space-y-4 max-w-3xl">
       {missing.length > 0 && (
-        <div className="p-3 rounded-lg bg-amber-500/10 border border-amber-500/30 text-amber-200 text-sm">
+        <div className="p-3 rounded-[10px] bg-amber-500/10 border border-amber-500/30 text-amber-200 text-sm">
           Fix before publishing: {missing.join(", ")}.
         </div>
       )}
@@ -1344,7 +1344,7 @@ function ReviewStep(props: {
 
 function Stat({ label, value }: { label: string; value: string | number }) {
   return (
-    <div className="rounded-lg bg-[#1E1E24] border border-white/10 py-3">
+    <div className="rounded-[10px] bg-[#1E1E24] border border-white/10 py-3">
       <div className="text-lg font-black text-white">{value}</div>
       <div className="text-[10px] uppercase tracking-wider text-slate-500">{label}</div>
     </div>

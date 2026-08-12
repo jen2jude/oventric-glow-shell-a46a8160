@@ -97,7 +97,7 @@ export function FollowRequestsDrawer({ open, onClose }: Props) {
           </div>
           <button
             onClick={onClose}
-            className="p-2 -m-2 rounded-lg text-slate-500 hover:text-white hover:bg-white/5"
+            className="p-2 -m-2 rounded-[10px] text-slate-500 hover:text-white hover:bg-white/5"
             aria-label="Close"
           >
             <X className="w-4 h-4" />
@@ -126,7 +126,7 @@ export function FollowRequestsDrawer({ open, onClose }: Props) {
             rows.map((r) => (
               <div
                 key={r.requesterId}
-                className="flex items-center gap-3 p-3 rounded-lg bg-[#1E1E24] border border-white/10"
+                className="flex items-center gap-3 p-3 rounded-[10px] bg-[#1E1E24] border border-white/10"
               >
                 <button
                   onClick={() => {
@@ -139,7 +139,7 @@ export function FollowRequestsDrawer({ open, onClose }: Props) {
                   aria-label={`Open ${r.requesterName}'s profile`}
                 >
                   {r.avatarUrl ? (
-                    <img src={r.avatarUrl} alt="" className="w-10 h-10 rounded-full object-cover" />
+                    <img loading="lazy" decoding="async" src={r.avatarUrl} alt="" className="w-10 h-10 rounded-full object-cover" />
                   ) : (
                     <div className="w-10 h-10 rounded-full bg-emerald-500/20 text-emerald-300 flex items-center justify-center">
                       <UserIcon className="w-4 h-4" />
@@ -154,7 +154,7 @@ export function FollowRequestsDrawer({ open, onClose }: Props) {
                   <button
                     onClick={() => act(r.requesterId, acceptFn)}
                     disabled={busy === r.requesterId}
-                    className="inline-flex items-center gap-1 px-2.5 py-1.5 rounded-lg bg-emerald-500 text-black text-xs font-bold hover:bg-emerald-400 disabled:opacity-60"
+                    className="inline-flex items-center gap-1 px-2.5 py-1.5 rounded-[10px] bg-emerald-500 text-black text-xs font-bold hover:bg-emerald-400 disabled:opacity-60"
                     aria-label={`Accept ${r.requesterName}`}
                   >
                     {busy === r.requesterId ? (
@@ -167,7 +167,7 @@ export function FollowRequestsDrawer({ open, onClose }: Props) {
                   <button
                     onClick={() => act(r.requesterId, declineFn)}
                     disabled={busy === r.requesterId}
-                    className="inline-flex items-center gap-1 px-2.5 py-1.5 rounded-lg border border-white/10 text-slate-300 text-xs font-bold hover:bg-white/5 disabled:opacity-60"
+                    className="inline-flex items-center gap-1 px-2.5 py-1.5 rounded-[10px] border border-white/10 text-slate-300 text-xs font-bold hover:bg-white/5 disabled:opacity-60"
                     aria-label={`Decline ${r.requesterName}`}
                   >
                     <Ban className="w-3 h-3" />

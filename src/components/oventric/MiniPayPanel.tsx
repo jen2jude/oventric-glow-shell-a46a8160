@@ -117,7 +117,7 @@ export function MiniPayPanel({
           </div>
           <button
             onClick={onClose}
-            className="p-1.5 rounded-lg hover:bg-white/10 text-slate-400"
+            className="p-1.5 rounded-[10px] hover:bg-white/10 text-slate-400"
             aria-label="Close"
           >
             <X className="w-4 h-4" />
@@ -139,7 +139,7 @@ export function MiniPayPanel({
               <div className="rounded-xl border border-emerald-500/30 bg-emerald-500/5 p-4 text-center">
                 <div className="flex justify-center mb-4">
                   <div className="relative p-2 bg-white rounded-xl">
-                    <img 
+                    <img loading="lazy" decoding="async" 
                       src={minipayQrAsset.url} 
                       alt="MiniPay QR Code" 
 
@@ -186,7 +186,7 @@ export function MiniPayPanel({
                 <button
                   onClick={() => fileRef.current?.click()}
                   disabled={uploading}
-                  className="w-full rounded-lg bg-emerald-500 hover:bg-emerald-400 disabled:opacity-60 text-black font-bold text-sm py-2.5 flex items-center justify-center gap-2"
+                  className="w-full rounded-[10px] bg-emerald-500 hover:bg-emerald-400 disabled:opacity-60 text-black font-bold text-sm py-2.5 flex items-center justify-center gap-2"
                 >
                   {uploading ? (
                     <Loader2 className="w-4 h-4 animate-spin" />
@@ -212,7 +212,7 @@ export function MiniPayPanel({
               </p>
               <button
                 onClick={onClose}
-                className="mt-5 w-full rounded-lg bg-white/10 hover:bg-white/15 text-white font-bold text-sm py-2.5"
+                className="mt-5 w-full rounded-[10px] bg-white/10 hover:bg-white/15 text-white font-bold text-sm py-2.5"
               >
                 Done
               </button>
@@ -234,7 +234,7 @@ function Row({
   onCopy: (v: string) => void;
 }) {
   return (
-    <div className="flex items-center justify-between gap-3 rounded-lg border border-white/10 bg-[#1E1E24] px-3 py-2">
+    <div className="flex items-center justify-between gap-3 rounded-[10px] border border-white/10 bg-[#1E1E24] px-3 py-2">
       <div className="min-w-0">
         <div className="text-[10px] uppercase tracking-wider text-slate-500 font-semibold">
           {label}
@@ -243,7 +243,7 @@ function Row({
       </div>
       <button
         onClick={() => onCopy(value)}
-        className="p-1.5 rounded-lg hover:bg-white/10 text-slate-400 shrink-0"
+        className="p-1.5 rounded-[10px] hover:bg-white/10 text-slate-400 shrink-0"
         aria-label={`Copy ${label}`}
       >
         <Copy className="w-3.5 h-3.5" />

@@ -199,7 +199,7 @@ export function IncomingCircleInbox() {
                           onClick={() => handleAccept(r)}
                           disabled={busy}
                           aria-label={`Accept request from ${label}`}
-                          className="p-1.5 rounded-md bg-emerald-500 hover:bg-emerald-400 text-black disabled:opacity-40"
+                          className="p-1.5 rounded-[10px] bg-emerald-500 hover:bg-emerald-400 text-black disabled:opacity-40"
                         >
                           {busy ? (
                             <Loader2 className="w-3.5 h-3.5 animate-spin" />
@@ -211,7 +211,7 @@ export function IncomingCircleInbox() {
                           onClick={() => handleDecline(r)}
                           disabled={busy}
                           aria-label={`Decline request from ${label}`}
-                          className="p-1.5 rounded-md border border-white/10 text-slate-300 hover:text-red-300 hover:bg-red-500/10 disabled:opacity-40"
+                          className="p-1.5 rounded-[10px] border border-white/10 text-slate-300 hover:text-red-300 hover:bg-red-500/10 disabled:opacity-40"
                         >
                           <X className="w-3.5 h-3.5" />
                         </button>

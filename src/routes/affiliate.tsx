@@ -178,7 +178,7 @@ function AffiliatePage() {
               </div>
             )}
             {err && (
-              <div className="mt-3 text-xs text-red-300 bg-red-500/10 border border-red-500/40 rounded-lg p-2.5 max-w-xl">
+              <div className="mt-3 text-xs text-red-300 bg-red-500/10 border border-red-500/40 rounded-[10px] p-2.5 max-w-xl">
                 {err}
               </div>
             )}
@@ -208,7 +208,7 @@ function AffiliatePage() {
               key={f.title}
               className="rounded-2xl border border-white/10 bg-[#141418] p-4 md:border-slate-200 md:bg-white"
             >
-              <div className="w-9 h-9 rounded-lg bg-fuchsia-500/10 border border-fuchsia-500/30 flex items-center justify-center text-fuchsia-300 mb-3">
+              <div className="w-9 h-9 rounded-[10px] bg-fuchsia-500/10 border border-fuchsia-500/30 flex items-center justify-center text-fuchsia-300 mb-3">
                 <f.icon className="w-4 h-4" />
               </div>
               <div className="text-white text-sm font-bold md:text-slate-900">{f.title}</div>

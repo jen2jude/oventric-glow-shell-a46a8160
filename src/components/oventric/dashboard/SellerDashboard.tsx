@@ -48,7 +48,7 @@ export function SellerDashboard() {
             key={tab.id}
             onClick={() => setActiveTab(tab.id as SellerTab)}
             className={`
-              flex items-center gap-2 px-4 py-2 rounded-xl text-sm font-bold whitespace-nowrap transition-all
+              flex items-center gap-2 px-4 py-3 rounded-xl text-sm font-bold whitespace-nowrap transition-all
               ${activeTab === tab.id 
                 ? "bg-[#E5484D] text-white shadow-lg shadow-[#E5484D]/20" 
                 : "bg-white/5 text-slate-400 hover:bg-white/10 hover:text-white border border-white/5"}

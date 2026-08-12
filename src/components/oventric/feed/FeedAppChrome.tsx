@@ -102,13 +102,13 @@ export function FeedAppChrome({
       <div>
         <div className="min-h-0">
         <div className="flex items-center gap-2 px-4 pt-1 pb-2">
-        <img src={logoFull} alt="Oventric" className="h-7 w-auto shrink-0" />
+        <img loading="lazy" decoding="async" src={logoFull} alt="Oventric" className="h-7 w-auto shrink-0" />
         <div className="ml-auto flex items-center gap-1.5">
           <button
             type="button"
             onClick={onToggleSearch}
             aria-label="Search"
-            className={`grid h-9 w-9 place-items-center rounded-full transition-colors active:scale-95 ${
+            className={`grid h-11 w-11 place-items-center rounded-full transition-colors active:scale-95 ${
               searchOpen ? "bg-[#E5484D]/15 text-[#E5484D]" : "text-white/80 hover:text-white"
             }`}
           >
@@ -118,7 +118,7 @@ export function FeedAppChrome({
             type="button"
             onClick={() => setNotifOpen(true)}
             aria-label="Notifications"
-            className="relative grid h-9 w-9 place-items-center rounded-full text-white/80 transition-colors hover:text-white active:scale-95"
+            className="relative grid h-11 w-11 place-items-center rounded-full text-white/80 transition-colors hover:text-white active:scale-95"
           >
             <Bell className="h-[22px] w-[22px]" strokeWidth={1.8} />
             <CountBadge count={unreadNotifs} ariaLabel={`${unreadNotifs} new notifications`} />
@@ -127,7 +127,7 @@ export function FeedAppChrome({
             type="button"
             onClick={() => setMsgOpen(true)}
             aria-label="Messages"
-            className="relative grid h-9 w-9 place-items-center rounded-full text-white/80 transition-colors hover:text-white active:scale-95"
+            className="relative grid h-11 w-11 place-items-center rounded-full text-white/80 transition-colors hover:text-white active:scale-95"
           >
             <MessageSquare className="h-[22px] w-[22px]" strokeWidth={1.8} />
             <CountBadge count={messages ?? 0} ariaLabel={`${messages ?? 0} unread messages`} />

@@ -297,7 +297,7 @@ export function AdvertInquiryModal({
               Step {step} of 4
             </div>
           </div>
-          <button onClick={onClose} aria-label="Close" className="p-2 rounded-lg hover:bg-white/5">
+          <button onClick={onClose} aria-label="Close" className="p-2 rounded-[10px] hover:bg-white/5">
             <X className="w-5 h-5 text-slate-400" />
           </button>
         </div>
@@ -441,7 +441,7 @@ export function AdvertInquiryModal({
                     <button
                       key={c.id}
                       onClick={() => setCtaType(c.id)}
-                      className={`p-2 rounded-lg border text-xs font-bold ${ctaType === c.id ? "border-emerald-500 bg-emerald-500/10 text-emerald-200" : "border-white/10 bg-[#0f0f12] text-slate-300"}`}
+                      className={`p-2 rounded-[10px] border text-xs font-bold ${ctaType === c.id ? "border-emerald-500 bg-emerald-500/10 text-emerald-200" : "border-white/10 bg-[#0f0f12] text-slate-300"}`}
                     >
                       {c.label}
                     </button>
@@ -470,7 +470,7 @@ export function AdvertInquiryModal({
                       {imagePaths.map((p) => (
                         <div
                           key={p}
-                          className="relative w-20 h-20 rounded-lg bg-[#0f0f12] border border-white/10 grid place-items-center text-[10px] text-slate-500"
+                          className="relative w-20 h-20 rounded-[10px] bg-[#0f0f12] border border-white/10 grid place-items-center text-[10px] text-slate-500"
                         >
                           <span className="truncate px-1">{p.split("/").pop()}</span>
                           <button
@@ -482,7 +482,7 @@ export function AdvertInquiryModal({
                         </div>
                       ))}
                       {imagePaths.length < 5 && (
-                        <label className="w-20 h-20 rounded-lg border-2 border-dashed border-white/10 grid place-items-center cursor-pointer hover:border-emerald-500/50">
+                        <label className="w-20 h-20 rounded-[10px] border-2 border-dashed border-white/10 grid place-items-center cursor-pointer hover:border-emerald-500/50">
                           {uploading ? (
                             <Loader2 className="w-4 h-4 animate-spin text-slate-500" />
                           ) : (
@@ -508,7 +508,7 @@ export function AdvertInquiryModal({
                   <>
                     <Label>Video (upload up to 100 MB, or paste a link)</Label>
                     {videoPath ? (
-                      <div className="flex items-center gap-2 p-3 rounded-lg bg-[#0f0f12] border border-white/10">
+                      <div className="flex items-center gap-2 p-3 rounded-[10px] bg-[#0f0f12] border border-white/10">
                         <VideoIcon className="w-4 h-4 text-emerald-400" />
                         <span className="flex-1 text-xs text-slate-300 truncate">
                           {videoPath.split("/").pop()}
@@ -521,7 +521,7 @@ export function AdvertInquiryModal({
                         </button>
                       </div>
                     ) : (
-                      <label className="flex items-center gap-2 p-3 rounded-lg border-2 border-dashed border-white/10 cursor-pointer hover:border-emerald-500/50 text-xs text-slate-400">
+                      <label className="flex items-center gap-2 p-3 rounded-[10px] border-2 border-dashed border-white/10 cursor-pointer hover:border-emerald-500/50 text-xs text-slate-400">
                         {uploading ? (
                           <Loader2 className="w-4 h-4 animate-spin" />
                         ) : (
@@ -640,7 +640,7 @@ export function AdvertInquiryModal({
                   </div>
                 </div>
 
-                <div className="p-3 rounded-lg bg-emerald-500/10 border border-emerald-500/30 text-sm text-emerald-100 font-bold flex items-center justify-between">
+                <div className="p-3 rounded-[10px] bg-emerald-500/10 border border-emerald-500/30 text-sm text-emerald-100 font-bold flex items-center justify-between">
                   <span>Estimated total</span>
                   <span className="text-lg font-black">${total.toFixed(2)}</span>
                 </div>
@@ -659,7 +659,7 @@ export function AdvertInquiryModal({
               <button
                 onClick={() => setStep((s) => (s > 1 ? ((s - 1) as 1 | 2 | 3) : s))}
                 disabled={step === 1}
-                className="px-4 py-2 text-xs font-bold text-slate-400 disabled:opacity-40"
+                className="px-4 py-3 text-xs font-bold text-slate-400 disabled:opacity-40"
               >
                 Back
               </button>
@@ -696,7 +696,7 @@ export function AdvertInquiryModal({
                 <span className="text-emerald-300 font-bold">${total.toFixed(2)}</span> (equivalent
                 of your ad total). Only then will the campaign go live.
               </p>
-              <label className="mt-4 flex items-start gap-3 p-3 rounded-lg bg-[#0f0f12] border border-white/10 cursor-pointer">
+              <label className="mt-4 flex items-start gap-3 p-3 rounded-[10px] bg-[#0f0f12] border border-white/10 cursor-pointer">
                 <input
                   type="checkbox"
                   checked={ack}

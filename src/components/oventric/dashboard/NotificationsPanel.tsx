@@ -152,7 +152,7 @@ export function NotificationsPanel() {
                       onClick={() => void handleMarkRead(n.id)}
                       aria-label="Mark as read"
                       title="Mark as read"
-                      className="p-1.5 rounded-lg text-slate-400 hover:text-white hover:bg-white/10"
+                      className="p-1.5 rounded-[10px] text-slate-400 hover:text-white hover:bg-white/10"
                     >
                       <Check className="w-3.5 h-3.5" />
                     </button>
@@ -162,7 +162,7 @@ export function NotificationsPanel() {
                       onClick={() => void handleOpen(n)}
                       aria-label="Open"
                       title="Open"
-                      className="p-1.5 rounded-lg text-slate-400 hover:text-white hover:bg-white/10"
+                      className="p-1.5 rounded-[10px] text-slate-400 hover:text-white hover:bg-white/10"
                     >
                       <ExternalLink className="w-3.5 h-3.5" />
                     </button>

@@ -173,15 +173,15 @@ function ItemSkeleton({ kind }: { kind: ProfileItemKind }) {
           <>
             <div className="h-6 w-3/4 bg-white/5 rounded" />
             <div className="grid grid-cols-2 gap-3">
-              <div className="h-16 bg-white/5 rounded-lg" />
-              <div className="h-16 bg-white/5 rounded-lg" />
+              <div className="h-16 bg-white/5 rounded-[10px]" />
+              <div className="h-16 bg-white/5 rounded-[10px]" />
             </div>
             <div className="space-y-2">
               <div className="h-3 w-full bg-white/5 rounded" />
               <div className="h-3 w-5/6 bg-white/5 rounded" />
               <div className="h-3 w-2/3 bg-white/5 rounded" />
             </div>
-            <div className="h-10 w-full bg-white/5 rounded-lg" />
+            <div className="h-10 w-full bg-white/5 rounded-[10px]" />
           </>
         ) : kind === "group" ? (
           <>
@@ -197,8 +197,8 @@ function ItemSkeleton({ kind }: { kind: ProfileItemKind }) {
               <div className="h-3 w-4/5 bg-white/5 rounded" />
             </div>
             <div className="flex gap-2">
-              <div className="h-9 w-28 bg-white/5 rounded-lg" />
-              <div className="h-9 w-40 bg-white/5 rounded-lg" />
+              <div className="h-9 w-28 bg-white/5 rounded-[10px]" />
+              <div className="h-9 w-40 bg-white/5 rounded-[10px]" />
             </div>
           </>
         ) : (
@@ -250,7 +250,7 @@ function ErrorPanel({
       <button
         onClick={handleRetry}
         disabled={retrying}
-        className="inline-flex items-center gap-2 px-4 py-2 rounded-lg border border-white/15 text-white hover:bg-white/5 text-xs font-semibold disabled:opacity-60"
+        className="inline-flex items-center gap-2 px-4 py-2 rounded-[10px] border border-white/15 text-white hover:bg-white/5 text-xs font-semibold disabled:opacity-60"
       >
         <RefreshCw className={`w-3.5 h-3.5 ${retrying ? "animate-spin" : ""}`} />
         {retrying ? "Retrying…" : "Try again"}
@@ -319,13 +319,13 @@ function NotFoundPanel({
           to="/profile/$id"
           params={{ id: profileId }}
           search={back}
-          className="inline-flex items-center gap-2 px-4 py-2 rounded-lg bg-emerald-500 hover:bg-emerald-400 text-black text-xs font-semibold"
+          className="inline-flex items-center gap-2 px-4 py-2 rounded-[10px] bg-emerald-500 hover:bg-emerald-400 text-black text-xs font-semibold"
         >
           <ArrowLeft className="w-3.5 h-3.5" /> {copy.back}
         </Link>
         <Link
           to="/"
-          className="inline-flex items-center gap-2 px-4 py-2 rounded-lg border border-white/15 text-white hover:bg-white/5 text-xs font-semibold"
+          className="inline-flex items-center gap-2 px-4 py-2 rounded-[10px] border border-white/15 text-white hover:bg-white/5 text-xs font-semibold"
         >
           <Compass className="w-3.5 h-3.5" /> Explore feed
         </Link>
@@ -489,7 +489,7 @@ function PostView({
         <button
           onClick={toggleLike}
           aria-pressed={liked}
-          className={`inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-semibold border transition-colors ${
+          className={`inline-flex items-center gap-1.5 px-3 py-1.5 rounded-[10px] text-xs font-semibold border transition-colors ${
             liked
               ? "bg-rose-500/15 border-rose-400/40 text-rose-300"
               : "bg-transparent border-white/10 text-slate-300 hover:bg-white/5"
@@ -502,13 +502,13 @@ function PostView({
           onClick={() =>
             require(1, () => toast("Comments", { description: "Threaded replies open soon." }))
           }
-          className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-semibold border border-white/10 text-slate-300 hover:bg-white/5"
+          className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-[10px] text-xs font-semibold border border-white/10 text-slate-300 hover:bg-white/5"
         >
           <MessageCircle className="w-3.5 h-3.5" /> Comment · {post.comments}
         </button>
         <button
           onClick={copyCurrentUrl}
-          className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-semibold border border-white/10 text-slate-300 hover:bg-white/5"
+          className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-[10px] text-xs font-semibold border border-white/10 text-slate-300 hover:bg-white/5"
         >
           <Share2 className="w-3.5 h-3.5" /> Share
         </button>
@@ -551,7 +551,7 @@ function GroupView({ group, require }: { group: ProfileGroup; require: Require }
         <button
           onClick={toggleJoin}
           aria-pressed={joined}
-          className={`px-4 py-2 rounded-lg text-sm font-semibold inline-flex items-center gap-2 transition-colors ${
+          className={`px-4 py-2 rounded-[10px] text-sm font-semibold inline-flex items-center gap-2 transition-colors ${
             joined
               ? "bg-emerald-500/15 border border-emerald-400/40 text-emerald-300"
               : "bg-emerald-500 hover:bg-emerald-400 text-black"
@@ -570,13 +570,13 @@ function GroupView({ group, require }: { group: ProfileGroup; require: Require }
             require(2, () =>
               toast("Message sent to admins", { description: "They'll respond in-thread." }))
           }
-          className="px-4 py-2 rounded-lg border border-white/15 text-white hover:bg-white/5 text-sm font-semibold inline-flex items-center gap-2"
+          className="px-4 py-2 rounded-[10px] border border-white/15 text-white hover:bg-white/5 text-sm font-semibold inline-flex items-center gap-2"
         >
           <MessageCircle className="w-4 h-4" /> Message admins
         </button>
         <button
           onClick={copyCurrentUrl}
-          className="px-4 py-2 rounded-lg border border-white/15 text-white hover:bg-white/5 text-sm font-semibold inline-flex items-center gap-2"
+          className="px-4 py-2 rounded-[10px] border border-white/15 text-white hover:bg-white/5 text-sm font-semibold inline-flex items-center gap-2"
         >
           <Link2 className="w-4 h-4" /> Share
         </button>
@@ -614,7 +614,7 @@ function ListingView({
       <div className="mt-6 flex gap-2 flex-wrap">
         <button
           onClick={onBuy}
-          className="flex-1 min-w-[180px] px-4 py-2.5 rounded-lg bg-emerald-500 hover:bg-emerald-400 text-black font-semibold text-sm"
+          className="flex-1 min-w-[180px] px-4 py-2.5 rounded-[10px] bg-emerald-500 hover:bg-emerald-400 text-black font-semibold text-sm"
         >
           Buy Now — {price(listing.priceUsd)}
         </button>
@@ -626,7 +626,7 @@ function ListingView({
             });
           }}
           aria-pressed={saved}
-          className={`px-3 py-2.5 rounded-lg border text-sm font-semibold inline-flex items-center gap-2 ${
+          className={`px-3 py-2.5 rounded-[10px] border text-sm font-semibold inline-flex items-center gap-2 ${
             saved
               ? "bg-emerald-500/15 border-emerald-400/40 text-emerald-300"
               : "border-white/15 text-white hover:bg-white/5"
@@ -678,11 +678,11 @@ function BountyView({
       </div>
       <h1 className="text-white text-2xl font-black leading-tight">{bounty.title}</h1>
       <div className="mt-4 grid grid-cols-2 gap-3">
-        <div className="bg-black/30 border border-white/5 rounded-lg p-3">
+        <div className="bg-black/30 border border-white/5 rounded-[10px] p-3">
           <div className="text-[10px] uppercase tracking-wider text-slate-500">Escrow</div>
           <div className="text-white font-black text-lg mt-1">{price(bounty.amountUsd)}</div>
         </div>
-        <div className="bg-black/30 border border-white/5 rounded-lg p-3">
+        <div className="bg-black/30 border border-white/5 rounded-[10px] p-3">
           <div className="text-[10px] uppercase tracking-wider text-slate-500">Applicants</div>
           <div className="text-white font-black text-lg mt-1">
             {(bounty.applicants ?? 0) + (applied ? 1 : 0)}
@@ -695,7 +695,7 @@ function BountyView({
       </p>
 
       {bidOpen && (
-        <div className="mt-5 bg-black/40 border border-white/10 rounded-lg p-3">
+        <div className="mt-5 bg-black/40 border border-white/10 rounded-[10px] p-3">
           <label className="text-[10px] uppercase tracking-wider text-slate-400">
             Your bid (USD)
           </label>
@@ -706,17 +706,17 @@ function BountyView({
               value={bid}
               onChange={(e) => setBid(e.target.value)}
               placeholder={String(bounty.amountUsd)}
-              className="flex-1 bg-black/50 border border-white/10 rounded-md px-3 py-2 text-sm text-white outline-none focus:border-emerald-400"
+              className="flex-1 bg-black/50 border border-white/10 rounded-[10px] px-3 py-2 text-sm text-white outline-none focus:border-emerald-400"
             />
             <button
               onClick={submitBid}
-              className="px-3 py-2 rounded-md bg-emerald-500 hover:bg-emerald-400 text-black text-xs font-semibold"
+              className="px-3 py-2 rounded-[10px] bg-emerald-500 hover:bg-emerald-400 text-black text-xs font-semibold"
             >
               Submit
             </button>
             <button
               onClick={() => setBidOpen(false)}
-              className="px-3 py-2 rounded-md border border-white/10 text-slate-300 hover:bg-white/5 text-xs font-semibold"
+              className="px-3 py-2 rounded-[10px] border border-white/10 text-slate-300 hover:bg-white/5 text-xs font-semibold"
             >
               Cancel
             </button>
@@ -736,7 +736,7 @@ function BountyView({
               });
             })
           }
-          className={`flex-1 min-w-[180px] px-4 py-2.5 rounded-lg font-semibold text-sm inline-flex items-center justify-center gap-2 transition-colors ${
+          className={`flex-1 min-w-[180px] px-4 py-2.5 rounded-[10px] font-semibold text-sm inline-flex items-center justify-center gap-2 transition-colors ${
             applied
               ? "bg-emerald-500/15 border border-emerald-400/40 text-emerald-300 cursor-default"
               : "bg-emerald-500 hover:bg-emerald-400 text-black"
@@ -754,7 +754,7 @@ function BountyView({
         </button>
         <button
           onClick={() => setBidOpen((o) => !o)}
-          className="px-4 py-2.5 rounded-lg border border-white/15 text-white hover:bg-white/5 text-sm font-semibold inline-flex items-center gap-2"
+          className="px-4 py-2.5 rounded-[10px] border border-white/15 text-white hover:bg-white/5 text-sm font-semibold inline-flex items-center gap-2"
         >
           <Gavel className="w-4 h-4" /> {bidOpen ? "Close bid" : "Place bid"}
         </button>
@@ -766,7 +766,7 @@ function BountyView({
             });
           }}
           aria-pressed={watching}
-          className={`px-3 py-2.5 rounded-lg border text-sm font-semibold inline-flex items-center gap-2 ${
+          className={`px-3 py-2.5 rounded-[10px] border text-sm font-semibold inline-flex items-center gap-2 ${
             watching
               ? "bg-emerald-500/15 border-emerald-400/40 text-emerald-300"
               : "border-white/15 text-white hover:bg-white/5"
@@ -796,7 +796,7 @@ function SolvedView({
       </div>
       <h1 className="text-white text-2xl font-black leading-tight">{bounty.title}</h1>
       {bounty.proof && (
-        <div className="mt-5 bg-black/30 border border-white/5 rounded-lg p-4">
+        <div className="mt-5 bg-black/30 border border-white/5 rounded-[10px] p-4">
           <div className="text-[10px] uppercase tracking-wider text-slate-500 mb-2">
             Technical execution proof
           </div>
@@ -820,13 +820,13 @@ function SolvedView({
                 icon: <Sparkles className="w-4 h-4 text-purple-300" />,
               }))
           }
-          className="flex-1 min-w-[180px] px-4 py-2.5 rounded-lg bg-purple-500 hover:bg-purple-400 text-black font-semibold text-sm inline-flex items-center justify-center gap-2"
+          className="flex-1 min-w-[180px] px-4 py-2.5 rounded-[10px] bg-purple-500 hover:bg-purple-400 text-black font-semibold text-sm inline-flex items-center justify-center gap-2"
         >
           <Sparkles className="w-4 h-4" /> Tip the solver
         </button>
         <button
           onClick={copyCurrentUrl}
-          className="px-4 py-2.5 rounded-lg border border-white/15 text-white hover:bg-white/5 text-sm font-semibold inline-flex items-center gap-2"
+          className="px-4 py-2.5 rounded-[10px] border border-white/15 text-white hover:bg-white/5 text-sm font-semibold inline-flex items-center gap-2"
         >
           <Share2 className="w-4 h-4" /> Share proof
         </button>

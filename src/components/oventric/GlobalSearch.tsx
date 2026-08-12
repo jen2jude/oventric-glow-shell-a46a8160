@@ -87,7 +87,7 @@ export function GlobalSearch({
         label: p.name,
         sub: p.username ? `@${p.username}` : p.slug,
         icon: p.avatarUrl ? (
-          <img src={p.avatarUrl} alt="" className="w-7 h-7 rounded-full object-cover" />
+          <img loading="lazy" decoding="async" src={p.avatarUrl} alt="" className="w-7 h-7 rounded-full object-cover" />
         ) : (
           <div className="w-7 h-7 rounded-full bg-emerald-500/20 text-emerald-300 flex items-center justify-center">
             <User className="w-3.5 h-3.5" />
@@ -104,9 +104,9 @@ export function GlobalSearch({
         label: p.title,
         sub: `$${p.priceUsd.toLocaleString()} · ${p.category}${p.vendor ? ` · ${p.vendor}` : ""}`,
         icon: p.coverUrl ? (
-          <img src={p.coverUrl} alt="" className="w-7 h-7 rounded-md object-cover" />
+          <img loading="lazy" decoding="async" src={p.coverUrl} alt="" className="w-7 h-7 rounded-[10px] object-cover" />
         ) : (
-          <div className="w-7 h-7 rounded-md bg-sky-500/20 text-sky-300 flex items-center justify-center">
+          <div className="w-7 h-7 rounded-[10px] bg-sky-500/20 text-sky-300 flex items-center justify-center">
             <Store className="w-3.5 h-3.5" />
           </div>
         ),
@@ -119,7 +119,7 @@ export function GlobalSearch({
         label: p.authorName,
         sub: p.text,
         icon: p.authorAvatarUrl ? (
-          <img src={p.authorAvatarUrl} alt="" className="w-7 h-7 rounded-full object-cover" />
+          <img loading="lazy" decoding="async" src={p.authorAvatarUrl} alt="" className="w-7 h-7 rounded-full object-cover" />
         ) : (
           <div className="w-7 h-7 rounded-full bg-slate-500/20 text-slate-300 flex items-center justify-center">
             <User className="w-3.5 h-3.5" />
@@ -179,7 +179,7 @@ export function GlobalSearch({
             if (e.key === "Enter" && flat[0]) handleSelect(flat[0].onSelect);
           }}
           placeholder="Search creators, products..."
-          className={`w-full h-10 pl-10 pr-9 rounded-lg text-sm ${light ? "bg-slate-100 border border-slate-200 text-slate-900 placeholder:text-slate-500" : "bg-[#1E1E24] border border-white/10 text-slate-200 placeholder:text-slate-500"} focus:outline-none focus:border-[#E5484D]/60 focus:ring-2 focus:ring-[#E5484D]/20 transition-all`}
+          className={`w-full h-10 pl-10 pr-9 rounded-[10px] text-sm ${light ? "bg-slate-100 border border-slate-200 text-slate-900 placeholder:text-slate-500" : "bg-[#1E1E24] border border-white/10 text-slate-200 placeholder:text-slate-500"} focus:outline-none focus:border-[#E5484D]/60 focus:ring-2 focus:ring-[#E5484D]/20 transition-all`}
         />
         {q && (
           <button
@@ -189,7 +189,7 @@ export function GlobalSearch({
               inputRef.current?.focus();
             }}
             aria-label="Clear search"
-            className="absolute right-2 top-1/2 -translate-y-1/2 p-1 rounded-md text-slate-500 hover:text-slate-200 hover:bg-white/5"
+            className="absolute right-2 top-1/2 -translate-y-1/2 p-1 rounded-[10px] text-slate-500 hover:text-slate-200 hover:bg-white/5"
           >
             <X className="w-3.5 h-3.5" />
           </button>
@@ -273,7 +273,7 @@ function ResultRow({
       <button
         type="button"
         onClick={() => onSelect(item.onSelect)}
-        className="w-full flex items-center gap-3 px-4 py-2 hover:bg-white/5 text-left"
+        className="w-full flex items-center gap-3 px-4 py-3 hover:bg-white/5 text-left"
       >
         {item.icon}
         <div className="flex-1 min-w-0">

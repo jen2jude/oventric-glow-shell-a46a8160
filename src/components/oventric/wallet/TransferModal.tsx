@@ -110,7 +110,7 @@ export function TransferModal({ onClose, onDone }: { onClose: () => void; onDone
         </div>
         <div className="space-y-1.5 min-h-[80px]">
           {searching && (
-            <div className="text-xs text-slate-500 py-2 inline-flex items-center gap-2">
+            <div className="text-xs text-slate-500 py-3 inline-flex items-center gap-2">
               <Loader2 className="w-3.5 h-3.5 animate-spin" /> Searching…
             </div>
           )}

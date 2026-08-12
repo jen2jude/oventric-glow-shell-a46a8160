@@ -11,7 +11,7 @@ function Cover({ url, className }: { url?: string | null; className?: string }) 
   return (
     <div className={`overflow-hidden rounded-xl bg-[#1C1C21] md:bg-slate-100 ${className ?? ""}`}>
       {url ? (
-        <img src={url} alt="" loading="lazy" className="h-full w-full object-cover" />
+        <img loading="lazy" decoding="async" src={url} alt="" loading="lazy" className="h-full w-full object-cover" />
       ) : (
         <div className="grid h-full w-full place-items-center">
           <PenTool className="h-6 w-6 text-white/25 md:text-slate-400" />
@@ -85,7 +85,7 @@ export function ProfileServicesTab({
                   <span className="font-black">{price(s.priceUsd)}</span>
                 </span>
                 <span
-                  className="grid h-9 w-9 shrink-0 place-items-center rounded-full border"
+                  className="grid h-11 w-11 shrink-0 place-items-center rounded-full border"
                   style={{ borderColor: ACCENT, color: ACCENT }}
                 >
                   <ArrowRight className="h-4 w-4" strokeWidth={3} />

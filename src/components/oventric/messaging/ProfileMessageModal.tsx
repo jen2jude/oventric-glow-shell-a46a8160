@@ -406,7 +406,7 @@ export function ProfileMessageModal({
               ref={closeBtnRef}
               onClick={onClose}
               aria-label="Close message composer"
-              className="p-1.5 rounded-md text-slate-400 hover:text-white md:hover:text-slate-900 hover:bg-white/5 md:hover:bg-slate-100"
+              className="p-1.5 rounded-[10px] text-slate-400 hover:text-white md:hover:text-slate-900 hover:bg-white/5 md:hover:bg-slate-100"
             >
               <X className="w-4 h-4" />
             </button>
@@ -465,10 +465,10 @@ export function ProfileMessageModal({
                       {m.media_path && (
                         <div className="mt-1.5">
                           {isImage && url ? (
-                            <img
+                            <img loading="lazy" decoding="async"
                               src={url}
                               alt="attachment"
-                              className="max-h-40 rounded-md border border-white/10"
+                              className="max-h-40 rounded-[10px] border border-white/10"
                             />
                           ) : url ? (
                             <a
@@ -519,10 +519,10 @@ export function ProfileMessageModal({
 
           <div className="border-t border-white/10 md:border-slate-200 bg-[#16161B] md:bg-white p-3 shrink-0">
             {pinnedProduct && (
-              <div className="mb-2 flex items-center gap-2 rounded-lg border border-emerald-500/30 bg-emerald-500/10 md:bg-emerald-50 px-2.5 py-2">
+              <div className="mb-2 flex items-center gap-2 rounded-[10px] border border-emerald-500/30 bg-emerald-500/10 md:bg-emerald-50 px-2.5 py-2">
                 <div className="w-9 h-9 rounded overflow-hidden bg-white/10 md:bg-slate-100 shrink-0 flex items-center justify-center">
                   {pinnedProduct.coverUrl ? (
-                    <img
+                    <img loading="lazy" decoding="async"
                       src={pinnedProduct.coverUrl}
                       alt=""
                       className="w-full h-full object-cover"
@@ -547,9 +547,9 @@ export function ProfileMessageModal({
               </div>
             )}
             {attachment && (
-              <div className="mb-2 flex items-center gap-2 rounded-lg border border-white/10 md:border-slate-200 bg-white/5 md:bg-slate-50 px-2.5 py-2">
+              <div className="mb-2 flex items-center gap-2 rounded-[10px] border border-white/10 md:border-slate-200 bg-white/5 md:bg-slate-50 px-2.5 py-2">
                 {attachment.previewUrl ? (
-                  <img
+                  <img loading="lazy" decoding="async"
                     src={attachment.previewUrl}
                     alt=""
                     className="w-9 h-9 rounded object-cover shrink-0"
@@ -600,7 +600,7 @@ export function ProfileMessageModal({
                 onClick={() => fileInputRef.current?.click()}
                 aria-label="Attach a file"
                 disabled={sending || !!attachment}
-                className="shrink-0 p-2.5 rounded-lg text-slate-400 hover:text-white md:hover:text-slate-900 hover:bg-white/5 md:hover:bg-slate-100 disabled:opacity-40 disabled:cursor-not-allowed"
+                className="shrink-0 p-2.5 rounded-[10px] text-slate-400 hover:text-white md:hover:text-slate-900 hover:bg-white/5 md:hover:bg-slate-100 disabled:opacity-40 disabled:cursor-not-allowed"
               >
                 <Paperclip className="w-4 h-4" />
               </button>
@@ -619,13 +619,13 @@ export function ProfileMessageModal({
                 rows={1}
                 placeholder="Type a message…"
                 aria-label="Message body"
-                className="flex-1 resize-none max-h-28 min-h-[40px] bg-[#1E1E24] md:bg-slate-100 border border-white/10 md:border-transparent rounded-lg px-3 py-2 text-sm text-slate-200 md:text-slate-800 placeholder:text-slate-500 focus:outline-none focus:ring-2 focus:ring-emerald-500/40"
+                className="flex-1 resize-none max-h-28 min-h-[40px] bg-[#1E1E24] md:bg-slate-100 border border-white/10 md:border-transparent rounded-[10px] px-3 py-3 text-sm text-slate-200 md:text-slate-800 placeholder:text-slate-500 focus:outline-none focus:ring-2 focus:ring-emerald-500/40"
               />
               <button
                 onClick={() => void send()}
                 disabled={!canSend}
                 aria-label="Send message"
-                className="shrink-0 inline-flex items-center justify-center gap-1.5 rounded-lg bg-emerald-500 hover:bg-emerald-400 disabled:bg-slate-700 disabled:cursor-not-allowed text-black disabled:text-slate-400 font-bold text-sm px-3.5 py-2.5"
+                className="shrink-0 inline-flex items-center justify-center gap-1.5 rounded-[10px] bg-emerald-500 hover:bg-emerald-400 disabled:bg-slate-700 disabled:cursor-not-allowed text-black disabled:text-slate-400 font-bold text-sm px-3.5 py-2.5"
               >
                 {sending ? (
                   <Loader2 className="w-4 h-4 animate-spin" />

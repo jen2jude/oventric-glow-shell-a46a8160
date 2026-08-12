@@ -52,7 +52,7 @@ function Row({
       type="button"
       onClick={onClick}
       title={title}
-      className={`flex w-full items-center gap-3 rounded-xl py-2 text-left text-sm font-semibold text-slate-700 transition-colors hover:bg-slate-100 ${
+      className={`flex w-full items-center gap-3 rounded-xl py-3 text-left text-sm font-semibold text-slate-700 transition-colors hover:bg-slate-100 ${
         collapsed ? "justify-center px-0" : "px-3"
       }`}
     >
@@ -74,7 +74,7 @@ function MoreToggle({
     <button
       type="button"
       onClick={onToggle}
-      className="flex w-full items-center gap-3 rounded-xl px-3 py-2 text-left text-sm font-semibold text-slate-500 transition-colors hover:bg-slate-100 hover:text-slate-900"
+      className="flex w-full items-center gap-3 rounded-xl px-3 py-3 text-left text-sm font-semibold text-slate-500 transition-colors hover:bg-slate-100 hover:text-slate-900"
     >
       <span className="flex h-7 w-7 items-center justify-center rounded-full bg-slate-100">
         <ChevronDown
@@ -97,11 +97,11 @@ function CircleRow({
 }) {
   return (
     <Row onClick={() => onOpen(c.slug)} title={c.name} collapsed={collapsed}>
-      <span className="h-7 w-7 shrink-0 overflow-hidden rounded-lg">
+      <span className="h-7 w-7 shrink-0 overflow-hidden rounded-[10px]">
         {c.avatarUrl ? (
-          <AvatarImage src={c.avatarUrl} alt={c.name} className="rounded-lg" />
+          <AvatarImage src={c.avatarUrl} alt={c.name} className="rounded-[10px]" />
         ) : (
-          <span className="flex h-full w-full items-center justify-center rounded-lg bg-slate-100 text-sm">
+          <span className="flex h-full w-full items-center justify-center rounded-[10px] bg-slate-100 text-sm">
             {c.emoji || "◎"}
           </span>
         )}
@@ -188,7 +188,7 @@ export function DesktopAppSidebar({ onSelect }: { onSelect: (section: string) =>
         type="button"
         onClick={() => setCollapsed((v) => !v)}
         aria-label={collapsed ? "Expand sidebar" : "Collapse sidebar"}
-        className="mb-2 flex h-8 w-8 shrink-0 items-center justify-center self-end rounded-lg text-slate-500 transition-colors hover:bg-slate-100 hover:text-slate-900"
+        className="mb-2 flex h-8 w-8 shrink-0 items-center justify-center self-end rounded-[10px] text-slate-500 transition-colors hover:bg-slate-100 hover:text-slate-900"
       >
         <ChevronLeft className={`h-4 w-4 transition-transform ${collapsed ? "rotate-180" : ""}`} />
       </button>
@@ -198,11 +198,11 @@ export function DesktopAppSidebar({ onSelect }: { onSelect: (section: string) =>
         to="/profile/$id"
         params={{ id: me?.slug ?? "me" }}
         title={me?.name || "Your profile"}
-        className={`flex items-center gap-3 rounded-xl py-2 transition-colors hover:bg-slate-100 ${
+        className={`flex items-center gap-3 rounded-xl py-3 transition-colors hover:bg-slate-100 ${
           collapsed ? "justify-center px-0" : "px-3"
         }`}
       >
-        <span className="h-9 w-9 shrink-0 overflow-hidden rounded-full">
+        <span className="h-11 w-11 shrink-0 overflow-hidden rounded-full">
           <AvatarImage src={me?.avatarUrl ?? null} alt={me?.name || "You"} loading="eager" />
         </span>
         {!collapsed && (
@@ -249,7 +249,7 @@ export function DesktopAppSidebar({ onSelect }: { onSelect: (section: string) =>
           <CircleRow key={c.id} c={c} onOpen={openCircle} collapsed={collapsed} />
         ))}
         {mine.length === 0 && !collapsed && (
-          <p className="px-3 py-2 text-xs text-slate-500">You haven't joined a circle yet.</p>
+          <p className="px-3 py-3 text-xs text-slate-500">You haven't joined a circle yet.</p>
         )}
         {mine.length > 3 && !collapsed && (
           <MoreToggle
@@ -279,7 +279,7 @@ export function DesktopAppSidebar({ onSelect }: { onSelect: (section: string) =>
           <CircleRow key={c.id} c={c} onOpen={openCircle} collapsed={collapsed} />
         ))}
         {recs.length === 0 && !collapsed && (
-          <p className="px-3 py-2 text-xs text-slate-500">No recommendations right now.</p>
+          <p className="px-3 py-3 text-xs text-slate-500">No recommendations right now.</p>
         )}
         {recs.length > 3 && !collapsed && (
           <MoreToggle

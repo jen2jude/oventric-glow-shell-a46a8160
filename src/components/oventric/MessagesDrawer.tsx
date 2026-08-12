@@ -57,7 +57,7 @@ export function MessagesDrawer({
           <button
             onClick={onClose}
             aria-label="Close messages drawer"
-            className="p-1.5 rounded-md text-slate-400 hover:text-white hover:bg-white/5"
+            className="p-1.5 rounded-[10px] text-slate-400 hover:text-white hover:bg-white/5"
           >
             <X className="w-4 h-4" />
           </button>

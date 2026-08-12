@@ -130,7 +130,7 @@ export function PostActionsMenu({
     return (
       <button
         onClick={() => run(action)}
-        className={`w-full flex items-center gap-2.5 px-3 py-2 text-left text-sm rounded-md ${
+        className={`w-full flex items-center gap-2.5 px-3 py-3 text-left text-sm rounded-[10px] ${
           danger ? "text-red-300 hover:bg-red-500/10" : "text-slate-200 hover:bg-white/5"
         }`}
       >
@@ -144,7 +144,7 @@ export function PostActionsMenu({
     <div ref={ref} className="relative">
       <button
         onClick={() => setOpen((v) => !v)}
-        className="p-1.5 rounded-md text-slate-500 md:text-slate-500 hover:text-white md:hover:text-slate-900 hover:bg-white/5 md:hover:bg-slate-100 transition-colors"
+        className="p-1.5 rounded-[10px] text-slate-500 md:text-slate-500 hover:text-white md:hover:text-slate-900 hover:bg-white/5 md:hover:bg-slate-100 transition-colors"
         aria-label="More"
       >
         <MoreHorizontal className="w-4 h-4" />
@@ -165,7 +165,7 @@ export function PostActionsMenu({
                 setOpen(false);
                 onDelete();
               }}
-              className="w-full flex items-center gap-2.5 px-3 py-2 text-left text-sm text-red-300 md:text-red-600 hover:bg-red-500/10 rounded-md"
+              className="w-full flex items-center gap-2.5 px-3 py-3 text-left text-sm text-red-300 md:text-red-600 hover:bg-red-500/10 rounded-[10px]"
             >
               <Flag className="w-4 h-4" /> Delete
             </button>

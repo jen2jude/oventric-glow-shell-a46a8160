@@ -19,7 +19,7 @@ function Cover({ url, className }: { url?: string | null; className?: string }) 
   return (
     <div className={`overflow-hidden rounded-xl bg-[#1C1C21] md:bg-slate-100 ${className ?? ""}`}>
       {url ? (
-        <img src={url} alt="" loading="lazy" className="h-full w-full object-cover" />
+        <img loading="lazy" decoding="async" src={url} alt="" loading="lazy" className="h-full w-full object-cover" />
       ) : (
         <div className="grid h-full w-full place-items-center">
           <GraduationCap className="h-6 w-6 text-white/25 md:text-slate-400" />
@@ -256,7 +256,7 @@ export function ProfileCoursesTab({
               key={key}
               type="button"
               onClick={() => setFilter(key)}
-              className={`shrink-0 rounded-full px-3.5 py-2 text-xs font-bold transition-colors ${
+              className={`shrink-0 rounded-full px-3.5 py-3 text-xs font-bold transition-colors ${
                 on
                   ? "text-white"
                   : "border border-white/10 bg-white/[0.04] text-slate-400 hover:text-white md:border-slate-200 md:bg-white md:text-slate-500"

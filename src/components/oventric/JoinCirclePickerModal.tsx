@@ -83,7 +83,7 @@ export function JoinCirclePickerModal({ open, onClose, userId, userName }: Props
           </div>
           <button
             onClick={onClose}
-            className="p-1.5 rounded-md text-slate-400 hover:text-white hover:bg-white/5"
+            className="p-1.5 rounded-[10px] text-slate-400 hover:text-white hover:bg-white/5"
             aria-label="Close"
           >
             <X className="w-4 h-4" />
@@ -106,9 +106,9 @@ export function JoinCirclePickerModal({ open, onClose, userId, userName }: Props
           {circles?.map((c) => (
             <div
               key={c.id}
-              className="flex items-center gap-3 p-3 rounded-lg bg-[#1E1E24] border border-white/10 hover:border-emerald-500/40 transition-colors"
+              className="flex items-center gap-3 p-3 rounded-[10px] bg-[#1E1E24] border border-white/10 hover:border-emerald-500/40 transition-colors"
             >
-              <div className="w-11 h-11 rounded-lg bg-gradient-to-br from-emerald-500 to-sky-500 flex items-center justify-center text-black font-black overflow-hidden shrink-0">
+              <div className="w-11 h-11 rounded-[10px] bg-gradient-to-br from-emerald-500 to-sky-500 flex items-center justify-center text-black font-black overflow-hidden shrink-0">
                 {c.avatarUrl ? (
                   <ResponsiveImage
                     sizes="48px"
@@ -135,14 +135,14 @@ export function JoinCirclePickerModal({ open, onClose, userId, userName }: Props
                 </div>
               </div>
               {c.myStatus === "member" ? (
-                <span className="text-xs font-semibold text-emerald-300 px-3 py-1.5 rounded-md bg-emerald-500/10 border border-emerald-500/30 inline-flex items-center gap-1">
+                <span className="text-xs font-semibold text-emerald-300 px-3 py-1.5 rounded-[10px] bg-emerald-500/10 border border-emerald-500/30 inline-flex items-center gap-1">
                   <Check className="w-3 h-3" /> Joined
                 </span>
               ) : c.myStatus === "pending" ? (
                 <button
                   onClick={() => handleCancel(c)}
                   disabled={busyId === c.id}
-                  className="text-xs font-semibold text-yellow-300 px-3 py-1.5 rounded-md bg-yellow-500/10 border border-yellow-500/40 hover:bg-yellow-500/20 disabled:opacity-50 inline-flex items-center gap-1"
+                  className="text-xs font-semibold text-yellow-300 px-3 py-1.5 rounded-[10px] bg-yellow-500/10 border border-yellow-500/40 hover:bg-yellow-500/20 disabled:opacity-50 inline-flex items-center gap-1"
                 >
                   {busyId === c.id ? (
                     <Loader2 className="w-3 h-3 animate-spin" />
@@ -155,7 +155,7 @@ export function JoinCirclePickerModal({ open, onClose, userId, userName }: Props
                 <button
                   onClick={() => handleJoin(c)}
                   disabled={busyId === c.id}
-                  className="text-xs font-black text-black px-3 py-1.5 rounded-md bg-emerald-500 hover:bg-emerald-400 disabled:opacity-50 inline-flex items-center gap-1"
+                  className="text-xs font-black text-black px-3 py-1.5 rounded-[10px] bg-emerald-500 hover:bg-emerald-400 disabled:opacity-50 inline-flex items-center gap-1"
                 >
                   {busyId === c.id ? <Loader2 className="w-3 h-3 animate-spin" /> : "Request"}
                 </button>

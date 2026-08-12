@@ -107,7 +107,7 @@ export function CreatePanel({
               <h2 className="text-xl font-bold text-white">Create Something</h2>
               <button
                 onClick={onClose}
-                className="p-2 rounded-lg hover:bg-white/5 text-slate-400 hover:text-white transition-colors"
+                className="p-2 rounded-[10px] hover:bg-white/5 text-slate-400 hover:text-white transition-colors"
                 aria-label="Close"
               >
                 <X className="w-5 h-5" />
@@ -120,7 +120,7 @@ export function CreatePanel({
                   onClick={() => handleChoice(c)}
                   className="group text-left p-4 bg-[#121214] border border-white/10 rounded-xl hover:border-emerald-500/60 hover:bg-[#161618] transition-all"
                 >
-                  <div className="w-10 h-10 rounded-lg bg-emerald-500/10 border border-emerald-500/30 flex items-center justify-center mb-3 group-hover:bg-emerald-500/20 transition-colors">
+                  <div className="w-10 h-10 rounded-[10px] bg-emerald-500/10 border border-emerald-500/30 flex items-center justify-center mb-3 group-hover:bg-emerald-500/20 transition-colors">
                     <c.icon className="w-5 h-5 text-emerald-400" />
                   </div>
                   <div className="font-semibold text-white">{c.title}</div>

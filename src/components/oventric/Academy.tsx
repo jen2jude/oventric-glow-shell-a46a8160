@@ -207,7 +207,7 @@ export const Academy = ({ hubMode = false }: { hubMode?: boolean }) => {
                     setEditingId(undefined);
                     setEditorOpen(true);
                   }}
-                  className="inline-flex items-center gap-2 text-xs text-black bg-emerald-500 hover:bg-emerald-400 rounded-lg px-3 py-1.5 font-bold"
+                  className="inline-flex items-center gap-2 text-xs text-black bg-emerald-500 hover:bg-emerald-400 rounded-[10px] px-3 py-1.5 font-bold"
                 >
                   <GraduationCap className="w-4 h-4" /> Publish
                 </button>
@@ -221,7 +221,7 @@ export const Academy = ({ hubMode = false }: { hubMode?: boolean }) => {
                 placeholder="Search courses..."
                 value={searchQuery}
                 onChange={(e) => setSearchQuery(e.target.value)}
-                className="w-full bg-[#1A1A1C] border border-white/5 rounded-md py-2 pl-9 pr-4 text-xs text-white focus:outline-none"
+                className="w-full bg-[#1A1A1C] border border-white/5 rounded-[10px] py-3 pl-9 pr-4 text-xs text-white focus:outline-none"
               />
             </div>
 
@@ -258,7 +258,7 @@ export const Academy = ({ hubMode = false }: { hubMode?: boolean }) => {
                     setEditingId(undefined);
                     setEditorOpen(true);
                   }}
-                  className="ml-auto inline-flex items-center gap-2 text-sm text-black bg-emerald-500 hover:bg-emerald-400 rounded-lg px-3 py-1.5 font-bold"
+                  className="ml-auto inline-flex items-center gap-2 text-sm text-black bg-emerald-500 hover:bg-emerald-400 rounded-[10px] px-3 py-1.5 font-bold"
                 >
                   <GraduationCap className="w-4 h-4" /> Publish a Course
                 </button>
@@ -271,7 +271,7 @@ export const Academy = ({ hubMode = false }: { hubMode?: boolean }) => {
                   <button
                     key={c.key}
                     onClick={() => setCategory(c.key)}
-                    className={`shrink-0 px-4 py-2 rounded-full text-sm font-medium border transition-colors whitespace-nowrap ${
+                    className={`shrink-0 px-4 py-3 rounded-full text-sm font-medium border transition-colors whitespace-nowrap ${
                       active
                         ? "bg-emerald-600 border-emerald-600 text-white"
                         : "bg-white border-slate-200 text-slate-600 hover:text-slate-900 hover:border-slate-300"
@@ -321,7 +321,7 @@ export const Academy = ({ hubMode = false }: { hubMode?: boolean }) => {
                           </svg>
                           <div className="absolute inset-[5px] rounded-full overflow-hidden border border-white/5 bg-[#121214]">
                             {course.coverUrl ? (
-                              <img 
+                              <img loading="lazy" decoding="async" 
                                 src={course.coverUrl} 
                                 className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-300"
                                 alt={course.title}
@@ -350,7 +350,7 @@ export const Academy = ({ hubMode = false }: { hubMode?: boolean }) => {
                     <div key={enrollment.id} className={`shrink-0 w-64 rounded-xl border shadow-lg overflow-hidden flex flex-col ${!isAppShell ? "bg-white border-slate-200" : "bg-[#1A1A1C] border-white/5"}`}>
                       <div className="relative aspect-[21/9] bg-[#121214]">
                         {course.coverUrl ? (
-                          <img 
+                          <img loading="lazy" decoding="async" 
                             src={course.coverUrl} 
                             className="w-full h-full object-cover"
                             alt={course.title}
@@ -392,7 +392,7 @@ export const Academy = ({ hubMode = false }: { hubMode?: boolean }) => {
 
                         <button 
                           onClick={() => { setSelectedId(course.id); setView("course"); }}
-                          className={`w-full py-2 rounded-md text-xs font-bold transition-colors ${isFinished ? "bg-emerald-500 text-black hover:bg-emerald-400" : "bg-pink-500 text-white hover:bg-pink-600"}`}
+                          className={`w-full py-3 rounded-[10px] text-xs font-bold transition-colors ${isFinished ? "bg-emerald-500 text-black hover:bg-emerald-400" : "bg-pink-500 text-white hover:bg-pink-600"}`}
                         >
                           {isFinished ? "Finished" : "Resume Learning"}
                         </button>
@@ -462,14 +462,14 @@ export const Academy = ({ hubMode = false }: { hubMode?: boolean }) => {
                             </p>
                             <button
                               onClick={() => { setSelectedId(course.id); setView("course"); }}
-                              className="self-start bg-red-500 hover:bg-red-600 text-white px-5 md:px-6 py-2 md:py-2.5 rounded-full text-xs md:text-sm font-bold active:scale-95 transition-transform shadow-lg"
+                              className="self-start bg-red-500 hover:bg-red-600 text-white px-5 md:px-6 py-3 md:py-2.5 rounded-full text-xs md:text-sm font-bold active:scale-95 transition-transform shadow-lg"
                             >
                               Start Now
                             </button>
                           </div>
                           <div className="flex-1 relative min-w-0">
                             {course.coverUrl ? (
-                              <img
+                              <img loading="lazy" decoding="async"
                                 src={course.coverUrl}
                                 className="absolute right-0 bottom-0 h-full w-full object-cover object-center"
                                 alt={course.title}
@@ -709,7 +709,7 @@ function CourseCard({
 
         <button
           onClick={onOpen}
-          className="mt-4 w-full py-2.5 rounded-lg bg-emerald-500 hover:bg-emerald-400 text-black font-bold text-sm inline-flex items-center justify-center gap-2"
+          className="mt-4 w-full py-2.5 rounded-[10px] bg-emerald-500 hover:bg-emerald-400 text-black font-bold text-sm inline-flex items-center justify-center gap-2"
         >
           {course.isFree ? "Start learning" : "View course"} <ArrowRight className="w-4 h-4" />
         </button>
@@ -863,14 +863,14 @@ const CourseDetail = ({
       <div className="flex items-center gap-2 mb-4 flex-wrap">
         <button
           onClick={onBack}
-          className={`inline-flex items-center gap-2 text-sm rounded-lg px-3 py-1.5 border ${!isAppShell ? "text-slate-600 bg-white border-slate-200 hover:text-slate-900" : "text-slate-300 hover:text-white bg-[#1E1E24] border-white/10 md:text-slate-600 md:hover:text-slate-900 md:bg-white md:border-slate-200"}`}
+          className={`inline-flex items-center gap-2 text-sm rounded-[10px] px-3 py-1.5 border ${!isAppShell ? "text-slate-600 bg-white border-slate-200 hover:text-slate-900" : "text-slate-300 hover:text-white bg-[#1E1E24] border-white/10 md:text-slate-600 md:hover:text-slate-900 md:bg-white md:border-slate-200"}`}
         >
           <ArrowLeft className="w-4 h-4" /> Catalog
         </button>
         {isOwner && (
           <button
             onClick={() => onEdit(course.id)}
-            className="ml-auto inline-flex items-center gap-2 text-sm text-emerald-300 hover:text-emerald-200 bg-emerald-500/10 border border-emerald-500/30 rounded-lg px-3 py-1.5"
+            className="ml-auto inline-flex items-center gap-2 text-sm text-emerald-300 hover:text-emerald-200 bg-emerald-500/10 border border-emerald-500/30 rounded-[10px] px-3 py-1.5"
           >
             <Edit3 className="w-4 h-4" /> Edit course
           </button>
@@ -930,7 +930,7 @@ const CourseDetail = ({
               )}
 
               {activeModule && (
-                <div className={`mt-6 p-4 rounded-lg border ${!isAppShell ? "bg-slate-50 border-slate-200" : "bg-[#121214] border-white/10 md:bg-slate-50 md:border-slate-200"}`}>
+                <div className={`mt-6 p-4 rounded-[10px] border ${!isAppShell ? "bg-slate-50 border-slate-200" : "bg-[#121214] border-white/10 md:bg-slate-50 md:border-slate-200"}`}>
                   <div className={`text-[11px] font-bold uppercase tracking-wider mb-1 ${!isAppShell ? "text-emerald-600" : "text-emerald-300 md:text-emerald-600"}`}>
                     Module {activeIdx + 1} of {totalModules}
                   </div>
@@ -944,7 +944,7 @@ const CourseDetail = ({
                     <button
                       onClick={toggleComplete}
                       disabled={busy}
-                      className={`mt-3 inline-flex items-center gap-2 px-4 py-2 rounded-lg text-sm font-bold ${
+                      className={`mt-3 inline-flex items-center gap-2 px-4 py-3 rounded-[10px] text-sm font-bold ${
                         isDone
                           ? "bg-emerald-500/10 border border-emerald-500/40 text-emerald-300"
                           : "bg-emerald-500 hover:bg-emerald-400 text-black"
@@ -964,7 +964,7 @@ const CourseDetail = ({
               )}
 
               {isComplete && (
-                <div className="mt-4 p-4 rounded-lg bg-emerald-500/10 border border-emerald-500/40 flex items-start gap-3">
+                <div className="mt-4 p-4 rounded-[10px] bg-emerald-500/10 border border-emerald-500/40 flex items-start gap-3">
                   <Award className="w-6 h-6 text-emerald-300 shrink-0 mt-0.5" />
                   <div>
                     <div className="text-emerald-200 font-bold">Course complete! 🎉</div>
@@ -983,7 +983,7 @@ const CourseDetail = ({
             <button
               onClick={doEnroll}
               disabled={busy}
-              className="w-full py-3 rounded-lg bg-emerald-500 hover:bg-emerald-400 text-black font-bold text-sm inline-flex items-center justify-center gap-2"
+              className="w-full py-3 rounded-[10px] bg-emerald-500 hover:bg-emerald-400 text-black font-bold text-sm inline-flex items-center justify-center gap-2"
             >
               {busy && <Loader2 className="w-4 h-4 animate-spin" />}
               {course.isFree
@@ -993,7 +993,7 @@ const CourseDetail = ({
           )}
 
           {enrollment && (
-            <div className={`p-4 rounded-lg border ${!isAppShell ? "bg-white border-slate-200 shadow-sm" : "bg-[#1E1E24] border-white/10 md:bg-white md:border-slate-200 md:shadow-sm"}`}>
+            <div className={`p-4 rounded-[10px] border ${!isAppShell ? "bg-white border-slate-200 shadow-sm" : "bg-[#1E1E24] border-white/10 md:bg-white md:border-slate-200 md:shadow-sm"}`}>
               <div className="flex items-center justify-between mb-2">
                 <span className={`text-xs font-bold uppercase tracking-wider ${!isAppShell ? "text-slate-500" : "text-slate-400 md:text-slate-500"}`}>
                   Your Progress
@@ -1097,7 +1097,7 @@ function AcademyHero({ isAppShell }: { isAppShell: boolean }) {
         {/* Banner Card */}
         <div className="relative overflow-hidden rounded-2xl aspect-[21/9] md:aspect-[21/7] bg-[#1A1A1C] border border-white/5 shadow-2xl">
           <div className="absolute inset-0 bg-gradient-to-r from-black/80 to-transparent z-10" />
-          <img 
+          <img loading="lazy" decoding="async" 
             src="https://images.unsplash.com/photo-1516321318423-f06f85e504b3?auto=format&fit=crop&w=600&q=80" 
             className="absolute inset-0 w-full h-full object-cover opacity-60" 
             alt="Digital Skills"
@@ -1194,7 +1194,7 @@ function AcademyHero({ isAppShell }: { isAppShell: boolean }) {
 function SlimValueCard({ Icon, title, img }: { Icon: any; title: string; img: string }) {
   return (
     <div className="shrink-0 w-40 md:w-full h-24 relative rounded-xl overflow-hidden border border-white/5 md:border-slate-200 shadow-lg group">
-      <img src={img} className="absolute inset-0 w-full h-full object-cover group-hover:scale-110 transition-transform duration-500" alt={title} />
+      <img loading="lazy" decoding="async" src={img} className="absolute inset-0 w-full h-full object-cover group-hover:scale-110 transition-transform duration-500" alt={title} />
       <div className="absolute inset-0 bg-black/60 backdrop-blur-[1px]" />
       <div className="absolute inset-0 p-3 flex flex-col justify-between">
         <Icon className="w-4 h-4 text-pink-500" />
@@ -1229,7 +1229,7 @@ function ValueCard({
 }) {
   return (
     <div className={`p-4 rounded-xl border transition-all ${!isAppShell ? "bg-white border-slate-200 shadow-sm hover:shadow-md" : "bg-white/5 border-white/10 md:bg-white md:border-slate-200 md:shadow-sm md:hover:shadow-md"} flex gap-4`}>
-      <div className={`w-11 h-11 shrink-0 rounded-lg border flex items-center justify-center ${!isAppShell ? "bg-emerald-50 border-emerald-100" : "bg-white/5 border-white/10 md:bg-emerald-50 md:border-emerald-100"}`}>
+      <div className={`w-11 h-11 shrink-0 rounded-[10px] border flex items-center justify-center ${!isAppShell ? "bg-emerald-50 border-emerald-100" : "bg-white/5 border-white/10 md:bg-emerald-50 md:border-emerald-100"}`}>
         <Icon className={`w-5 h-5 ${!isAppShell ? "text-emerald-600" : "text-white md:text-emerald-600"}`} />
       </div>
       <div className="min-w-0">

@@ -63,7 +63,7 @@ export function ReactionGlyph({
               ? "reaction-crown-float"
               : "reaction-thumb-down-bob";
     return (
-      <img
+      <img loading="lazy" decoding="async"
         src={imageUrl}
         alt=""
         aria-hidden
@@ -101,7 +101,7 @@ export function ReactionButton({
   const isImg = isImageReaction(reaction);
   const dims =
     size === "xs"
-      ? "w-6 h-6 rounded-md"
+      ? "w-6 h-6 rounded-[10px]"
       : size === "sm"
         ? "w-8 h-8 rounded-full"
         : size === "lg"
@@ -152,7 +152,7 @@ export function ReactionPicker({
   return (
     <div
       ref={ref}
-      className={`absolute bottom-full ${alignCls} mb-3 z-30 flex items-center gap-2 rounded-full bg-[#141418] md:bg-white border border-white/10 md:border-slate-200 px-2.5 py-2 shadow-xl shadow-black/60 animate-in fade-in slide-in-from-bottom-2 duration-150`}
+      className={`absolute bottom-full ${alignCls} mb-3 z-30 flex items-center gap-2 rounded-full bg-[#141418] md:bg-white border border-white/10 md:border-slate-200 px-2.5 py-3 shadow-xl shadow-black/60 animate-in fade-in slide-in-from-bottom-2 duration-150`}
     >
       {REACTION_ORDER.map((r) => (
         <ReactionButton

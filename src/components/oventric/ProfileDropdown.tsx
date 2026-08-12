@@ -417,7 +417,7 @@ export function ProfileDropdown() {
             aria-label="Wallet balance"
           >
             <div
-              className="rounded-lg px-2 py-2 text-center bg-emerald-500/15 border border-emerald-400/60 shadow-sm"
+              className="rounded-[10px] px-2 py-3 text-center bg-emerald-500/15 border border-emerald-400/60 shadow-sm"
               title={`${baseCurrency} is your locked base currency (from your country)`}
             >
               <div className="text-[9px] font-bold uppercase tracking-widest text-emerald-300">
@@ -433,7 +433,7 @@ export function ProfileDropdown() {
             </div>
             {showUsdTile && (
               <div
-                className="rounded-lg px-2 py-2 text-center bg-[#121214] border border-white/5"
+                className="rounded-[10px] px-2 py-3 text-center bg-[#121214] border border-white/5"
                 title="USD equivalent — display only, not withdrawable"
               >
                 <div className="text-[9px] font-bold uppercase tracking-widest text-slate-400">
@@ -461,7 +461,7 @@ export function ProfileDropdown() {
         role="menuitem"
         tabIndex={-1}
         onClick={() => closeMenu(false)}
-        className="flex items-center gap-3 px-2 py-2 rounded-lg text-sm text-slate-200 hover:bg-white/5 hover:text-white transition-colors focus:outline-none focus-visible:ring-2 focus-visible:ring-emerald-400/70 focus:bg-white/5 focus:text-white"
+        className="flex items-center gap-3 px-2 py-3 rounded-[10px] text-sm text-slate-200 hover:bg-white/5 hover:text-white transition-colors focus:outline-none focus-visible:ring-2 focus-visible:ring-emerald-400/70 focus:bg-white/5 focus:text-white"
       >
         <UserCircle2 className="w-4 h-4 text-emerald-300 shrink-0" aria-hidden />
         <div className="min-w-0">
@@ -476,7 +476,7 @@ export function ProfileDropdown() {
         role="menuitem"
         tabIndex={-1}
         onClick={openSettings}
-        className="w-full flex items-center gap-3 px-2 py-2 rounded-lg text-sm text-slate-200 hover:bg-white/5 hover:text-white transition-colors text-left focus:outline-none focus-visible:ring-2 focus-visible:ring-sky-400/70 focus:bg-white/5 focus:text-white"
+        className="w-full flex items-center gap-3 px-2 py-3 rounded-[10px] text-sm text-slate-200 hover:bg-white/5 hover:text-white transition-colors text-left focus:outline-none focus-visible:ring-2 focus-visible:ring-sky-400/70 focus:bg-white/5 focus:text-white"
       >
         <Settings className="w-4 h-4 text-sky-300 shrink-0" aria-hidden />
         <div className="min-w-0">
@@ -494,7 +494,7 @@ export function ProfileDropdown() {
           closeMenu(false);
           navigate({ to: "/dashboard" });
         }}
-        className="w-full flex items-center gap-3 px-2 py-2 rounded-lg text-sm text-slate-200 hover:bg-white/5 hover:text-white transition-colors text-left focus:outline-none focus-visible:ring-2 focus-visible:ring-emerald-400/70 focus:bg-white/5 focus:text-white"
+        className="w-full flex items-center gap-3 px-2 py-3 rounded-[10px] text-sm text-slate-200 hover:bg-white/5 hover:text-white transition-colors text-left focus:outline-none focus-visible:ring-2 focus-visible:ring-emerald-400/70 focus:bg-white/5 focus:text-white"
       >
         <LayoutDashboard className="w-4 h-4 text-sky-300 shrink-0" aria-hidden />
         <div className="min-w-0">
@@ -513,7 +513,7 @@ export function ProfileDropdown() {
       role="menuitem"
       tabIndex={-1}
       onClick={onSignOut}
-      className="w-full flex items-center gap-3 px-2 py-2 rounded-lg text-sm font-bold text-red-300 bg-red-500/5 border border-red-500/20 hover:bg-red-500/15 hover:border-red-500/40 transition-colors focus:outline-none focus-visible:ring-2 focus-visible:ring-red-400/70"
+      className="w-full flex items-center gap-3 px-2 py-3 rounded-[10px] text-sm font-bold text-red-300 bg-red-500/5 border border-red-500/20 hover:bg-red-500/15 hover:border-red-500/40 transition-colors focus:outline-none focus-visible:ring-2 focus-visible:ring-red-400/70"
     >
       <LogOut className="w-4 h-4 shrink-0" aria-hidden />
       Exit Platform / Sign Out
@@ -960,7 +960,7 @@ function ProfileSettingsModal({
             </div>
           )}
           {loadError && !loading && (
-            <div className="rounded-lg border border-red-500/40 bg-red-500/10 p-3 text-[11px] text-red-300">
+            <div className="rounded-[10px] border border-red-500/40 bg-red-500/10 p-3 text-[11px] text-red-300">
               {loadError}
             </div>
           )}
@@ -983,7 +983,7 @@ function ProfileSettingsModal({
                   )}
                 </div>
                 <label className="flex-1 cursor-pointer">
-                  <div className="rounded-lg border border-dashed border-white/15 hover:border-emerald-500/50 bg-[#121214] px-3 py-3 text-center transition-colors focus-within:border-emerald-400 focus-within:ring-2 focus-within:ring-emerald-400/70 focus-within:ring-offset-2 focus-within:ring-offset-[#1A1A1E]">
+                  <div className="rounded-[10px] border border-dashed border-white/15 hover:border-emerald-500/50 bg-[#121214] px-3 py-3 text-center transition-colors focus-within:border-emerald-400 focus-within:ring-2 focus-within:ring-emerald-400/70 focus-within:ring-offset-2 focus-within:ring-offset-[#1A1A1E]">
                     <Upload className="w-4 h-4 text-slate-400 mx-auto mb-1" aria-hidden />
                     <div className="text-[11px] font-semibold text-slate-300">Upload avatar</div>
                     <div className="text-[10px] text-slate-500">PNG · JPG · WebP · max 2MB</div>
@@ -1008,7 +1008,7 @@ function ProfileSettingsModal({
                 </label>
                 <input
                   id={`${titleId}-name`}
-                  className={`w-full bg-[#121214] border rounded-lg px-3 py-2 text-sm text-white focus:outline-none focus-visible:ring-2 focus-visible:ring-emerald-400/70 focus-visible:ring-offset-2 focus-visible:ring-offset-[#1A1A1E] ${
+                  className={`w-full bg-[#121214] border rounded-[10px] px-3 py-3 text-sm text-white focus:outline-none focus-visible:ring-2 focus-visible:ring-emerald-400/70 focus-visible:ring-offset-2 focus-visible:ring-offset-[#1A1A1E] ${
                     errors.displayName
                       ? "border-red-500/60"
                       : "border-white/10 focus:border-emerald-500/60"
@@ -1049,7 +1049,7 @@ function ProfileSettingsModal({
                   </span>
                   <input
                     id={`${titleId}-username`}
-                    className={`w-full bg-[#121214] border rounded-lg pl-7 pr-3 py-2 text-sm text-white focus:outline-none focus-visible:ring-2 focus-visible:ring-emerald-400/70 focus-visible:ring-offset-2 focus-visible:ring-offset-[#1A1A1E] ${
+                    className={`w-full bg-[#121214] border rounded-[10px] pl-7 pr-3 py-3 text-sm text-white focus:outline-none focus-visible:ring-2 focus-visible:ring-emerald-400/70 focus-visible:ring-offset-2 focus-visible:ring-offset-[#1A1A1E] ${
                       errors.username
                         ? "border-red-500/60"
                         : "border-white/10 focus:border-emerald-500/60"
@@ -1095,7 +1095,7 @@ function ProfileSettingsModal({
                 <textarea
                   id={`${titleId}-bio`}
                   rows={3}
-                  className={`w-full bg-[#121214] border rounded-lg px-3 py-2 text-sm text-white focus:outline-none focus-visible:ring-2 focus-visible:ring-emerald-400/70 focus-visible:ring-offset-2 focus-visible:ring-offset-[#1A1A1E] ${
+                  className={`w-full bg-[#121214] border rounded-[10px] px-3 py-3 text-sm text-white focus:outline-none focus-visible:ring-2 focus-visible:ring-emerald-400/70 focus-visible:ring-offset-2 focus-visible:ring-offset-[#1A1A1E] ${
                     errors.bio ? "border-red-500/60" : "border-white/10 focus:border-emerald-500/60"
                   }`}
                   value={bio}
@@ -1137,7 +1137,7 @@ function ProfileSettingsModal({
                     id={`${titleId}-phone`}
                     inputMode="tel"
                     autoComplete="tel"
-                    className={`w-full bg-[#121214] border rounded-lg px-3 py-2 text-sm text-white focus:outline-none focus-visible:ring-2 focus-visible:ring-emerald-400/70 ${
+                    className={`w-full bg-[#121214] border rounded-[10px] px-3 py-3 text-sm text-white focus:outline-none focus-visible:ring-2 focus-visible:ring-emerald-400/70 ${
                       errors.phone
                         ? "border-red-500/60"
                         : "border-white/10 focus:border-emerald-500/60"
@@ -1192,7 +1192,7 @@ function ProfileSettingsModal({
                             }
                             setErrors((p) => ({ ...p, country: "" }));
                           }}
-                          className={`w-full bg-[#121214] border rounded-lg px-3 py-2 text-sm text-white focus:outline-none focus-visible:ring-2 focus-visible:ring-emerald-400/70 ${
+                          className={`w-full bg-[#121214] border rounded-[10px] px-3 py-3 text-sm text-white focus:outline-none focus-visible:ring-2 focus-visible:ring-emerald-400/70 ${
                             errors.country
                               ? "border-red-500/60"
                               : "border-white/10 focus:border-emerald-500/60"
@@ -1210,7 +1210,7 @@ function ProfileSettingsModal({
                         </select>
                         {!locked && countryOther && (
                           <input
-                            className="mt-2 w-full bg-[#121214] border border-white/10 focus:border-emerald-500/60 rounded-lg px-3 py-2 text-sm text-white"
+                            className="mt-2 w-full bg-[#121214] border border-white/10 focus:border-emerald-500/60 rounded-[10px] px-3 py-3 text-sm text-white"
                             placeholder="Type your country"
                             maxLength={60}
                             autoFocus
@@ -1252,7 +1252,7 @@ function ProfileSettingsModal({
                 <input
                   id={`${titleId}-address`}
                   autoComplete="street-address"
-                  className={`w-full bg-[#121214] border rounded-lg px-3 py-2 text-sm text-white focus:outline-none focus-visible:ring-2 focus-visible:ring-emerald-400/70 ${
+                  className={`w-full bg-[#121214] border rounded-[10px] px-3 py-3 text-sm text-white focus:outline-none focus-visible:ring-2 focus-visible:ring-emerald-400/70 ${
                     errors.address
                       ? "border-red-500/60"
                       : "border-white/10 focus:border-emerald-500/60"
@@ -1290,7 +1290,7 @@ function ProfileSettingsModal({
                   id={`${titleId}-dob`}
                   type="date"
                   autoComplete="bday"
-                  className="w-full bg-[#121214] border border-white/10 focus:border-emerald-500/60 rounded-lg px-3 py-2 text-sm text-white focus:outline-none focus-visible:ring-2 focus-visible:ring-emerald-400/70"
+                  className="w-full bg-[#121214] border border-white/10 focus:border-emerald-500/60 rounded-[10px] px-3 py-3 text-sm text-white focus:outline-none focus-visible:ring-2 focus-visible:ring-emerald-400/70"
                   value={dateOfBirth}
                   onChange={(e) => setDateOfBirth(e.target.value)}
                 />
@@ -1302,7 +1302,7 @@ function ProfileSettingsModal({
               </div>
 
               {/* Notification preferences */}
-              <div className="rounded-lg border border-white/10 bg-[#121214] p-3 space-y-2">
+              <div className="rounded-[10px] border border-white/10 bg-[#121214] p-3 space-y-2">
                 <div className="text-xs font-bold text-white uppercase tracking-widest">
                   Notifications
                 </div>
@@ -1354,7 +1354,7 @@ function ProfileSettingsModal({
 
               {/* Account & security */}
 
-              <div className="rounded-lg border border-white/10 bg-[#121214] p-3 space-y-3">
+              <div className="rounded-[10px] border border-white/10 bg-[#121214] p-3 space-y-3">
                 <div className="flex items-center justify-between gap-2">
                   <div>
                     <div className="text-xs font-bold text-white">Account email</div>
@@ -1375,7 +1375,7 @@ function ProfileSettingsModal({
                     <button
                       type="button"
                       onClick={() => setPwOpen((v) => !v)}
-                      className="text-[11px] font-bold px-3 py-1.5 rounded-lg border border-white/10 bg-[#1E1E24] text-slate-300 hover:border-emerald-500/40 hover:text-emerald-300 focus:outline-none focus-visible:ring-2 focus-visible:ring-emerald-400/70"
+                      className="text-[11px] font-bold px-3 py-1.5 rounded-[10px] border border-white/10 bg-[#1E1E24] text-slate-300 hover:border-emerald-500/40 hover:text-emerald-300 focus:outline-none focus-visible:ring-2 focus-visible:ring-emerald-400/70"
                       aria-expanded={pwOpen}
                     >
                       {pwOpen ? "Cancel" : "Change"}
@@ -1390,7 +1390,7 @@ function ProfileSettingsModal({
                           placeholder="Current password (leave blank if none)"
                           value={pwCurrent}
                           onChange={(e) => setPwCurrent(e.target.value)}
-                          className="w-full bg-[#0F0F12] border border-white/10 rounded-lg px-3 py-2 pr-10 text-sm text-white focus:outline-none focus:border-emerald-500/60"
+                          className="w-full bg-[#0F0F12] border border-white/10 rounded-[10px] px-3 py-3 pr-10 text-sm text-white focus:outline-none focus:border-emerald-500/60"
                         />
                         <button
                           type="button"
@@ -1407,7 +1407,7 @@ function ProfileSettingsModal({
                         placeholder="New password (min 8 chars)"
                         value={pwNext}
                         onChange={(e) => setPwNext(e.target.value)}
-                        className="w-full bg-[#0F0F12] border border-white/10 rounded-lg px-3 py-2 text-sm text-white focus:outline-none focus:border-emerald-500/60"
+                        className="w-full bg-[#0F0F12] border border-white/10 rounded-[10px] px-3 py-3 text-sm text-white focus:outline-none focus:border-emerald-500/60"
                       />
                       <input
                         type={pwShow ? "text" : "password"}
@@ -1415,13 +1415,13 @@ function ProfileSettingsModal({
                         placeholder="Confirm new password"
                         value={pwConfirm}
                         onChange={(e) => setPwConfirm(e.target.value)}
-                        className="w-full bg-[#0F0F12] border border-white/10 rounded-lg px-3 py-2 text-sm text-white focus:outline-none focus:border-emerald-500/60"
+                        className="w-full bg-[#0F0F12] border border-white/10 rounded-[10px] px-3 py-3 text-sm text-white focus:outline-none focus:border-emerald-500/60"
                       />
                       <button
                         type="button"
                         onClick={onChangePassword}
                         disabled={pwSaving || !pwNext || !pwConfirm}
-                        className="w-full text-xs font-black py-2 rounded-lg bg-emerald-500 hover:bg-emerald-400 text-black disabled:opacity-60"
+                        className="w-full text-xs font-black py-3 rounded-[10px] bg-emerald-500 hover:bg-emerald-400 text-black disabled:opacity-60"
                       >
                         {pwSaving ? "Updating…" : "Update password"}
                       </button>
@@ -1431,7 +1431,7 @@ function ProfileSettingsModal({
               </div>
 
               {/* Live KYC status */}
-              <div className="rounded-lg border border-white/10 bg-[#121214] p-3">
+              <div className="rounded-[10px] border border-white/10 bg-[#121214] p-3">
                 <div className="flex items-center justify-between gap-2 mb-2">
                   <div className="flex items-center gap-2">
                     <ShieldCheck
@@ -1496,7 +1496,7 @@ function ProfileSettingsModal({
                       toast.success("Verification updated");
                     });
                   }}
-                  className="w-full text-xs font-bold py-2 rounded-lg bg-[#1E1E24] border border-white/10 text-slate-300 hover:border-emerald-500/40 hover:text-emerald-300 transition-colors focus:outline-none focus-visible:ring-2 focus-visible:ring-emerald-400/70"
+                  className="w-full text-xs font-bold py-3 rounded-[10px] bg-[#1E1E24] border border-white/10 text-slate-300 hover:border-emerald-500/40 hover:text-emerald-300 transition-colors focus:outline-none focus-visible:ring-2 focus-visible:ring-emerald-400/70"
                 >
                   {full?.kycCompletedAt
                     ? "Re-run liveness check →"
@@ -1505,7 +1505,7 @@ function ProfileSettingsModal({
               </div>
 
               {/* Danger zone */}
-              <div className="rounded-lg border border-red-500/30 bg-red-500/5 p-3">
+              <div className="rounded-[10px] border border-red-500/30 bg-red-500/5 p-3">
                 <div className="flex items-center justify-between gap-2">
                   <div>
                     <div className="text-xs font-bold text-red-300 uppercase tracking-widest">
@@ -1518,7 +1518,7 @@ function ProfileSettingsModal({
                   <button
                     type="button"
                     onClick={() => setDangerOpen((v) => !v)}
-                    className="text-[11px] font-bold px-3 py-1.5 rounded-lg border border-red-500/40 bg-red-500/10 text-red-300 hover:bg-red-500/20 focus:outline-none focus-visible:ring-2 focus-visible:ring-red-400/70"
+                    className="text-[11px] font-bold px-3 py-1.5 rounded-[10px] border border-red-500/40 bg-red-500/10 text-red-300 hover:bg-red-500/20 focus:outline-none focus-visible:ring-2 focus-visible:ring-red-400/70"
                     aria-expanded={dangerOpen}
                   >
                     {dangerOpen ? "Cancel" : "Delete account"}
@@ -1544,13 +1544,13 @@ function ProfileSettingsModal({
                       value={deleteConfirmEmail}
                       onChange={(e) => setDeleteConfirmEmail(e.target.value)}
                       placeholder={full?.email ?? ""}
-                      className="w-full bg-[#0F0F12] border border-red-500/30 rounded-lg px-3 py-2 text-sm text-white focus:outline-none focus:border-red-500/70"
+                      className="w-full bg-[#0F0F12] border border-red-500/30 rounded-[10px] px-3 py-3 text-sm text-white focus:outline-none focus:border-red-500/70"
                     />
                     <button
                       type="button"
                       onClick={onDeleteAccount}
                       disabled={deleting || !deleteConfirmEmail}
-                      className="w-full text-xs font-black py-2 rounded-lg bg-red-600 hover:bg-red-500 text-white disabled:opacity-60"
+                      className="w-full text-xs font-black py-3 rounded-[10px] bg-red-600 hover:bg-red-500 text-white disabled:opacity-60"
                     >
                       {deleting ? "Deleting…" : "Permanently delete my account"}
                     </button>
@@ -1566,7 +1566,7 @@ function ProfileSettingsModal({
             type="button"
             onClick={onClose}
             disabled={saving}
-            className="px-4 py-2 rounded-lg bg-[#121214] border border-white/10 text-slate-300 text-xs font-bold disabled:opacity-50 focus:outline-none focus-visible:ring-2 focus-visible:ring-slate-300/70"
+            className="px-4 py-3 rounded-[10px] bg-[#121214] border border-white/10 text-slate-300 text-xs font-bold disabled:opacity-50 focus:outline-none focus-visible:ring-2 focus-visible:ring-slate-300/70"
           >
             Cancel
           </button>
@@ -1574,7 +1574,7 @@ function ProfileSettingsModal({
             type="button"
             onClick={onSubmit as unknown as () => void}
             disabled={saving || loading}
-            className="px-4 py-2 rounded-lg bg-emerald-500 hover:bg-emerald-400 text-black text-xs font-black disabled:opacity-70 focus:outline-none focus-visible:ring-2 focus-visible:ring-emerald-300"
+            className="px-4 py-3 rounded-[10px] bg-emerald-500 hover:bg-emerald-400 text-black text-xs font-black disabled:opacity-70 focus:outline-none focus-visible:ring-2 focus-visible:ring-emerald-300"
           >
             {saving ? "Saving…" : "Save Changes"}
           </button>

@@ -16,7 +16,7 @@ export const Route = createFileRoute("/admin/disputes")({
     <div className="p-6 text-red-300">
       <div className="font-bold mb-2">Dispute queue error</div>
       <div className="text-sm text-red-200/80 mb-3">{error.message}</div>
-      <button onClick={reset} className="px-3 py-1.5 rounded-lg border border-red-500/40 text-sm">
+      <button onClick={reset} className="px-3 py-1.5 rounded-[10px] border border-red-500/40 text-sm">
         Retry
       </button>
     </div>
@@ -61,7 +61,7 @@ function AdminDisputesPage() {
           </h1>
           <p className="text-xs text-slate-500">Mediate buyer/seller escrow conflicts.</p>
         </div>
-        <div className="flex gap-1 rounded-md border border-white/10 p-1 bg-[#1E1E24]">
+        <div className="flex gap-1 rounded-[10px] border border-white/10 p-1 bg-[#1E1E24]">
           {(["open", "all"] as const).map((f) => (
             <button
               key={f}
@@ -82,14 +82,14 @@ function AdminDisputesPage() {
         </div>
       )}
       {!q.isLoading && rows.length === 0 && (
-        <div className="rounded-lg border border-white/10 bg-[#1E1E24] p-6 text-sm text-slate-400">
+        <div className="rounded-[10px] border border-white/10 bg-[#1E1E24] p-6 text-sm text-slate-400">
           No disputes here.
         </div>
       )}
 
       <div className="space-y-3">
         {rows.map((d) => (
-          <div key={d.id} className="rounded-lg border border-white/10 bg-[#1E1E24] p-4">
+          <div key={d.id} className="rounded-[10px] border border-white/10 bg-[#1E1E24] p-4">
             <div className="flex items-start justify-between gap-3 mb-2">
               <div className="min-w-0">
                 <div className="text-white font-bold text-sm truncate">{d.productName}</div>
@@ -130,13 +130,13 @@ function AdminDisputesPage() {
                   onChange={(e) => setNotes((n) => ({ ...n, [d.id]: e.target.value }))}
                   rows={2}
                   placeholder="Resolution note sent to both parties"
-                  className="w-full mb-2 rounded-md bg-[#121214] border border-white/10 px-3 py-2 text-xs text-white placeholder:text-slate-600"
+                  className="w-full mb-2 rounded-[10px] bg-[#121214] border border-white/10 px-3 py-2 text-xs text-white placeholder:text-slate-600"
                 />
                 <div className="flex flex-wrap gap-2">
                   <button
                     onClick={() => act(d, "release_seller")}
                     disabled={busy === d.id}
-                    className="inline-flex items-center gap-2 px-3 py-2 rounded-md text-xs font-bold text-black disabled:opacity-60"
+                    className="inline-flex items-center gap-2 px-3 py-2 rounded-[10px] text-xs font-bold text-black disabled:opacity-60"
                     style={{ backgroundColor: "#3b82f6" }}
                   >
                     <CheckCircle2 className="w-3.5 h-3.5" /> Release to seller
@@ -144,7 +144,7 @@ function AdminDisputesPage() {
                   <button
                     onClick={() => act(d, "refund_buyer")}
                     disabled={busy === d.id}
-                    className="inline-flex items-center gap-2 px-3 py-2 rounded-md text-xs font-bold text-white disabled:opacity-60"
+                    className="inline-flex items-center gap-2 px-3 py-2 rounded-[10px] text-xs font-bold text-white disabled:opacity-60"
                     style={{ backgroundColor: "#dc2626" }}
                   >
                     <Undo2 className="w-3.5 h-3.5" /> Refund buyer
@@ -152,7 +152,7 @@ function AdminDisputesPage() {
                   <button
                     onClick={() => act(d, "dismiss")}
                     disabled={busy === d.id}
-                    className="inline-flex items-center gap-2 px-3 py-2 rounded-md text-xs font-semibold text-slate-300 bg-[#2A2A31] border border-white/10 disabled:opacity-60"
+                    className="inline-flex items-center gap-2 px-3 py-2 rounded-[10px] text-xs font-semibold text-slate-300 bg-[#2A2A31] border border-white/10 disabled:opacity-60"
                   >
                     <XCircle className="w-3.5 h-3.5" /> Dismiss
                   </button>

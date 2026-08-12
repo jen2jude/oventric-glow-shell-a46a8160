@@ -58,7 +58,7 @@ export function SellSwitcherModal({ open, onClose }: { open: boolean; onClose: (
           </h2>
           <button
             onClick={onClose}
-            className="p-2 rounded-lg hover:bg-white/5 text-slate-400 hover:text-white"
+            className="p-2 rounded-[10px] hover:bg-white/5 text-slate-400 hover:text-white"
             aria-label="Close"
           >
             <X className="w-5 h-5" />
@@ -70,7 +70,7 @@ export function SellSwitcherModal({ open, onClose }: { open: boolean; onClose: (
             onClick={() => setMode("digital")}
             className="group text-left p-5 bg-[#121214] border border-white/10 rounded-xl hover:border-emerald-500/60 transition-all"
           >
-            <div className="w-11 h-11 rounded-lg bg-emerald-500/10 border border-emerald-500/30 flex items-center justify-center mb-3 group-hover:bg-emerald-500/20">
+            <div className="w-11 h-11 rounded-[10px] bg-emerald-500/10 border border-emerald-500/30 flex items-center justify-center mb-3 group-hover:bg-emerald-500/20">
               <Cpu className="w-5 h-5 text-emerald-400" />
             </div>
             <div className="font-semibold text-white">Digital Assets</div>
@@ -82,7 +82,7 @@ export function SellSwitcherModal({ open, onClose }: { open: boolean; onClose: (
             onClick={() => setMode("physical")}
             className="group text-left p-5 bg-[#121214] border border-white/10 rounded-xl hover:border-emerald-500/60 transition-all"
           >
-            <div className="w-11 h-11 rounded-lg bg-sky-500/10 border border-sky-500/30 flex items-center justify-center mb-3 group-hover:bg-sky-500/20">
+            <div className="w-11 h-11 rounded-[10px] bg-sky-500/10 border border-sky-500/30 flex items-center justify-center mb-3 group-hover:bg-sky-500/20">
               <Package className="w-5 h-5 text-sky-400" />
             </div>
             <div className="font-semibold text-white">Physical Goods</div>

@@ -290,7 +290,7 @@ export function DesktopHome({ onSelect, onCreate }: DesktopHomeProps) {
           <button
             type="submit"
             className={`inline-flex items-center bg-emerald-600 font-bold text-white transition-transform active:scale-95 ${
-              compact ? "h-7 rounded-lg px-3 text-xs" : "h-10 rounded-xl px-5 text-sm"
+              compact ? "h-7 rounded-[10px] px-3 text-xs" : "h-10 rounded-xl px-5 text-sm"
             }`}
           >
             Search
@@ -314,9 +314,9 @@ export function DesktopHome({ onSelect, onCreate }: DesktopHomeProps) {
                 }}
                 className="flex w-full items-center gap-3 px-4 py-3 text-left transition-colors hover:bg-slate-50"
               >
-                <span className="h-9 w-9 shrink-0 overflow-hidden rounded-lg bg-slate-100">
+                <span className="h-11 w-11 shrink-0 overflow-hidden rounded-[10px] bg-slate-100">
                   {r.coverUrl && (
-                    <img
+                    <img loading="lazy" decoding="async"
                       src={r.coverUrl}
                       alt=""
                       aria-hidden
@@ -393,7 +393,7 @@ export function DesktopHome({ onSelect, onCreate }: DesktopHomeProps) {
             </div>
 
             {/* Mobile hero visual — hidden to keep the fold tight */}
-            <img
+            <img loading="lazy" decoding="async"
               src={heroCollage.url}
               alt="Oventric members shopping, learning and chatting across the platform"
               className="hidden"
@@ -412,7 +412,7 @@ export function DesktopHome({ onSelect, onCreate }: DesktopHomeProps) {
                 "radial-gradient(closest-side, rgba(59, 130, 246,0.14), transparent 75%), radial-gradient(closest-side at 70% 30%, rgba(99,102,241,0.12), transparent 75%)",
             }}
           />
-          <img
+          <img loading="lazy" decoding="async"
             src={heroCollage.url}
             alt="Oventric members shopping, learning and chatting across the platform"
             className="hp-float w-full select-none object-contain drop-shadow-[0_30px_80px_rgba(15,23,42,0.14)]"
@@ -456,7 +456,7 @@ export function DesktopHome({ onSelect, onCreate }: DesktopHomeProps) {
             },
           ].map((t) => (
             <div key={t.title} className="flex items-start gap-3">
-              <span className="mt-0.5 inline-flex h-9 w-9 shrink-0 items-center justify-center rounded-xl bg-emerald-50 text-emerald-600">
+              <span className="mt-0.5 inline-flex h-11 w-11 shrink-0 items-center justify-center rounded-xl bg-emerald-50 text-emerald-600">
                 <t.Icon className="h-4 w-4" strokeWidth={2.4} />
               </span>
               <div className="min-w-0">
@@ -581,7 +581,7 @@ export function DesktopHome({ onSelect, onCreate }: DesktopHomeProps) {
               <div
                 className={`hp-lift flex h-64 items-center justify-center rounded-3xl border border-slate-200 bg-gradient-to-br ${f.tint} to-transparent`}
               >
-                <img
+                <img loading="lazy" decoding="async"
                   src={f.img}
                   alt=""
                   aria-hidden
@@ -606,7 +606,7 @@ export function DesktopHome({ onSelect, onCreate }: DesktopHomeProps) {
                 delay={i * 110}
                 className="hp-lift rounded-3xl border border-slate-200 bg-white p-7"
               >
-                <span className="inline-flex h-9 w-9 items-center justify-center rounded-full bg-emerald-50 text-sm font-bold text-emerald-600">
+                <span className="inline-flex h-11 w-11 items-center justify-center rounded-full bg-emerald-50 text-sm font-bold text-emerald-600">
                   {i + 1}
                 </span>
                 <h3 className="mt-5 text-lg font-bold text-slate-900">{s.title}</h3>
@@ -795,7 +795,7 @@ function CardGrid({
             <button type="button" onClick={onSeeAll} className="hp-lift group w-full text-left">
               <span className="block h-40 w-full overflow-hidden rounded-2xl border border-slate-200 bg-white">
                 {it.coverUrl ? (
-                  <img
+                  <img loading="lazy" decoding="async"
                     src={it.coverUrl}
                     alt={it.title}
                     className="h-full w-full object-cover transition-transform duration-500 group-hover:scale-105"

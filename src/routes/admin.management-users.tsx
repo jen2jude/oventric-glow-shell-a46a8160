@@ -67,7 +67,7 @@ function ManagementUsersPage() {
         </div>
         <button
           onClick={() => setShowCreate(true)}
-          className="flex items-center gap-2 px-4 py-2.5 bg-emerald-500 hover:bg-emerald-400 text-black text-sm font-bold rounded-lg"
+          className="flex items-center gap-2 px-4 py-2.5 bg-emerald-500 hover:bg-emerald-400 text-black text-sm font-bold rounded-[10px]"
         >
           <UserPlus className="w-4 h-4" /> New management user
         </button>
@@ -187,7 +187,7 @@ function UserRow({
               <button
                 key={r}
                 onClick={() => toggle(r)}
-                className={`px-2 py-1 rounded-md text-[11px] font-semibold border ${
+                className={`px-2 py-1 rounded-[10px] text-[11px] font-semibold border ${
                   active
                     ? "bg-emerald-500/15 text-emerald-300 border-emerald-500/40"
                     : "bg-white/5 text-slate-400 border-white/10 hover:text-white"
@@ -308,7 +308,7 @@ function CreateModal({ onClose, onCreated }: { onClose: () => void; onCreated: (
                       prev.includes(r) ? prev.filter((x) => x !== r) : [...prev, r],
                     )
                   }
-                  className={`px-3 py-1.5 rounded-lg text-xs font-semibold border ${
+                  className={`px-3 py-1.5 rounded-[10px] text-xs font-semibold border ${
                     active
                       ? "bg-emerald-500/15 text-emerald-300 border-emerald-500/40"
                       : "bg-white/5 text-slate-400 border-white/10 hover:text-white"
@@ -324,7 +324,7 @@ function CreateModal({ onClose, onCreated }: { onClose: () => void; onCreated: (
         <button
           type="submit"
           disabled={busy || roles.length === 0}
-          className="mt-2 px-4 py-2.5 bg-emerald-500 hover:bg-emerald-400 disabled:opacity-50 text-black text-sm font-bold rounded-lg"
+          className="mt-2 px-4 py-2.5 bg-emerald-500 hover:bg-emerald-400 disabled:opacity-50 text-black text-sm font-bold rounded-[10px]"
         >
           {busy ? "Creating…" : "Create user"}
         </button>
@@ -387,7 +387,7 @@ function ResetPasswordModal({ user, onClose }: { user: ManagementUserDTO; onClos
         <button
           type="submit"
           disabled={busy || ok}
-          className="mt-2 px-4 py-2.5 bg-emerald-500 hover:bg-emerald-400 disabled:opacity-50 text-black text-sm font-bold rounded-lg"
+          className="mt-2 px-4 py-2.5 bg-emerald-500 hover:bg-emerald-400 disabled:opacity-50 text-black text-sm font-bold rounded-[10px]"
         >
           {busy ? "Updating…" : "Update password"}
         </button>
@@ -397,7 +397,7 @@ function ResetPasswordModal({ user, onClose }: { user: ManagementUserDTO; onClos
 }
 
 const inputCls =
-  "w-full px-3 py-2.5 bg-[#0b0b0d] border border-white/10 rounded-lg text-sm text-white placeholder:text-slate-500 focus:outline-none focus:border-emerald-500/50";
+  "w-full px-3 py-2.5 bg-[#0b0b0d] border border-white/10 rounded-[10px] text-sm text-white placeholder:text-slate-500 focus:outline-none focus:border-emerald-500/50";
 
 function Field({ label, children }: { label: string; children: React.ReactNode }) {
   return (

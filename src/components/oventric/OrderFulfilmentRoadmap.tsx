@@ -110,14 +110,14 @@ export function OrderFulfilmentRoadmap({
 
   if (err) {
     return (
-      <div className="rounded-lg border border-red-500/40 bg-[#1E1E24] md:bg-white p-4 text-sm text-red-300">
+      <div className="rounded-[10px] border border-red-500/40 bg-[#1E1E24] md:bg-white p-4 text-sm text-red-300">
         {err}
       </div>
     );
   }
   if (!data) {
     return (
-      <div className="rounded-lg border border-white/10 md:border-slate-200 bg-[#1E1E24] md:bg-white p-4 text-sm text-slate-400 md:text-slate-500 flex items-center gap-2">
+      <div className="rounded-[10px] border border-white/10 md:border-slate-200 bg-[#1E1E24] md:bg-white p-4 text-sm text-slate-400 md:text-slate-500 flex items-center gap-2">
         <Loader2 className="w-4 h-4 animate-spin" /> Loading fulfilment roadmap…
       </div>
     );
@@ -135,7 +135,7 @@ export function OrderFulfilmentRoadmap({
     data.role === "buyer" && data.disputeStatus === "none" && data.escrowStatus !== "refunded";
 
   return (
-    <div className="rounded-lg border border-white/10 md:border-slate-200 bg-[#1E1E24] md:bg-white p-4">
+    <div className="rounded-[10px] border border-white/10 md:border-slate-200 bg-[#1E1E24] md:bg-white p-4">
       <div className="flex items-start justify-between gap-3 mb-4">
         <div className="min-w-0">
           <h2 className="text-white md:text-slate-900 font-bold text-base">Payment fulfilment</h2>
@@ -174,18 +174,18 @@ export function OrderFulfilmentRoadmap({
       </ol>
 
       {data.escrowStatus === "held" && auto && data.deliveredAt && (
-        <div className="flex items-center gap-2 text-[11px] text-amber-200 bg-amber-500/5 border border-amber-500/30 rounded-md px-3 py-2 mb-3">
+        <div className="flex items-center gap-2 text-[11px] text-amber-200 bg-amber-500/5 border border-amber-500/30 rounded-[10px] px-3 py-3 mb-3">
           <Clock className="w-3.5 h-3.5 shrink-0" />
           Auto-confirms in {auto} if you don't act. Funds then release to the seller.
         </div>
       )}
       {data.role === "seller" && data.deliveredAt && data.escrowStatus === "held" && (
-        <div className="text-[11px] text-slate-400 md:text-slate-500 bg-[#121214] md:bg-slate-50 border border-white/10 md:border-slate-200 rounded-md px-3 py-2 mb-3">
+        <div className="text-[11px] text-slate-400 md:text-slate-500 bg-[#121214] md:bg-slate-50 border border-white/10 md:border-slate-200 rounded-[10px] px-3 py-3 mb-3">
           Waiting for the buyer to confirm receipt{auto ? ` — auto-releases in ${auto}` : ""}.
         </div>
       )}
       {data.dispute && (
-        <div className="rounded-md border border-red-500/40 bg-red-500/5 p-3 mb-3">
+        <div className="rounded-[10px] border border-red-500/40 bg-red-500/5 p-3 mb-3">
           <div className="text-[11px] font-bold uppercase tracking-widest text-red-300 mb-1">
             Dispute · {data.dispute.status}
           </div>
@@ -196,7 +196,7 @@ export function OrderFulfilmentRoadmap({
             <div className="flex gap-2 mt-2 flex-wrap">
               {data.dispute.imageUrls.map((u) => (
                 <a key={u} href={u} target="_blank" rel="noreferrer">
-                  <img
+                  <img loading="lazy" decoding="async"
                     src={u}
                     alt="Dispute evidence"
                     className="w-16 h-16 object-cover rounded border border-white/10 md:border-slate-200"
@@ -211,7 +211,7 @@ export function OrderFulfilmentRoadmap({
         </div>
       )}
 
-      <div className="rounded-md border border-emerald-500/30 bg-emerald-500/5 px-3 py-2 mb-3 text-[11px] text-emerald-100 leading-relaxed">
+      <div className="rounded-[10px] border border-emerald-500/30 bg-emerald-500/5 px-3 py-3 mb-3 text-[11px] text-emerald-100 leading-relaxed">
         <strong className="text-emerald-200">Keep this trade on Oventric.</strong> Payments are held
         in escrow and we can only refund or mediate deals completed in-app. Deliver, chat and
         confirm here — never on WhatsApp or any other app.
@@ -222,7 +222,7 @@ export function OrderFulfilmentRoadmap({
         {canDeliver && (
           <button
             onClick={() => setConfirmModal("deliver")}
-            className="inline-flex items-center gap-2 px-3.5 py-2 rounded-md text-sm font-bold text-black"
+            className="inline-flex items-center gap-2 px-3.5 py-3 rounded-[10px] text-sm font-bold text-black"
             style={{ backgroundColor: "#3b82f6" }}
           >
             <Truck className="w-4 h-4" /> Mark as delivered
@@ -231,7 +231,7 @@ export function OrderFulfilmentRoadmap({
         {canConfirm && (
           <button
             onClick={() => setConfirmModal("receive")}
-            className="inline-flex items-center gap-2 px-3.5 py-2 rounded-md text-sm font-bold text-black"
+            className="inline-flex items-center gap-2 px-3.5 py-3 rounded-[10px] text-sm font-bold text-black"
             style={{ backgroundColor: "#3b82f6" }}
           >
             <CheckCircle2 className="w-4 h-4" /> Confirm I received it
@@ -239,7 +239,7 @@ export function OrderFulfilmentRoadmap({
         )}
         <button
           onClick={contactPeer}
-          className="inline-flex items-center gap-2 px-3.5 py-2 rounded-md text-sm font-semibold text-white md:text-slate-900 bg-[#2A2A31] md:bg-slate-100 border border-white/10 md:border-slate-200"
+          className="inline-flex items-center gap-2 px-3.5 py-3 rounded-[10px] text-sm font-semibold text-white md:text-slate-900 bg-[#2A2A31] md:bg-slate-100 border border-white/10 md:border-slate-200"
         >
           <MessageCircle className="w-4 h-4" />
           {data.role === "seller" ? "Contact buyer" : "Contact seller"}
@@ -247,7 +247,7 @@ export function OrderFulfilmentRoadmap({
         {canDispute && (
           <button
             onClick={() => setShowDispute(true)}
-            className="inline-flex items-center gap-2 px-3.5 py-2 rounded-md text-sm font-semibold text-red-300 bg-[#2A2A31] md:bg-slate-100 border border-red-500/40"
+            className="inline-flex items-center gap-2 px-3.5 py-3 rounded-[10px] text-sm font-semibold text-red-300 bg-[#2A2A31] md:bg-slate-100 border border-red-500/40"
           >
             <ShieldAlert className="w-4 h-4" /> Open dispute
           </button>
@@ -284,7 +284,7 @@ export function OrderFulfilmentRoadmap({
                 rows={3}
                 maxLength={1000}
                 placeholder="Paste the download link, licence key or setup steps here."
-                className="w-full rounded-md bg-[#121214] md:bg-slate-50 border border-white/10 md:border-slate-200 px-3 py-2 text-sm text-white md:text-slate-900 placeholder:text-slate-600"
+                className="w-full rounded-[10px] bg-[#121214] md:bg-slate-50 border border-white/10 md:border-slate-200 px-3 py-3 text-sm text-white md:text-slate-900 placeholder:text-slate-600"
               />
             </label>
           )}
@@ -311,7 +311,7 @@ function StepNode({ step }: { step: FulfilmentStep }) {
   const active = step.state === "active";
   const blocked = step.state === "blocked";
   return (
-    <div className="flex items-center gap-2 min-w-0 flex-1 rounded-md px-2 py-2 bg-[#121214] md:bg-slate-50 border border-white/10 md:border-slate-200">
+    <div className="flex items-center gap-2 min-w-0 flex-1 rounded-[10px] px-2 py-3 bg-[#121214] md:bg-slate-50 border border-white/10 md:border-slate-200">
       <span
         className={`w-6 h-6 rounded-full flex items-center justify-center shrink-0 ${
           done
@@ -371,14 +371,14 @@ function ConfirmModal({
         <div className="flex gap-2 justify-end">
           <button
             onClick={onCancel}
-            className="px-3 py-2 rounded-md text-sm text-slate-300 md:text-slate-600 bg-[#2A2A31] md:bg-slate-100 border border-white/10 md:border-slate-200"
+            className="px-3 py-3 rounded-[10px] text-sm text-slate-300 md:text-slate-600 bg-[#2A2A31] md:bg-slate-100 border border-white/10 md:border-slate-200"
           >
             Cancel
           </button>
           <button
             onClick={onConfirm}
             disabled={busy}
-            className="px-4 py-2 rounded-md text-sm font-bold text-black disabled:opacity-60 inline-flex items-center gap-2"
+            className="px-4 py-3 rounded-[10px] text-sm font-bold text-black disabled:opacity-60 inline-flex items-center gap-2"
             style={{ backgroundColor: "#3b82f6" }}
           >
             {busy && <Loader2 className="w-4 h-4 animate-spin" />} Confirm
@@ -457,7 +457,7 @@ function DisputeModal({
           <button
             onClick={onClose}
             aria-label="Close"
-            className="p-1.5 rounded-md text-slate-400 md:text-slate-500 hover:text-white md:hover:text-slate-900 hover:bg-white/5 md:bg-slate-50 md:hover:bg-slate-100"
+            className="p-1.5 rounded-[10px] text-slate-400 md:text-slate-500 hover:text-white md:hover:text-slate-900 hover:bg-white/5 md:bg-slate-50 md:hover:bg-slate-100"
           >
             <X className="w-4 h-4" />
           </button>
@@ -469,7 +469,7 @@ function DisputeModal({
         <select
           value={reason}
           onChange={(e) => setReason(e.target.value as typeof reason)}
-          className="w-full mb-3 rounded-md bg-[#121214] md:bg-slate-50 border border-white/10 md:border-slate-200 px-3 py-2 text-sm text-white md:text-slate-900"
+          className="w-full mb-3 rounded-[10px] bg-[#121214] md:bg-slate-50 border border-white/10 md:border-slate-200 px-3 py-3 text-sm text-white md:text-slate-900"
         >
           {REASONS.map((r) => (
             <option key={r.value} value={r.value}>
@@ -486,13 +486,13 @@ function DisputeModal({
           onChange={(e) => setDetails(e.target.value)}
           rows={5}
           placeholder="Explain what happened, including dates and what the seller said."
-          className="w-full mb-3 rounded-md bg-[#121214] md:bg-slate-50 border border-white/10 md:border-slate-200 px-3 py-2 text-sm text-white md:text-slate-900 placeholder:text-slate-600"
+          className="w-full mb-3 rounded-[10px] bg-[#121214] md:bg-slate-50 border border-white/10 md:border-slate-200 px-3 py-3 text-sm text-white md:text-slate-900 placeholder:text-slate-600"
         />
 
         <label className="block text-[11px] uppercase tracking-widest text-slate-500 mb-1">
           Evidence (up to 5 images)
         </label>
-        <label className="inline-flex items-center gap-2 px-3 py-2 rounded-md text-sm text-slate-200 md:text-slate-700 bg-[#2A2A31] md:bg-slate-100 border border-white/10 md:border-slate-200 cursor-pointer mb-3">
+        <label className="inline-flex items-center gap-2 px-3 py-3 rounded-[10px] text-sm text-slate-200 md:text-slate-700 bg-[#2A2A31] md:bg-slate-100 border border-white/10 md:border-slate-200 cursor-pointer mb-3">
           <Upload className="w-4 h-4" /> Add screenshots
           <input
             type="file"
@@ -505,7 +505,7 @@ function DisputeModal({
         {previews.length > 0 && (
           <div className="flex flex-wrap gap-2 mb-3">
             {previews.map((u) => (
-              <img
+              <img loading="lazy" decoding="async"
                 key={u}
                 src={u}
                 alt="Evidence preview"
@@ -518,14 +518,14 @@ function DisputeModal({
         <div className="flex justify-end gap-2">
           <button
             onClick={onClose}
-            className="px-3 py-2 rounded-md text-sm text-slate-300 md:text-slate-600 bg-[#2A2A31] md:bg-slate-100 border border-white/10 md:border-slate-200"
+            className="px-3 py-3 rounded-[10px] text-sm text-slate-300 md:text-slate-600 bg-[#2A2A31] md:bg-slate-100 border border-white/10 md:border-slate-200"
           >
             Cancel
           </button>
           <button
             onClick={submit}
             disabled={busy}
-            className="px-4 py-2 rounded-md text-sm font-bold text-white md:text-slate-900 disabled:opacity-60 inline-flex items-center gap-2"
+            className="px-4 py-3 rounded-[10px] text-sm font-bold text-white md:text-slate-900 disabled:opacity-60 inline-flex items-center gap-2"
             style={{ backgroundColor: "#dc2626" }}
           >
             {busy && <Loader2 className="w-4 h-4 animate-spin" />} Submit dispute

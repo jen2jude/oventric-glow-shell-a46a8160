@@ -103,7 +103,7 @@ body {
 
 
 :root {
-  --radius: 0.5rem;
+  --radius: 10px;
   /* Premium black & white dark theme (Facebook-style elevation).
      Base is near-black; cards/inputs step up in luminance so they
      read as elevated surfaces above the background. */

@@ -120,7 +120,7 @@ export function SupportLiveChat({ open, onClose }: { open: boolean; onClose: () 
           <button
             onClick={onClose}
             aria-label="Close chat"
-            className="ml-auto p-2 rounded-lg text-slate-300 hover:bg-white/5"
+            className="ml-auto p-2 rounded-[10px] text-slate-300 hover:bg-white/5"
           >
             <X className="w-5 h-5" />
           </button>

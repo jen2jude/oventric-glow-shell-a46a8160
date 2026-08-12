@@ -122,7 +122,7 @@ function Index() {
         />
         <button
           type="submit"
-          className="inline-flex items-center bg-slate-900 font-bold text-white transition-transform active:scale-95 h-7 rounded-lg px-3 text-xs"
+          className="inline-flex items-center bg-slate-900 font-bold text-white transition-transform active:scale-95 h-7 rounded-[10px] px-3 text-xs"
         >
           Search
         </button>

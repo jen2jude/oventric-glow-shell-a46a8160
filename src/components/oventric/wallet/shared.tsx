@@ -61,20 +61,20 @@ export const currencyMeta = new Proxy({} as Record<string, CurMeta>, {
 export function StatusBadge({ status }: { status: TxStatus }) {
   if (status === "success") {
     return (
-      <span className="inline-flex items-center gap-1 rounded-md border border-emerald-500/40 bg-emerald-500/10 px-2 py-0.5 text-[11px] font-semibold text-emerald-300">
+      <span className="inline-flex items-center gap-1 rounded-[10px] border border-emerald-500/40 bg-emerald-500/10 px-2 py-0.5 text-[11px] font-semibold text-emerald-300">
         <CheckCircle2 className="w-3 h-3" /> Success
       </span>
     );
   }
   if (status === "pending") {
     return (
-      <span className="inline-flex items-center gap-1 rounded-md border border-amber-500/50 bg-amber-500/10 px-2 py-0.5 text-[11px] font-semibold text-amber-300 animate-pulse">
+      <span className="inline-flex items-center gap-1 rounded-[10px] border border-amber-500/50 bg-amber-500/10 px-2 py-0.5 text-[11px] font-semibold text-amber-300 animate-pulse">
         <Clock3 className="w-3 h-3" /> Pending Escrow
       </span>
     );
   }
   return (
-    <span className="inline-flex items-center gap-1 rounded-md border border-red-500/40 bg-red-500/10 px-2 py-0.5 text-[11px] font-semibold text-red-300">
+    <span className="inline-flex items-center gap-1 rounded-[10px] border border-red-500/40 bg-red-500/10 px-2 py-0.5 text-[11px] font-semibold text-red-300">
       <AlertTriangle className="w-3 h-3" /> Failed
     </span>
   );
@@ -112,7 +112,7 @@ export function ModalShell({
           <h3 className="truncate text-base font-bold text-white md:text-slate-900">{title}</h3>
           <button
             onClick={onClose}
-            className="shrink-0 p-1.5 rounded-lg hover:bg-white/5 text-slate-400 md:text-slate-500"
+            className="shrink-0 p-1.5 rounded-[10px] hover:bg-white/5 text-slate-400 md:text-slate-500"
           >
             <X className="w-4 h-4" />
           </button>

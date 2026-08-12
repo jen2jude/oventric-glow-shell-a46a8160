@@ -14,7 +14,7 @@ export function SiteFooter({ onSelect, currency, flag }: SiteFooterProps) {
       <div className="mx-auto grid w-full max-w-[1200px] grid-cols-2 gap-8 px-5 py-12 sm:px-8 md:grid-cols-3 lg:grid-cols-[1.4fr_1fr_1fr_1fr_1fr] lg:gap-10 lg:py-14">
         <div>
           <span className="inline-flex items-center">
-            <img src={logo} alt="Oventric" className="h-6 w-auto object-contain" />
+            <img loading="lazy" decoding="async" src={logo} alt="Oventric" className="h-6 w-auto object-contain" />
           </span>
           <p className="mt-4 max-w-xs text-sm leading-relaxed text-slate-400">
             One platform for African builders — buy and sell, learn and earn, post bounties, and

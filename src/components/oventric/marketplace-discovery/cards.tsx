@@ -21,7 +21,7 @@ function Cover({ src, alt, className }: { src: string | null; alt: string; class
   if (!src) {
     return <div className={`bg-gradient-to-br from-[#1d1d22] to-[#101014] ${className ?? ""}`} />;
   }
-  return <img src={src} alt={alt} loading="lazy" className={`object-cover ${className ?? ""}`} />;
+  return <img loading="lazy" decoding="async" src={src} alt={alt} loading="lazy" className={`object-cover ${className ?? ""}`} />;
 }
 
 /** Small tile used in horizontal rails ("What's Moving", "New on Oventric"). */
@@ -81,7 +81,7 @@ export function RowCard({ product, onClick }: { product: ProductDTO; onClick: ()
           </span>
         </div>
       </div>
-      <span className="grid h-10 w-10 shrink-0 place-items-center rounded-[10px] bg-white/[0.03]">
+      <span className="grid h-11 w-11 shrink-0 place-items-center rounded-[10px] bg-white/[0.03]">
         <ShoppingCart className="h-4.5 w-4.5 text-white/40" />
       </span>
     </button>
@@ -136,12 +136,12 @@ export function ShopCard({ seller, onClick }: { seller: SellerLite; onClick: () 
     >
       <div className="relative mb-4 h-[120px] w-full overflow-hidden rounded-[10px] bg-[#1A1A1E]">
         {seller.coverUrl && (
-          <img src={seller.coverUrl} alt="" className="h-full w-full object-cover opacity-60" />
+          <img loading="lazy" decoding="async" src={seller.coverUrl} alt="" className="h-full w-full object-cover opacity-60" />
         )}
         <div className="absolute inset-0 bg-gradient-to-t from-black/60 to-transparent" />
         <div className="absolute bottom-3 left-3 flex h-12 w-12 items-center justify-center overflow-hidden rounded-full border-2 border-[#131316] bg-black shadow-xl">
           {seller.avatarUrl ? (
-            <img src={seller.avatarUrl} alt={seller.name} className="h-full w-full object-cover" />
+            <img loading="lazy" decoding="async" src={seller.avatarUrl} alt={seller.name} className="h-full w-full object-cover" />
           ) : (
             <span className="text-[14px] font-black text-white">{seller.name.slice(0, 2).toUpperCase()}</span>
           )}

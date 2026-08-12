@@ -355,7 +355,7 @@ export function BountyDetail({ bountyId, onBack }: Props) {
     <div className="max-w-4xl mx-auto w-full px-4 py-6 md:text-slate-700">
       <button
         onClick={onBack}
-        className="inline-flex items-center gap-2 text-sm text-slate-300 md:text-slate-600 hover:text-white md:hover:text-slate-900 bg-[#1E1E24] md:bg-white border border-white/10 md:border-slate-200 md:shadow-sm rounded-lg px-3 py-1.5 mb-4"
+        className="inline-flex items-center gap-2 text-sm text-slate-300 md:text-slate-600 hover:text-white md:hover:text-slate-900 bg-[#1E1E24] md:bg-white border border-white/10 md:border-slate-200 md:shadow-sm rounded-[10px] px-3 py-1.5 mb-4"
       >
         <ArrowLeft className="w-4 h-4" /> Back to Bounty Board
       </button>
@@ -373,16 +373,16 @@ export function BountyDetail({ bountyId, onBack }: Props) {
         )}
         <div className="p-5">
           <div className="flex flex-wrap items-center gap-2">
-            <span className="inline-flex items-center gap-1.5 px-2 py-1 rounded-md bg-emerald-500/15 border border-emerald-500/40 text-emerald-300 md:text-emerald-700 text-[10px] font-bold tracking-wider">
+            <span className="inline-flex items-center gap-1.5 px-2 py-1 rounded-[10px] bg-emerald-500/15 border border-emerald-500/40 text-emerald-300 md:text-emerald-700 text-[10px] font-bold tracking-wider">
               <Target className="w-3 h-3" /> {dp.formatted}
             </span>
             <span
-              className={`inline-flex items-center gap-1.5 px-2 py-1 rounded-md border text-[10px] font-bold tracking-wider ${statusPill.cls}`}
+              className={`inline-flex items-center gap-1.5 px-2 py-1 rounded-[10px] border text-[10px] font-bold tracking-wider ${statusPill.cls}`}
             >
               {statusPill.label}
             </span>
             {bounty.admin_hold && (
-              <span className="inline-flex items-center gap-1 px-2 py-1 rounded-md bg-red-500/15 border border-red-500/40 text-red-300 md:text-red-700 text-[10px] font-bold tracking-wider">
+              <span className="inline-flex items-center gap-1 px-2 py-1 rounded-[10px] bg-red-500/15 border border-red-500/40 text-red-300 md:text-red-700 text-[10px] font-bold tracking-wider">
                 <Lock className="w-3 h-3" /> Admin hold
               </span>
             )}
@@ -427,7 +427,7 @@ export function BountyDetail({ bountyId, onBack }: Props) {
             {me && !isPoster && (
               <button
                 onClick={() => openDM(bounty.poster_id)}
-                className="shrink-0 inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-white/5 md:bg-slate-100 hover:bg-white/10 md:hover:bg-slate-200 border border-white/10 md:border-slate-200 text-white md:text-slate-800 text-xs font-semibold"
+                className="shrink-0 inline-flex items-center gap-1.5 px-3 py-1.5 rounded-[10px] bg-white/5 md:bg-slate-100 hover:bg-white/10 md:hover:bg-slate-200 border border-white/10 md:border-slate-200 text-white md:text-slate-800 text-xs font-semibold"
               >
                 <MessageCircle className="w-3.5 h-3.5" /> Message
               </button>
@@ -447,7 +447,7 @@ export function BountyDetail({ bountyId, onBack }: Props) {
                   key={i}
                   src={u}
                   alt={`${bounty.title} ${i + 2}`}
-                  className="w-full h-32 object-cover rounded-lg border border-white/10 md:border-slate-200"
+                  className="w-full h-32 object-cover rounded-[10px] border border-white/10 md:border-slate-200"
                   sizes="240px"
                   loading="lazy"
                 />
@@ -478,7 +478,7 @@ export function BountyDetail({ bountyId, onBack }: Props) {
       {/* Contract workspace: shown once a solver is accepted */}
       {bounty.accepted_applicant_id && (isPoster || isSolver) && (
         <div className="bg-[#1E1E24] md:bg-white border border-emerald-500/30 md:border-emerald-500/40 rounded-xl p-5 mb-5 shadow-sm">
-          <div className="inline-flex items-center gap-1.5 px-2 py-1 rounded-md bg-emerald-500/15 border border-emerald-500/40 text-emerald-300 md:text-emerald-700 text-[10px] font-bold tracking-wider mb-3">
+          <div className="inline-flex items-center gap-1.5 px-2 py-1 rounded-[10px] bg-emerald-500/15 border border-emerald-500/40 text-emerald-300 md:text-emerald-700 text-[10px] font-bold tracking-wider mb-3">
             <Lock className="w-3 h-3" /> LIVE ESCROW CONTRACT · {dp.formatted}
           </div>
 
@@ -503,26 +503,26 @@ export function BountyDetail({ bountyId, onBack }: Props) {
             </div>
             <button
               onClick={() => openDM(isPoster ? bounty.accepted_applicant_id : bounty.poster_id)}
-              className="inline-flex items-center gap-1.5 px-3 py-2 rounded-lg bg-emerald-500 hover:bg-emerald-400 text-black text-sm font-bold"
+              className="inline-flex items-center gap-1.5 px-3 py-3 rounded-[10px] bg-emerald-500 hover:bg-emerald-400 text-black text-sm font-bold"
             >
               <MessageCircle className="w-4 h-4" /> Open Chat
             </button>
           </div>
 
           {bounty.dispute_status === "open" && (
-            <div className="mb-3 flex items-center gap-2 px-3 py-2 rounded-lg bg-amber-500/10 border border-amber-500/50 text-amber-200 text-xs font-semibold">
+            <div className="mb-3 flex items-center gap-2 px-3 py-3 rounded-[10px] bg-amber-500/10 border border-amber-500/50 text-amber-200 text-xs font-semibold">
               <AlertTriangle className="w-4 h-4" /> Dispute open — admin will review. Auto-release
               paused.
             </div>
           )}
           {bounty.admin_hold && (
-            <div className="mb-3 flex items-center gap-2 px-3 py-2 rounded-lg bg-red-500/10 border border-red-500/50 text-red-200 text-xs font-semibold">
+            <div className="mb-3 flex items-center gap-2 px-3 py-3 rounded-[10px] bg-red-500/10 border border-red-500/50 text-red-200 text-xs font-semibold">
               <Lock className="w-4 h-4" /> Funds on hold by admin.
             </div>
           )}
 
           {isSolver && bounty.status === "solved" && !bounty.released_at && (
-            <div className="mb-3 flex items-start gap-2 px-3 py-2 rounded-lg bg-sky-500/10 border border-sky-500/40 text-sky-200 text-xs font-semibold">
+            <div className="mb-3 flex items-start gap-2 px-3 py-3 rounded-[10px] bg-sky-500/10 border border-sky-500/40 text-sky-200 text-xs font-semibold">
               <ShieldCheck className="w-4 h-4 mt-0.5 shrink-0" />
               <div>
                 Waiting for the poster to confirm the work was delivered okay. Your funds will be
@@ -541,7 +541,7 @@ export function BountyDetail({ bountyId, onBack }: Props) {
                     ?.scrollIntoView({ behavior: "smooth", block: "start" })
                 }
                 disabled={bounty.dispute_status === "open"}
-                className="inline-flex items-center gap-1.5 px-4 py-2 rounded-lg bg-sky-500 hover:bg-sky-400 text-black text-sm font-bold disabled:opacity-50"
+                className="inline-flex items-center gap-1.5 px-4 py-3 rounded-[10px] bg-sky-500 hover:bg-sky-400 text-black text-sm font-bold disabled:opacity-50"
               >
                 <Send className="w-4 h-4" /> Submit your solution
               </button>
@@ -549,7 +549,7 @@ export function BountyDetail({ bountyId, onBack }: Props) {
             {isSolver && bounty.status === "solved" && !bounty.released_at && (
               <button
                 onClick={() => setAwaitingPop(true)}
-                className="inline-flex items-center gap-1.5 px-4 py-2 rounded-lg bg-white/5 md:bg-sky-50 hover:bg-white/10 md:hover:bg-sky-100 border border-sky-500/40 text-sky-200 md:text-sky-700 text-sm font-bold"
+                className="inline-flex items-center gap-1.5 px-4 py-3 rounded-[10px] bg-white/5 md:bg-sky-50 hover:bg-white/10 md:hover:bg-sky-100 border border-sky-500/40 text-sky-200 md:text-sky-700 text-sm font-bold"
               >
                 <Clock className="w-4 h-4" /> Awaiting confirmation
               </button>
@@ -560,7 +560,7 @@ export function BountyDetail({ bountyId, onBack }: Props) {
                 disabled={
                   busy === "release" || bounty.dispute_status === "open" || bounty.admin_hold
                 }
-                className="inline-flex items-center gap-1.5 px-4 py-2 rounded-lg bg-emerald-500 hover:bg-emerald-400 text-black text-sm font-bold disabled:opacity-50"
+                className="inline-flex items-center gap-1.5 px-4 py-3 rounded-[10px] bg-emerald-500 hover:bg-emerald-400 text-black text-sm font-bold disabled:opacity-50"
               >
                 <CheckCircle2 className="w-4 h-4" /> Confirm &amp; release {dp.formatted}
               </button>
@@ -569,13 +569,13 @@ export function BountyDetail({ bountyId, onBack }: Props) {
               <button
                 onClick={doDispute}
                 disabled={busy === "dispute"}
-                className="inline-flex items-center gap-1.5 px-4 py-2 rounded-lg bg-white/5 md:bg-slate-100 hover:bg-white/10 md:hover:bg-slate-200 border border-white/10 md:border-slate-200 text-white md:text-slate-800 text-sm font-semibold disabled:opacity-50"
+                className="inline-flex items-center gap-1.5 px-4 py-3 rounded-[10px] bg-white/5 md:bg-slate-100 hover:bg-white/10 md:hover:bg-slate-200 border border-white/10 md:border-slate-200 text-white md:text-slate-800 text-sm font-semibold disabled:opacity-50"
               >
                 <AlertTriangle className="w-4 h-4" /> Open dispute
               </button>
             )}
             {bounty.released_at && (
-              <div className="inline-flex items-center gap-2 px-4 py-2 rounded-lg bg-emerald-500/10 border border-emerald-500/40 text-emerald-300 text-sm font-semibold">
+              <div className="inline-flex items-center gap-2 px-4 py-3 rounded-[10px] bg-emerald-500/10 border border-emerald-500/40 text-emerald-300 text-sm font-semibold">
                 <CheckCircle2 className="w-4 h-4" /> Funds released — bounty complete
               </div>
             )}
@@ -606,7 +606,7 @@ export function BountyDetail({ bountyId, onBack }: Props) {
             so they can chat with you immediately.
           </p>
           {myApp ? (
-            <div className="rounded-lg border border-emerald-500/40 bg-emerald-500/10 text-emerald-200 p-3 text-sm">
+            <div className="rounded-[10px] border border-emerald-500/40 bg-emerald-500/10 text-emerald-200 p-3 text-sm">
               {myApp.status === "accepted" ? (
                 <>You've been accepted 🎉 — check the contract workspace above.</>
               ) : myApp.status === "rejected" ? (
@@ -619,7 +619,7 @@ export function BountyDetail({ bountyId, onBack }: Props) {
               </div>
               <button
                 onClick={() => openDM(bounty.poster_id)}
-                className="mt-3 inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-white/5 md:bg-slate-100 hover:bg-white/10 md:hover:bg-slate-200 border border-white/10 md:border-slate-200 text-white md:text-slate-800 text-xs font-semibold"
+                className="mt-3 inline-flex items-center gap-1.5 px-3 py-1.5 rounded-[10px] bg-white/5 md:bg-slate-100 hover:bg-white/10 md:hover:bg-slate-200 border border-white/10 md:border-slate-200 text-white md:text-slate-800 text-xs font-semibold"
               >
                 <MessageCircle className="w-3.5 h-3.5" /> Message poster
               </button>
@@ -631,14 +631,14 @@ export function BountyDetail({ bountyId, onBack }: Props) {
                 onChange={(e) => setPitch(e.target.value.slice(0, 2000))}
                 rows={5}
                 placeholder="Your pitch — experience, timeline, approach…"
-                className="w-full bg-[#121214] md:bg-white border border-white/10 md:border-slate-300 rounded-lg px-3 py-2 text-sm text-white md:text-slate-900 placeholder:text-slate-500 md:placeholder:text-slate-400 focus:outline-none focus:border-emerald-500/50 resize-none"
+                className="w-full bg-[#121214] md:bg-white border border-white/10 md:border-slate-300 rounded-[10px] px-3 py-3 text-sm text-white md:text-slate-900 placeholder:text-slate-500 md:placeholder:text-slate-400 focus:outline-none focus:border-emerald-500/50 resize-none"
               />
               <div className="mt-2 flex items-center justify-between gap-3">
                 <div className="text-[11px] text-slate-500">{pitch.length}/2000</div>
                 <button
                   onClick={doApply}
                   disabled={!pitch.trim() || busy === "apply"}
-                  className="inline-flex items-center gap-1.5 px-4 py-2 rounded-lg bg-emerald-500 hover:bg-emerald-400 text-black text-sm font-bold disabled:opacity-50"
+                  className="inline-flex items-center gap-1.5 px-4 py-3 rounded-[10px] bg-emerald-500 hover:bg-emerald-400 text-black text-sm font-bold disabled:opacity-50"
                 >
                   {busy === "apply" ? (
                     <Loader2 className="w-4 h-4 animate-spin" />
@@ -672,7 +672,7 @@ export function BountyDetail({ bountyId, onBack }: Props) {
                       <button
                         key={f}
                         onClick={() => setAppFilter(f)}
-                        className={`px-2.5 py-1 rounded-lg text-[11px] font-bold capitalize border transition-colors ${
+                        className={`px-2.5 py-1 rounded-[10px] text-[11px] font-bold capitalize border transition-colors ${
                           on
                             ? "bg-emerald-500/20 md:bg-emerald-50 border-emerald-500/50 text-emerald-300 md:text-emerald-700"
                             : "bg-white/5 md:bg-slate-100 border-white/10 md:border-slate-200 text-slate-400 md:text-slate-600 hover:bg-white/10 md:hover:bg-slate-200"
@@ -716,7 +716,7 @@ export function BountyDetail({ bountyId, onBack }: Props) {
                     return (
                       <div
                         key={a.id}
-                        className={`rounded-lg border p-4 flex flex-col md:flex-row md:items-center gap-3 ${accepted ? "border-emerald-500/50 bg-emerald-500/5 md:bg-emerald-50" : rejected ? "border-white/5 md:border-slate-200 bg-white/5 md:bg-slate-100 opacity-60" : "border-white/10 md:border-slate-200 bg-[#121214] md:bg-slate-50"}`}
+                        className={`rounded-[10px] border p-4 flex flex-col md:flex-row md:items-center gap-3 ${accepted ? "border-emerald-500/50 bg-emerald-500/5 md:bg-emerald-50" : rejected ? "border-white/5 md:border-slate-200 bg-white/5 md:bg-slate-100 opacity-60" : "border-white/10 md:border-slate-200 bg-[#121214] md:bg-slate-50"}`}
                       >
                         <div className="w-10 h-10 rounded-full overflow-hidden border border-white/10 md:border-slate-200 shrink-0">
                           <AvatarImage
@@ -734,7 +734,7 @@ export function BountyDetail({ bountyId, onBack }: Props) {
                               @{p?.username || p?.slug || "user"}
                             </span>
                             <span
-                              className={`px-2 py-0.5 rounded-md border text-[10px] font-bold uppercase tracking-wider ${pill}`}
+                              className={`px-2 py-0.5 rounded-[10px] border text-[10px] font-bold uppercase tracking-wider ${pill}`}
                             >
                               {accepted ? "Accepted" : rejected ? "Rejected" : "Pending"}
                             </span>
@@ -751,7 +751,7 @@ export function BountyDetail({ bountyId, onBack }: Props) {
                         <div className="flex gap-2 shrink-0">
                           <button
                             onClick={() => openDM(a.applicant_id)}
-                            className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-white/5 md:bg-slate-100 hover:bg-white/10 md:hover:bg-slate-200 border border-white/10 md:border-slate-200 text-white md:text-slate-800 text-xs font-semibold"
+                            className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-[10px] bg-white/5 md:bg-slate-100 hover:bg-white/10 md:hover:bg-slate-200 border border-white/10 md:border-slate-200 text-white md:text-slate-800 text-xs font-semibold"
                           >
                             <MessageCircle className="w-3.5 h-3.5" /> Chat
                           </button>
@@ -759,7 +759,7 @@ export function BountyDetail({ bountyId, onBack }: Props) {
                             <button
                               onClick={() => setAcceptTarget(a.applicant_id)}
                               disabled={busy === `accept:${a.applicant_id}`}
-                              className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-emerald-500 hover:bg-emerald-400 text-black text-xs font-bold disabled:opacity-50"
+                              className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-[10px] bg-emerald-500 hover:bg-emerald-400 text-black text-xs font-bold disabled:opacity-50"
                             >
                               {busy === `accept:${a.applicant_id}` ? (
                                 <Loader2 className="w-3.5 h-3.5 animate-spin" />
@@ -810,14 +810,14 @@ export function BountyDetail({ bountyId, onBack }: Props) {
             <div className="flex justify-end gap-2">
               <button
                 onClick={() => setAcceptTarget(null)}
-                className="px-4 py-2 rounded-lg bg-white/5 md:bg-slate-100 hover:bg-white/10 md:hover:bg-slate-200 border border-white/10 md:border-slate-200 text-white md:text-slate-800 text-sm font-semibold"
+                className="px-4 py-3 rounded-[10px] bg-white/5 md:bg-slate-100 hover:bg-white/10 md:hover:bg-slate-200 border border-white/10 md:border-slate-200 text-white md:text-slate-800 text-sm font-semibold"
               >
                 Cancel
               </button>
               <button
                 onClick={() => doAccept(acceptTarget)}
                 disabled={!!busy}
-                className="px-4 py-2 rounded-lg bg-emerald-500 hover:bg-emerald-400 text-black text-sm font-bold disabled:opacity-50 inline-flex items-center gap-1.5"
+                className="px-4 py-3 rounded-[10px] bg-emerald-500 hover:bg-emerald-400 text-black text-sm font-bold disabled:opacity-50 inline-flex items-center gap-1.5"
               >
                 <CheckCircle2 className="w-4 h-4" /> Yes, assign solver
               </button>
@@ -853,14 +853,14 @@ export function BountyDetail({ bountyId, onBack }: Props) {
             <div className="flex justify-end gap-2">
               <button
                 onClick={() => setConfirmSolved(false)}
-                className="px-4 py-2 rounded-lg bg-white/5 md:bg-slate-100 hover:bg-white/10 md:hover:bg-slate-200 border border-white/10 md:border-slate-200 text-white md:text-slate-800 text-sm font-semibold"
+                className="px-4 py-3 rounded-[10px] bg-white/5 md:bg-slate-100 hover:bg-white/10 md:hover:bg-slate-200 border border-white/10 md:border-slate-200 text-white md:text-slate-800 text-sm font-semibold"
               >
                 Cancel
               </button>
               <button
                 onClick={doMarkSolved}
                 disabled={busy === "solved"}
-                className="px-4 py-2 rounded-lg bg-sky-500 hover:bg-sky-400 text-black text-sm font-bold disabled:opacity-50 inline-flex items-center gap-1.5"
+                className="px-4 py-3 rounded-[10px] bg-sky-500 hover:bg-sky-400 text-black text-sm font-bold disabled:opacity-50 inline-flex items-center gap-1.5"
               >
                 {busy === "solved" ? (
                   <Loader2 className="w-4 h-4 animate-spin" />
@@ -903,7 +903,7 @@ export function BountyDetail({ bountyId, onBack }: Props) {
             <div className="flex justify-end gap-2">
               <button
                 onClick={() => setAwaitingPop(false)}
-                className="px-4 py-2 rounded-lg bg-white/5 md:bg-slate-100 hover:bg-white/10 md:hover:bg-slate-200 border border-white/10 md:border-slate-200 text-white md:text-slate-800 text-sm font-semibold"
+                className="px-4 py-3 rounded-[10px] bg-white/5 md:bg-slate-100 hover:bg-white/10 md:hover:bg-slate-200 border border-white/10 md:border-slate-200 text-white md:text-slate-800 text-sm font-semibold"
               >
                 Close
               </button>
@@ -912,7 +912,7 @@ export function BountyDetail({ bountyId, onBack }: Props) {
                   setAwaitingPop(false);
                   window.dispatchEvent(new CustomEvent("oventric:open-messages"));
                 }}
-                className="px-4 py-2 rounded-lg bg-sky-500 hover:bg-sky-400 text-black text-sm font-bold inline-flex items-center gap-1.5"
+                className="px-4 py-3 rounded-[10px] bg-sky-500 hover:bg-sky-400 text-black text-sm font-bold inline-flex items-center gap-1.5"
               >
                 <MessageCircle className="w-4 h-4" /> Contact poster
               </button>
@@ -947,14 +947,14 @@ export function BountyDetail({ bountyId, onBack }: Props) {
             <div className="flex justify-end gap-2">
               <button
                 onClick={() => setConfirmRelease(false)}
-                className="px-4 py-2 rounded-lg bg-white/5 md:bg-slate-100 hover:bg-white/10 md:hover:bg-slate-200 border border-white/10 md:border-slate-200 text-white md:text-slate-800 text-sm font-semibold"
+                className="px-4 py-3 rounded-[10px] bg-white/5 md:bg-slate-100 hover:bg-white/10 md:hover:bg-slate-200 border border-white/10 md:border-slate-200 text-white md:text-slate-800 text-sm font-semibold"
               >
                 Cancel
               </button>
               <button
                 onClick={doRelease}
                 disabled={busy === "release"}
-                className="px-4 py-2 rounded-lg bg-emerald-500 hover:bg-emerald-400 text-black text-sm font-bold disabled:opacity-50 inline-flex items-center gap-1.5"
+                className="px-4 py-3 rounded-[10px] bg-emerald-500 hover:bg-emerald-400 text-black text-sm font-bold disabled:opacity-50 inline-flex items-center gap-1.5"
               >
                 {busy === "release" ? (
                   <Loader2 className="w-4 h-4 animate-spin" />

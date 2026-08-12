@@ -59,7 +59,7 @@ export function Sidebar({
             <button
               key={it.label}
               onClick={() => onSelect(it.label)}
-              className={`flex items-center gap-3 px-3 py-2.5 rounded-lg transition-colors ${
+              className={`flex items-center gap-3 px-3 py-2.5 rounded-[10px] transition-colors ${
                 isActive
                   ? "bg-emerald-500/10 text-emerald-400 border border-emerald-500/30"
                   : "text-white hover:bg-white/5 border border-transparent"
@@ -75,7 +75,7 @@ export function Sidebar({
       <button
         onClick={() => setCollapsed((v) => !v)}
         aria-label="Toggle sidebar"
-        className="m-3 p-2 rounded-lg text-slate-500 hover:text-white hover:bg-white/5 transition-colors flex items-center justify-center"
+        className="m-3 p-2 rounded-[10px] text-slate-500 hover:text-white hover:bg-white/5 transition-colors flex items-center justify-center"
       >
         <ChevronLeft className={`w-4 h-4 transition-transform ${collapsed ? "rotate-180" : ""}`} />
       </button>

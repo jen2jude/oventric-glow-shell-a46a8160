@@ -116,7 +116,7 @@ function SponsoredCard({ ad }: { ad: DiscoveryAd }) {
           </p>
         )}
         <div className="mt-3">
-          <span className="inline-flex items-center justify-center px-4 py-1.5 bg-fuchsia-500 hover:bg-fuchsia-400 text-black font-bold text-xs rounded-lg">
+          <span className="inline-flex items-center justify-center px-4 py-1.5 bg-fuchsia-500 hover:bg-fuchsia-400 text-black font-bold text-xs rounded-[10px]">
             {ad.ctaLabel}
           </span>
         </div>
@@ -194,7 +194,7 @@ function BirthdayModal({
           </div>
           <button
             onClick={onClose}
-            className="p-1.5 rounded-md text-slate-400 md:text-slate-600 hover:text-white md:hover:text-slate-900 hover:bg-white/5 md:hover:bg-slate-100"
+            className="p-1.5 rounded-[10px] text-slate-400 md:text-slate-600 hover:text-white md:hover:text-slate-900 hover:bg-white/5 md:hover:bg-slate-100"
           >
             <X className="w-4 h-4" />
           </button>
@@ -265,12 +265,12 @@ function BirthdayRow({
           onChange={(e) => setBody(e.target.value)}
           disabled={sent}
           placeholder="Write a wish…"
-          className="flex-1 min-w-0 bg-black/40 md:bg-slate-50 border border-white/10 md:border-slate-300 rounded-md px-2.5 py-1.5 text-xs text-white md:text-slate-900 placeholder:text-slate-500 focus:outline-none focus:border-pink-400/50"
+          className="flex-1 min-w-0 bg-black/40 md:bg-slate-50 border border-white/10 md:border-slate-300 rounded-[10px] px-2.5 py-1.5 text-xs text-white md:text-slate-900 placeholder:text-slate-500 focus:outline-none focus:border-pink-400/50"
         />
         <button
           onClick={submit}
           disabled={busy || sent}
-          className="inline-flex items-center gap-1 px-3 py-1.5 rounded-md bg-pink-500 hover:bg-pink-400 disabled:bg-white/10 disabled:text-slate-500 text-black text-xs font-bold"
+          className="inline-flex items-center gap-1 px-3 py-1.5 rounded-[10px] bg-pink-500 hover:bg-pink-400 disabled:bg-white/10 disabled:text-slate-500 text-black text-xs font-bold"
         >
           {sent ? (
             "Sent"
@@ -295,9 +295,9 @@ function ProductRow({ p, priceFmt }: { p: DiscoveryProduct; priceFmt: (usd: numb
       to="/product/$id"
       params={{ id: p.id }}
       aria-label={`Open ${p.title}`}
-      className="flex items-center gap-3 min-w-0 text-left rounded-lg -mx-1 px-1 py-1 hover:bg-white/[0.03] transition-colors"
+      className="flex items-center gap-3 min-w-0 text-left rounded-[10px] -mx-1 px-1 py-1 hover:bg-white/[0.03] transition-colors"
     >
-      <div className="w-11 h-11 shrink-0 rounded-lg overflow-hidden bg-white/5 md:bg-slate-100 flex items-center justify-center">
+      <div className="w-11 h-11 shrink-0 rounded-[10px] overflow-hidden bg-white/5 md:bg-slate-100 flex items-center justify-center">
         {p.coverUrl ? (
           <ResponsiveImage
             sizes="88px"
@@ -474,7 +474,7 @@ export function DiscoveryPanel() {
           </h3>
           <button
             onClick={() => navigateSection("Circles")}
-            className="shrink-0 rounded-md px-2 py-1 text-[11px] font-semibold text-emerald-400 md:text-emerald-600 hover:bg-white/5 md:hover:bg-emerald-50 hover:text-emerald-300 md:hover:text-emerald-700 transition-colors"
+            className="shrink-0 rounded-[10px] px-2 py-1 text-[11px] font-semibold text-emerald-400 md:text-emerald-600 hover:bg-white/5 md:hover:bg-emerald-50 hover:text-emerald-300 md:hover:text-emerald-700 transition-colors"
           >
             See all
           </button>
@@ -489,7 +489,7 @@ export function DiscoveryPanel() {
                   <SkeletonBar className="h-3 w-3/5" />
                   <SkeletonBar className="h-2 w-1/4" />
                 </div>
-                <SkeletonBar className="h-6 w-16 rounded-md" />
+                <SkeletonBar className="h-6 w-16 rounded-[10px]" />
               </li>
             ))}
           </ul>
@@ -504,7 +504,7 @@ export function DiscoveryPanel() {
             {topPeers5.map((p: DiscoveryPeer) => (
               <li
                 key={p.id}
-                className="flex items-center gap-2.5 min-w-0 -mx-1.5 px-1.5 py-1.5 rounded-lg transition-colors hover:bg-white/[0.03] md:hover:bg-slate-50"
+                className="flex items-center gap-2.5 min-w-0 -mx-1.5 px-1.5 py-1.5 rounded-[10px] transition-colors hover:bg-white/[0.03] md:hover:bg-slate-50"
               >
                 <Link
                   to="/profile/$id"
@@ -530,7 +530,7 @@ export function DiscoveryPanel() {
                 <button
                   onClick={() => openChat(p.id, p.name)}
                   aria-label={`Chat with ${p.name}`}
-                  className="shrink-0 inline-flex items-center gap-1 px-2.5 py-1 rounded-md border border-white/10 md:border-slate-200 text-slate-300 md:text-slate-700 hover:bg-white/5 md:hover:bg-slate-100 text-[11px] font-semibold"
+                  className="shrink-0 inline-flex items-center gap-1 px-2.5 py-1 rounded-[10px] border border-white/10 md:border-slate-200 text-slate-300 md:text-slate-700 hover:bg-white/5 md:hover:bg-slate-100 text-[11px] font-semibold"
                 >
                   <MessageCircle className="w-3 h-3" /> Chat
                 </button>
@@ -555,7 +555,7 @@ export function DiscoveryPanel() {
           </h3>
           <button
             onClick={() => navigateSection("Marketplace")}
-            className="shrink-0 rounded-md px-2 py-1 text-[11px] font-semibold text-emerald-400 md:text-emerald-600 hover:bg-white/5 md:hover:bg-emerald-50 hover:text-emerald-300 md:hover:text-emerald-700 transition-colors"
+            className="shrink-0 rounded-[10px] px-2 py-1 text-[11px] font-semibold text-emerald-400 md:text-emerald-600 hover:bg-white/5 md:hover:bg-emerald-50 hover:text-emerald-300 md:hover:text-emerald-700 transition-colors"
           >
             Browse
           </button>
@@ -564,7 +564,7 @@ export function DiscoveryPanel() {
           <ul className="space-y-1">
             {Array.from({ length: 4 }).map((_, i) => (
               <li key={i} className="flex items-center gap-3 py-1.5">
-                <div className="w-11 h-11 shrink-0 rounded-lg bg-white/[0.06] md:bg-slate-200 animate-pulse" />
+                <div className="w-11 h-11 shrink-0 rounded-[10px] bg-white/[0.06] md:bg-slate-200 animate-pulse" />
                 <div className="flex-1 space-y-1.5">
                   <SkeletonBar className="h-3 w-3/4" />
                   <SkeletonBar className="h-2 w-1/3" />
@@ -584,7 +584,7 @@ export function DiscoveryPanel() {
             {trending.map((p) => (
               <li
                 key={p.id}
-                className="-mx-1.5 px-1.5 py-1.5 rounded-lg transition-colors hover:bg-white/[0.03] md:hover:bg-slate-50"
+                className="-mx-1.5 px-1.5 py-1.5 rounded-[10px] transition-colors hover:bg-white/[0.03] md:hover:bg-slate-50"
               >
                 <ProductRow p={p} priceFmt={price} />
               </li>
@@ -621,7 +621,7 @@ export function DiscoveryPanel() {
             {onlineUsers.slice(0, 10).map((u) => (
               <li
                 key={u.userId}
-                className="flex items-center gap-2.5 min-w-0 -mx-1.5 px-1.5 py-1.5 rounded-lg transition-colors hover:bg-white/[0.03] md:hover:bg-slate-50"
+                className="flex items-center gap-2.5 min-w-0 -mx-1.5 px-1.5 py-1.5 rounded-[10px] transition-colors hover:bg-white/[0.03] md:hover:bg-slate-50"
               >
                 <button
                   onClick={() => openChat(u.userId, u.name)}
@@ -645,7 +645,7 @@ export function DiscoveryPanel() {
                 </button>
                 <button
                   onClick={() => openChat(u.userId, u.name)}
-                  className="shrink-0 inline-flex items-center gap-1 px-2.5 py-1 rounded-md border border-white/10 md:border-slate-200 text-slate-300 md:text-slate-700 hover:bg-white/5 md:hover:bg-slate-100 text-[11px] font-semibold"
+                  className="shrink-0 inline-flex items-center gap-1 px-2.5 py-1 rounded-[10px] border border-white/10 md:border-slate-200 text-slate-300 md:text-slate-700 hover:bg-white/5 md:hover:bg-slate-100 text-[11px] font-semibold"
                 >
                   <MessageCircle className="w-3 h-3" /> Chat
                 </button>

@@ -206,7 +206,7 @@ function UsersPage() {
             <button
               onClick={doBulkDelete}
               disabled={bulkBusy}
-              className="inline-flex items-center gap-1.5 px-3 py-2 rounded-lg bg-red-500/20 hover:bg-red-500/30 border border-red-500/40 text-xs font-bold text-red-200 disabled:opacity-50"
+              className="inline-flex items-center gap-1.5 px-3 py-2 rounded-[10px] bg-red-500/20 hover:bg-red-500/30 border border-red-500/40 text-xs font-bold text-red-200 disabled:opacity-50"
             >
               {bulkBusy ? (
                 <Loader2 className="w-3.5 h-3.5 animate-spin" />
@@ -220,7 +220,7 @@ function UsersPage() {
             value={q}
             onChange={(e) => setQ(e.target.value)}
             placeholder="Search name, country, id…"
-            className="bg-[#141418] border border-white/10 rounded-lg px-3 py-2 text-sm text-white w-64"
+            className="bg-[#141418] border border-white/10 rounded-[10px] px-3 py-2 text-sm text-white w-64"
           />
         </div>
       </header>
@@ -230,7 +230,7 @@ function UsersPage() {
           <button
             key={t.id}
             onClick={() => setTab(t.id)}
-            className={`px-3 py-1.5 rounded-lg text-xs font-bold border transition-colors ${
+            className={`px-3 py-1.5 rounded-[10px] text-xs font-bold border transition-colors ${
               tab === t.id
                 ? "bg-emerald-500 text-black border-emerald-500"
                 : "bg-white/5 hover:bg-white/10 border-white/10 text-slate-200"
@@ -242,7 +242,7 @@ function UsersPage() {
       </div>
 
       {loadErr && (
-        <div className="mb-4 p-3 rounded-lg border border-red-500/40 bg-red-500/10 text-sm text-red-300">
+        <div className="mb-4 p-3 rounded-[10px] border border-red-500/40 bg-red-500/10 text-sm text-red-300">
           Could not load users: {loadErr}
         </div>
       )}
@@ -341,7 +341,7 @@ function UsersPage() {
                       <button
                         onClick={() => toggle(uid, "admin", !isAdmin)}
                         disabled={busy === uid}
-                        className={`inline-flex items-center gap-1 px-2 py-1 rounded-lg text-xs font-bold ${isAdmin ? "bg-red-500/15 border border-red-500/40 text-red-200 hover:bg-red-500/25" : "bg-emerald-500 text-black hover:bg-emerald-400"}`}
+                        className={`inline-flex items-center gap-1 px-2 py-1 rounded-[10px] text-xs font-bold ${isAdmin ? "bg-red-500/15 border border-red-500/40 text-red-200 hover:bg-red-500/25" : "bg-emerald-500 text-black hover:bg-emerald-400"}`}
                       >
                         {isAdmin ? (
                           <>
@@ -379,7 +379,7 @@ function UsersPage() {
                 <button
                   onClick={() => setPage((p) => Math.max(1, p - 1))}
                   disabled={currentPage <= 1}
-                  className="px-2.5 py-1 rounded-md bg-white/5 hover:bg-white/10 border border-white/10 text-slate-200 disabled:opacity-40 disabled:cursor-not-allowed font-semibold"
+                  className="px-2.5 py-1 rounded-[10px] bg-white/5 hover:bg-white/10 border border-white/10 text-slate-200 disabled:opacity-40 disabled:cursor-not-allowed font-semibold"
                 >
                   ← Prev
                 </button>
@@ -389,7 +389,7 @@ function UsersPage() {
                 <button
                   onClick={() => setPage((p) => Math.min(totalPages, p + 1))}
                   disabled={currentPage >= totalPages}
-                  className="px-2.5 py-1 rounded-md bg-white/5 hover:bg-white/10 border border-white/10 text-slate-200 disabled:opacity-40 disabled:cursor-not-allowed font-semibold"
+                  className="px-2.5 py-1 rounded-[10px] bg-white/5 hover:bg-white/10 border border-white/10 text-slate-200 disabled:opacity-40 disabled:cursor-not-allowed font-semibold"
                 >
                   Next →
                 </button>
@@ -673,7 +673,7 @@ function UserDetailModal({
         ) : (
           <div className="p-5 space-y-4">
             {err && (
-              <div className="p-3 rounded-lg border border-red-500/40 bg-red-500/10 text-sm text-red-300">
+              <div className="p-3 rounded-[10px] border border-red-500/40 bg-red-500/10 text-sm text-red-300">
                 {err}
               </div>
             )}
@@ -720,7 +720,7 @@ function UserDetailModal({
                 <button
                   key={t.id}
                   onClick={() => setTab(t.id)}
-                  className={`inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-bold ${
+                  className={`inline-flex items-center gap-1.5 px-3 py-1.5 rounded-[10px] text-xs font-bold ${
                     tab === t.id
                       ? "bg-emerald-500 text-black"
                       : "bg-white/5 hover:bg-white/10 text-slate-200"
@@ -751,7 +751,7 @@ function UserDetailModal({
                   ).map(([k, v]) => (
                     <div
                       key={k}
-                      className="bg-white/5 border border-white/10 rounded-lg p-2 text-center"
+                      className="bg-white/5 border border-white/10 rounded-[10px] p-2 text-center"
                     >
                       <div className="text-[10px] uppercase text-slate-500 tracking-wider">{k}</div>
                       <div className="text-white font-bold text-lg">{v}</div>
@@ -784,7 +784,7 @@ function UserDetailModal({
                 </div>
 
                 {/* Edit form */}
-                <div className="bg-white/[0.02] border border-white/10 rounded-lg p-4 space-y-3">
+                <div className="bg-white/[0.02] border border-white/10 rounded-[10px] p-4 space-y-3">
                   <div className="text-[10px] uppercase text-slate-500 tracking-wider">
                     Edit profile
                   </div>
@@ -817,7 +817,7 @@ function UserDetailModal({
                         value={form.bio}
                         onChange={(e) => setForm({ ...form, bio: e.target.value })}
                         rows={2}
-                        className="w-full bg-[#0b0b0d] border border-white/10 rounded-lg px-3 py-2 text-sm text-white mt-1"
+                        className="w-full bg-[#0b0b0d] border border-white/10 rounded-[10px] px-3 py-2 text-sm text-white mt-1"
                       />
                     </div>
                     <div>
@@ -827,7 +827,7 @@ function UserDetailModal({
                       <select
                         value={form.verification_tier}
                         onChange={(e) => setForm({ ...form, verification_tier: e.target.value })}
-                        className="w-full bg-[#0b0b0d] border border-white/10 rounded-lg px-3 py-2 text-sm text-white mt-1"
+                        className="w-full bg-[#0b0b0d] border border-white/10 rounded-[10px] px-3 py-2 text-sm text-white mt-1"
                       >
                         {["TIER_0", "TIER_1", "TIER_2", "TIER_3"].map((t) => (
                           <option key={t} value={t}>
@@ -840,7 +840,7 @@ function UserDetailModal({
                   <button
                     onClick={doSave}
                     disabled={saving === "save"}
-                    className="inline-flex items-center gap-1.5 px-3 py-2 rounded-lg bg-emerald-500 hover:bg-emerald-400 text-black text-sm font-bold disabled:opacity-50"
+                    className="inline-flex items-center gap-1.5 px-3 py-2 rounded-[10px] bg-emerald-500 hover:bg-emerald-400 text-black text-sm font-bold disabled:opacity-50"
                   >
                     {saving === "save" ? (
                       <Loader2 className="w-3.5 h-3.5 animate-spin" />
@@ -852,7 +852,7 @@ function UserDetailModal({
                 </div>
 
                 {/* Danger zone */}
-                <div className="bg-red-500/[0.03] border border-red-500/20 rounded-lg p-4 space-y-2">
+                <div className="bg-red-500/[0.03] border border-red-500/20 rounded-[10px] p-4 space-y-2">
                   <div className="text-[10px] uppercase text-red-300 tracking-wider flex items-center gap-1">
                     <AlertTriangle className="w-3 h-3" /> Moderation
                   </div>
@@ -900,7 +900,7 @@ function UserDetailModal({
               (d.downloads.length === 0 ? (
                 <Empty label="No purchases / downloads." />
               ) : (
-                <ul className="divide-y divide-white/10 bg-white/[0.02] border border-white/10 rounded-lg">
+                <ul className="divide-y divide-white/10 bg-white/[0.02] border border-white/10 rounded-[10px]">
                   {d.downloads.map((o) => (
                     <li key={o.id} className="p-3 flex items-center justify-between">
                       <div>
@@ -930,7 +930,7 @@ function UserDetailModal({
               (d.productsListed.length === 0 ? (
                 <Empty label="No products listed." />
               ) : (
-                <ul className="divide-y divide-white/10 bg-white/[0.02] border border-white/10 rounded-lg">
+                <ul className="divide-y divide-white/10 bg-white/[0.02] border border-white/10 rounded-[10px]">
                   {d.productsListed.map((p) => (
                     <li key={p.id} className="p-3 flex items-center justify-between">
                       <div>
@@ -956,7 +956,7 @@ function UserDetailModal({
                   {d.bountiesPosted.length === 0 ? (
                     <Empty label="None posted." />
                   ) : (
-                    <ul className="divide-y divide-white/10 bg-white/[0.02] border border-white/10 rounded-lg">
+                    <ul className="divide-y divide-white/10 bg-white/[0.02] border border-white/10 rounded-[10px]">
                       {d.bountiesPosted.map((b) => (
                         <li key={b.id} className="p-3 flex items-center justify-between">
                           <div>
@@ -980,7 +980,7 @@ function UserDetailModal({
                   {d.bountyApplications.length === 0 ? (
                     <Empty label="No applications." />
                   ) : (
-                    <ul className="divide-y divide-white/10 bg-white/[0.02] border border-white/10 rounded-lg">
+                    <ul className="divide-y divide-white/10 bg-white/[0.02] border border-white/10 rounded-[10px]">
                       {d.bountyApplications.map((a) => {
                         const b = a.bounties;
                         const won = b && b.accepted_applicant_id === userId;
@@ -1014,7 +1014,7 @@ function UserDetailModal({
               (d.contactedSellers.length === 0 ? (
                 <Empty label="Has not messaged anyone." />
               ) : (
-                <ul className="divide-y divide-white/10 bg-white/[0.02] border border-white/10 rounded-lg">
+                <ul className="divide-y divide-white/10 bg-white/[0.02] border border-white/10 rounded-[10px]">
                   {d.contactedSellers.map((c) => (
                     <li key={c.user_id} className="p-3 flex items-center justify-between">
                       <div>
@@ -1054,7 +1054,7 @@ function Field({
       <input
         value={value}
         onChange={(e) => onChange(e.target.value)}
-        className="w-full bg-[#0b0b0d] border border-white/10 rounded-lg px-3 py-2 text-sm text-white mt-1"
+        className="w-full bg-[#0b0b0d] border border-white/10 rounded-[10px] px-3 py-2 text-sm text-white mt-1"
       />
     </div>
   );
@@ -1062,7 +1062,7 @@ function Field({
 
 function Empty({ label }: { label: string }) {
   return (
-    <div className="text-xs text-slate-500 py-6 text-center border border-white/10 rounded-lg bg-white/[0.02]">
+    <div className="text-xs text-slate-500 py-6 text-center border border-white/10 rounded-[10px] bg-white/[0.02]">
       {label}
     </div>
   );
@@ -1091,7 +1091,7 @@ function ModBtn({
     <button
       onClick={onClick}
       disabled={busy}
-      className={`inline-flex items-center gap-1.5 px-3 py-2 rounded-lg border text-xs font-bold disabled:opacity-50 ${cls}`}
+      className={`inline-flex items-center gap-1.5 px-3 py-2 rounded-[10px] border text-xs font-bold disabled:opacity-50 ${cls}`}
     >
       {busy ? <Loader2 className="w-3.5 h-3.5 animate-spin" /> : <Icon className="w-3.5 h-3.5" />}
       {label}
@@ -1172,7 +1172,7 @@ function WalletTab({
               : []),
           ];
           return (
-            <div key={c} className="bg-white/[0.02] border border-white/10 rounded-lg p-3">
+            <div key={c} className="bg-white/[0.02] border border-white/10 rounded-[10px] p-3">
               <div className="flex items-center justify-between mb-2">
                 <div className="text-white font-bold text-sm">{c}</div>
                 <button
@@ -1222,7 +1222,7 @@ function WalletTab({
       {d.walletTransactions.length === 0 ? (
         <Empty label="No transactions." />
       ) : (
-        <div className="bg-white/[0.02] border border-white/10 rounded-lg overflow-hidden">
+        <div className="bg-white/[0.02] border border-white/10 rounded-[10px] overflow-hidden">
           <table className="w-full text-xs">
             <thead className="bg-white/5 text-[10px] uppercase text-slate-400">
               <tr>

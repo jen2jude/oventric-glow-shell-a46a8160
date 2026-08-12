@@ -277,7 +277,7 @@ export function ImageLightbox(props: GalleryProps | LegacyProps) {
             <ResponsiveImage
               src={src}
               alt={alt ?? `Image ${i + 1}`}
-              className="max-h-full max-w-full object-contain rounded-lg"
+              className="max-h-full max-w-full object-contain rounded-[10px]"
             />
           </div>
         ))}
