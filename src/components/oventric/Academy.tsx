@@ -314,13 +314,13 @@ export const Academy = ({ hubMode = false }: { hubMode?: boolean }) => {
                               stroke="currentColor" 
                               strokeWidth="3" 
                               fill="transparent" 
-                              className={isFinished ? "text-emerald-500" : "text-pink-500"} 
+                              className={isFinished ? "text-emerald-500" : "text-[#E5484D]"} 
                               strokeDasharray={282.7} 
                               strokeDashoffset={282.7 * (1 - (isFinished ? 1 : 0.05))} 
                               strokeLinecap="round" 
                             />
                           </svg>
-                          <div className="absolute inset-[5px] rounded-full overflow-hidden border border-white/5 bg-[#121214]">
+                          <div className="absolute inset-[5px] rounded-full overflow-hidden border border-white/5 bg-[#0A0A0B]">
                             {course.coverUrl ? (
                               <img loading="lazy" decoding="async" 
                                 src={course.coverUrl} 
@@ -605,7 +605,7 @@ function CourseCard({
 }) {
   if (isAppShell) {
     return (
-      <div className="bg-[#1A1A1C] rounded-xl border border-white/5 shadow-lg overflow-hidden flex flex-col">
+      <div className="bg-[#141416] rounded-xl border border-white/5 shadow-lg overflow-hidden flex flex-col">
         <button onClick={onOpen} className="block w-full text-left relative aspect-video bg-[#0A0A0B]">
           {course.coverUrl ? (
             <ResponsiveImage
