@@ -47,7 +47,7 @@ function SectionHeader({ icon: Icon, title, hint, isAppShell }: { icon: any; tit
   return (
     <div className="flex items-end justify-between mb-3 px-1">
       <div className="flex items-center gap-2">
-        <Icon className={`w-5 h-5 ${!isAppShell ? "text-emerald-600" : "text-emerald-400 md:text-emerald-600"}`} strokeWidth={2.5} />
+        <Icon className={`w-5 h-5 ${!isAppShell ? "text-[#E5484D]" : "text-[#E5484D] md:text-[#E5484D]"}`} strokeWidth={2.5} />
         <h3 className={`font-black text-lg tracking-tight ${!isAppShell ? "text-slate-900" : "text-white md:text-slate-900"}`}>{title}</h3>
       </div>
       {hint && (
@@ -112,9 +112,9 @@ function CourseTile({
   return (
     <button
       onClick={() => onOpen(c.id)}
-      className={`text-left border rounded-xl overflow-hidden transition-colors group ${!isAppShell ? "bg-white border-slate-200 hover:border-emerald-300 shadow-sm" : "bg-[#1E1E24] border-white/10 hover:border-emerald-500/40"}`}
+      className={`text-left border rounded-xl overflow-hidden transition-colors group ${!isAppShell ? "bg-white border-slate-200 hover:border-[#E5484D]/30 shadow-sm" : "bg-[#1A1A1C] border-white/5 hover:border-[#E5484D]/40"}`}
     >
-      <div className="relative aspect-video bg-gradient-to-br from-emerald-600/40 to-indigo-700/40">
+      <div className="relative aspect-video bg-[#0A0A0B]">
         {c.coverUrl ? (
           <ResponsiveImage
             src={c.coverUrl}
@@ -132,7 +132,7 @@ function CourseTile({
         <span className="absolute top-2 left-2 text-[10px] font-bold bg-black/60 text-white border border-white/20 rounded px-2 py-0.5 uppercase tracking-wider">
           {c.category}
         </span>
-        <span className="absolute top-2 right-2 text-[10px] font-bold bg-emerald-500 text-black rounded px-2 py-0.5">
+        <span className="absolute top-2 right-2 text-[10px] font-bold bg-[#E5484D] text-white rounded px-2 py-0.5">
           {c.isFree ? "Free" : fmtPrice(c.priceUsd, currency)}
         </span>
       </div>
