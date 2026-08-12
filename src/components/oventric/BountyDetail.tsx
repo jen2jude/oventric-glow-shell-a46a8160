@@ -214,7 +214,7 @@ export function BountyDetail({ bountyId, onBack }: Props) {
   if (loading) {
     return (
       <div className="max-w-4xl mx-auto px-4 py-10 text-center text-slate-400">
-        <Loader2 className="w-6 h-6 animate-spin mx-auto" />
+        <Loader2 className="w-6 h-6 animate-spin mx-auto text-[#E5484D]" />
       </div>
     );
   }
@@ -341,7 +341,7 @@ export function BountyDetail({ bountyId, onBack }: Props) {
         label: "In progress",
         cls: "bg-fuchsia-500/15 border-fuchsia-500/40 text-fuchsia-300",
       };
-    return { label: "Open", cls: "bg-emerald-500/15 border-emerald-500/40 text-emerald-300" };
+    return { label: "Open", cls: "bg-[#E5484D]/15 border-[#E5484D]/40 text-[#E5484D]" };
   })();
 
   const remaining = timeLeft(bounty.deadline_at ?? bounty.end_at);
@@ -355,13 +355,13 @@ export function BountyDetail({ bountyId, onBack }: Props) {
     <div className="max-w-4xl mx-auto w-full px-4 py-6 md:text-slate-700">
       <button
         onClick={onBack}
-        className="inline-flex items-center gap-2 text-sm text-slate-300 md:text-slate-600 hover:text-white md:hover:text-slate-900 bg-[#1E1E24] md:bg-white border border-white/10 md:border-slate-200 md:shadow-sm rounded-[10px] px-3 py-1.5 mb-4"
+        className="inline-flex items-center gap-2 text-sm text-slate-300 md:text-slate-600 hover:text-white md:hover:text-slate-900 bg-[#141416] md:bg-white border border-white/10 md:border-slate-200 md:shadow-sm rounded-[10px] px-3 py-1.5 mb-4"
       >
         <ArrowLeft className="w-4 h-4" /> Back to Bounty Board
       </button>
 
       {/* Header card */}
-      <div className="bg-[#1E1E24] md:bg-white border border-white/10 md:border-slate-200 md:shadow-sm rounded-xl overflow-hidden mb-5">
+      <div className="bg-[#0F0F10] md:bg-white border border-white/10 md:border-slate-200 md:shadow-sm rounded-[10px] overflow-hidden mb-5">
         {imgUrls[0] && (
           <ResponsiveImage
             src={imgUrls[0]}
@@ -373,7 +373,7 @@ export function BountyDetail({ bountyId, onBack }: Props) {
         )}
         <div className="p-5">
           <div className="flex flex-wrap items-center gap-2">
-            <span className="inline-flex items-center gap-1.5 px-2 py-1 rounded-[10px] bg-emerald-500/15 border border-emerald-500/40 text-emerald-300 md:text-emerald-700 text-[10px] font-bold tracking-wider">
+            <span className="inline-flex items-center gap-1.5 px-2 py-1 rounded-[10px] bg-[#E5484D]/15 border border-[#E5484D]/40 text-[#E5484D] md:text-[#E5484D] text-[10px] font-bold tracking-wider">
               <Target className="w-3 h-3" /> {dp.formatted}
             </span>
             <span
@@ -477,8 +477,8 @@ export function BountyDetail({ bountyId, onBack }: Props) {
 
       {/* Contract workspace: shown once a solver is accepted */}
       {bounty.accepted_applicant_id && (isPoster || isSolver) && (
-        <div className="bg-[#1E1E24] md:bg-white border border-emerald-500/30 md:border-emerald-500/40 rounded-xl p-5 mb-5 shadow-sm">
-          <div className="inline-flex items-center gap-1.5 px-2 py-1 rounded-[10px] bg-emerald-500/15 border border-emerald-500/40 text-emerald-300 md:text-emerald-700 text-[10px] font-bold tracking-wider mb-3">
+        <div className="bg-[#0F0F10] md:bg-white border border-[#E5484D]/30 md:border-[#E5484D]/40 rounded-[10px] p-5 mb-5 shadow-sm">
+          <div className="inline-flex items-center gap-1.5 px-2 py-1 rounded-[10px] bg-[#E5484D]/15 border border-[#E5484D]/40 text-[#E5484D] md:text-[#E5484D] text-[10px] font-bold tracking-wider mb-3">
             <Lock className="w-3 h-3" /> LIVE ESCROW CONTRACT · {dp.formatted}
           </div>
 
