@@ -19,7 +19,7 @@ function Cover({ url, className }: { url?: string | null; className?: string }) 
   return (
     <div className={`overflow-hidden rounded-xl bg-[#1C1C21] md:bg-slate-100 ${className ?? ""}`}>
       {url ? (
-        <img loading="lazy" decoding="async" src={url} alt="" loading="lazy" className="h-full w-full object-cover" />
+        <img loading="lazy" decoding="async" src={url} alt="" className="h-full w-full object-cover" />
       ) : (
         <div className="grid h-full w-full place-items-center">
           <GraduationCap className="h-6 w-6 text-white/25 md:text-slate-400" />

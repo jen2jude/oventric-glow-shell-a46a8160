@@ -1703,7 +1703,6 @@ export function Feed() {
                                 src={post.circle.avatarUrl}
                                 alt=""
                                 className="w-4 h-4 rounded-full object-cover"
-                                loading="lazy"
                                 decoding="async"
                               />
                             ) : (
@@ -1902,7 +1901,6 @@ export function Feed() {
                           <img loading="lazy" decoding="async"
                             src={post.repost_of.poster_url ?? post.repost_of.media_url ?? ""}
                             alt=""
-                            loading="lazy"
                             className="h-14 w-14 shrink-0 rounded-xl object-cover"
                           />
                         )}

@@ -480,7 +480,6 @@ function BatchDetail({
                     <img loading="lazy" decoding="async"
                       src={url}
                       alt=""
-                      loading="lazy"
                       decoding="async"
                       className="w-full h-full object-cover"
                     />

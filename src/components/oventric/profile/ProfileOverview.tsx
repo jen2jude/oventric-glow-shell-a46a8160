@@ -158,7 +158,6 @@ export function ProfileOverview({
           <img loading="lazy" decoding="async"
             src={l.coverUrl}
             alt={l.title}
-            loading="lazy"
             className="h-full w-full object-cover transition-transform duration-300 group-hover:scale-[1.03]"
           />
         ) : (
@@ -242,7 +241,6 @@ export function ProfileOverview({
                     <img loading="lazy" decoding="async"
                       src={a.coverUrl}
                       alt={a.title}
-                      loading="lazy"
                       className="h-full w-full object-cover"
                     />
                   ) : (

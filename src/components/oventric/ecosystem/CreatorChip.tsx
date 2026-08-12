@@ -35,7 +35,7 @@ export function CreatorChip({
         }`}
       >
         {avatarUrl ? (
-          <img loading="lazy" decoding="async" src={avatarUrl} alt="" className="h-full w-full object-cover" loading="lazy" />
+          <img loading="lazy" decoding="async" src={avatarUrl} alt="" className="h-full w-full object-cover" />
         ) : (
           initial
         )}

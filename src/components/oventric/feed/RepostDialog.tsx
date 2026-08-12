@@ -89,7 +89,6 @@ export function RepostDialog({ open, onClose, post, onDone }: Props) {
               src={thumb}
               alt=""
               className="h-14 w-14 shrink-0 rounded-xl object-cover"
-              loading="lazy"
             />
           )}
           <div className="min-w-0">

@@ -304,7 +304,6 @@ function Rail({
                   src={c.coverUrl}
                   alt=""
                   className="absolute inset-0 w-full h-full object-cover"
-                  loading="lazy"
                   decoding="async"
                 />
               )}
@@ -314,7 +313,6 @@ function Rail({
                     src={c.avatarUrl}
                     alt=""
                     className="w-full h-full object-cover"
-                    loading="lazy"
                     decoding="async"
                   />
                 ) : (
@@ -359,7 +357,6 @@ function CircleCard({ circle, onOpen }: { circle: CircleSummary; onOpen: () => v
             src={circle.coverUrl}
             alt=""
             className="absolute inset-0 w-full h-full object-cover"
-            loading="lazy"
             decoding="async"
           />
         )}
@@ -369,7 +366,6 @@ function CircleCard({ circle, onOpen }: { circle: CircleSummary; onOpen: () => v
               src={circle.avatarUrl}
               alt=""
               className="w-full h-full object-cover"
-              loading="lazy"
               decoding="async"
             />
           ) : (

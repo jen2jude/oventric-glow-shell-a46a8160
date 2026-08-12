@@ -238,7 +238,7 @@ export function SkillsEditModal({
                       }`}
                     >
                       {c.imageUrl && (
-                        <img loading="lazy" decoding="async" src={c.imageUrl} alt="" className="h-4 w-4 rounded" loading="lazy" />
+                        <img loading="lazy" decoding="async" src={c.imageUrl} alt="" className="h-4 w-4 rounded" />
                       )}
                       {c.name}
                     </button>
@@ -277,7 +277,6 @@ export function SkillsEditModal({
                         <img loading="lazy" decoding="async"
                           src={t.imageUrl ?? toolIconUrl(t.slug)}
                           alt=""
-                          loading="lazy"
                           className="h-7 w-7 object-contain"
                         />
                         <span className="line-clamp-1 text-[10px] font-semibold text-slate-300 md:text-slate-600">

@@ -121,7 +121,6 @@ function ProductCard({ p }: { p: ProductDTO }) {
           <img loading="lazy" decoding="async"
             src={p.coverUrl}
             alt={p.name}
-            loading="lazy"
             className="h-full w-full object-cover transition-transform duration-500 group-hover:scale-105"
           />
         ) : (

@@ -380,7 +380,6 @@ export function EditListingModal({ product, onClose, onResubmitted }: Props) {
                               <img loading="lazy" decoding="async"
                                 src={img.url}
                                 alt=""
-                                loading="lazy"
                                 decoding="async"
                                 className="w-full h-full object-cover bg-[#121214]"
                               />
@@ -409,7 +408,6 @@ export function EditListingModal({ product, onClose, onResubmitted }: Props) {
                             <img loading="lazy" decoding="async"
                               src={src}
                               alt=""
-                              loading="lazy"
                               decoding="async"
                               className="w-full h-full object-cover bg-[#121214]"
                             />

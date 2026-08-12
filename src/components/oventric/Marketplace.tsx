@@ -1,7 +1,7 @@
 import { useEffect, useMemo, useRef, useState } from "react";
 import { useNavigate } from "@tanstack/react-router";
 import { useServerFn } from "@tanstack/react-start";
-import { ChevronLeft, LayoutGrid, Search, SlidersHorizontal } from "lucide-react";
+import { ChevronLeft, ChevronRight, LayoutGrid, Search, SlidersHorizontal } from "lucide-react";
 import { useOnboarding } from "@/lib/onboarding/OnboardingContext";
 import {
   listProducts,

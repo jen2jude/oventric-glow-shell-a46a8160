@@ -529,7 +529,6 @@ function MiniRail({
                   src={it.coverUrl}
                   alt={it.title}
                   className="w-full h-full object-cover"
-                  loading="lazy"
                 />
               ) : (
                 <span className="w-full h-full flex items-center justify-center text-slate-600">

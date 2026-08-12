@@ -124,7 +124,6 @@ export function ProfilePostCard({
             <img loading="lazy" decoding="async"
               src={media[0]}
               alt=""
-              loading="lazy"
               className="w-full rounded-xl object-cover"
             />
           ) : (
@@ -134,7 +133,6 @@ export function ProfilePostCard({
                   key={m + i}
                   src={m}
                   alt=""
-                  loading="lazy"
                   className="aspect-square w-full rounded-xl object-cover"
                 />
               ))}

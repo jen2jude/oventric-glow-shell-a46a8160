@@ -105,7 +105,6 @@ export function ProfileCollectionsTab({
                   <img loading="lazy" decoding="async"
                     src={b.coverUrl}
                     alt={b.title}
-                    loading="lazy"
                     className="h-full w-full object-cover transition group-hover:scale-105"
                   />
                 ) : (
@@ -243,7 +242,7 @@ function BoardSheet({
           >
             <div className="h-12 w-12 shrink-0 overflow-hidden rounded-[10px] bg-white/[0.06]">
               {it.imageUrl ? (
-                <img loading="lazy" decoding="async" src={it.imageUrl} alt="" loading="lazy" className="h-full w-full object-cover" />
+                <img loading="lazy" decoding="async" src={it.imageUrl} alt="" className="h-full w-full object-cover" />
               ) : (
                 <div className="flex h-full w-full items-center justify-center">
                   <Bookmark className="h-4 w-4 text-slate-500" />

@@ -66,7 +66,6 @@ export function PhotoBatches({ photos, dense = false }: { photos: UserPhoto[]; d
               <img loading="lazy" decoding="async"
                 src={cover.url}
                 alt=""
-                loading="lazy"
                 decoding="async"
                 className="absolute inset-0 w-full h-full object-cover transition-transform duration-300 group-hover:scale-[1.04]"
               />
@@ -146,7 +145,6 @@ function BatchTileOverlay({
               <img loading="lazy" decoding="async"
                 src={p.url}
                 alt=""
-                loading="lazy"
                 decoding="async"
                 className="absolute inset-0 w-full h-full object-cover"
               />

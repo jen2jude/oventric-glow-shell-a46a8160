@@ -799,7 +799,6 @@ function CardGrid({
                     src={it.coverUrl}
                     alt={it.title}
                     className="h-full w-full object-cover transition-transform duration-500 group-hover:scale-105"
-                    loading="lazy"
                   />
                 ) : (
                   <span className="flex h-full w-full items-center justify-center text-slate-400">
