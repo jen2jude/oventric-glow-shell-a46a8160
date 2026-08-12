@@ -83,11 +83,24 @@ export function Wallet() {
   const fetchTx = useServerFn(listWalletTransactions);
   const { data: txData, isLoading: txLoading } = useQuery({
     queryKey: ["wallet-recent-tx"],
-    queryFn: () => fetchTx({ data: { page: 1, pageSize: 5 } }),
+    queryFn: () => fetchTx({ data: { page: 1, pageSize: 50 } }),
     enabled: isAuthenticated,
     retry: false,
   });
   const recentTx = txData?.items ?? [];
+
+  // Group transactions by month, keeping only the two most recent months
+  const monthGroups = (() => {
+    const map = new Map<string, { label: string; items: typeof recentTx }>();
+    for (const t of recentTx) {
+      const d = new Date(t.occurredAt);
+      const key = `${d.getFullYear()}-${d.getMonth()}`;
+      const label = d.toLocaleDateString(undefined, { month: "long", year: "numeric" });
+      if (!map.has(key)) map.set(key, { label, items: [] });
+      map.get(key)!.items.push(t);
+    }
+    return Array.from(map.values()).slice(0, 2);
+  })();
 
   const cur = baseCurrency;
   const available = data?.balances?.[cur] ?? localBalances[cur] ?? 0;
