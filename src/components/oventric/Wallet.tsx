@@ -62,10 +62,26 @@ export function Wallet() {
   const [payoutOpen, setPayoutOpen] = useState(false);
   const [subOpen, setSubOpen] = useState(true);
 
+  const [authed, setAuthed] = useState(false);
+  useEffect(() => {
+    let active = true;
+    supabase.auth.getSession().then(({ data }) => {
+      if (active) setAuthed(!!data.session);
+    });
+    const { data: sub } = supabase.auth.onAuthStateChange((_e, session) => {
+      setAuthed(!!session);
+    });
+    return () => {
+      active = false;
+      sub.subscription.unsubscribe();
+    };
+  }, []);
+
   const fetchBalances = useServerFn(getWalletBalances);
   const { data } = useQuery({
     queryKey: ["wallet-balances"],
     queryFn: () => fetchBalances({}),
+    enabled: authed,
     retry: false,
   });
 
@@ -73,6 +89,7 @@ export function Wallet() {
   const { data: txData, isLoading: txLoading } = useQuery({
     queryKey: ["wallet-recent-tx"],
     queryFn: () => fetchTx({ data: { page: 1, pageSize: 5 } }),
+    enabled: authed,
     retry: false,
   });
   const recentTx = txData?.items ?? [];
