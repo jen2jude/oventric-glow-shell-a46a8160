@@ -13,6 +13,7 @@ import {
 import { TopSellersPanel } from "./marketplace-discovery/TopSellersPanel";
 import { CategoryDiscoverySheet } from "./marketplace-discovery/CategoryDiscoverySheet";
 import { GridCard, Rail, RowCard, ShopCard, TileCard, type SellerLite } from "./marketplace-discovery/cards";
+import { visualForCategory } from "./marketplace-discovery/utils";
 
 type Mode = "all" | "digital" | "physical";
 type SortKey = "popular" | "newest" | "best_selling" | "top_rated";
