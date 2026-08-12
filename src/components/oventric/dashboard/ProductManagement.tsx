@@ -43,7 +43,7 @@ export function ProductManagement() {
   const handleToggleStatus = async (productId: string, currentStatus: string) => {
     const newStatus = currentStatus === "active" ? "pending" : "active";
     try {
-      await toggleStatusFn({ productId, status: newStatus as any });
+      await toggleStatusFn({ data: { productId, status: newStatus as any } });
       toast.success(`Product ${newStatus === "active" ? "published" : "unpublished"}`);
       queryClient.invalidateQueries({ queryKey: ["my-products"] });
     } catch (e) {
@@ -54,7 +54,7 @@ export function ProductManagement() {
   const handleDelete = async (productId: string) => {
     if (!confirm("Are you sure you want to delete this product?")) return;
     try {
-      const res = await deleteFn({ productId });
+      const res = await deleteFn({ data: { productId } });
       if (res.archived) {
         toast.info("Product has orders and was archived instead of deleted.");
       } else {
@@ -188,10 +188,6 @@ export function ProductManagement() {
       <SellSwitcherModal 
         open={createOpen} 
         onClose={() => setCreateOpen(false)} 
-        onCreated={() => {
-          setCreateOpen(false);
-          queryClient.invalidateQueries({ queryKey: ["my-products"] });
-        }}
       />
     </div>
   );
