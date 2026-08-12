@@ -306,7 +306,7 @@ function BlogTile({ b, isAppShell }: { b: RecoBlog; isAppShell: boolean }) {
     <Link
       to="/blog/$slug"
       params={{ slug: b.slug }}
-      className={`text-left border rounded-xl overflow-hidden transition-colors block ${!isAppShell ? "bg-white border-slate-200 hover:border-sky-400/60 shadow-sm" : "bg-[#1E1E24] border-white/10 hover:border-sky-400/40"}`}
+      className={`text-left border rounded-xl overflow-hidden transition-colors block ${!isAppShell ? "bg-white border-slate-200 hover:border-[#E5484D]/30 shadow-sm" : "bg-[#1A1A1C] border-white/5 hover:border-[#E5484D]/40"}`}
     >
       <div className="relative aspect-video bg-gradient-to-br from-sky-600/30 to-emerald-600/30">
         {b.coverUrl ? (
