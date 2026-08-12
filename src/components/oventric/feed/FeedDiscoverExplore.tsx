@@ -196,7 +196,7 @@ export function FeedDiscoverExplore({
               >
                 {g.items[0]?.mediaType === "video" ? (
                   g.items[0]?.posterUrl ? (
-                    <img loading="lazy" decoding="async"
+                    <img loading="lazy"
                       src={g.items[0].posterUrl}
                       alt=""
                       decoding="async"
@@ -212,7 +212,7 @@ export function FeedDiscoverExplore({
                     />
                   )
                 ) : (
-                  <img loading="lazy" decoding="async"
+                  <img loading="lazy"
                     src={g.items[0]?.mediaUrl}
                     alt=""
                     decoding="async"

@@ -1699,7 +1699,7 @@ export function Feed() {
                             className="inline-flex items-center gap-1.5 text-emerald-300 md:text-emerald-700 font-semibold hover:underline"
                           >
                             {post.circle.avatarUrl ? (
-                              <img loading="lazy" decoding="async"
+                              <img loading="lazy"
                                 src={post.circle.avatarUrl}
                                 alt=""
                                 className="w-4 h-4 rounded-full object-cover"

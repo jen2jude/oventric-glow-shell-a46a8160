@@ -477,7 +477,7 @@ function BatchDetail({
                     className="absolute inset-0"
                     aria-label={`Open ${item.file_name ?? "photo"}`}
                   >
-                    <img loading="lazy" decoding="async"
+                    <img loading="lazy"
                       src={url}
                       alt=""
                       decoding="async"
