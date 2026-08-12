@@ -366,7 +366,7 @@ export function SellPhysicalModal({
                 reset();
                 onClose();
               }}
-              className="px-6 py-2 bg-emerald-500 hover:bg-emerald-400 text-black font-semibold text-sm rounded-lg"
+              className="px-6 py-2 bg-emerald-500 hover:bg-emerald-400 text-black font-semibold text-sm rounded-[10px]"
             >
               OK
             </button>
@@ -383,7 +383,7 @@ export function SellPhysicalModal({
               <button
                 onClick={onClose}
                 disabled={submitting}
-                className="p-2 rounded-lg hover:bg-white/5 text-slate-400 hover:text-white disabled:opacity-40"
+                className="p-2 rounded-[10px] hover:bg-white/5 text-slate-400 hover:text-white disabled:opacity-40"
               >
                 <X className="w-5 h-5" />
               </button>
@@ -408,7 +408,7 @@ export function SellPhysicalModal({
                   placeholder="iPhone 15 Pro Max 256GB"
                   className={fieldCls(
                     "title",
-                    "mt-1 w-full bg-[#121214] border border-white/10 rounded-lg px-3 py-2 text-sm text-white outline-none focus:border-emerald-500/60",
+                    "mt-1 w-full bg-[#121214] border border-white/10 rounded-[10px] px-3 py-2 text-sm text-white outline-none focus:border-emerald-500/60",
                   )}
                 />
                 <FieldError k="title" />
@@ -427,7 +427,7 @@ export function SellPhysicalModal({
                     }}
                     className={fieldCls(
                       "category",
-                      "mt-1 w-full bg-[#121214] border border-white/10 rounded-lg px-3 py-2 text-sm text-white",
+                      "mt-1 w-full bg-[#121214] border border-white/10 rounded-[10px] px-3 py-2 text-sm text-white",
                     )}
                   >
                     <option value="">Select category…</option>
@@ -445,7 +445,7 @@ export function SellPhysicalModal({
                     <select
                       value={subcategory}
                       onChange={(e) => setSubcategory(e.target.value)}
-                      className="mt-1 w-full bg-[#121214] border border-white/10 rounded-lg px-3 py-2 text-sm text-white"
+                      className="mt-1 w-full bg-[#121214] border border-white/10 rounded-[10px] px-3 py-2 text-sm text-white"
                     >
                       <option value="">Optional</option>
                       {chosenCat.children.map((s) => (
@@ -465,7 +465,7 @@ export function SellPhysicalModal({
                     value={location}
                     onChange={(e) => setLocation(e.target.value)}
                     placeholder="Lagos, Nigeria"
-                    className="mt-1 w-full bg-[#121214] border border-white/10 rounded-lg px-3 py-2 text-sm text-white outline-none focus:border-emerald-500/60"
+                    className="mt-1 w-full bg-[#121214] border border-white/10 rounded-[10px] px-3 py-2 text-sm text-white outline-none focus:border-emerald-500/60"
                   />
                 </label>
                 <label className="block">
@@ -474,7 +474,7 @@ export function SellPhysicalModal({
                     value={brand}
                     onChange={(e) => setBrand(e.target.value)}
                     placeholder="Apple"
-                    className="mt-1 w-full bg-[#121214] border border-white/10 rounded-lg px-3 py-2 text-sm text-white outline-none focus:border-emerald-500/60"
+                    className="mt-1 w-full bg-[#121214] border border-white/10 rounded-[10px] px-3 py-2 text-sm text-white outline-none focus:border-emerald-500/60"
                   />
                 </label>
               </div>
@@ -517,9 +517,9 @@ export function SellPhysicalModal({
                 <button
                   type="button"
                   onClick={() => imageInputRef.current?.click()}
-                  className={`mt-2 w-full flex items-center gap-3 border border-dashed rounded-lg p-3 hover:border-emerald-500/60 text-left ${fieldErrors.images ? "border-red-400/60" : "border-white/15"}`}
+                  className={`mt-2 w-full flex items-center gap-3 border border-dashed rounded-[10px] p-3 hover:border-emerald-500/60 text-left ${fieldErrors.images ? "border-red-400/60" : "border-white/15"}`}
                 >
-                  <div className="w-16 h-16 rounded-md bg-[#121214] border border-white/10 flex items-center justify-center text-emerald-400">
+                  <div className="w-16 h-16 rounded-[10px] bg-[#121214] border border-white/10 flex items-center justify-center text-emerald-400">
                     <ImagePlus className="w-6 h-6" />
                   </div>
                   <div className="text-xs text-slate-400">
@@ -533,7 +533,7 @@ export function SellPhysicalModal({
                     {previews.map((src, i) => (
                       <div
                         key={i}
-                        className={`relative aspect-square rounded-md overflow-hidden border ${i === 0 ? "border-emerald-500/60" : "border-white/10"}`}
+                        className={`relative aspect-square rounded-[10px] overflow-hidden border ${i === 0 ? "border-emerald-500/60" : "border-white/10"}`}
                       >
                         <img src={src} alt="" className="w-full h-full object-cover" />
                         {i === 0 && (
@@ -562,7 +562,7 @@ export function SellPhysicalModal({
                   value={socialLink}
                   onChange={(e) => setSocialLink(e.target.value)}
                   placeholder="https://youtube.com/…"
-                  className="mt-1 w-full bg-[#121214] border border-white/10 rounded-lg px-3 py-2 text-sm text-white outline-none focus:border-emerald-500/60"
+                  className="mt-1 w-full bg-[#121214] border border-white/10 rounded-[10px] px-3 py-2 text-sm text-white outline-none focus:border-emerald-500/60"
                 />
               </label>
 
@@ -580,7 +580,7 @@ export function SellPhysicalModal({
                   style={{ fieldSizing: "content" } as React.CSSProperties}
                   className={fieldCls(
                     "description",
-                    "mt-1 w-full min-h-[110px] bg-[#121214] border border-white/10 rounded-lg px-3 py-2 text-sm text-white outline-none focus:border-emerald-500/60 resize-y",
+                    "mt-1 w-full min-h-[110px] bg-[#121214] border border-white/10 rounded-[10px] px-3 py-2 text-sm text-white outline-none focus:border-emerald-500/60 resize-y",
                   )}
                 />
                 <FieldError k="description" />
@@ -595,7 +595,7 @@ export function SellPhysicalModal({
                     rows={3}
                     placeholder="Key specifications..."
                     style={{ fieldSizing: "content" } as React.CSSProperties}
-                    className="mt-1 w-full min-h-[80px] bg-[#121214] border border-white/10 rounded-lg px-3 py-2 text-sm text-white outline-none focus:border-emerald-500/60 resize-y"
+                    className="mt-1 w-full min-h-[80px] bg-[#121214] border border-white/10 rounded-[10px] px-3 py-2 text-sm text-white outline-none focus:border-emerald-500/60 resize-y"
                   />
                 </label>
               </div>
@@ -609,7 +609,7 @@ export function SellPhysicalModal({
                       setPriceMode("single");
                       clearField("price");
                     }}
-                    className={`px-3 py-2 rounded-lg border text-sm text-left ${priceMode === "single" ? "border-emerald-500/50 bg-emerald-500/10 text-white" : "border-white/10 bg-[#121214] text-slate-300"}`}
+                    className={`px-3 py-2 rounded-[10px] border text-sm text-left ${priceMode === "single" ? "border-emerald-500/50 bg-emerald-500/10 text-white" : "border-white/10 bg-[#121214] text-slate-300"}`}
                   >
                     <div className="font-semibold text-xs">Single price</div>
                     <div className="text-[10px] text-slate-400">
@@ -622,7 +622,7 @@ export function SellPhysicalModal({
                       setPriceMode("bracket");
                       clearField("price");
                     }}
-                    className={`px-3 py-2 rounded-lg border text-sm text-left ${priceMode === "bracket" ? "border-emerald-500/50 bg-emerald-500/10 text-white" : "border-white/10 bg-[#121214] text-slate-300"}`}
+                    className={`px-3 py-2 rounded-[10px] border text-sm text-left ${priceMode === "bracket" ? "border-emerald-500/50 bg-emerald-500/10 text-white" : "border-white/10 bg-[#121214] text-slate-300"}`}
                   >
                     <div className="font-semibold text-xs">Bracket price</div>
                     <div className="text-[10px] text-slate-400">e.g. 3,000 – 5,000</div>
@@ -645,7 +645,7 @@ export function SellPhysicalModal({
                         placeholder="0.00"
                         className={fieldCls(
                           "price",
-                          "mt-1 w-full bg-[#121214] border border-white/10 rounded-lg px-3 py-2 text-sm text-white outline-none focus:border-emerald-500/60",
+                          "mt-1 w-full bg-[#121214] border border-white/10 rounded-[10px] px-3 py-2 text-sm text-white outline-none focus:border-emerald-500/60",
                         )}
                       />
                     </label>
@@ -662,7 +662,7 @@ export function SellPhysicalModal({
                         }}
                         inputMode="decimal"
                         placeholder="Lower than main"
-                        className="mt-1 w-full bg-[#121214] border border-white/10 rounded-lg px-3 py-2 text-sm text-white outline-none focus:border-emerald-500/60"
+                        className="mt-1 w-full bg-[#121214] border border-white/10 rounded-[10px] px-3 py-2 text-sm text-white outline-none focus:border-emerald-500/60"
                       />
                     </label>
                   </div>
@@ -682,7 +682,7 @@ export function SellPhysicalModal({
                         placeholder="3000"
                         className={fieldCls(
                           "price",
-                          "mt-1 w-full bg-[#121214] border border-white/10 rounded-lg px-3 py-2 text-sm text-white outline-none focus:border-emerald-500/60",
+                          "mt-1 w-full bg-[#121214] border border-white/10 rounded-[10px] px-3 py-2 text-sm text-white outline-none focus:border-emerald-500/60",
                         )}
                       />
                     </label>
@@ -698,14 +698,14 @@ export function SellPhysicalModal({
                         }}
                         inputMode="decimal"
                         placeholder="5000"
-                        className="mt-1 w-full bg-[#121214] border border-white/10 rounded-lg px-3 py-2 text-sm text-white outline-none focus:border-emerald-500/60"
+                        className="mt-1 w-full bg-[#121214] border border-white/10 rounded-[10px] px-3 py-2 text-sm text-white outline-none focus:border-emerald-500/60"
                       />
                     </label>
                   </div>
                 )}
                 <FieldError k="price" />
 
-                <div className="mt-2 rounded-lg border border-sky-500/20 bg-sky-500/5 p-3 text-xs text-sky-100/90 flex gap-2">
+                <div className="mt-2 rounded-[10px] border border-sky-500/20 bg-sky-500/5 p-3 text-xs text-sky-100/90 flex gap-2">
                   <Info className="w-4 h-4 text-sky-300 shrink-0 mt-0.5" />
                   <span>
                     Sellers will contact you directly, so there is no payment split on Oventric.
@@ -728,11 +728,11 @@ export function SellPhysicalModal({
                   placeholder="2348012345678"
                   className={fieldCls(
                     "phone",
-                    "mt-1 w-full bg-[#121214] border border-white/10 rounded-lg px-3 py-2 text-sm text-white outline-none focus:border-emerald-500/60",
+                    "mt-1 w-full bg-[#121214] border border-white/10 rounded-[10px] px-3 py-2 text-sm text-white outline-none focus:border-emerald-500/60",
                   )}
                 />
                 {phone.length > 0 && (
-                  <div className="mt-1 rounded-md border border-amber-400/30 bg-amber-500/5 px-2.5 py-1.5 text-[11px] text-amber-200/90">
+                  <div className="mt-1 rounded-[10px] border border-amber-400/30 bg-amber-500/5 px-2.5 py-1.5 text-[11px] text-amber-200/90">
                     Add your country code first (e.g. <b>234</b> for Nigeria, <b>233</b> for Ghana),
                     then the rest of the number. Use a valid number connected to WhatsApp so buyers
                     can chat you directly.
@@ -777,7 +777,7 @@ export function SellPhysicalModal({
               <div className="sticky bottom-0 -mx-6 px-6 pb-1 pt-3 bg-[#1E1E24] border-t border-white/5">
                 {(formError || progress) && (
                   <div
-                    className={`mb-3 rounded-lg border px-3 py-2 text-xs ${
+                    className={`mb-3 rounded-[10px] border px-3 py-2 text-xs ${
                       formError
                         ? "border-red-400/30 bg-red-500/10 text-red-200"
                         : "border-emerald-400/30 bg-emerald-500/10 text-emerald-200"
@@ -820,7 +820,7 @@ export function SellPhysicalModal({
                       type="button"
                       onClick={onClose}
                       disabled={submitting}
-                      className="px-4 py-2 rounded-lg border border-white/10 text-slate-300 hover:text-white hover:bg-white/5 text-sm disabled:opacity-40"
+                      className="px-4 py-2 rounded-[10px] border border-white/10 text-slate-300 hover:text-white hover:bg-white/5 text-sm disabled:opacity-40"
                     >
                       Cancel
                     </button>
@@ -830,7 +830,7 @@ export function SellPhysicalModal({
                       disabled={submitting}
                       aria-busy={submitting}
                       aria-label="Post physical product for approval"
-                      className="px-4 py-2 rounded-lg bg-emerald-500 hover:bg-emerald-400 text-black font-semibold text-sm flex items-center gap-2 disabled:opacity-60"
+                      className="px-4 py-2 rounded-[10px] bg-emerald-500 hover:bg-emerald-400 text-black font-semibold text-sm flex items-center gap-2 disabled:opacity-60"
                     >
                       {submitting && <Loader2 className="w-4 h-4 animate-spin" />}
                       {submitting ? "Publishing…" : "Post product"}

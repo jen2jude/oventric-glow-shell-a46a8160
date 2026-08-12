@@ -70,7 +70,7 @@ export function ServiceBriefForm({
             onChange={(e) => onChange({ ...value, [f.key]: e.target.value })}
             maxLength={1200}
             placeholder={f.placeholder}
-            className={`mt-1 w-full resize-none rounded-lg border px-3 py-2 text-sm outline-none focus:border-emerald-500/60 ${
+            className={`mt-1 w-full resize-none rounded-[10px] border px-3 py-2 text-sm outline-none focus:border-emerald-500/60 ${
               dark
                 ? "border-white/10 bg-[#0A0A0B] text-white"
                 : "border-slate-200 bg-slate-50 text-slate-900"

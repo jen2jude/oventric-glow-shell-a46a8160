@@ -84,7 +84,7 @@ export function FeedCommerceCard({ item }: { item: CommerceItem }) {
         <p className="mt-1 truncate text-[12px] text-white/45">{item.sub}</p>
         <div className="mt-3 flex items-center justify-between">
           <span className="text-[15px] font-black text-[#E5484D]">{item.priceLabel}</span>
-          <span className="rounded-lg bg-[#E5484D] px-3 py-1.5 text-[12px] font-bold text-white">
+          <span className="rounded-[10px] bg-[#E5484D] px-3 py-1.5 text-[12px] font-bold text-white">
             {meta.cta}
           </span>
         </div>

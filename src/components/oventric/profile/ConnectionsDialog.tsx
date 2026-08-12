@@ -318,7 +318,7 @@ export function ConnectionsDialog({
                       type="button"
                       disabled={busyId === p.userId}
                       onClick={() => doUnfollow(p)}
-                      className="shrink-0 rounded-lg bg-white/10 px-3 py-1.5 text-xs font-bold text-white hover:bg-white/16 disabled:opacity-60"
+                      className="shrink-0 rounded-[10px] bg-white/10 px-3 py-1.5 text-xs font-bold text-white hover:bg-white/16 disabled:opacity-60"
                     >
                       {busyId === p.userId ? "…" : "Unfollow"}
                     </button>

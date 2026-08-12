@@ -55,7 +55,7 @@ export function ActivityFeedWidget() {
         <button
           onClick={() => void load()}
           aria-label="Refresh activity"
-          className="p-1.5 rounded-lg text-slate-400 md:text-slate-500 hover:text-white md:hover:text-slate-900 hover:bg-white/5 md:hover:bg-slate-100"
+          className="p-1.5 rounded-[10px] text-slate-400 md:text-slate-500 hover:text-white md:hover:text-slate-900 hover:bg-white/5 md:hover:bg-slate-100"
         >
           <RefreshCcw className={`w-3.5 h-3.5 ${loading ? "animate-spin" : ""}`} />
         </button>

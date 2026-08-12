@@ -188,7 +188,7 @@ export function AdminHistory() {
             const Icon = KIND_ICON[r.kind];
             return (
               <li key={r.id} className="flex items-start gap-3 py-3">
-                <div className="w-8 h-8 rounded-lg bg-[#121214] border border-white/10 flex items-center justify-center shrink-0">
+                <div className="w-8 h-8 rounded-[10px] bg-[#121214] border border-white/10 flex items-center justify-center shrink-0">
                   <Icon className="w-4 h-4 text-slate-300" />
                 </div>
                 <div className="flex-1 min-w-0">

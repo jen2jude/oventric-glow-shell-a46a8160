@@ -105,7 +105,7 @@ export function ShareSheet({ open, onClose, url, title = "Oventric", text, onSha
           </h3>
           <button
             onClick={onClose}
-            className="p-1.5 rounded-lg hover:bg-white/5 text-slate-400"
+            className="p-1.5 rounded-[10px] hover:bg-white/5 text-slate-400"
             aria-label="Close"
           >
             <X className="w-4 h-4" />
@@ -120,7 +120,7 @@ export function ShareSheet({ open, onClose, url, title = "Oventric", text, onSha
               href={t.href}
               target="_blank"
               rel="noopener noreferrer"
-              className={`${t.bg} text-white text-xs font-bold rounded-lg py-3 text-center hover:opacity-90 transition`}
+              className={`${t.bg} text-white text-xs font-bold rounded-[10px] py-3 text-center hover:opacity-90 transition`}
               onClick={() => {
                 onShared?.(t.label.toLowerCase());
                 setTimeout(onClose, 100);
@@ -131,7 +131,7 @@ export function ShareSheet({ open, onClose, url, title = "Oventric", text, onSha
           ))}
           <a
             href={`mailto:?subject=${enc(title)}&body=${enc(`${text ? text + "\n\n" : ""}${url}`)}`}
-            className="bg-slate-700 text-white text-xs font-bold rounded-lg py-3 text-center hover:opacity-90 transition inline-flex items-center justify-center gap-1"
+            className="bg-slate-700 text-white text-xs font-bold rounded-[10px] py-3 text-center hover:opacity-90 transition inline-flex items-center justify-center gap-1"
             onClick={() => {
               onShared?.("email");
               setTimeout(onClose, 100);
@@ -142,14 +142,14 @@ export function ShareSheet({ open, onClose, url, title = "Oventric", text, onSha
           {canNative && (
             <button
               onClick={doNative}
-              className="bg-emerald-500 text-black text-xs font-bold rounded-lg py-3 hover:bg-emerald-400 inline-flex items-center justify-center gap-1"
+              className="bg-emerald-500 text-black text-xs font-bold rounded-[10px] py-3 hover:bg-emerald-400 inline-flex items-center justify-center gap-1"
             >
               <Share2 className="w-3.5 h-3.5" /> More
             </button>
           )}
         </div>
 
-        <div className="flex items-center gap-2 bg-[#0b0b0d] border border-white/10 rounded-lg px-3 py-2">
+        <div className="flex items-center gap-2 bg-[#0b0b0d] border border-white/10 rounded-[10px] px-3 py-2">
           <Link2 className="w-4 h-4 text-slate-500 shrink-0" />
           <input
             readOnly
@@ -159,7 +159,7 @@ export function ShareSheet({ open, onClose, url, title = "Oventric", text, onSha
           />
           <button
             onClick={copy}
-            className="shrink-0 inline-flex items-center gap-1 px-2.5 py-1.5 rounded-md bg-white/5 hover:bg-white/10 text-xs text-white"
+            className="shrink-0 inline-flex items-center gap-1 px-2.5 py-1.5 rounded-[10px] bg-white/5 hover:bg-white/10 text-xs text-white"
           >
             <Copy className="w-3.5 h-3.5" /> Copy
           </button>

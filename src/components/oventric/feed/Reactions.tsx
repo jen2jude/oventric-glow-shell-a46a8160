@@ -101,7 +101,7 @@ export function ReactionButton({
   const isImg = isImageReaction(reaction);
   const dims =
     size === "xs"
-      ? "w-6 h-6 rounded-md"
+      ? "w-6 h-6 rounded-[10px]"
       : size === "sm"
         ? "w-8 h-8 rounded-full"
         : size === "lg"

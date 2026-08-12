@@ -441,7 +441,7 @@ export function Bounties() {
           </div>
           <button
             onClick={() => require(1, () => setPostOpen(true), "issuer")}
-            className="inline-flex items-center gap-2 px-4 py-2 rounded-lg bg-emerald-500 hover:bg-emerald-400 text-black md:bg-emerald-600 md:hover:bg-emerald-700 md:text-white text-sm font-bold shadow-sm md:shadow-sm"
+            className="inline-flex items-center gap-2 px-4 py-2 rounded-[10px] bg-emerald-500 hover:bg-emerald-400 text-black md:bg-emerald-600 md:hover:bg-emerald-700 md:text-white text-sm font-bold shadow-sm md:shadow-sm"
           >
             <Plus className="w-4 h-4" /> Post a bounty
           </button>
@@ -522,7 +522,7 @@ export function Bounties() {
               </p>
               <button
                 onClick={() => require(1, () => setPostOpen(true), "issuer")}
-                className="inline-flex items-center gap-2 px-5 py-2.5 rounded-lg bg-emerald-500 hover:bg-emerald-400 text-black md:bg-emerald-600 md:hover:bg-emerald-700 md:text-white text-sm font-bold transition-colors"
+                className="inline-flex items-center gap-2 px-5 py-2.5 rounded-[10px] bg-emerald-500 hover:bg-emerald-400 text-black md:bg-emerald-600 md:hover:bg-emerald-700 md:text-white text-sm font-bold transition-colors"
               >
                 <Plus className="w-4 h-4" /> Post the first bounty
               </button>
@@ -541,7 +541,7 @@ export function Bounties() {
               </p>
               <button
                 onClick={() => setFilter("all")}
-                className="inline-flex items-center gap-2 px-5 py-2.5 rounded-lg bg-white/5 hover:bg-white/10 border border-white/10 text-white md:bg-white md:hover:bg-slate-50 md:border-slate-200 md:text-slate-700 text-sm font-bold transition-colors"
+                className="inline-flex items-center gap-2 px-5 py-2.5 rounded-[10px] bg-white/5 hover:bg-white/10 border border-white/10 text-white md:bg-white md:hover:bg-slate-50 md:border-slate-200 md:text-slate-700 text-sm font-bold transition-colors"
               >
                 <ArrowLeft className="w-4 h-4" /> Show all bounties
               </button>
@@ -684,7 +684,7 @@ function BountyRow({
       className={`bg-[#1E1E24] md:bg-white rounded-xl p-4 flex flex-col md:flex-row md:items-center gap-4 transition-all duration-700 md:shadow-sm md:hover:shadow-md ${isNew ? "border-2 border-emerald-400/80 shadow-sm md:border-emerald-500" : "border border-white/5 md:border-slate-200"}`}
     >
       <div className="flex-1 min-w-0">
-        <div className="inline-flex items-center gap-1.5 px-2 py-1 rounded-md bg-emerald-500/15 border border-emerald-500/40 text-emerald-300 md:bg-emerald-50 md:border-emerald-200 md:text-emerald-700 text-[10px] font-bold tracking-wider">
+        <div className="inline-flex items-center gap-1.5 px-2 py-1 rounded-[10px] bg-emerald-500/15 border border-emerald-500/40 text-emerald-300 md:bg-emerald-50 md:border-emerald-200 md:text-emerald-700 text-[10px] font-bold tracking-wider">
           <Target className="w-3 h-3" />
           ACTIVE BOUNTY · {bounty.displayFormatted}
         </div>
@@ -708,7 +708,7 @@ function BountyRow({
       </div>
       <button
         onClick={onOpen}
-        className={`shrink-0 px-4 py-2.5 rounded-lg font-bold text-sm transition-colors whitespace-nowrap inline-flex items-center gap-1.5 ${
+        className={`shrink-0 px-4 py-2.5 rounded-[10px] font-bold text-sm transition-colors whitespace-nowrap inline-flex items-center gap-1.5 ${
           alreadyApplied
             ? "bg-slate-700 hover:bg-slate-600 text-emerald-300 border border-emerald-500/40 md:bg-emerald-50 md:hover:bg-emerald-100 md:text-emerald-700 md:border-emerald-200"
             : "bg-emerald-500 hover:bg-emerald-400 text-black md:bg-emerald-600 md:hover:bg-emerald-700 md:text-white"
@@ -750,7 +750,7 @@ function LiveAdSlot({ index, ads, loading }: { index: number; ads: BountyAd[]; l
             <div className="h-2.5 w-20 rounded bg-[#1A1A1C]" />
             <div className="h-4 w-56 rounded bg-[#1A1A1C]" />
           </div>
-          <div className="h-8 w-16 rounded-lg bg-[#1A1A1C] shrink-0" />
+          <div className="h-8 w-16 rounded-[10px] bg-[#1A1A1C] shrink-0" />
         </div>
       </div>
     );
@@ -782,7 +782,7 @@ function LiveAdSlot({ index, ads, loading }: { index: number; ads: BountyAd[]; l
               Your brand could appear here. Reach builders across Oventric.
             </div>
           </div>
-          <span className="shrink-0 px-3 py-2 rounded-lg bg-[#1A1A1C] text-slate-400 text-xs font-semibold border border-white/[0.06] md:bg-slate-50 md:text-slate-600 md:border-slate-200">
+          <span className="shrink-0 px-3 py-2 rounded-[10px] bg-[#1A1A1C] text-slate-400 text-xs font-semibold border border-white/[0.06] md:bg-slate-50 md:text-slate-600 md:border-slate-200">
             Learn more
           </span>
         </div>
@@ -841,11 +841,11 @@ function LiveAdSlot({ index, ads, loading }: { index: number; ads: BountyAd[]; l
             src={ad.media_url ?? undefined}
             alt={ad.advertiser}
             sizes="64px"
-            className="shrink-0 w-16 h-10 rounded-lg object-cover border border-white/[0.06]"
+            className="shrink-0 w-16 h-10 rounded-[10px] object-cover border border-white/[0.06]"
             loading="lazy"
           />
         ) : (
-          <span className="shrink-0 px-3 py-2 rounded-lg bg-[#1A1A1C] hover:bg-[#1F1F21] text-white md:bg-emerald-600 md:hover:bg-emerald-700 md:text-white text-xs font-semibold border border-white/[0.06] md:border-0">
+          <span className="shrink-0 px-3 py-2 rounded-[10px] bg-[#1A1A1C] hover:bg-[#1F1F21] text-white md:bg-emerald-600 md:hover:bg-emerald-700 md:text-white text-xs font-semibold border border-white/[0.06] md:border-0">
             {ctaLabel}
           </span>
         )}
@@ -871,13 +871,13 @@ function ApplicantEvaluation({
     <div className="max-w-5xl mx-auto w-full px-4 py-6">
       <button
         onClick={onBack}
-        className="inline-flex items-center gap-2 text-sm text-slate-300 hover:text-white bg-[#1E1E24] border border-white/10 rounded-lg px-3 py-1.5 mb-4"
+        className="inline-flex items-center gap-2 text-sm text-slate-300 hover:text-white bg-[#1E1E24] border border-white/10 rounded-[10px] px-3 py-1.5 mb-4"
       >
         <ArrowLeft className="w-4 h-4" /> Back to Bounty Board
       </button>
 
       <div className="bg-[#1E1E24] border border-white/10 rounded-xl p-5 mb-5">
-        <div className="inline-flex items-center gap-1.5 px-2 py-1 rounded-md bg-emerald-500/15 border border-emerald-500/40 text-emerald-300 text-[10px] font-bold tracking-wider">
+        <div className="inline-flex items-center gap-1.5 px-2 py-1 rounded-[10px] bg-emerald-500/15 border border-emerald-500/40 text-emerald-300 text-[10px] font-bold tracking-wider">
           <Target className="w-3 h-3" />
           ACTIVE BOUNTY · {bounty.displayFormatted}
         </div>
@@ -921,13 +921,13 @@ function ApplicantEvaluation({
                 </span>
               </div>
               <div className="mt-2 flex flex-wrap gap-2">
-                <span className="inline-flex items-center gap-1 px-2 py-1 rounded-md bg-emerald-500/10 border border-emerald-500/30 text-emerald-300 text-[10px] font-semibold">
+                <span className="inline-flex items-center gap-1 px-2 py-1 rounded-[10px] bg-emerald-500/10 border border-emerald-500/30 text-emerald-300 text-[10px] font-semibold">
                   <GraduationCap className="w-3 h-3" /> {a.lmsMilestones} LMS Milestones
                 </span>
-                <span className="inline-flex items-center gap-1 px-2 py-1 rounded-md bg-[#1A1A1C] border border-white/[0.06] text-slate-300 text-[10px] font-semibold">
+                <span className="inline-flex items-center gap-1 px-2 py-1 rounded-[10px] bg-[#1A1A1C] border border-white/[0.06] text-slate-300 text-[10px] font-semibold">
                   <Package className="w-3 h-3" /> {a.storeSales} Store Sales
                 </span>
-                <span className="inline-flex items-center gap-1 px-2 py-1 rounded-md bg-[#1A1A1C] border border-white/[0.06] text-slate-300 text-[10px] font-semibold">
+                <span className="inline-flex items-center gap-1 px-2 py-1 rounded-[10px] bg-[#1A1A1C] border border-white/[0.06] text-slate-300 text-[10px] font-semibold">
                   <Star className="w-3 h-3" /> Reputation {(a.rating * 20).toFixed(0)}/100
                 </span>
               </div>
@@ -936,7 +936,7 @@ function ApplicantEvaluation({
             <div className="shrink-0 md:self-center">
               <button
                 onClick={() => onAssign(a.id)}
-                className="px-4 py-2.5 rounded-lg bg-emerald-500 hover:bg-emerald-400 text-black font-bold text-sm transition-colors whitespace-nowrap"
+                className="px-4 py-2.5 rounded-[10px] bg-emerald-500 hover:bg-emerald-400 text-black font-bold text-sm transition-colors whitespace-nowrap"
               >
                 Assign Task to Developer
               </button>
@@ -1108,13 +1108,13 @@ function ContractWorkspace({
       <div className="flex flex-wrap items-center justify-between gap-3 mb-5">
         <button
           onClick={onExit}
-          className="inline-flex items-center gap-2 text-sm text-slate-300 hover:text-white bg-[#1E1E24] border border-white/10 rounded-lg px-3 py-1.5"
+          className="inline-flex items-center gap-2 text-sm text-slate-300 hover:text-white bg-[#1E1E24] border border-white/10 rounded-[10px] px-3 py-1.5"
         >
           <ArrowLeft className="w-4 h-4" /> Exit Workspace
         </button>
         <div className="inline-flex items-center gap-2 text-xs">
           <span className="text-slate-500 uppercase tracking-wider">View as</span>
-          <div className="inline-flex rounded-lg overflow-hidden border border-white/10 bg-[#1E1E24]">
+          <div className="inline-flex rounded-[10px] overflow-hidden border border-white/10 bg-[#1E1E24]">
             <button
               onClick={() => setRole("poster")}
               className={`px-3 py-1.5 font-semibold ${role === "poster" ? "bg-emerald-500 text-black" : "text-slate-300"}`}
@@ -1138,7 +1138,7 @@ function ContractWorkspace({
       )}
 
       <div className="bg-[#1E1E24] border border-white/10 rounded-xl p-4 mb-5">
-        <div className="inline-flex items-center gap-1.5 px-2 py-1 rounded-md bg-emerald-500/15 border border-emerald-500/40 text-emerald-300 text-[10px] font-bold tracking-wider">
+        <div className="inline-flex items-center gap-1.5 px-2 py-1 rounded-[10px] bg-emerald-500/15 border border-emerald-500/40 text-emerald-300 text-[10px] font-bold tracking-wider">
           <Lock className="w-3 h-3" /> LIVE CONTRACT · {bounty.displayFormatted}
         </div>
         <h2 className="mt-2 text-white font-bold text-lg leading-snug">{bounty.title}</h2>
@@ -1163,7 +1163,7 @@ function ContractWorkspace({
           <div className="border-t border-white/5 p-3 flex items-center gap-2">
             <button
               disabled={isDisputed}
-              className="p-2 rounded-lg bg-[#121214] border border-white/10 text-slate-300 hover:text-white disabled:opacity-40"
+              className="p-2 rounded-[10px] bg-[#121214] border border-white/10 text-slate-300 hover:text-white disabled:opacity-40"
               title="Attach file"
             >
               <Paperclip className="w-4 h-4" />
@@ -1174,12 +1174,12 @@ function ContractWorkspace({
               onKeyDown={(e) => e.key === "Enter" && sendMsg()}
               disabled={isDisputed}
               placeholder={isDisputed ? "Chat frozen — dispute in review" : `Message as ${role}…`}
-              className="flex-1 bg-[#121214] border border-white/10 rounded-lg px-3 py-2 text-sm text-white placeholder:text-slate-500 focus:outline-none focus:border-emerald-500/50 disabled:opacity-40"
+              className="flex-1 bg-[#121214] border border-white/10 rounded-[10px] px-3 py-2 text-sm text-white placeholder:text-slate-500 focus:outline-none focus:border-emerald-500/50 disabled:opacity-40"
             />
             <button
               onClick={sendMsg}
               disabled={isDisputed || !chatInput.trim()}
-              className="p-2 rounded-lg bg-emerald-500 hover:bg-emerald-400 text-black disabled:opacity-40"
+              className="p-2 rounded-[10px] bg-emerald-500 hover:bg-emerald-400 text-black disabled:opacity-40"
             >
               <Send className="w-4 h-4" />
             </button>
@@ -1203,7 +1203,7 @@ function ContractWorkspace({
           </div>
 
           {contract.reviewDeadline && status === "review" && (
-            <div className="rounded-lg bg-amber-500/10 border border-amber-500/30 px-3 py-2">
+            <div className="rounded-[10px] bg-amber-500/10 border border-amber-500/30 px-3 py-2">
               <div className="text-[10px] font-bold uppercase tracking-wider text-amber-300">
                 72-Hour Review Window
               </div>
@@ -1225,7 +1225,7 @@ function ContractWorkspace({
                 return (
                   <div key={s.key} className="flex items-center gap-1 flex-1">
                     <div
-                      className={`flex-1 rounded-md px-2 py-2 text-center text-[10px] font-bold border ${
+                      className={`flex-1 rounded-[10px] px-2 py-2 text-center text-[10px] font-bold border ${
                         active
                           ? isCurrent
                             ? "bg-emerald-500/20 border-emerald-500/60 text-emerald-200"
@@ -1260,7 +1260,7 @@ function ContractWorkspace({
               !isDisputed && (
                 <button
                   onClick={submitWork}
-                  className="w-full py-3 rounded-lg bg-emerald-500 hover:bg-emerald-400 text-black font-bold text-sm transition-colors inline-flex items-center justify-center gap-2"
+                  className="w-full py-3 rounded-[10px] bg-emerald-500 hover:bg-emerald-400 text-black font-bold text-sm transition-colors inline-flex items-center justify-center gap-2"
                 >
                   <Rocket className="w-4 h-4" /> Submit Work &amp; Request Release
                 </button>
@@ -1270,18 +1270,18 @@ function ContractWorkspace({
               <div className="grid grid-cols-1 gap-2">
                 <button
                   onClick={approve}
-                  className="w-full py-3 rounded-lg bg-emerald-500 hover:bg-emerald-400 text-black font-bold text-sm transition-colors inline-flex items-center justify-center gap-2"
+                  className="w-full py-3 rounded-[10px] bg-emerald-500 hover:bg-emerald-400 text-black font-bold text-sm transition-colors inline-flex items-center justify-center gap-2"
                 >
                   <CheckCircle2 className="w-4 h-4" /> Approve &amp; Release Funds
                 </button>
                 <button
                   onClick={() => setRejectOpen((v) => !v)}
-                  className="w-full py-3 rounded-lg bg-[#121214] border border-red-500/40 text-red-300 hover:bg-red-500/10 font-bold text-sm transition-colors inline-flex items-center justify-center gap-2"
+                  className="w-full py-3 rounded-[10px] bg-[#121214] border border-red-500/40 text-red-300 hover:bg-red-500/10 font-bold text-sm transition-colors inline-flex items-center justify-center gap-2"
                 >
                   <XCircle className="w-4 h-4" /> Reject Delivery &amp; Log Issues
                 </button>
                 {rejectOpen && (
-                  <div className="rounded-lg border border-red-500/30 bg-red-500/5 p-3">
+                  <div className="rounded-[10px] border border-red-500/30 bg-red-500/5 p-3">
                     <label className="text-[10px] font-bold uppercase tracking-wider text-red-300">
                       Bug log
                     </label>
@@ -1290,12 +1290,12 @@ function ContractWorkspace({
                       onChange={(e) => setRejectText(e.target.value)}
                       rows={4}
                       placeholder="Describe the issues with this delivery…"
-                      className="mt-1 w-full bg-[#121214] border border-white/10 rounded-lg px-3 py-2 text-sm text-white placeholder:text-slate-500 focus:outline-none focus:border-red-500/50"
+                      className="mt-1 w-full bg-[#121214] border border-white/10 rounded-[10px] px-3 py-2 text-sm text-white placeholder:text-slate-500 focus:outline-none focus:border-red-500/50"
                     />
                     <button
                       onClick={submitReject}
                       disabled={!rejectText.trim()}
-                      className="mt-2 w-full py-2 rounded-lg bg-red-500 hover:bg-red-400 text-black font-bold text-sm disabled:opacity-40"
+                      className="mt-2 w-full py-2 rounded-[10px] bg-red-500 hover:bg-red-400 text-black font-bold text-sm disabled:opacity-40"
                     >
                       Submit Rejection
                     </button>
@@ -1305,7 +1305,7 @@ function ContractWorkspace({
             )}
 
             {status === "released" && (
-              <div className="text-center text-xs text-emerald-300 font-semibold py-2 border border-emerald-500/30 rounded-lg bg-emerald-500/10">
+              <div className="text-center text-xs text-emerald-300 font-semibold py-2 border border-emerald-500/30 rounded-[10px] bg-emerald-500/10">
                 Contract fulfilled. No further actions required.
               </div>
             )}

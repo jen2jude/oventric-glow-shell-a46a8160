@@ -301,7 +301,7 @@ export function Wallet() {
         </div>
         <button
           onClick={toggleBalancesHidden}
-          className="shrink-0 inline-flex items-center gap-2 rounded-lg border border-[#222226] md:border-slate-200 bg-[#141418] md:bg-white md:shadow-sm px-3 py-2 text-xs font-semibold text-slate-300 md:text-slate-600 hover:border-emerald-500/40 hover:text-emerald-300 transition-colors"
+          className="shrink-0 inline-flex items-center gap-2 rounded-[10px] border border-[#222226] md:border-slate-200 bg-[#141418] md:bg-white md:shadow-sm px-3 py-2 text-xs font-semibold text-slate-300 md:text-slate-600 hover:border-emerald-500/40 hover:text-emerald-300 transition-colors"
         >
           {hide ? <EyeOff className="w-4 h-4" /> : <Eye className="w-4 h-4" />}
           <span className="hidden sm:inline">{hide ? "Show Balances" : "Hide Balances"}</span>
@@ -464,7 +464,7 @@ export function Wallet() {
                         >
                           <div className="flex items-center gap-2 mb-2.5">
                             <div
-                              className={`w-7 h-7 rounded-md ${t.accent} ${t.text} flex items-center justify-center shrink-0`}
+                              className={`w-7 h-7 rounded-[10px] ${t.accent} ${t.text} flex items-center justify-center shrink-0`}
                             >
                               {t.icon}
                             </div>
@@ -519,13 +519,13 @@ export function Wallet() {
                   value={search}
                   onChange={(e) => setSearch(e.target.value)}
                   placeholder="Search hash, type…"
-                  className="pl-8 pr-3 py-1.5 rounded-lg border border-[#222226] md:border-slate-200 bg-[#0A0A0C] md:bg-white text-xs text-slate-200 md:text-slate-700 placeholder:text-slate-600 md:text-slate-400 focus:outline-none focus:border-emerald-500/50 w-40 sm:w-56"
+                  className="pl-8 pr-3 py-1.5 rounded-[10px] border border-[#222226] md:border-slate-200 bg-[#0A0A0C] md:bg-white text-xs text-slate-200 md:text-slate-700 placeholder:text-slate-600 md:text-slate-400 focus:outline-none focus:border-emerald-500/50 w-40 sm:w-56"
                 />
               </div>
               <select
                 value={curFilter}
                 onChange={(e) => setCurFilter(e.target.value as "ALL" | Currency)}
-                className="px-2.5 py-1.5 rounded-lg border border-[#222226] md:border-slate-200 bg-[#0A0A0C] md:bg-white text-xs text-slate-200 md:text-slate-700 focus:outline-none focus:border-emerald-500/50"
+                className="px-2.5 py-1.5 rounded-[10px] border border-[#222226] md:border-slate-200 bg-[#0A0A0C] md:bg-white text-xs text-slate-200 md:text-slate-700 focus:outline-none focus:border-emerald-500/50"
               >
                 <option value="ALL">All currencies</option>
                 {CURRENCY_CODES.map((c) => (
@@ -537,28 +537,28 @@ export function Wallet() {
               <button
                 onClick={() => query.refetch()}
                 disabled={query.isFetching}
-                className="inline-flex items-center gap-1 px-2.5 py-1.5 rounded-lg border border-[#222226] md:border-slate-200 bg-[#0A0A0C] md:bg-white text-xs text-slate-300 md:text-slate-600 hover:border-emerald-500/40 disabled:opacity-50"
+                className="inline-flex items-center gap-1 px-2.5 py-1.5 rounded-[10px] border border-[#222226] md:border-slate-200 bg-[#0A0A0C] md:bg-white text-xs text-slate-300 md:text-slate-600 hover:border-emerald-500/40 disabled:opacity-50"
                 title="Refresh ledger"
               >
                 <RefreshCw className={`w-3.5 h-3.5 ${query.isFetching ? "animate-spin" : ""}`} />
               </button>
               <button
                 onClick={() => downloadWalletCsv(items)}
-                className="px-2.5 py-1.5 rounded-lg border border-[#222226] md:border-slate-200 bg-[#0A0A0C] md:bg-white text-xs text-slate-300 md:text-slate-600 hover:border-emerald-500/40"
+                className="px-2.5 py-1.5 rounded-[10px] border border-[#222226] md:border-slate-200 bg-[#0A0A0C] md:bg-white text-xs text-slate-300 md:text-slate-600 hover:border-emerald-500/40"
                 title="Export visible rows as CSV"
               >
                 CSV
               </button>
               <button
                 onClick={() => printWalletPdf(items, baseCurrency)}
-                className="px-2.5 py-1.5 rounded-lg border border-[#222226] md:border-slate-200 bg-[#0A0A0C] md:bg-white text-xs text-slate-300 md:text-slate-600 hover:border-emerald-500/40"
+                className="px-2.5 py-1.5 rounded-[10px] border border-[#222226] md:border-slate-200 bg-[#0A0A0C] md:bg-white text-xs text-slate-300 md:text-slate-600 hover:border-emerald-500/40"
                 title="Print / save as PDF"
               >
                 PDF
               </button>
               <Link
                 to="/wallet/ledger"
-                className="px-2.5 py-1.5 rounded-lg border border-emerald-500/40 bg-emerald-500/10 text-xs text-emerald-300 hover:bg-emerald-500/15"
+                className="px-2.5 py-1.5 rounded-[10px] border border-emerald-500/40 bg-emerald-500/10 text-xs text-emerald-300 hover:bg-emerald-500/15"
               >
                 Full ledger →
               </Link>
@@ -643,14 +643,14 @@ export function Wallet() {
                 <button
                   onClick={() => setPage((p) => Math.max(1, p - 1))}
                   disabled={pageSafe === 1}
-                  className="px-3 py-1.5 rounded-lg border border-[#222226] md:border-slate-200 bg-[#0A0A0C] md:bg-white hover:border-emerald-500/40 disabled:opacity-40 disabled:cursor-not-allowed"
+                  className="px-3 py-1.5 rounded-[10px] border border-[#222226] md:border-slate-200 bg-[#0A0A0C] md:bg-white hover:border-emerald-500/40 disabled:opacity-40 disabled:cursor-not-allowed"
                 >
                   Prev
                 </button>
                 <button
                   onClick={() => setPage((p) => Math.min(totalPages, p + 1))}
                   disabled={pageSafe === totalPages}
-                  className="px-3 py-1.5 rounded-lg border border-[#222226] md:border-slate-200 bg-[#0A0A0C] md:bg-white hover:border-emerald-500/40 disabled:opacity-40 disabled:cursor-not-allowed"
+                  className="px-3 py-1.5 rounded-[10px] border border-[#222226] md:border-slate-200 bg-[#0A0A0C] md:bg-white hover:border-emerald-500/40 disabled:opacity-40 disabled:cursor-not-allowed"
                 >
                   Next
                 </button>
@@ -684,7 +684,7 @@ export function Wallet() {
           </div>
           <Link
             to="/affiliate"
-            className="shrink-0 inline-flex items-center justify-center text-xs font-black px-4 py-2 rounded-lg"
+            className="shrink-0 inline-flex items-center justify-center text-xs font-black px-4 py-2 rounded-[10px]"
             style={
               affiliateReserved
                 ? { backgroundColor: "#1e3a8a", color: "#dbeafe", border: "1px solid #3b82f6" }
@@ -876,7 +876,7 @@ export function Wallet() {
 function TierPill({ active, label, desc }: { active: boolean; label: string; desc: string }) {
   return (
     <div
-      className={`rounded-lg border px-2.5 py-2 text-center transition-all ${
+      className={`rounded-[10px] border px-2.5 py-2 text-center transition-all ${
         active
           ? "border-emerald-500/60 bg-emerald-500/10 text-emerald-200"
           : "border-[#222226] md:border-slate-200 bg-[#0A0A0C] md:bg-white text-slate-400 md:text-slate-500"
@@ -1061,7 +1061,7 @@ export function AddCapitalModal({
               }`}
             >
               <div
-                className={`w-10 h-10 rounded-lg border flex items-center justify-center shrink-0 ${active ? "border-emerald-500/40 bg-emerald-500/10" : "border-[#222226] md:border-slate-200 bg-black/40"}`}
+                className={`w-10 h-10 rounded-[10px] border flex items-center justify-center shrink-0 ${active ? "border-emerald-500/40 bg-emerald-500/10" : "border-[#222226] md:border-slate-200 bg-black/40"}`}
               >
                 <Icon
                   className={`w-4 h-4 ${active ? "text-emerald-300" : "text-slate-400 md:text-slate-500"}`}
@@ -1311,7 +1311,7 @@ export function PayoutModal({ onClose }: { onClose: () => void }) {
   if (step === "pick") {
     return (
       <ModalShell title="Request Payout" onClose={onClose}>
-        <div className="flex items-start gap-2 rounded-lg border border-emerald-500/30 bg-emerald-500/5 p-3">
+        <div className="flex items-start gap-2 rounded-[10px] border border-emerald-500/30 bg-emerald-500/5 p-3">
           <ShieldCheck className="w-4 h-4 text-emerald-300 shrink-0 mt-0.5" />
           <p className="text-xs text-emerald-200/90">
             Identity verified. Withdrawals are locked to your home currency ({baseCurrency}). Other
@@ -1328,7 +1328,7 @@ export function PayoutModal({ onClose }: { onClose: () => void }) {
             }`}
           >
             <div
-              className={`w-10 h-10 rounded-lg border flex items-center justify-center shrink-0 ${
+              className={`w-10 h-10 rounded-[10px] border flex items-center justify-center shrink-0 ${
                 rail.tone === "emerald"
                   ? "border-emerald-500/40 bg-emerald-500/10 text-emerald-300"
                   : rail.tone === "amber"
@@ -1371,7 +1371,7 @@ export function PayoutModal({ onClose }: { onClose: () => void }) {
                 className="w-full grid grid-cols-[auto_minmax(0,1fr)_auto] items-center gap-3 rounded-xl border border-[#1a1a1e] md:border-slate-200 bg-[#0A0A0C] md:bg-white opacity-50 p-3 text-left cursor-not-allowed"
                 title={`Payouts are locked to your home currency (${baseCurrency})`}
               >
-                <div className="w-10 h-10 rounded-lg border border-[#222226] md:border-slate-200 flex items-center justify-center shrink-0 text-slate-500 md:text-slate-500">
+                <div className="w-10 h-10 rounded-[10px] border border-[#222226] md:border-slate-200 flex items-center justify-center shrink-0 text-slate-500 md:text-slate-500">
                   <Zap className="w-4 h-4" />
                 </div>
                 <div className="min-w-0">
@@ -1691,14 +1691,14 @@ function AddRecipientForm({
           <button
             type="button"
             onClick={() => setMethod("momo")}
-            className={`rounded-lg border px-3 py-2 text-xs font-bold uppercase tracking-wider transition-colors ${method === "momo" ? "border-amber-500/60 bg-amber-500/10 text-amber-200" : "border-[#222226] md:border-slate-200 bg-[#0A0A0C] md:bg-white text-slate-400 md:text-slate-500"}`}
+            className={`rounded-[10px] border px-3 py-2 text-xs font-bold uppercase tracking-wider transition-colors ${method === "momo" ? "border-amber-500/60 bg-amber-500/10 text-amber-200" : "border-[#222226] md:border-slate-200 bg-[#0A0A0C] md:bg-white text-slate-400 md:text-slate-500"}`}
           >
             Mobile Money
           </button>
           <button
             type="button"
             onClick={() => setMethod("bank")}
-            className={`rounded-lg border px-3 py-2 text-xs font-bold uppercase tracking-wider transition-colors ${method === "bank" ? "border-amber-500/60 bg-amber-500/10 text-amber-200" : "border-[#222226] md:border-slate-200 bg-[#0A0A0C] md:bg-white text-slate-400 md:text-slate-500"}`}
+            className={`rounded-[10px] border px-3 py-2 text-xs font-bold uppercase tracking-wider transition-colors ${method === "bank" ? "border-amber-500/60 bg-amber-500/10 text-amber-200" : "border-[#222226] md:border-slate-200 bg-[#0A0A0C] md:bg-white text-slate-400 md:text-slate-500"}`}
           >
             Bank Transfer
           </button>
@@ -1711,7 +1711,7 @@ function AddRecipientForm({
             <select
               value={bankCode}
               onChange={(e) => setBankCode(e.target.value)}
-              className="w-full rounded-lg border border-[#222226] md:border-slate-200 bg-[#0A0A0C] md:bg-white px-3 py-2 text-sm text-white md:text-slate-900 focus:outline-none focus:border-emerald-500/50"
+              className="w-full rounded-[10px] border border-[#222226] md:border-slate-200 bg-[#0A0A0C] md:bg-white px-3 py-2 text-sm text-white md:text-slate-900 focus:outline-none focus:border-emerald-500/50"
             >
               <option value="">{banks.length ? "Select bank…" : "Loading banks…"}</option>
               {banks.map((b) => (
@@ -1755,7 +1755,7 @@ function AddRecipientForm({
             <select
               value={network}
               onChange={(e) => setNetwork(e.target.value as never)}
-              className="w-full rounded-lg border border-[#222226] md:border-slate-200 bg-[#0A0A0C] md:bg-white px-3 py-2 text-sm text-white md:text-slate-900 focus:outline-none focus:border-amber-500/50"
+              className="w-full rounded-[10px] border border-[#222226] md:border-slate-200 bg-[#0A0A0C] md:bg-white px-3 py-2 text-sm text-white md:text-slate-900 focus:outline-none focus:border-amber-500/50"
             >
               <option value="MTN">MTN Mobile Money</option>
               <option value="Vodafone">Vodafone Cash</option>
@@ -2163,7 +2163,7 @@ function TxtInput({
       onChange={(e) => onChange(e.target.value)}
       placeholder={placeholder}
       maxLength={maxLength}
-      className="w-full rounded-lg border border-[#222226] md:border-slate-200 bg-[#0A0A0C] md:bg-white px-3 py-2 text-sm text-white md:text-slate-900 placeholder:text-slate-600 md:text-slate-400 focus:outline-none focus:border-sky-500/50"
+      className="w-full rounded-[10px] border border-[#222226] md:border-slate-200 bg-[#0A0A0C] md:bg-white px-3 py-2 text-sm text-white md:text-slate-900 placeholder:text-slate-600 md:text-slate-400 focus:outline-none focus:border-sky-500/50"
     />
   );
 }
@@ -2229,7 +2229,7 @@ function BountyWalletModal({
       >
         <div className="flex items-center justify-between">
           <div className="flex items-center gap-2">
-            <div className="w-9 h-9 rounded-lg bg-amber-500/15 flex items-center justify-center">
+            <div className="w-9 h-9 rounded-[10px] bg-amber-500/15 flex items-center justify-center">
               <Zap className="w-4 h-4 text-amber-300" />
             </div>
             <div>
@@ -2268,7 +2268,7 @@ function BountyWalletModal({
             max={balanceUSD}
             value={amount}
             onChange={(e) => setAmount(e.target.value)}
-            className="w-full bg-black/40 border border-white/10 rounded-lg px-3 py-2 text-white mt-1"
+            className="w-full bg-black/40 border border-white/10 rounded-[10px] px-3 py-2 text-white mt-1"
             placeholder="0.00"
           />
         </div>
@@ -2283,7 +2283,7 @@ function BountyWalletModal({
           <button
             onClick={sendToMain}
             disabled={!valid || busy !== null}
-            className="rounded-lg border border-emerald-500/40 bg-emerald-500/15 text-emerald-200 font-bold text-sm py-2.5 disabled:opacity-50 inline-flex items-center justify-center gap-2"
+            className="rounded-[10px] border border-emerald-500/40 bg-emerald-500/15 text-emerald-200 font-bold text-sm py-2.5 disabled:opacity-50 inline-flex items-center justify-center gap-2"
           >
             {busy === "send" ? (
               <Loader2 className="w-4 h-4 animate-spin" />
@@ -2295,7 +2295,7 @@ function BountyWalletModal({
           <button
             onClick={withdrawAll}
             disabled={balanceUSD <= 0 || busy !== null}
-            className="rounded-lg border border-sky-500/40 bg-sky-500/15 text-sky-200 font-bold text-sm py-2.5 disabled:opacity-50 inline-flex items-center justify-center gap-2"
+            className="rounded-[10px] border border-sky-500/40 bg-sky-500/15 text-sky-200 font-bold text-sm py-2.5 disabled:opacity-50 inline-flex items-center justify-center gap-2"
           >
             {busy === "withdraw" ? (
               <Loader2 className="w-4 h-4 animate-spin" />

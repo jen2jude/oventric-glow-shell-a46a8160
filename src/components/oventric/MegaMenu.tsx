@@ -353,7 +353,7 @@ export function MegaMenu({ open, onClose }: Props) {
                   onClick={() => {
                     setDeleteOpen(true);
                   }}
-                  className="h-10 w-full rounded-lg border border-red-500/60 bg-[#2a1111] text-xs font-bold text-red-100"
+                  className="h-10 w-full rounded-[10px] border border-red-500/60 bg-[#2a1111] text-xs font-bold text-red-100"
                 >
                   Delete my account
                 </button>
@@ -397,7 +397,7 @@ export function MegaMenu({ open, onClose }: Props) {
           <button
             onClick={onClose}
             aria-label="Close menu"
-            className="p-2 rounded-lg hover:bg-white/5"
+            className="p-2 rounded-[10px] hover:bg-white/5"
           >
             <X className="w-5 h-5" />
           </button>

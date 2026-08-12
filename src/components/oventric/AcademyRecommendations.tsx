@@ -354,17 +354,17 @@ function PromotedStrip({ ads, isAppShell }: { ads: DiscoveryAd[]; isAppShell: bo
             href={a.ctaUrl}
             target="_blank"
             rel="noreferrer"
-            className={`flex gap-3 items-center border rounded-lg p-3 transition-colors ${!isAppShell ? "bg-white border-slate-200 hover:border-emerald-300 shadow-sm" : "bg-[#1E1E24] border-white/10 hover:border-emerald-400/40"}`}
+            className={`flex gap-3 items-center border rounded-[10px] p-3 transition-colors ${!isAppShell ? "bg-white border-slate-200 hover:border-emerald-300 shadow-sm" : "bg-[#1E1E24] border-white/10 hover:border-emerald-400/40"}`}
           >
             {a.coverUrl ? (
               <img
                 src={a.coverUrl}
                 alt=""
-                className="w-16 h-16 rounded-lg object-cover shrink-0"
+                className="w-16 h-16 rounded-[10px] object-cover shrink-0"
                 loading="lazy"
               />
             ) : (
-              <div className="w-16 h-16 rounded-lg bg-gradient-to-br from-emerald-500/40 to-indigo-600/40 shrink-0" />
+              <div className="w-16 h-16 rounded-[10px] bg-gradient-to-br from-emerald-500/40 to-indigo-600/40 shrink-0" />
             )}
             <div className="min-w-0 flex-1">
               <div className="text-[10px] uppercase tracking-wider text-slate-500">

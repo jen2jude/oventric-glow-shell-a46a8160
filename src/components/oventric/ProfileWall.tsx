@@ -225,7 +225,7 @@ export function ProfileWall({
                         }`}
                       >
                         {p.media.slice(0, 4).map((m, i) => (
-                          <div key={i} className="relative rounded-lg overflow-hidden bg-black/40">
+                          <div key={i} className="relative rounded-[10px] overflow-hidden bg-black/40">
                             {m.type === "video" ? (
                               <video
                                 src={`${m.url}#t=0.1`}
@@ -295,7 +295,7 @@ export function ProfileWall({
           {allowed?.ok && (
             <button
               onClick={() => setComposerOpen(true)}
-              className="mt-3 inline-flex items-center gap-2 px-3 py-1.5 rounded-lg bg-emerald-500 hover:bg-emerald-400 text-black font-semibold text-sm"
+              className="mt-3 inline-flex items-center gap-2 px-3 py-1.5 rounded-[10px] bg-emerald-500 hover:bg-emerald-400 text-black font-semibold text-sm"
             >
               <PenSquare className="w-3.5 h-3.5" /> Write a post
             </button>

@@ -69,7 +69,7 @@ export function ShopManagement() {
         <div className="bg-[#141418] border border-white/10 rounded-2xl overflow-hidden">
           <div className="h-32 bg-gradient-to-r from-[#E5484D]/20 to-purple-500/20 relative">
              <div className="absolute inset-0 flex items-center justify-center">
-               <button className="flex items-center gap-2 px-3 py-1.5 rounded-lg bg-black/50 text-white text-xs font-bold hover:bg-black/70 transition-colors">
+               <button className="flex items-center gap-2 px-3 py-1.5 rounded-[10px] bg-black/50 text-white text-xs font-bold hover:bg-black/70 transition-colors">
                  <Camera className="w-4 h-4" />
                  Change Cover
                </button>

@@ -324,7 +324,7 @@ function HelpBoardPage() {
               <button
                 onClick={() => setOpenDispute(null)}
                 aria-label="Close"
-                className="ml-auto p-2 rounded-lg text-slate-300 hover:bg-white/5 md:text-slate-600 md:hover:bg-slate-100"
+                className="ml-auto p-2 rounded-[10px] text-slate-300 hover:bg-white/5 md:text-slate-600 md:hover:bg-slate-100"
               >
                 <X className="w-5 h-5" />
               </button>

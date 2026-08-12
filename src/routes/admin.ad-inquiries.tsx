@@ -219,7 +219,7 @@ function AdInquiriesPage() {
                       href={u}
                       target="_blank"
                       rel="noopener noreferrer"
-                      className="block aspect-square rounded-lg overflow-hidden bg-black"
+                      className="block aspect-square rounded-[10px] overflow-hidden bg-black"
                     >
                       <img src={u} alt="" className="w-full h-full object-cover" />
                     </a>
@@ -227,7 +227,7 @@ function AdInquiriesPage() {
                 </div>
               )}
               {signed.video && (
-                <video src={signed.video} controls className="mt-3 w-full rounded-lg bg-black" />
+                <video src={signed.video} controls className="mt-3 w-full rounded-[10px] bg-black" />
               )}
               {selected.video_url && (
                 <a
@@ -285,7 +285,7 @@ function AdInquiriesPage() {
               <textarea
                 value={adminNotes}
                 onChange={(e) => setAdminNotes(e.target.value)}
-                className="w-full min-h-[80px] p-3 rounded-lg bg-[#0f0f12] border border-white/10 text-xs text-slate-200"
+                className="w-full min-h-[80px] p-3 rounded-[10px] bg-[#0f0f12] border border-white/10 text-xs text-slate-200"
                 placeholder="Internal notes…"
               />
             </Section>
@@ -337,7 +337,7 @@ function Section({ title, children }: { title: string; children: React.ReactNode
 }
 function Stat({ label, value }: { label: string; value: string }) {
   return (
-    <div className="p-2 rounded-lg bg-white/5">
+    <div className="p-2 rounded-[10px] bg-white/5">
       <div className="text-[10px] uppercase tracking-wider text-slate-500">{label}</div>
       <div className="text-sm font-black text-white mt-0.5">{value}</div>
     </div>

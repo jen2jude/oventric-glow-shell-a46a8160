@@ -59,7 +59,7 @@ function CashbackWalletPage() {
       </header>
 
       {err && (
-        <div className="mb-4 text-sm text-red-300 bg-red-500/10 border border-red-500/40 rounded-lg p-3">
+        <div className="mb-4 text-sm text-red-300 bg-red-500/10 border border-red-500/40 rounded-[10px] p-3">
           {err}
         </div>
       )}
@@ -183,7 +183,7 @@ function SummaryCard({
 }) {
   return (
     <div className={`bg-gradient-to-br ${tone} border rounded-2xl p-5`}>
-      <div className="w-10 h-10 rounded-lg bg-black/30 flex items-center justify-center mb-3">
+      <div className="w-10 h-10 rounded-[10px] bg-black/30 flex items-center justify-center mb-3">
         <Icon className="w-5 h-5 text-white" />
       </div>
       <div className="text-[11px] uppercase tracking-widest text-slate-300 font-bold">{label}</div>

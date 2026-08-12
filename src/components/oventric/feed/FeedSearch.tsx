@@ -77,7 +77,7 @@ export function FeedSearchBar({
           className={`w-full h-10 pl-10 pr-9 text-sm focus:outline-none transition-all ${
             appShell
               ? "rounded-full bg-[#141416] border border-white/[0.06] text-white placeholder:text-white/30 focus:border-[#E5484D]/50"
-              : "rounded-lg bg-[#141418] md:bg-slate-100 border border-white/10 md:border-slate-200 text-slate-200 md:text-slate-900 placeholder:text-slate-500 focus:border-[#E5484D]/60 focus:ring-2 focus:ring-[#E5484D]/20"
+              : "rounded-[10px] bg-[#141418] md:bg-slate-100 border border-white/10 md:border-slate-200 text-slate-200 md:text-slate-900 placeholder:text-slate-500 focus:border-[#E5484D]/60 focus:ring-2 focus:ring-[#E5484D]/20"
           }`}
         />
         {q && (
@@ -85,7 +85,7 @@ export function FeedSearchBar({
             type="button"
             onClick={() => onQueryChange("")}
             aria-label="Clear search"
-            className="absolute right-2 top-1/2 -translate-y-1/2 p-1 rounded-md text-slate-500 hover:text-slate-200 md:hover:text-slate-900 hover:bg-white/5 md:hover:bg-slate-200"
+            className="absolute right-2 top-1/2 -translate-y-1/2 p-1 rounded-[10px] text-slate-500 hover:text-slate-200 md:hover:text-slate-900 hover:bg-white/5 md:hover:bg-slate-200"
           >
             <X className="w-3.5 h-3.5" />
           </button>

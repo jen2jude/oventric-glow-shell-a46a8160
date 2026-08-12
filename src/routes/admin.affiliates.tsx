@@ -85,14 +85,14 @@ function AffiliateReservationsPage() {
         <button
           onClick={exportCsv}
           disabled={!rows || rows.length === 0}
-          className="inline-flex items-center gap-2 px-3 py-2 rounded-lg bg-emerald-500 hover:bg-emerald-400 disabled:opacity-50 text-black text-sm font-bold"
+          className="inline-flex items-center gap-2 px-3 py-2 rounded-[10px] bg-emerald-500 hover:bg-emerald-400 disabled:opacity-50 text-black text-sm font-bold"
         >
           <Download className="w-4 h-4" /> Export CSV
         </button>
       </header>
 
       {err && (
-        <div className="mb-4 text-sm text-red-300 bg-red-500/10 border border-red-500/40 rounded-lg p-3">
+        <div className="mb-4 text-sm text-red-300 bg-red-500/10 border border-red-500/40 rounded-[10px] p-3">
           {err}
         </div>
       )}
@@ -103,7 +103,7 @@ function AffiliateReservationsPage() {
           value={q}
           onChange={(e) => setQ(e.target.value)}
           placeholder="Search email, name, country…"
-          className="w-full pl-9 pr-3 py-2 bg-[#141418] border border-white/10 rounded-lg text-sm text-white placeholder:text-slate-500"
+          className="w-full pl-9 pr-3 py-2 bg-[#141418] border border-white/10 rounded-[10px] text-sm text-white placeholder:text-slate-500"
         />
       </div>
 

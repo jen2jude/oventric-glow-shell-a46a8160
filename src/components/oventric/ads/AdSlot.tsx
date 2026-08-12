@@ -166,33 +166,33 @@ function LeadFormModal({
             value={name}
             onChange={(e) => setName(e.target.value)}
             placeholder="Full name"
-            className="w-full bg-black/40 md:bg-slate-50 border border-white/10 md:border-slate-300 rounded-lg px-3 py-2 text-sm text-white md:text-slate-900 placeholder:text-slate-500"
+            className="w-full bg-black/40 md:bg-slate-50 border border-white/10 md:border-slate-300 rounded-[10px] px-3 py-2 text-sm text-white md:text-slate-900 placeholder:text-slate-500"
           />
           <input
             type="email"
             value={email}
             onChange={(e) => setEmail(e.target.value)}
             placeholder="Email"
-            className="w-full bg-black/40 md:bg-slate-50 border border-white/10 md:border-slate-300 rounded-lg px-3 py-2 text-sm text-white md:text-slate-900 placeholder:text-slate-500"
+            className="w-full bg-black/40 md:bg-slate-50 border border-white/10 md:border-slate-300 rounded-[10px] px-3 py-2 text-sm text-white md:text-slate-900 placeholder:text-slate-500"
           />
           <input
             value={phone}
             onChange={(e) => setPhone(e.target.value)}
             placeholder="Phone (optional)"
-            className="w-full bg-black/40 md:bg-slate-50 border border-white/10 md:border-slate-300 rounded-lg px-3 py-2 text-sm text-white md:text-slate-900 placeholder:text-slate-500"
+            className="w-full bg-black/40 md:bg-slate-50 border border-white/10 md:border-slate-300 rounded-[10px] px-3 py-2 text-sm text-white md:text-slate-900 placeholder:text-slate-500"
           />
           <textarea
             value={message}
             onChange={(e) => setMessage(e.target.value)}
             rows={3}
             placeholder="Message (optional)"
-            className="w-full bg-black/40 md:bg-slate-50 border border-white/10 md:border-slate-300 rounded-lg px-3 py-2 text-sm text-white md:text-slate-900 placeholder:text-slate-500 resize-none"
+            className="w-full bg-black/40 md:bg-slate-50 border border-white/10 md:border-slate-300 rounded-[10px] px-3 py-2 text-sm text-white md:text-slate-900 placeholder:text-slate-500 resize-none"
           />
         </div>
         <button
           onClick={submit}
           disabled={busy}
-          className="mt-3 w-full inline-flex items-center justify-center gap-1.5 py-2 rounded-lg bg-fuchsia-500 hover:bg-fuchsia-400 disabled:opacity-60 text-black font-bold text-sm"
+          className="mt-3 w-full inline-flex items-center justify-center gap-1.5 py-2 rounded-[10px] bg-fuchsia-500 hover:bg-fuchsia-400 disabled:opacity-60 text-black font-bold text-sm"
         >
           <Send className="w-4 h-4" /> {busy ? "Sending…" : ad.cta_label || "Submit"}
         </button>
@@ -334,7 +334,7 @@ function BannerAd({ ad, placement }: { ad: ServingAd; placement: AdPlacement }) 
           <button
             type="button"
             onClick={onClick}
-            className="self-start mt-1 inline-flex items-center justify-center px-3 py-1.5 bg-fuchsia-500 hover:bg-fuchsia-400 text-black font-semibold text-xs rounded-lg"
+            className="self-start mt-1 inline-flex items-center justify-center px-3 py-1.5 bg-fuchsia-500 hover:bg-fuchsia-400 text-black font-semibold text-xs rounded-[10px]"
           >
             {ad.cta_label || "Learn more"}
           </button>
@@ -376,7 +376,7 @@ function GridCardAd({ ad, placement }: { ad: ServingAd; placement: AdPlacement }
           <button
             type="button"
             onClick={onClick}
-            className="mt-auto inline-flex items-center justify-center px-3 py-1.5 bg-fuchsia-500 hover:bg-fuchsia-400 text-black font-semibold text-xs rounded-lg"
+            className="mt-auto inline-flex items-center justify-center px-3 py-1.5 bg-fuchsia-500 hover:bg-fuchsia-400 text-black font-semibold text-xs rounded-[10px]"
           >
             {ad.cta_label || "Learn more"}
           </button>
@@ -418,7 +418,7 @@ function RailAd({ ad, placement }: { ad: ServingAd; placement: AdPlacement }) {
           <button
             type="button"
             onClick={onClick}
-            className="mt-3 inline-flex items-center justify-center px-4 py-1.5 bg-fuchsia-500 hover:bg-fuchsia-400 text-black font-bold text-xs rounded-lg"
+            className="mt-3 inline-flex items-center justify-center px-4 py-1.5 bg-fuchsia-500 hover:bg-fuchsia-400 text-black font-bold text-xs rounded-[10px]"
           >
             {ad.cta_label || "Learn more"}
           </button>

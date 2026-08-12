@@ -268,7 +268,7 @@ export function BountySolveForm({ bountyId, canSubmit, delivered, onDelivered }:
           {view.summary}
         </p>
         {view.timeline && (
-          <div className="inline-flex items-center gap-1.5 text-xs font-semibold text-sky-200 md:text-sky-700 bg-sky-500/10 md:bg-sky-50 border border-sky-500/30 md:border-sky-200 rounded-lg px-2.5 py-1 mb-3">
+          <div className="inline-flex items-center gap-1.5 text-xs font-semibold text-sky-200 md:text-sky-700 bg-sky-500/10 md:bg-sky-50 border border-sky-500/30 md:border-sky-200 rounded-[10px] px-2.5 py-1 mb-3">
             <Clock className="w-3.5 h-3.5" /> {view.timeline}
           </div>
         )}
@@ -280,7 +280,7 @@ export function BountySolveForm({ bountyId, canSubmit, delivered, onDelivered }:
                 href={f.url ?? "#"}
                 target="_blank"
                 rel="noreferrer"
-                className="flex items-center gap-2 px-3 py-2 rounded-lg bg-white/5 md:bg-slate-50 border border-white/10 md:border-slate-200 text-sm text-white md:text-slate-800 hover:bg-white/10 md:hover:bg-slate-100"
+                className="flex items-center gap-2 px-3 py-2 rounded-[10px] bg-white/5 md:bg-slate-50 border border-white/10 md:border-slate-200 text-sm text-white md:text-slate-800 hover:bg-white/10 md:hover:bg-slate-100"
               >
                 <Paperclip className="w-4 h-4 text-slate-400 shrink-0" />
                 <span className="truncate flex-1">{f.name}</span>
@@ -316,7 +316,7 @@ export function BountySolveForm({ bountyId, canSubmit, delivered, onDelivered }:
         rows={5}
         maxLength={8000}
         placeholder="Explain your approach, what's included, and how the poster should review it…"
-        className="w-full rounded-lg bg-[#141418] md:bg-slate-50 border border-white/10 md:border-slate-200 text-sm text-white md:text-slate-900 placeholder:text-slate-500 p-3 outline-none focus:border-sky-500/60 resize-y"
+        className="w-full rounded-[10px] bg-[#141418] md:bg-slate-50 border border-white/10 md:border-slate-200 text-sm text-white md:text-slate-900 placeholder:text-slate-500 p-3 outline-none focus:border-sky-500/60 resize-y"
       />
       <div className="text-[11px] text-slate-500 mt-1 mb-4">{summary.length}/8000</div>
 
@@ -329,7 +329,7 @@ export function BountySolveForm({ bountyId, canSubmit, delivered, onDelivered }:
             key={t}
             type="button"
             onClick={() => setTimeline(t)}
-            className={`px-3 py-1.5 rounded-lg text-xs font-semibold border transition-colors ${
+            className={`px-3 py-1.5 rounded-[10px] text-xs font-semibold border transition-colors ${
               timeline === t
                 ? "bg-sky-500 border-sky-500 text-black"
                 : "bg-white/5 md:bg-slate-50 border-white/10 md:border-slate-200 text-slate-300 md:text-slate-600 hover:bg-white/10 md:hover:bg-slate-100"
@@ -345,7 +345,7 @@ export function BountySolveForm({ bountyId, canSubmit, delivered, onDelivered }:
           onChange={(e) => setCustomTimeline(e.target.value)}
           maxLength={200}
           placeholder="e.g. Final files by Friday 6pm"
-          className="w-full rounded-lg bg-[#141418] md:bg-slate-50 border border-white/10 md:border-slate-200 text-sm text-white md:text-slate-900 placeholder:text-slate-500 px-3 py-2 outline-none focus:border-sky-500/60 mb-2"
+          className="w-full rounded-[10px] bg-[#141418] md:bg-slate-50 border border-white/10 md:border-slate-200 text-sm text-white md:text-slate-900 placeholder:text-slate-500 px-3 py-2 outline-none focus:border-sky-500/60 mb-2"
         />
       )}
 
@@ -375,7 +375,7 @@ export function BountySolveForm({ bountyId, canSubmit, delivered, onDelivered }:
                 setDragIndex(null);
               }}
               onDragEnd={() => setDragIndex(null)}
-              className={`flex items-center gap-3 p-2 rounded-lg bg-white/5 md:bg-slate-50 border border-white/10 md:border-slate-200 text-sm text-white md:text-slate-800 ${dragIndex === idx ? "opacity-50" : ""}`}
+              className={`flex items-center gap-3 p-2 rounded-[10px] bg-white/5 md:bg-slate-50 border border-white/10 md:border-slate-200 text-sm text-white md:text-slate-800 ${dragIndex === idx ? "opacity-50" : ""}`}
             >
               <span className="text-slate-500 cursor-grab shrink-0" aria-hidden="true">
                 <GripVertical className="w-4 h-4" />
@@ -384,10 +384,10 @@ export function BountySolveForm({ bountyId, canSubmit, delivered, onDelivered }:
                 <img
                   src={preview}
                   alt={f.name}
-                  className="w-11 h-11 rounded-md object-cover border border-white/10 md:border-slate-200 shrink-0"
+                  className="w-11 h-11 rounded-[10px] object-cover border border-white/10 md:border-slate-200 shrink-0"
                 />
               ) : (
-                <div className="w-11 h-11 rounded-md bg-white/5 md:bg-white border border-white/10 md:border-slate-200 flex items-center justify-center shrink-0">
+                <div className="w-11 h-11 rounded-[10px] bg-white/5 md:bg-white border border-white/10 md:border-slate-200 flex items-center justify-center shrink-0">
                   <FileText className="w-5 h-5 text-slate-400" />
                 </div>
               )}
@@ -424,7 +424,7 @@ export function BountySolveForm({ bountyId, canSubmit, delivered, onDelivered }:
           Object.keys(uploadProgress).map((key) => (
             <div
               key={key}
-              className="flex items-center gap-3 p-2 rounded-lg bg-white/5 md:bg-slate-50 border border-white/10 md:border-slate-200 text-sm text-slate-400"
+              className="flex items-center gap-3 p-2 rounded-[10px] bg-white/5 md:bg-slate-50 border border-white/10 md:border-slate-200 text-sm text-slate-400"
             >
               <Loader2 className="w-4 h-4 animate-spin shrink-0" />
               <span className="truncate flex-1">Uploading…</span>
@@ -436,7 +436,7 @@ export function BountySolveForm({ bountyId, canSubmit, delivered, onDelivered }:
           {fileErrors.map((m, i) => (
             <div
               key={i}
-              className="text-xs font-semibold text-red-300 md:text-red-600 bg-red-500/10 border border-red-500/30 rounded-lg px-3 py-2"
+              className="text-xs font-semibold text-red-300 md:text-red-600 bg-red-500/10 border border-red-500/30 rounded-[10px] px-3 py-2"
             >
               {m}
             </div>
@@ -454,7 +454,7 @@ export function BountySolveForm({ bountyId, canSubmit, delivered, onDelivered }:
         type="button"
         disabled={isUploading || files.length >= 10}
         onClick={() => inputRef.current?.click()}
-        className="inline-flex items-center gap-1.5 px-3 py-2 rounded-lg bg-white/5 md:bg-slate-100 hover:bg-white/10 md:hover:bg-slate-200 border border-white/10 md:border-slate-200 text-white md:text-slate-800 text-sm font-semibold disabled:opacity-50"
+        className="inline-flex items-center gap-1.5 px-3 py-2 rounded-[10px] bg-white/5 md:bg-slate-100 hover:bg-white/10 md:hover:bg-slate-200 border border-white/10 md:border-slate-200 text-white md:text-slate-800 text-sm font-semibold disabled:opacity-50"
       >
         {isUploading ? (
           <Loader2 className="w-4 h-4 animate-spin" />
@@ -465,12 +465,12 @@ export function BountySolveForm({ bountyId, canSubmit, delivered, onDelivered }:
       </button>
 
       {err && (
-        <div className="mt-3 text-xs font-semibold text-red-300 md:text-red-600 bg-red-500/10 border border-red-500/30 rounded-lg px-3 py-2">
+        <div className="mt-3 text-xs font-semibold text-red-300 md:text-red-600 bg-red-500/10 border border-red-500/30 rounded-[10px] px-3 py-2">
           {err}
         </div>
       )}
       {msg && (
-        <div className="mt-3 text-xs font-semibold text-emerald-300 md:text-emerald-700 bg-emerald-500/10 border border-emerald-500/30 rounded-lg px-3 py-2">
+        <div className="mt-3 text-xs font-semibold text-emerald-300 md:text-emerald-700 bg-emerald-500/10 border border-emerald-500/30 rounded-[10px] px-3 py-2">
           {msg}
         </div>
       )}
@@ -480,7 +480,7 @@ export function BountySolveForm({ bountyId, canSubmit, delivered, onDelivered }:
           type="button"
           onClick={() => void persist(false)}
           disabled={busy !== null || isUploading}
-          className="inline-flex items-center gap-1.5 px-4 py-2 rounded-lg bg-white/5 md:bg-slate-100 hover:bg-white/10 md:hover:bg-slate-200 border border-white/10 md:border-slate-200 text-white md:text-slate-800 text-sm font-semibold disabled:opacity-50"
+          className="inline-flex items-center gap-1.5 px-4 py-2 rounded-[10px] bg-white/5 md:bg-slate-100 hover:bg-white/10 md:hover:bg-slate-200 border border-white/10 md:border-slate-200 text-white md:text-slate-800 text-sm font-semibold disabled:opacity-50"
         >
           {busy === "save" ? (
             <Loader2 className="w-4 h-4 animate-spin" />
@@ -494,7 +494,7 @@ export function BountySolveForm({ bountyId, canSubmit, delivered, onDelivered }:
             type="button"
             onClick={() => setConfirm(true)}
             disabled={busy !== null || isUploading || summary.trim().length < 20}
-            className="inline-flex items-center gap-1.5 px-4 py-2 rounded-lg bg-sky-500 hover:bg-sky-400 text-black text-sm font-bold disabled:opacity-50"
+            className="inline-flex items-center gap-1.5 px-4 py-2 rounded-[10px] bg-sky-500 hover:bg-sky-400 text-black text-sm font-bold disabled:opacity-50"
           >
             <Send className="w-4 h-4" /> Submit &amp; mark delivered
           </button>
@@ -504,7 +504,7 @@ export function BountySolveForm({ bountyId, canSubmit, delivered, onDelivered }:
             type="button"
             onClick={() => void persist(true)}
             disabled={busy !== null || isUploading}
-            className="inline-flex items-center gap-1.5 px-4 py-2 rounded-lg bg-sky-500/15 border border-sky-500/40 text-sky-200 md:text-sky-700 md:bg-sky-50 text-sm font-bold disabled:opacity-50"
+            className="inline-flex items-center gap-1.5 px-4 py-2 rounded-[10px] bg-sky-500/15 border border-sky-500/40 text-sky-200 md:text-sky-700 md:bg-sky-50 text-sm font-bold disabled:opacity-50"
           >
             <CheckCircle2 className="w-4 h-4" /> Update submission
           </button>
@@ -530,14 +530,14 @@ export function BountySolveForm({ bountyId, canSubmit, delivered, onDelivered }:
             <div className="flex gap-2 justify-end">
               <button
                 onClick={() => setConfirm(false)}
-                className="px-4 py-2 rounded-lg bg-white/5 md:bg-slate-100 border border-white/10 md:border-slate-200 text-white md:text-slate-800 text-sm font-semibold"
+                className="px-4 py-2 rounded-[10px] bg-white/5 md:bg-slate-100 border border-white/10 md:border-slate-200 text-white md:text-slate-800 text-sm font-semibold"
               >
                 Cancel
               </button>
               <button
                 onClick={() => void persist(true)}
                 disabled={busy !== null}
-                className="inline-flex items-center gap-1.5 px-4 py-2 rounded-lg bg-sky-500 hover:bg-sky-400 text-black text-sm font-bold disabled:opacity-50"
+                className="inline-flex items-center gap-1.5 px-4 py-2 rounded-[10px] bg-sky-500 hover:bg-sky-400 text-black text-sm font-bold disabled:opacity-50"
               >
                 {busy === "submit" ? (
                   <Loader2 className="w-4 h-4 animate-spin" />
@@ -577,7 +577,7 @@ export function BountySolveForm({ bountyId, canSubmit, delivered, onDelivered }:
             <div className="flex gap-2 justify-end">
               <button
                 onClick={() => setRemoveConfirm(null)}
-                className="px-4 py-2 rounded-lg bg-white/5 md:bg-slate-100 border border-white/10 md:border-slate-200 text-white md:text-slate-800 text-sm font-semibold"
+                className="px-4 py-2 rounded-[10px] bg-white/5 md:bg-slate-100 border border-white/10 md:border-slate-200 text-white md:text-slate-800 text-sm font-semibold"
               >
                 Keep it
               </button>
@@ -587,7 +587,7 @@ export function BountySolveForm({ bountyId, canSubmit, delivered, onDelivered }:
                   setRemoveConfirm(null);
                   doRemoveFile(path);
                 }}
-                className="inline-flex items-center gap-1.5 px-4 py-2 rounded-lg bg-red-500 hover:bg-red-400 text-black text-sm font-bold"
+                className="inline-flex items-center gap-1.5 px-4 py-2 rounded-[10px] bg-red-500 hover:bg-red-400 text-black text-sm font-bold"
               >
                 <Trash2 className="w-4 h-4" />
                 Remove

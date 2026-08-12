@@ -115,7 +115,7 @@ function SellersPage() {
               value={q}
               onChange={(e) => setQ(e.target.value)}
               placeholder="Search sellers..."
-              className="bg-[#141418] border border-white/10 rounded-lg pl-9 pr-4 py-2 text-sm text-white w-64 focus:outline-none focus:border-emerald-500/50"
+              className="bg-[#141418] border border-white/10 rounded-[10px] pl-9 pr-4 py-2 text-sm text-white w-64 focus:outline-none focus:border-emerald-500/50"
             />
           </div>
         </div>
@@ -126,7 +126,7 @@ function SellersPage() {
           <button
             key={f}
             onClick={() => setFilter(f)}
-            className={`px-4 py-2 rounded-lg text-xs font-bold border transition-colors whitespace-nowrap ${
+            className={`px-4 py-2 rounded-[10px] text-xs font-bold border transition-colors whitespace-nowrap ${
               filter === f
                 ? "bg-emerald-500 text-black border-emerald-500"
                 : "bg-[#141418] border-white/10 text-slate-400 hover:text-white"
@@ -163,12 +163,12 @@ function SellersPage() {
                 </div>
                 <div className="flex gap-1">
                   {s.kyc_completed_at && (
-                    <div title="Verified" className="p-1.5 rounded-lg bg-emerald-500/10 text-emerald-400 border border-emerald-500/20">
+                    <div title="Verified" className="p-1.5 rounded-[10px] bg-emerald-500/10 text-emerald-400 border border-emerald-500/20">
                       <ShieldCheck className="w-4 h-4" />
                     </div>
                   )}
                   {s.is_featured && (
-                    <div title="Featured" className="p-1.5 rounded-lg bg-amber-500/10 text-amber-400 border border-amber-500/20">
+                    <div title="Featured" className="p-1.5 rounded-[10px] bg-amber-500/10 text-amber-400 border border-amber-500/20">
                       <Award className="w-4 h-4" />
                     </div>
                   )}
@@ -194,7 +194,7 @@ function SellersPage() {
                   <button
                     onClick={() => handleVerify(s.user_id, "TIER_1")}
                     disabled={busy === s.user_id}
-                    className="flex-1 py-2 rounded-lg bg-emerald-500 hover:bg-emerald-400 text-black text-xs font-black transition-colors disabled:opacity-50"
+                    className="flex-1 py-2 rounded-[10px] bg-emerald-500 hover:bg-emerald-400 text-black text-xs font-black transition-colors disabled:opacity-50"
                   >
                     Verify Tier 1
                   </button>
@@ -202,7 +202,7 @@ function SellersPage() {
                    <button
                     onClick={() => handleFeature(s.user_id, !s.is_featured)}
                     disabled={busy === s.user_id}
-                    className={`flex-1 py-2 rounded-lg text-xs font-black transition-colors disabled:opacity-50 border ${
+                    className={`flex-1 py-2 rounded-[10px] text-xs font-black transition-colors disabled:opacity-50 border ${
                       s.is_featured 
                         ? "bg-amber-500/10 border-amber-500/40 text-amber-200" 
                         : "bg-white/5 border-white/10 text-slate-300 hover:bg-white/10"
@@ -214,7 +214,7 @@ function SellersPage() {
                 
                 <button
                   disabled={busy === s.user_id}
-                  className="px-3 py-2 rounded-lg bg-white/5 border border-white/10 text-slate-400 hover:text-white transition-colors"
+                  className="px-3 py-2 rounded-[10px] bg-white/5 border border-white/10 text-slate-400 hover:text-white transition-colors"
                 >
                   <MoreVertical className="w-4 h-4" />
                 </button>

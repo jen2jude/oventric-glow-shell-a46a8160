@@ -86,7 +86,7 @@ function CategoriesPage() {
           onClick={() =>
             setEditing({ enabled: true, sort_order: parents.length, kind: tab, parent_id: null })
           }
-          className="inline-flex items-center gap-1 px-3 py-2 rounded-lg bg-emerald-500 text-black text-sm font-bold hover:bg-emerald-400"
+          className="inline-flex items-center gap-1 px-3 py-2 rounded-[10px] bg-emerald-500 text-black text-sm font-bold hover:bg-emerald-400"
         >
           <Plus className="w-4 h-4" /> New
         </button>
@@ -97,7 +97,7 @@ function CategoriesPage() {
           <button
             key={k}
             onClick={() => setTab(k)}
-            className={`px-4 py-1.5 text-sm font-semibold rounded-lg capitalize ${
+            className={`px-4 py-1.5 text-sm font-semibold rounded-[10px] capitalize ${
               tab === k ? "bg-emerald-500 text-black" : "text-slate-300 hover:text-white"
             }`}
           >
@@ -148,7 +148,7 @@ function CategoriesPage() {
                       parent_id: c.id,
                     })
                   }
-                  className="mt-1 self-start inline-flex items-center gap-1 px-2 py-1 rounded-lg bg-white/5 hover:bg-white/10 border border-white/10 text-xs text-slate-200"
+                  className="mt-1 self-start inline-flex items-center gap-1 px-2 py-1 rounded-[10px] bg-white/5 hover:bg-white/10 border border-white/10 text-xs text-slate-200"
                 >
                   <Plus className="w-3 h-3" /> Add subcategory
                 </button>
@@ -258,13 +258,13 @@ function CategoriesPage() {
             <div className="flex justify-end gap-2 mt-5">
               <button
                 onClick={() => setEditing(null)}
-                className="px-3 py-2 rounded-lg text-slate-300 hover:bg-white/5 text-sm"
+                className="px-3 py-2 rounded-[10px] text-slate-300 hover:bg-white/5 text-sm"
               >
                 Cancel
               </button>
               <button
                 onClick={save}
-                className="px-4 py-2 rounded-lg bg-emerald-500 hover:bg-emerald-400 text-black text-sm font-bold"
+                className="px-4 py-2 rounded-[10px] bg-emerald-500 hover:bg-emerald-400 text-black text-sm font-bold"
               >
                 Save
               </button>
@@ -299,13 +299,13 @@ function CategoryRow({
       </div>
       <button
         onClick={onEdit}
-        className="px-2 py-1 rounded-lg bg-white/5 hover:bg-white/10 border border-white/10 text-xs text-slate-200"
+        className="px-2 py-1 rounded-[10px] bg-white/5 hover:bg-white/10 border border-white/10 text-xs text-slate-200"
       >
         Edit
       </button>
       <button
         onClick={onDelete}
-        className="p-2 rounded-lg bg-red-500/10 hover:bg-red-500/20 border border-red-500/30 text-red-300"
+        className="p-2 rounded-[10px] bg-red-500/10 hover:bg-red-500/20 border border-red-500/30 text-red-300"
       >
         <Trash2 className="w-4 h-4" />
       </button>
@@ -313,7 +313,7 @@ function CategoryRow({
   );
 }
 
-const inp = "w-full bg-[#0b0b0d] border border-white/10 rounded-lg px-3 py-2 text-sm text-white";
+const inp = "w-full bg-[#0b0b0d] border border-white/10 rounded-[10px] px-3 py-2 text-sm text-white";
 function F({ label, children }: { label: string; children: React.ReactNode }) {
   return (
     <label className="block">

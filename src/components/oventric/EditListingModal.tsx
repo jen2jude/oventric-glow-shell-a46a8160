@@ -234,7 +234,7 @@ export function EditListingModal({ product, onClose, onResubmitted }: Props) {
             </p>
             <button
               onClick={onClose}
-              className="px-6 py-2 bg-emerald-500 hover:bg-emerald-400 text-black font-semibold text-sm rounded-lg"
+              className="px-6 py-2 bg-emerald-500 hover:bg-emerald-400 text-black font-semibold text-sm rounded-[10px]"
             >
               OK
             </button>
@@ -252,7 +252,7 @@ export function EditListingModal({ product, onClose, onResubmitted }: Props) {
               <button
                 onClick={onClose}
                 disabled={submitting}
-                className="p-2 rounded-lg hover:bg-white/5 text-slate-400 hover:text-white disabled:opacity-40"
+                className="p-2 rounded-[10px] hover:bg-white/5 text-slate-400 hover:text-white disabled:opacity-40"
                 aria-label="Close"
               >
                 <X className="w-5 h-5" />
@@ -260,7 +260,7 @@ export function EditListingModal({ product, onClose, onResubmitted }: Props) {
             </div>
 
             {product.rejectReason && (
-              <div className="mb-4 rounded-lg border border-amber-500/40 bg-amber-500/5 p-3">
+              <div className="mb-4 rounded-[10px] border border-amber-500/40 bg-amber-500/5 p-3">
                 <div className="flex items-start gap-2">
                   <AlertTriangle className="w-4 h-4 text-amber-400 mt-0.5 shrink-0" />
                   <div className="min-w-0">
@@ -281,7 +281,7 @@ export function EditListingModal({ product, onClose, onResubmitted }: Props) {
                 <input
                   value={name}
                   onChange={(e) => setName(e.target.value)}
-                  className="mt-1 w-full bg-[#121214] border border-white/10 rounded-lg px-3 py-2 text-sm text-white outline-none focus:border-emerald-500/60"
+                  className="mt-1 w-full bg-[#121214] border border-white/10 rounded-[10px] px-3 py-2 text-sm text-white outline-none focus:border-emerald-500/60"
                 />
               </label>
 
@@ -295,7 +295,7 @@ export function EditListingModal({ product, onClose, onResubmitted }: Props) {
                         setCategory(e.target.value);
                         setSubcategory("");
                       }}
-                      className="mt-1 w-full bg-[#121214] border border-white/10 rounded-lg px-3 py-2 text-sm text-white"
+                      className="mt-1 w-full bg-[#121214] border border-white/10 rounded-[10px] px-3 py-2 text-sm text-white"
                     >
                       {PHYS_CATEGORIES.map((c) => (
                         <option key={c.value} value={c.value}>
@@ -310,7 +310,7 @@ export function EditListingModal({ product, onClose, onResubmitted }: Props) {
                       <select
                         value={subcategory}
                         onChange={(e) => setSubcategory(e.target.value)}
-                        className="mt-1 w-full bg-[#121214] border border-white/10 rounded-lg px-3 py-2 text-sm text-white"
+                        className="mt-1 w-full bg-[#121214] border border-white/10 rounded-[10px] px-3 py-2 text-sm text-white"
                       >
                         <option value="">Optional</option>
                         {chosenCat.subs.map((s) => (
@@ -332,7 +332,7 @@ export function EditListingModal({ product, onClose, onResubmitted }: Props) {
                       <input
                         value={location}
                         onChange={(e) => setLocation(e.target.value)}
-                        className="mt-1 w-full bg-[#121214] border border-white/10 rounded-lg px-3 py-2 text-sm text-white outline-none focus:border-emerald-500/60"
+                        className="mt-1 w-full bg-[#121214] border border-white/10 rounded-[10px] px-3 py-2 text-sm text-white outline-none focus:border-emerald-500/60"
                       />
                     </label>
                     <label className="block">
@@ -340,7 +340,7 @@ export function EditListingModal({ product, onClose, onResubmitted }: Props) {
                       <input
                         value={brand}
                         onChange={(e) => setBrand(e.target.value)}
-                        className="mt-1 w-full bg-[#121214] border border-white/10 rounded-lg px-3 py-2 text-sm text-white outline-none focus:border-emerald-500/60"
+                        className="mt-1 w-full bg-[#121214] border border-white/10 rounded-[10px] px-3 py-2 text-sm text-white outline-none focus:border-emerald-500/60"
                       />
                     </label>
                   </div>
@@ -374,7 +374,7 @@ export function EditListingModal({ product, onClose, onResubmitted }: Props) {
                         {existing.map((img, i) => (
                           <div
                             key={`e-${img.path}`}
-                            className={`relative aspect-square rounded-md overflow-hidden border ${i === 0 ? "border-emerald-500/60" : "border-white/10"}`}
+                            className={`relative aspect-square rounded-[10px] overflow-hidden border ${i === 0 ? "border-emerald-500/60" : "border-white/10"}`}
                           >
                             {img.url ? (
                               <img
@@ -404,7 +404,7 @@ export function EditListingModal({ product, onClose, onResubmitted }: Props) {
                         {newPreviews.map((src, i) => (
                           <div
                             key={`n-${i}`}
-                            className="relative aspect-square rounded-md overflow-hidden border border-emerald-400/40"
+                            className="relative aspect-square rounded-[10px] overflow-hidden border border-emerald-400/40"
                           >
                             <img
                               src={src}
@@ -427,7 +427,7 @@ export function EditListingModal({ product, onClose, onResubmitted }: Props) {
                         ))}
                       </div>
                     )}
-                    <label className="mt-2 flex items-center gap-3 border border-dashed border-white/15 rounded-lg p-3 cursor-pointer hover:border-emerald-500/60">
+                    <label className="mt-2 flex items-center gap-3 border border-dashed border-white/15 rounded-[10px] p-3 cursor-pointer hover:border-emerald-500/60">
                       <input
                         type="file"
                         accept="image/*"
@@ -435,7 +435,7 @@ export function EditListingModal({ product, onClose, onResubmitted }: Props) {
                         className="hidden"
                         onChange={(e) => addImages(e.target.files)}
                       />
-                      <div className="w-12 h-12 rounded-md bg-[#121214] border border-white/10 flex items-center justify-center text-emerald-400">
+                      <div className="w-12 h-12 rounded-[10px] bg-[#121214] border border-white/10 flex items-center justify-center text-emerald-400">
                         <ImagePlus className="w-5 h-5" />
                       </div>
                       <div className="text-xs text-slate-400">
@@ -451,7 +451,7 @@ export function EditListingModal({ product, onClose, onResubmitted }: Props) {
                     <input
                       value={socialLink}
                       onChange={(e) => setSocialLink(e.target.value)}
-                      className="mt-1 w-full bg-[#121214] border border-white/10 rounded-lg px-3 py-2 text-sm text-white outline-none focus:border-emerald-500/60"
+                      className="mt-1 w-full bg-[#121214] border border-white/10 rounded-[10px] px-3 py-2 text-sm text-white outline-none focus:border-emerald-500/60"
                     />
                   </label>
                 </>
@@ -466,7 +466,7 @@ export function EditListingModal({ product, onClose, onResubmitted }: Props) {
                     value={externalUrl}
                     onChange={(e) => setExternalUrl(e.target.value)}
                     placeholder="https://…"
-                    className="mt-1 w-full bg-[#121214] border border-white/10 rounded-lg px-3 py-2 text-sm text-white outline-none focus:border-emerald-500/60"
+                    className="mt-1 w-full bg-[#121214] border border-white/10 rounded-[10px] px-3 py-2 text-sm text-white outline-none focus:border-emerald-500/60"
                   />
                 </label>
               )}
@@ -477,7 +477,7 @@ export function EditListingModal({ product, onClose, onResubmitted }: Props) {
                   value={description}
                   onChange={(e) => setDescription(e.target.value)}
                   rows={4}
-                  className="mt-1 w-full bg-[#121214] border border-white/10 rounded-lg px-3 py-2 text-sm text-white outline-none focus:border-emerald-500/60 resize-none"
+                  className="mt-1 w-full bg-[#121214] border border-white/10 rounded-[10px] px-3 py-2 text-sm text-white outline-none focus:border-emerald-500/60 resize-none"
                 />
               </label>
 
@@ -488,7 +488,7 @@ export function EditListingModal({ product, onClose, onResubmitted }: Props) {
                     value={basicInfo}
                     onChange={(e) => setBasicInfo(e.target.value)}
                     rows={3}
-                    className="mt-1 w-full bg-[#121214] border border-white/10 rounded-lg px-3 py-2 text-sm text-white outline-none focus:border-emerald-500/60 resize-none"
+                    className="mt-1 w-full bg-[#121214] border border-white/10 rounded-[10px] px-3 py-2 text-sm text-white outline-none focus:border-emerald-500/60 resize-none"
                   />
                 </label>
                 {!isPhysical && (
@@ -498,7 +498,7 @@ export function EditListingModal({ product, onClose, onResubmitted }: Props) {
                       value={activationGuide}
                       onChange={(e) => setActivationGuide(e.target.value)}
                       rows={3}
-                      className="mt-1 w-full bg-[#121214] border border-white/10 rounded-lg px-3 py-2 text-sm text-white outline-none focus:border-emerald-500/60 resize-none"
+                      className="mt-1 w-full bg-[#121214] border border-white/10 rounded-[10px] px-3 py-2 text-sm text-white outline-none focus:border-emerald-500/60 resize-none"
                     />
                   </label>
                 )}
@@ -511,7 +511,7 @@ export function EditListingModal({ product, onClose, onResubmitted }: Props) {
                     value={priceInput}
                     onChange={(e) => setPriceInput(e.target.value)}
                     inputMode="decimal"
-                    className="mt-1 w-full bg-[#121214] border border-white/10 rounded-lg px-3 py-2 text-sm text-white outline-none focus:border-emerald-500/60"
+                    className="mt-1 w-full bg-[#121214] border border-white/10 rounded-[10px] px-3 py-2 text-sm text-white outline-none focus:border-emerald-500/60"
                   />
                 </label>
                 {isPhysical && (
@@ -523,7 +523,7 @@ export function EditListingModal({ product, onClose, onResubmitted }: Props) {
                       value={phone}
                       onChange={(e) => setPhone(e.target.value.replace(/\D/g, ""))}
                       inputMode="numeric"
-                      className="mt-1 w-full bg-[#121214] border border-white/10 rounded-lg px-3 py-2 text-sm text-white outline-none focus:border-emerald-500/60"
+                      className="mt-1 w-full bg-[#121214] border border-white/10 rounded-[10px] px-3 py-2 text-sm text-white outline-none focus:border-emerald-500/60"
                     />
                   </label>
                 )}
@@ -573,7 +573,7 @@ export function EditListingModal({ product, onClose, onResubmitted }: Props) {
                   onChange={(e) => setSellerResponse(e.target.value)}
                   rows={3}
                   placeholder="Explain what you changed or clarify anything about the listing…"
-                  className="mt-1 w-full bg-[#121214] border border-white/10 rounded-lg px-3 py-2 text-sm text-white outline-none focus:border-emerald-500/60 resize-none"
+                  className="mt-1 w-full bg-[#121214] border border-white/10 rounded-[10px] px-3 py-2 text-sm text-white outline-none focus:border-emerald-500/60 resize-none"
                 />
                 <span className="text-[10px] text-slate-500 mt-1 block">
                   This note is sent to the admin team along with your resubmission.
@@ -587,14 +587,14 @@ export function EditListingModal({ product, onClose, onResubmitted }: Props) {
                     type="button"
                     onClick={onClose}
                     disabled={submitting}
-                    className="px-4 py-2 rounded-lg border border-white/10 text-slate-300 hover:text-white hover:bg-white/5 text-sm disabled:opacity-40"
+                    className="px-4 py-2 rounded-[10px] border border-white/10 text-slate-300 hover:text-white hover:bg-white/5 text-sm disabled:opacity-40"
                   >
                     Cancel
                   </button>
                   <button
                     type="submit"
                     disabled={submitting}
-                    className="px-4 py-2 rounded-lg bg-emerald-500 hover:bg-emerald-400 text-black font-semibold text-sm flex items-center gap-2 disabled:opacity-60"
+                    className="px-4 py-2 rounded-[10px] bg-emerald-500 hover:bg-emerald-400 text-black font-semibold text-sm flex items-center gap-2 disabled:opacity-60"
                   >
                     {submitting && <Loader2 className="w-4 h-4 animate-spin" />}
                     {submitting ? "Resubmitting…" : "Resubmit for review"}

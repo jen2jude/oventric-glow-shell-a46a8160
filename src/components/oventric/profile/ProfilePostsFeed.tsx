@@ -369,7 +369,7 @@ export function ProfilePostsFeed({ wallUserId, wallOwnerName, viewerId }: Props)
             <button
               type="button"
               onClick={() => setComposerOpen(true)}
-              className="mt-3 inline-flex items-center gap-2 rounded-lg bg-[#E5484D] px-3 py-1.5 text-sm font-semibold text-white hover:bg-[#C43D42]"
+              className="mt-3 inline-flex items-center gap-2 rounded-[10px] bg-[#E5484D] px-3 py-1.5 text-sm font-semibold text-white hover:bg-[#C43D42]"
             >
               <PenSquare className="h-3.5 w-3.5" /> Write a post
             </button>

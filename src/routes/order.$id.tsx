@@ -66,13 +66,13 @@ function OrderPage() {
       >
         <Link
           to="/"
-          className="inline-flex items-center gap-2 text-sm text-slate-300 md:text-slate-600 bg-[#1E1E24] md:shadow-sm md:bg-white border border-white/10 md:border-slate-200 rounded-lg px-3 py-2 mb-5"
+          className="inline-flex items-center gap-2 text-sm text-slate-300 md:text-slate-600 bg-[#1E1E24] md:shadow-sm md:bg-white border border-white/10 md:border-slate-200 rounded-[10px] px-3 py-2 mb-5"
         >
           <ArrowLeft className="w-4 h-4" /> Back to Marketplace
         </Link>
 
         {err && (
-          <div className="bg-[#1E1E24] md:shadow-sm md:bg-white border border-red-500/40 rounded-lg p-4 text-sm text-red-300">
+          <div className="bg-[#1E1E24] md:shadow-sm md:bg-white border border-red-500/40 rounded-[10px] p-4 text-sm text-red-300">
             {err}
           </div>
         )}
@@ -96,7 +96,7 @@ function OrderPage() {
               </p>
             </div>
 
-            <div className="bg-[#1E1E24] md:shadow-sm md:bg-white border border-white/10 md:border-slate-200 rounded-lg p-4 mb-4">
+            <div className="bg-[#1E1E24] md:shadow-sm md:bg-white border border-white/10 md:border-slate-200 rounded-[10px] p-4 mb-4">
               <div className="flex items-start justify-between gap-3 mb-3">
                 <div className="min-w-0">
                   <div className="text-[10px] font-bold uppercase tracking-widest text-emerald-400 mb-0.5">
@@ -142,7 +142,7 @@ function OrderPage() {
             </div>
 
             {order.requiresManualDelivery ? (
-              <div className="bg-[#1E1E24] md:shadow-sm md:bg-white border border-amber-500/40 rounded-lg p-4">
+              <div className="bg-[#1E1E24] md:shadow-sm md:bg-white border border-amber-500/40 rounded-[10px] p-4">
                 <h2 className="text-white md:text-slate-900 font-bold text-base mb-1">
                   Manual delivery
                 </h2>
@@ -150,7 +150,7 @@ function OrderPage() {
                   Payment received and held in escrow. The seller delivers this asset to you inside
                   your Oventric chat. Expect contact within 24 hours.
                 </p>
-                <div className="rounded-md border border-amber-500/40 bg-amber-500/5 p-3 text-[11px] text-amber-100 leading-relaxed mb-3">
+                <div className="rounded-[10px] border border-amber-500/40 bg-amber-500/5 p-3 text-[11px] text-amber-100 leading-relaxed mb-3">
                   <strong className="text-amber-200">Keep the whole trade on Oventric.</strong> The
                   seller sends the file, link, or setup instructions through your in-app chat. Once
                   you have the goods, tap <em>Confirm receipt</em> to release payment.{" "}
@@ -160,7 +160,7 @@ function OrderPage() {
                   — escrow, refunds and dispute mediation only cover deals completed here.
                 </div>
                 {order.servicePackage && (
-                  <div className="mb-3 rounded-md border border-white/10 md:border-slate-200 bg-[#121214] md:bg-slate-50 px-3 py-2 text-xs">
+                  <div className="mb-3 rounded-[10px] border border-white/10 md:border-slate-200 bg-[#121214] md:bg-slate-50 px-3 py-2 text-xs">
                     <div className="text-[10px] uppercase tracking-widest text-slate-500 mb-1">
                       Package
                     </div>
@@ -185,7 +185,7 @@ function OrderPage() {
                   </div>
                 )}
                 {order.serviceBrief && Object.keys(order.serviceBrief).length > 0 && (
-                  <div className="mb-3 rounded-md border border-white/10 md:border-slate-200 bg-[#121214] md:bg-slate-50 px-3 py-2 text-xs">
+                  <div className="mb-3 rounded-[10px] border border-white/10 md:border-slate-200 bg-[#121214] md:bg-slate-50 px-3 py-2 text-xs">
                     <div className="text-[10px] uppercase tracking-widest text-slate-500 mb-1">
                       Project brief
                     </div>
@@ -204,7 +204,7 @@ function OrderPage() {
                   </div>
                 )}
                 <div className="text-xs">
-                  <div className="bg-[#121214] md:bg-slate-50 border border-white/10 md:border-slate-200 rounded-md px-3 py-2">
+                  <div className="bg-[#121214] md:bg-slate-50 border border-white/10 md:border-slate-200 rounded-[10px] px-3 py-2">
                     <div className="text-[10px] uppercase tracking-widest text-slate-500 md:text-slate-500 mb-0.5">
                       Receipt email
                     </div>
@@ -215,7 +215,7 @@ function OrderPage() {
                 </div>
               </div>
             ) : (
-              <div className="bg-[#1E1E24] md:shadow-sm md:bg-white border border-emerald-500/40 rounded-lg p-4">
+              <div className="bg-[#1E1E24] md:shadow-sm md:bg-white border border-emerald-500/40 rounded-[10px] p-4">
                 <h2 className="text-white md:text-slate-900 font-bold text-base mb-1">
                   Your download
                 </h2>
@@ -231,7 +231,7 @@ function OrderPage() {
                     href={href}
                     target="_blank"
                     rel="noreferrer"
-                    className="inline-flex items-center gap-2 px-4 py-2.5 rounded-md bg-emerald-500 text-black font-bold text-sm"
+                    className="inline-flex items-center gap-2 px-4 py-2.5 rounded-[10px] bg-emerald-500 text-black font-bold text-sm"
                   >
                     {downloadUrl ? (
                       <>

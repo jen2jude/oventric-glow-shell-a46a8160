@@ -41,7 +41,7 @@ export function ProductBubbleCard({
 
   return (
     <div
-      className={`mt-2 rounded-lg overflow-hidden border ${
+      className={`mt-2 rounded-[10px] overflow-hidden border ${
         mine
           ? "border-white/30 bg-black/15"
           : "border-white/10 md:border-slate-200 bg-black/20 md:bg-white"

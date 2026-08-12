@@ -104,7 +104,7 @@ function SystemWalletsPage() {
           </p>
         </div>
         <div className="flex items-center gap-2 shrink-0">
-          <div className="inline-flex rounded-lg overflow-hidden border border-white/10 bg-[#0b0b0d]">
+          <div className="inline-flex rounded-[10px] overflow-hidden border border-white/10 bg-[#0b0b0d]">
             {(["NGN", "USD", "GHS"] as ViewCur[]).map((c) => (
               <button
                 key={c}
@@ -117,7 +117,7 @@ function SystemWalletsPage() {
           </div>
           <Link
             to="/admin/cashback-wallet"
-            className="px-3 py-2 rounded-lg bg-pink-500/20 border border-pink-500/40 text-pink-200 text-xs font-bold hover:bg-pink-500/30"
+            className="px-3 py-2 rounded-[10px] bg-pink-500/20 border border-pink-500/40 text-pink-200 text-xs font-bold hover:bg-pink-500/30"
           >
             Cashback Wallet →
           </Link>
@@ -125,7 +125,7 @@ function SystemWalletsPage() {
       </header>
 
       {err && (
-        <div className="mb-4 text-sm text-red-300 bg-red-500/10 border border-red-500/40 rounded-lg p-3">
+        <div className="mb-4 text-sm text-red-300 bg-red-500/10 border border-red-500/40 rounded-[10px] p-3">
           {err}
         </div>
       )}
@@ -141,7 +141,7 @@ function SystemWalletsPage() {
             return (
               <div key={k} className={`bg-gradient-to-br ${m.hue} border rounded-2xl p-5`}>
                 <div className="flex items-center justify-between mb-3">
-                  <div className="w-10 h-10 rounded-lg bg-black/30 flex items-center justify-center">
+                  <div className="w-10 h-10 rounded-[10px] bg-black/30 flex items-center justify-center">
                     <Icon className="w-5 h-5 text-white" />
                   </div>
                   <ArrowUpRight className="w-4 h-4 text-white/50" />
@@ -170,7 +170,7 @@ function SystemWalletsPage() {
           <select
             value={filter}
             onChange={(e) => setFilter(e.target.value as SystemWalletKind | "ALL")}
-            className="bg-[#0b0b0d] border border-white/10 rounded-lg px-3 py-1.5 text-xs text-white"
+            className="bg-[#0b0b0d] border border-white/10 rounded-[10px] px-3 py-1.5 text-xs text-white"
           >
             <option value="ALL">All wallets</option>
             <option value="marketplace">Marketplace</option>

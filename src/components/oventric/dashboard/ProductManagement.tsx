@@ -133,14 +133,14 @@ export function ProductManagement() {
               <div className="flex items-center gap-1">
                 <button 
                   onClick={() => setEditing(product)}
-                  className="p-2 rounded-lg hover:bg-white/5 text-slate-400 hover:text-white transition-colors"
+                  className="p-2 rounded-[10px] hover:bg-white/5 text-slate-400 hover:text-white transition-colors"
                   title="Edit"
                 >
                   <Pencil className="w-4 h-4" />
                 </button>
                 <button 
                   onClick={() => handleToggleStatus(product.id, product.status)}
-                  className="p-2 rounded-lg hover:bg-white/5 text-slate-400 hover:text-white transition-colors"
+                  className="p-2 rounded-[10px] hover:bg-white/5 text-slate-400 hover:text-white transition-colors"
                   title={product.status === "active" ? "Unpublish" : "Publish"}
                 >
                   {product.status === "active" ? <EyeOff className="w-4 h-4" /> : <Eye className="w-4 h-4" />}
@@ -148,7 +148,7 @@ export function ProductManagement() {
                 <Link
                   to="/product/$id"
                   params={{ id: product.id }}
-                  className="p-2 rounded-lg hover:bg-white/5 text-slate-400 hover:text-white transition-colors"
+                  className="p-2 rounded-[10px] hover:bg-white/5 text-slate-400 hover:text-white transition-colors"
                   title="View on Store"
                 >
                   <ExternalLink className="w-4 h-4" />
@@ -157,7 +157,7 @@ export function ProductManagement() {
               
               <button 
                 onClick={() => handleDelete(product.id)}
-                className="p-2 rounded-lg hover:bg-red-500/10 text-slate-500 hover:text-red-400 transition-colors"
+                className="p-2 rounded-[10px] hover:bg-red-500/10 text-slate-500 hover:text-red-400 transition-colors"
                 title="Delete"
               >
                 <Trash2 className="w-4 h-4" />

@@ -141,7 +141,7 @@ function AdsManagerPage() {
           </div>
           <button
             onClick={openCreate}
-            className="inline-flex items-center gap-2 rounded-lg bg-emerald-500 text-black px-3 py-2 text-sm font-bold hover:bg-emerald-400 shrink-0"
+            className="inline-flex items-center gap-2 rounded-[10px] bg-emerald-500 text-black px-3 py-2 text-sm font-bold hover:bg-emerald-400 shrink-0"
           >
             <Plus className="w-4 h-4" /> New banner ad
           </button>
@@ -158,13 +158,13 @@ function AdsManagerPage() {
             <div className="flex flex-wrap items-center justify-center gap-2 mt-4">
               <button
                 onClick={openCreate}
-                className="inline-flex items-center gap-2 rounded-lg bg-emerald-500 text-black px-4 py-2 text-sm font-semibold hover:bg-emerald-400"
+                className="inline-flex items-center gap-2 rounded-[10px] bg-emerald-500 text-black px-4 py-2 text-sm font-semibold hover:bg-emerald-400"
               >
                 <Plus className="w-4 h-4" /> New banner ad
               </button>
               <Link
                 to="/advertise"
-                className="inline-flex items-center gap-2 rounded-lg border border-white/15 px-4 py-2 text-sm font-semibold text-slate-300 hover:text-white"
+                className="inline-flex items-center gap-2 rounded-[10px] border border-white/15 px-4 py-2 text-sm font-semibold text-slate-300 hover:text-white"
               >
                 Start a campaign
               </Link>
@@ -244,7 +244,7 @@ function CampaignRow({
                 disabled={busy || c.status === "ended"}
                 title={visible ? "Hide ad" : "Make ad visible"}
                 aria-label={visible ? "Hide ad" : "Make ad visible"}
-                className="p-2 rounded-lg border border-white/10 text-slate-300 hover:text-white hover:border-white/25 disabled:opacity-50"
+                className="p-2 rounded-[10px] border border-white/10 text-slate-300 hover:text-white hover:border-white/25 disabled:opacity-50"
               >
                 {busy ? (
                   <Loader2 className="w-4 h-4 animate-spin" />
@@ -259,7 +259,7 @@ function CampaignRow({
                 disabled={busy}
                 title="Edit ad"
                 aria-label="Edit ad"
-                className="p-2 rounded-lg border border-white/10 text-slate-300 hover:text-white hover:border-white/25 disabled:opacity-50"
+                className="p-2 rounded-[10px] border border-white/10 text-slate-300 hover:text-white hover:border-white/25 disabled:opacity-50"
               >
                 <Pencil className="w-4 h-4" />
               </button>
@@ -287,7 +287,7 @@ function CampaignRow({
 
 function Cell({ label, value }: { label: string; value: string }) {
   return (
-    <div className="rounded-lg bg-black/20 border border-white/5 px-2 py-1.5">
+    <div className="rounded-[10px] bg-black/20 border border-white/5 px-2 py-1.5">
       <div className="text-[9px] uppercase tracking-widest text-slate-500 font-bold">{label}</div>
       <div className="text-sm text-white font-black truncate">{value}</div>
     </div>

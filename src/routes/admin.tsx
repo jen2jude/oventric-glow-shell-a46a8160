@@ -62,7 +62,7 @@ function AdminError({ error, reset }: { error: Error; reset: () => void }) {
             reset();
             router.invalidate();
           }}
-          className="mt-4 px-4 py-2 bg-emerald-500 hover:bg-emerald-400 text-black text-sm font-bold rounded-lg"
+          className="mt-4 px-4 py-2 bg-emerald-500 hover:bg-emerald-400 text-black text-sm font-bold rounded-[10px]"
         >
           Retry
         </button>
@@ -187,7 +187,7 @@ function AdminLayout() {
                   await supabase.auth.signOut();
                   router.invalidate();
                 }}
-                className="px-4 py-2.5 bg-white/5 hover:bg-white/10 border border-white/10 text-slate-200 text-sm font-semibold rounded-lg"
+                className="px-4 py-2.5 bg-white/5 hover:bg-white/10 border border-white/10 text-slate-200 text-sm font-semibold rounded-[10px]"
               >
                 Sign out
               </button>
@@ -205,7 +205,7 @@ function AdminLayout() {
     <div className="admin-light min-h-screen bg-[#0b0b0d] text-slate-200 flex">
       <aside className="w-60 shrink-0 bg-[#141418] border-r border-white/10 flex flex-col">
         <div className="px-4 py-5 border-b border-white/10 flex items-center gap-2">
-          <div className="w-8 h-8 rounded-lg bg-emerald-500/15 border border-emerald-500/40 flex items-center justify-center">
+          <div className="w-8 h-8 rounded-[10px] bg-emerald-500/15 border border-emerald-500/40 flex items-center justify-center">
             <ShieldCheck className="w-4 h-4 text-emerald-300" />
           </div>
           <div>
@@ -245,7 +245,7 @@ function AdminLayout() {
                     ? "text-red-300 bg-red-500/10 hover:bg-red-500/20 border-red-500/40 animate-pulse"
                     : "text-slate-400 hover:text-white hover:bg-white/5 border-transparent",
                 }}
-                className="flex items-center gap-2.5 px-3 py-2 rounded-lg border text-sm font-medium transition-colors"
+                className="flex items-center gap-2.5 px-3 py-2 rounded-[10px] border text-sm font-medium transition-colors"
               >
                 <n.icon className="w-4 h-4 shrink-0" />
                 <span className="flex-1">{n.label}</span>
@@ -266,7 +266,7 @@ function AdminLayout() {
             await supabase.auth.signOut();
             router.invalidate();
           }}
-          className="m-2 flex items-center gap-2 px-3 py-2 rounded-lg text-slate-400 hover:text-white hover:bg-white/5 text-sm"
+          className="m-2 flex items-center gap-2 px-3 py-2 rounded-[10px] text-slate-400 hover:text-white hover:bg-white/5 text-sm"
         >
           <LogOut className="w-4 h-4" /> Sign out
         </button>
@@ -325,7 +325,7 @@ function AdminSignInForm({ onSignedIn }: { onSignedIn: () => void }) {
         value={email}
         onChange={(e) => setEmail(e.target.value)}
         placeholder="Admin email"
-        className="px-3 py-2.5 bg-[#0b0b0d] border border-white/10 rounded-lg text-sm text-white placeholder:text-slate-500 focus:outline-none focus:border-emerald-500/50"
+        className="px-3 py-2.5 bg-[#0b0b0d] border border-white/10 rounded-[10px] text-sm text-white placeholder:text-slate-500 focus:outline-none focus:border-emerald-500/50"
       />
       <div className="relative">
         <input
@@ -336,7 +336,7 @@ function AdminSignInForm({ onSignedIn }: { onSignedIn: () => void }) {
           value={password}
           onChange={(e) => setPassword(e.target.value)}
           placeholder="Password"
-          className="w-full px-3 py-2.5 pr-16 bg-[#0b0b0d] border border-white/10 rounded-lg text-sm text-white placeholder:text-slate-500 focus:outline-none focus:border-emerald-500/50"
+          className="w-full px-3 py-2.5 pr-16 bg-[#0b0b0d] border border-white/10 rounded-[10px] text-sm text-white placeholder:text-slate-500 focus:outline-none focus:border-emerald-500/50"
         />
         <button
           type="button"
@@ -350,7 +350,7 @@ function AdminSignInForm({ onSignedIn }: { onSignedIn: () => void }) {
       <button
         type="submit"
         disabled={busy}
-        className="px-4 py-2.5 bg-emerald-500 hover:bg-emerald-400 disabled:opacity-50 text-black text-sm font-bold rounded-lg"
+        className="px-4 py-2.5 bg-emerald-500 hover:bg-emerald-400 disabled:opacity-50 text-black text-sm font-bold rounded-[10px]"
       >
         {busy ? "Signing in…" : "Sign in"}
       </button>

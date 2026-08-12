@@ -101,7 +101,7 @@ function WalletLedgerPage() {
         <div className="flex items-center gap-2">
           <Link
             to="/dashboard"
-            className="p-2 rounded-lg hover:bg-white/10 md:hover:bg-slate-100 text-white/70 md:text-slate-600"
+            className="p-2 rounded-[10px] hover:bg-white/10 md:hover:bg-slate-100 text-white/70 md:text-slate-600"
           >
             <ArrowLeft className="w-5 h-5" />
           </Link>
@@ -111,32 +111,32 @@ function WalletLedgerPage() {
         <div className="flex flex-wrap gap-2">
           <button
             onClick={() => setTransferOpen(true)}
-            className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg border border-fuchsia-500/40 bg-fuchsia-500/10 text-fuchsia-300 text-xs font-semibold"
+            className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-[10px] border border-fuchsia-500/40 bg-fuchsia-500/10 text-fuchsia-300 text-xs font-semibold"
           >
             <Send className="w-3.5 h-3.5" /> Send to user
           </button>
           <button
             onClick={() => setAddOpen(true)}
-            className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg border border-emerald-500/40 bg-emerald-500/10 text-emerald-300 text-xs font-semibold"
+            className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-[10px] border border-emerald-500/40 bg-emerald-500/10 text-emerald-300 text-xs font-semibold"
           >
             <ArrowDownToLine className="w-3.5 h-3.5" /> Fund wallet
           </button>
           <button
             onClick={() => setPayoutOpen(true)}
-            className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg border border-sky-500/40 bg-sky-500/10 text-sky-300 text-xs font-semibold"
+            className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-[10px] border border-sky-500/40 bg-sky-500/10 text-sky-300 text-xs font-semibold"
           >
             <ArrowUpFromLine className="w-3.5 h-3.5" /> Request payout
           </button>
           <div className="flex-1" />
           <button
             onClick={() => exportAll("csv")}
-            className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg border border-white/15 md:border-slate-200 text-xs"
+            className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-[10px] border border-white/15 md:border-slate-200 text-xs"
           >
             <Download className="w-3.5 h-3.5" /> CSV
           </button>
           <button
             onClick={() => exportAll("pdf")}
-            className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg border border-white/15 md:border-slate-200 text-xs"
+            className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-[10px] border border-white/15 md:border-slate-200 text-xs"
           >
             <Printer className="w-3.5 h-3.5" /> PDF
           </button>
@@ -146,7 +146,7 @@ function WalletLedgerPage() {
           <select
             value={type}
             onChange={(e) => setType(e.target.value as "ALL" | WalletTxType)}
-            className="px-2.5 py-1.5 rounded-lg border border-white/15 md:border-slate-200 bg-transparent text-xs"
+            className="px-2.5 py-1.5 rounded-[10px] border border-white/15 md:border-slate-200 bg-transparent text-xs"
           >
             {TYPES.map((t) => (
               <option key={t} value={t} className="text-black">
@@ -157,7 +157,7 @@ function WalletLedgerPage() {
           <select
             value={status}
             onChange={(e) => setStatus(e.target.value as "ALL" | WalletTxStatus)}
-            className="px-2.5 py-1.5 rounded-lg border border-white/15 md:border-slate-200 bg-transparent text-xs"
+            className="px-2.5 py-1.5 rounded-[10px] border border-white/15 md:border-slate-200 bg-transparent text-xs"
           >
             {STATUSES.map((s) => (
               <option key={s} value={s} className="text-black">
@@ -169,14 +169,14 @@ function WalletLedgerPage() {
             type="date"
             value={from}
             onChange={(e) => setFrom(e.target.value)}
-            className="px-2.5 py-1.5 rounded-lg border border-white/15 md:border-slate-200 bg-transparent text-xs"
+            className="px-2.5 py-1.5 rounded-[10px] border border-white/15 md:border-slate-200 bg-transparent text-xs"
           />
           <span className="text-xs text-white/40">to</span>
           <input
             type="date"
             value={to}
             onChange={(e) => setTo(e.target.value)}
-            className="px-2.5 py-1.5 rounded-lg border border-white/15 md:border-slate-200 bg-transparent text-xs"
+            className="px-2.5 py-1.5 rounded-[10px] border border-white/15 md:border-slate-200 bg-transparent text-xs"
           />
         </div>
 
@@ -234,14 +234,14 @@ function WalletLedgerPage() {
               <button
                 onClick={() => setPage((p) => Math.max(1, p - 1))}
                 disabled={page === 1}
-                className="px-3 py-1.5 rounded-lg border border-white/15 md:border-slate-200 disabled:opacity-40"
+                className="px-3 py-1.5 rounded-[10px] border border-white/15 md:border-slate-200 disabled:opacity-40"
               >
                 Prev
               </button>
               <button
                 onClick={() => setPage((p) => Math.min(totalPages, p + 1))}
                 disabled={page === totalPages}
-                className="px-3 py-1.5 rounded-lg border border-white/15 md:border-slate-200 disabled:opacity-40"
+                className="px-3 py-1.5 rounded-[10px] border border-white/15 md:border-slate-200 disabled:opacity-40"
               >
                 Next
               </button>

@@ -72,7 +72,7 @@ function MarketplaceControlsPage() {
             <button
               onClick={() => handleSave("featured_products", featuredIds)}
               disabled={busy}
-              className="px-4 py-2 bg-emerald-500 hover:bg-emerald-400 text-black text-sm font-black rounded-lg disabled:opacity-50 flex items-center gap-2"
+              className="px-4 py-2 bg-emerald-500 hover:bg-emerald-400 text-black text-sm font-black rounded-[10px] disabled:opacity-50 flex items-center gap-2"
             >
               {busy ? <Loader2 className="w-4 h-4 animate-spin" /> : <Save className="w-4 h-4" />}
               Save Changes
@@ -114,7 +114,7 @@ function MarketplaceControlsPage() {
             <button
               onClick={() => handleSave("trending", trendingIds)}
               disabled={busy}
-              className="px-4 py-2 bg-emerald-500 hover:bg-emerald-400 text-black text-sm font-black rounded-lg disabled:opacity-50 flex items-center gap-2"
+              className="px-4 py-2 bg-emerald-500 hover:bg-emerald-400 text-black text-sm font-black rounded-[10px] disabled:opacity-50 flex items-center gap-2"
             >
               {busy ? <Loader2 className="w-4 h-4 animate-spin" /> : <Save className="w-4 h-4" />}
               Save Changes

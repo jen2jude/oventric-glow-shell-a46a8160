@@ -120,7 +120,7 @@ function CampaignsPage() {
         </div>
         <button
           onClick={() => setEditing("new")}
-          className="inline-flex items-center gap-1.5 px-3 py-2 rounded-lg bg-emerald-500 text-black text-sm font-bold hover:bg-emerald-400"
+          className="inline-flex items-center gap-1.5 px-3 py-2 rounded-[10px] bg-emerald-500 text-black text-sm font-bold hover:bg-emerald-400"
         >
           <Plus className="w-4 h-4" /> New campaign
         </button>
@@ -138,7 +138,7 @@ function CampaignsPage() {
           <button
             key={s}
             onClick={() => setFilter(s)}
-            className={`px-2.5 py-1 rounded-lg text-xs font-bold border uppercase tracking-wider ${
+            className={`px-2.5 py-1 rounded-[10px] text-xs font-bold border uppercase tracking-wider ${
               filter === s
                 ? "bg-emerald-500/15 text-emerald-200 border-emerald-500/40"
                 : "bg-white/5 text-slate-400 border-white/10 hover:text-white"
@@ -318,7 +318,7 @@ function IconBtn({
       onClick={onClick}
       title={label}
       aria-label={label}
-      className={`p-1.5 rounded-lg bg-white/5 border ${className}`}
+      className={`p-1.5 rounded-[10px] bg-white/5 border ${className}`}
     >
       {children}
     </button>
@@ -398,7 +398,7 @@ function CampaignDrawer({
             </div>
             <div className="text-xs text-slate-500">{id ? `ID · ${id.slice(0, 8)}` : "Draft"}</div>
           </div>
-          <button onClick={onClose} className="p-1.5 rounded-lg hover:bg-white/5 text-slate-400">
+          <button onClick={onClose} className="p-1.5 rounded-[10px] hover:bg-white/5 text-slate-400">
             <X className="w-4 h-4" />
           </button>
         </header>
@@ -443,14 +443,14 @@ function CampaignDrawer({
           <footer className="px-5 py-3 border-t border-white/10 flex justify-end gap-2">
             <button
               onClick={onClose}
-              className="px-3 py-2 rounded-lg text-slate-300 hover:bg-white/5 text-sm"
+              className="px-3 py-2 rounded-[10px] text-slate-300 hover:bg-white/5 text-sm"
             >
               Cancel
             </button>
             <button
               onClick={save}
               disabled={saving}
-              className="px-4 py-2 rounded-lg bg-emerald-500 hover:bg-emerald-400 text-black text-sm font-bold disabled:opacity-50"
+              className="px-4 py-2 rounded-[10px] bg-emerald-500 hover:bg-emerald-400 text-black text-sm font-bold disabled:opacity-50"
             >
               {saving ? "Saving…" : id ? "Save changes" : "Create campaign"}
             </button>
@@ -537,7 +537,7 @@ function DetailsForm({
             <button
               key={t}
               onClick={() => setForm({ ...form, tier: t })}
-              className={`p-3 rounded-lg border text-left ${form.tier === t ? "bg-emerald-500/10 border-emerald-500/40" : "bg-[#141418] border-white/10 hover:border-white/20"}`}
+              className={`p-3 rounded-[10px] border text-left ${form.tier === t ? "bg-emerald-500/10 border-emerald-500/40" : "bg-[#141418] border-white/10 hover:border-white/20"}`}
             >
               <div className="flex items-center gap-2 text-white font-bold text-sm">
                 {t === "text" ? (
@@ -586,7 +586,7 @@ function DetailsForm({
             <button
               key={c}
               onClick={() => setForm({ ...form, cta_type: c })}
-              className={`p-2.5 rounded-lg border text-xs font-bold flex items-center gap-1.5 justify-center ${form.cta_type === c ? "bg-emerald-500/10 border-emerald-500/40 text-emerald-200" : "bg-[#141418] border-white/10 text-slate-300"}`}
+              className={`p-2.5 rounded-[10px] border text-xs font-bold flex items-center gap-1.5 justify-center ${form.cta_type === c ? "bg-emerald-500/10 border-emerald-500/40 text-emerald-200" : "bg-[#141418] border-white/10 text-slate-300"}`}
             >
               {c === "url" ? (
                 <ExternalLink className="w-3.5 h-3.5" />
@@ -648,7 +648,7 @@ function DetailsForm({
               <button
                 key={p}
                 onClick={() => toggleArr("placements", p)}
-                className={`px-3 py-1.5 rounded-lg text-xs font-bold border uppercase tracking-wider ${on ? "bg-emerald-500/15 border-emerald-500/40 text-emerald-200" : "bg-white/5 border-white/10 text-slate-400"}`}
+                className={`px-3 py-1.5 rounded-[10px] text-xs font-bold border uppercase tracking-wider ${on ? "bg-emerald-500/15 border-emerald-500/40 text-emerald-200" : "bg-white/5 border-white/10 text-slate-400"}`}
               >
                 {p}
               </button>
@@ -671,7 +671,7 @@ function DetailsForm({
               <button
                 key={c.code}
                 onClick={() => toggleArr("countries", c.code)}
-                className={`px-3 py-1.5 rounded-lg text-xs font-bold border ${on ? "bg-emerald-500/15 border-emerald-500/40 text-emerald-200" : "bg-white/5 border-white/10 text-slate-400"}`}
+                className={`px-3 py-1.5 rounded-[10px] text-xs font-bold border ${on ? "bg-emerald-500/15 border-emerald-500/40 text-emerald-200" : "bg-white/5 border-white/10 text-slate-400"}`}
               >
                 {c.label}
               </button>
@@ -688,7 +688,7 @@ function DetailsForm({
               <button
                 key={c.id}
                 onClick={() => toggleArr("cities", c.city)}
-                className={`px-2 py-1 rounded-md text-[11px] border ${on ? "bg-emerald-500/15 border-emerald-500/40 text-emerald-200" : "bg-white/5 border-white/10 text-slate-400"}`}
+                className={`px-2 py-1 rounded-[10px] text-[11px] border ${on ? "bg-emerald-500/15 border-emerald-500/40 text-emerald-200" : "bg-white/5 border-white/10 text-slate-400"}`}
               >
                 {c.city}
               </button>
@@ -860,7 +860,7 @@ function CreativesTab({
 
   return (
     <div>
-      <label className="flex items-center gap-2 px-3 py-2 rounded-lg bg-white/5 border border-white/10 border-dashed cursor-pointer hover:bg-white/10 text-sm text-slate-300 w-fit">
+      <label className="flex items-center gap-2 px-3 py-2 rounded-[10px] bg-white/5 border border-white/10 border-dashed cursor-pointer hover:bg-white/10 text-sm text-slate-300 w-fit">
         <Upload className="w-4 h-4" />
         {uploading
           ? "Uploading…"
@@ -888,7 +888,7 @@ function CreativesTab({
         {creatives.map((c) => (
           <div
             key={c.id}
-            className="relative bg-[#141418] border border-white/10 rounded-lg overflow-hidden group"
+            className="relative bg-[#141418] border border-white/10 rounded-[10px] overflow-hidden group"
           >
             {c.kind === "image" ? (
               <img src={c.url} alt="" className="w-full aspect-square object-cover" />
@@ -954,7 +954,7 @@ function AnalyticsTab({ campaignId }: { campaignId: string }) {
       <div className="text-[10px] uppercase tracking-wider text-slate-500 font-bold mb-1">
         Impressions · last {data.series.length} days · CTR {ctr.toFixed(2)}%
       </div>
-      <div className="flex items-end gap-1 h-32 bg-[#0e0e12] border border-white/10 rounded-lg p-2">
+      <div className="flex items-end gap-1 h-32 bg-[#0e0e12] border border-white/10 rounded-[10px] p-2">
         {data.series.length === 0 && (
           <span className="text-xs text-slate-500 m-auto">No activity yet.</span>
         )}
@@ -1017,7 +1017,7 @@ function LeadsTab({ campaignId }: { campaignId: string }) {
 /* --------------- shared --------------- */
 
 const inputCls =
-  "w-full bg-[#0b0b0d] border border-white/10 rounded-lg px-3 py-2 text-sm text-white focus:outline-none focus:border-emerald-400/40";
+  "w-full bg-[#0b0b0d] border border-white/10 rounded-[10px] px-3 py-2 text-sm text-white focus:outline-none focus:border-emerald-400/40";
 function Field({ label, children }: { label: string; children: React.ReactNode }) {
   return (
     <label className="block">

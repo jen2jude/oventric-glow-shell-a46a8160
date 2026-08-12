@@ -462,7 +462,7 @@ function DashboardPage() {
           className="group mb-5 flex items-center justify-between gap-3 rounded-xl border border-white/10 md:border-slate-200 bg-[#141418] md:bg-white md:shadow-sm p-3 active:bg-white/[0.03]"
         >
           <div className="flex items-center gap-3 min-w-0">
-            <div className="w-9 h-9 rounded-lg bg-white/5 md:bg-slate-50 border border-white/10 md:border-slate-200 flex items-center justify-center shrink-0">
+            <div className="w-9 h-9 rounded-[10px] bg-white/5 md:bg-slate-50 border border-white/10 md:border-slate-200 flex items-center justify-center shrink-0">
               <Bell className="w-4 h-4 text-white md:text-slate-900" />
             </div>
             <div className="min-w-0">
@@ -639,7 +639,7 @@ function SimpleRowCard({
   const inner = (
     <>
       <div className="flex items-center gap-3 min-w-0">
-        <div className="w-9 h-9 rounded-lg bg-white/5 md:bg-slate-50 border border-white/10 md:border-slate-200 flex items-center justify-center shrink-0">
+        <div className="w-9 h-9 rounded-[10px] bg-white/5 md:bg-slate-50 border border-white/10 md:border-slate-200 flex items-center justify-center shrink-0">
           <Icon className="w-4 h-4 text-white md:text-slate-900" />
         </div>
         <div className="min-w-0">
@@ -808,7 +808,7 @@ function DigitalList({
         cta={
           <Link
             to="/"
-            className="inline-flex items-center gap-2 px-4 py-2 rounded-lg bg-white text-black text-sm font-bold"
+            className="inline-flex items-center gap-2 px-4 py-2 rounded-[10px] bg-white text-black text-sm font-bold"
           >
             Browse Marketplace
           </Link>
@@ -824,7 +824,7 @@ function DigitalList({
             <Link
               to="/order/$id"
               params={{ id: r.orderId }}
-              className="shrink-0 w-20 h-20 rounded-lg overflow-hidden bg-white/5 md:bg-slate-50 flex items-center justify-center"
+              className="shrink-0 w-20 h-20 rounded-[10px] overflow-hidden bg-white/5 md:bg-slate-50 flex items-center justify-center"
             >
               {r.coverUrl ? (
                 <img
@@ -868,7 +868,7 @@ function DigitalList({
                     <button
                       onClick={() => onDownload(r.orderId, r.productId, r.externalUrl, r.hasFile)}
                       disabled={downloadingId === r.orderId}
-                      className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-white text-black hover:bg-white/90 text-xs font-bold disabled:opacity-60"
+                      className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-[10px] bg-white text-black hover:bg-white/90 text-xs font-bold disabled:opacity-60"
                     >
                       {downloadingId === r.orderId ? (
                         <Loader2 className="w-3.5 h-3.5 animate-spin" />
@@ -883,7 +883,7 @@ function DigitalList({
                   {r.status === "paid" && r.escrowStatus === "held" && (
                     <button
                       onClick={() => onConfirm(r.orderId)}
-                      className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-white/10 hover:bg-white/15 md:bg-slate-100 border border-white/10 md:border-slate-200 text-white md:text-slate-900 text-xs font-bold"
+                      className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-[10px] bg-white/10 hover:bg-white/15 md:bg-slate-100 border border-white/10 md:border-slate-200 text-white md:text-slate-900 text-xs font-bold"
                       title="Confirm you've received this product to release the seller's funds"
                     >
                       Confirm received
@@ -892,13 +892,13 @@ function DigitalList({
                   <Link
                     to="/order/$id"
                     params={{ id: r.orderId }}
-                    className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-white/5 md:bg-slate-50 hover:bg-white/10 md:bg-slate-100 md:hover:bg-slate-100 border border-white/10 md:border-slate-200 text-slate-200 md:text-slate-700 text-xs font-semibold"
+                    className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-[10px] bg-white/5 md:bg-slate-50 hover:bg-white/10 md:bg-slate-100 md:hover:bg-slate-100 border border-white/10 md:border-slate-200 text-slate-200 md:text-slate-700 text-xs font-semibold"
                   >
                     View details
                   </Link>
                   <button
                     onClick={() => setTracking((t) => (t === r.orderId ? null : r.orderId))}
-                    className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-white/5 md:bg-slate-50 hover:bg-white/10 md:bg-slate-100 md:hover:bg-slate-100 border border-white/10 md:border-slate-200 text-slate-200 md:text-slate-700 text-xs font-semibold"
+                    className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-[10px] bg-white/5 md:bg-slate-50 hover:bg-white/10 md:bg-slate-100 md:hover:bg-slate-100 border border-white/10 md:border-slate-200 text-slate-200 md:text-slate-700 text-xs font-semibold"
                   >
                     <Truck className="w-3.5 h-3.5" />{" "}
                     {tracking === r.orderId ? "Hide tracking" : "Track order"}
@@ -925,7 +925,7 @@ function SalesList({ rows, onChanged }: { rows: SaleDTO[] | null; onChanged: () 
         cta={
           <Link
             to="/"
-            className="inline-flex items-center gap-2 px-4 py-2 rounded-lg bg-white text-black text-sm font-bold"
+            className="inline-flex items-center gap-2 px-4 py-2 rounded-[10px] bg-white text-black text-sm font-bold"
           >
             Go to Marketplace
           </Link>
@@ -956,7 +956,7 @@ function PhysicalList({
         cta={
           <Link
             to="/"
-            className="inline-flex items-center gap-2 px-4 py-2 rounded-lg bg-white text-black text-sm font-bold"
+            className="inline-flex items-center gap-2 px-4 py-2 rounded-[10px] bg-white text-black text-sm font-bold"
           >
             Browse physical goods
           </Link>
@@ -981,7 +981,7 @@ function PhysicalList({
             <Link
               to="/product/$id"
               params={{ id: r.productId }}
-              className="shrink-0 w-20 h-20 rounded-lg overflow-hidden bg-white/5 md:bg-slate-50 flex items-center justify-center"
+              className="shrink-0 w-20 h-20 rounded-[10px] overflow-hidden bg-white/5 md:bg-slate-50 flex items-center justify-center"
             >
               {r.coverUrl ? (
                 <img
@@ -1040,7 +1040,7 @@ function PhysicalList({
                   <a
                     href={`tel:+${phone}`}
                     onClick={() => onRelog(r.productId, "call")}
-                    className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-white/10 hover:bg-white/15 md:bg-slate-100 text-white md:text-slate-900 text-xs font-semibold"
+                    className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-[10px] bg-white/10 hover:bg-white/15 md:bg-slate-100 text-white md:text-slate-900 text-xs font-semibold"
                   >
                     <Phone className="w-3.5 h-3.5" /> Call
                   </a>
@@ -1051,7 +1051,7 @@ function PhysicalList({
                     target="_blank"
                     rel="noopener noreferrer"
                     onClick={() => onRelog(r.productId, "whatsapp")}
-                    className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-white text-black hover:bg-white/90 text-xs font-bold"
+                    className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-[10px] bg-white text-black hover:bg-white/90 text-xs font-bold"
                   >
                     <MessageCircle className="w-3.5 h-3.5" /> WhatsApp
                   </a>
@@ -1059,7 +1059,7 @@ function PhysicalList({
                 <Link
                   to="/product/$id"
                   params={{ id: r.productId }}
-                  className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-white/5 md:bg-slate-50 hover:bg-white/10 md:bg-slate-100 md:hover:bg-slate-100 border border-white/10 md:border-slate-200 text-slate-200 md:text-slate-700 text-xs font-semibold"
+                  className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-[10px] bg-white/5 md:bg-slate-50 hover:bg-white/10 md:bg-slate-100 md:hover:bg-slate-100 border border-white/10 md:border-slate-200 text-slate-200 md:text-slate-700 text-xs font-semibold"
                 >
                   View listing
                 </Link>
@@ -1114,7 +1114,7 @@ function ListingsList({
               <button
                 type="button"
                 onClick={() => setSellOpen(true)}
-                className="inline-flex items-center gap-2 px-4 py-2 rounded-lg bg-white text-black text-sm font-bold hover:bg-white/90"
+                className="inline-flex items-center gap-2 px-4 py-2 rounded-[10px] bg-white text-black text-sm font-bold hover:bg-white/90"
               >
                 <Plus className="w-4 h-4" /> Start selling
               </button>
@@ -1131,7 +1131,7 @@ function ListingsList({
                     40,
                   )
                 }
-                className="inline-flex items-center gap-2 px-4 py-2 rounded-lg bg-white/10 hover:bg-white/15 md:bg-slate-100 border border-white/10 md:border-slate-200 text-white md:text-slate-900 text-sm font-semibold"
+                className="inline-flex items-center gap-2 px-4 py-2 rounded-[10px] bg-white/10 hover:bg-white/15 md:bg-slate-100 border border-white/10 md:border-slate-200 text-white md:text-slate-900 text-sm font-semibold"
               >
                 Go to marketplace
               </Link>
@@ -1203,7 +1203,7 @@ function ListingsList({
           <button
             type="button"
             onClick={() => setSellOpen(true)}
-            className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-white text-black text-xs font-bold hover:bg-white/90"
+            className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-[10px] bg-white text-black text-xs font-bold hover:bg-white/90"
           >
             <Plus className="w-3.5 h-3.5" /> Start selling
           </button>
@@ -1218,7 +1218,7 @@ function ListingsList({
                 40,
               )
             }
-            className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-white/10 hover:bg-white/15 md:bg-slate-100 border border-white/10 md:border-slate-200 text-white md:text-slate-900 text-xs font-semibold"
+            className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-[10px] bg-white/10 hover:bg-white/15 md:bg-slate-100 border border-white/10 md:border-slate-200 text-white md:text-slate-900 text-xs font-semibold"
           >
             Marketplace
           </Link>
@@ -1264,7 +1264,7 @@ function ListingsList({
               <Link
                 to="/product/$id"
                 params={{ id: p.id }}
-                className="shrink-0 w-20 h-20 rounded-lg overflow-hidden bg-white/5 md:bg-slate-50 flex items-center justify-center"
+                className="shrink-0 w-20 h-20 rounded-[10px] overflow-hidden bg-white/5 md:bg-slate-50 flex items-center justify-center"
               >
                 {p.coverUrl ? (
                   <img
@@ -1304,7 +1304,7 @@ function ListingsList({
                 </div>
 
                 {p.status === "rejected" && p.rejectReason && (
-                  <div className="mt-2 rounded-md border border-white/10 md:border-slate-200 bg-white/5 md:bg-slate-50 p-2">
+                  <div className="mt-2 rounded-[10px] border border-white/10 md:border-slate-200 bg-white/5 md:bg-slate-50 p-2">
                     <div className="text-[10px] font-bold uppercase tracking-widest text-slate-300 md:text-slate-600 mb-0.5">
                       Moderator note
                     </div>
@@ -1319,7 +1319,7 @@ function ListingsList({
                     <button
                       type="button"
                       onClick={() => onEdit(p)}
-                      className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-white text-black hover:bg-white/90 text-xs font-bold"
+                      className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-[10px] bg-white text-black hover:bg-white/90 text-xs font-bold"
                     >
                       <Pencil className="w-3.5 h-3.5" />{" "}
                       {p.status === "rejected" ? "Edit & Resubmit" : "Edit"}
@@ -1329,7 +1329,7 @@ function ListingsList({
                     <Link
                       to="/product/$id"
                       params={{ id: p.id }}
-                      className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-white/10 hover:bg-white/15 md:bg-slate-100 text-white md:text-slate-900 text-xs font-semibold"
+                      className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-[10px] bg-white/10 hover:bg-white/15 md:bg-slate-100 text-white md:text-slate-900 text-xs font-semibold"
                     >
                       <Eye className="w-3.5 h-3.5" /> View live
                     </Link>
@@ -1385,7 +1385,7 @@ function KeyCard({
   const inner = (
     <>
       <div className="flex items-center gap-2 min-w-0">
-        <span className="flex h-8 w-8 shrink-0 items-center justify-center rounded-lg border border-white/10 md:border-slate-200 bg-white/5 md:bg-slate-50">
+        <span className="flex h-8 w-8 shrink-0 items-center justify-center rounded-[10px] border border-white/10 md:border-slate-200 bg-white/5 md:bg-slate-50">
           <Icon className="h-4 w-4 text-white md:text-slate-900" aria-hidden="true" />
         </span>
         <span className="truncate text-[10px] font-bold uppercase tracking-widest text-slate-500">
@@ -1810,7 +1810,7 @@ function BountyCoverThumb({
 }) {
   return (
     <div
-      className={`relative overflow-hidden rounded-lg bg-white/5 md:bg-slate-50 border border-white/10 md:border-slate-200 ${className}`}
+      className={`relative overflow-hidden rounded-[10px] bg-white/5 md:bg-slate-50 border border-white/10 md:border-slate-200 ${className}`}
     >
       {url ? (
         <img
@@ -1956,7 +1956,7 @@ function BountiesPane({
 
   return (
     <div>
-      <div className="inline-flex rounded-lg bg-[#141418] md:bg-white md:shadow-sm border border-white/10 md:border-slate-200 p-1 mb-4 gap-1">
+      <div className="inline-flex rounded-[10px] bg-[#141418] md:bg-white md:shadow-sm border border-white/10 md:border-slate-200 p-1 mb-4 gap-1">
         <TabButton active={sub === "posted"} onClick={() => setSub("posted")}>
           Posted by me ({data.posted.length})
         </TabButton>
@@ -1973,7 +1973,7 @@ function BountiesPane({
             </div>
             <button
               onClick={() => setPostOpen(true)}
-              className="inline-flex items-center gap-1.5 px-3 py-2 rounded-lg bg-white text-black font-bold text-xs hover:bg-slate-200 shrink-0"
+              className="inline-flex items-center gap-1.5 px-3 py-2 rounded-[10px] bg-white text-black font-bold text-xs hover:bg-slate-200 shrink-0"
             >
               <Plus className="w-4 h-4" /> Post a bounty
             </button>
@@ -1991,13 +1991,13 @@ function BountiesPane({
               <div className="mt-4 flex flex-wrap gap-2 justify-center">
                 <button
                   onClick={() => setPostOpen(true)}
-                  className="inline-flex items-center gap-2 px-4 py-2 rounded-lg bg-white text-black font-bold text-sm hover:bg-slate-200"
+                  className="inline-flex items-center gap-2 px-4 py-2 rounded-[10px] bg-white text-black font-bold text-sm hover:bg-slate-200"
                 >
                   <Plus className="w-4 h-4" /> Post your first bounty
                 </button>
                 <button
                   onClick={openBountiesFeed}
-                  className="inline-flex items-center gap-2 px-4 py-2 rounded-lg border border-white/15 md:border-slate-200 text-slate-200 md:text-slate-700 font-semibold text-sm hover:bg-white/5 md:bg-slate-50 md:hover:bg-slate-100"
+                  className="inline-flex items-center gap-2 px-4 py-2 rounded-[10px] border border-white/15 md:border-slate-200 text-slate-200 md:text-slate-700 font-semibold text-sm hover:bg-white/5 md:bg-slate-50 md:hover:bg-slate-100"
                 >
                   Browse bounties <ArrowUpRight className="w-4 h-4" />
                 </button>
@@ -2062,7 +2062,7 @@ function BountiesPane({
             </div>
             <button
               onClick={openBountiesFeed}
-              className="mt-4 inline-flex items-center gap-2 px-4 py-2 rounded-lg bg-white text-black font-bold text-sm hover:bg-slate-200"
+              className="mt-4 inline-flex items-center gap-2 px-4 py-2 rounded-[10px] bg-white text-black font-bold text-sm hover:bg-slate-200"
             >
               Browse bounties <ArrowUpRight className="w-4 h-4" />
             </button>
@@ -2191,7 +2191,7 @@ function BountyDetailsModal({
           <div className="pt-2">
             <button
               onClick={onClose}
-              className="w-full px-3 py-2 rounded-lg border border-white/10 md:border-slate-200 text-slate-200 md:text-slate-700 text-sm hover:bg-white/5 md:bg-slate-50 md:hover:bg-slate-100"
+              className="w-full px-3 py-2 rounded-[10px] border border-white/10 md:border-slate-200 text-slate-200 md:text-slate-700 text-sm hover:bg-white/5 md:bg-slate-50 md:hover:bg-slate-100"
             >
               Close
             </button>
@@ -2213,7 +2213,7 @@ function CourseCoverThumb({
 }) {
   return (
     <div
-      className={`relative overflow-hidden rounded-lg bg-white/5 md:bg-slate-50 border border-white/10 md:border-slate-200 ${className}`}
+      className={`relative overflow-hidden rounded-[10px] bg-white/5 md:bg-slate-50 border border-white/10 md:border-slate-200 ${className}`}
     >
       {url ? (
         <img
@@ -2261,7 +2261,7 @@ function CoursesPane({
 
   return (
     <div>
-      <div className="inline-flex rounded-lg bg-[#141418] md:bg-white md:shadow-sm border border-white/10 md:border-slate-200 p-1 mb-4 gap-1">
+      <div className="inline-flex rounded-[10px] bg-[#141418] md:bg-white md:shadow-sm border border-white/10 md:border-slate-200 p-1 mb-4 gap-1">
         <TabButton active={sub === "enrolled"} onClick={() => setSub("enrolled")}>
           Enrolled ({data.enrolled.length})
         </TabButton>
@@ -2280,7 +2280,7 @@ function CoursesPane({
             </div>
             <button
               onClick={openAcademy}
-              className="mt-4 inline-flex items-center gap-2 px-4 py-2 rounded-lg bg-white text-black font-bold text-sm hover:bg-slate-200"
+              className="mt-4 inline-flex items-center gap-2 px-4 py-2 rounded-[10px] bg-white text-black font-bold text-sm hover:bg-slate-200"
             >
               Browse top courses <ArrowUpRight className="w-4 h-4" />
             </button>
@@ -2378,7 +2378,7 @@ function CoursesPane({
             </div>
             <button
               onClick={() => setPublishOpen(true)}
-              className="inline-flex items-center gap-1.5 px-3 py-2 rounded-lg bg-white text-black font-bold text-xs hover:bg-slate-200 shrink-0"
+              className="inline-flex items-center gap-1.5 px-3 py-2 rounded-[10px] bg-white text-black font-bold text-xs hover:bg-slate-200 shrink-0"
             >
               <Plus className="w-4 h-4" /> Publish a course
             </button>
@@ -2394,7 +2394,7 @@ function CoursesPane({
               </div>
               <button
                 onClick={() => setPublishOpen(true)}
-                className="mt-4 inline-flex items-center gap-2 px-4 py-2 rounded-lg bg-white text-black font-bold text-sm hover:bg-slate-200"
+                className="mt-4 inline-flex items-center gap-2 px-4 py-2 rounded-[10px] bg-white text-black font-bold text-sm hover:bg-slate-200"
               >
                 <Plus className="w-4 h-4" /> Publish your first course
               </button>
@@ -2515,13 +2515,13 @@ function CourseDetailsModal({
           <div className="grid grid-cols-2 gap-2 pt-2">
             <button
               onClick={onClose}
-              className="px-3 py-2 rounded-lg border border-white/10 md:border-slate-200 text-slate-200 md:text-slate-700 text-sm hover:bg-white/5 md:bg-slate-50 md:hover:bg-slate-100"
+              className="px-3 py-2 rounded-[10px] border border-white/10 md:border-slate-200 text-slate-200 md:text-slate-700 text-sm hover:bg-white/5 md:bg-slate-50 md:hover:bg-slate-100"
             >
               Close
             </button>
             <button
               onClick={onEdit}
-              className="px-3 py-2 rounded-lg bg-white text-black font-bold text-sm inline-flex items-center justify-center gap-1"
+              className="px-3 py-2 rounded-[10px] bg-white text-black font-bold text-sm inline-flex items-center justify-center gap-1"
             >
               <Pencil className="w-4 h-4" /> Edit course
             </button>
@@ -2568,7 +2568,7 @@ function EditBlockedModal({
         <div className="mt-4 flex justify-end">
           <button
             onClick={onClose}
-            className="px-4 py-2 rounded-lg bg-white text-black font-bold text-sm"
+            className="px-4 py-2 rounded-[10px] bg-white text-black font-bold text-sm"
           >
             Got it
           </button>
@@ -2685,7 +2685,7 @@ function WalletPane({
               {data.recent.map((r) => (
                 <div key={r.id} className="p-3 flex items-center justify-between gap-3">
                   <div className="flex items-center gap-3 min-w-0">
-                    <div className="w-8 h-8 rounded-lg bg-white/5 md:bg-slate-50 flex items-center justify-center text-white md:text-slate-900">
+                    <div className="w-8 h-8 rounded-[10px] bg-white/5 md:bg-slate-50 flex items-center justify-center text-white md:text-slate-900">
                       {r.inflow ? (
                         <ArrowDownRight className="w-4 h-4" />
                       ) : (
@@ -2721,7 +2721,7 @@ function WalletPane({
                   type="button"
                   disabled={page <= 1}
                   onClick={() => onPage(page - 1)}
-                  className="px-3 py-1.5 rounded-lg border border-white/15 md:border-slate-200 text-white md:text-slate-900 text-sm disabled:opacity-40 hover:border-white/30 md:border-slate-300"
+                  className="px-3 py-1.5 rounded-[10px] border border-white/15 md:border-slate-200 text-white md:text-slate-900 text-sm disabled:opacity-40 hover:border-white/30 md:border-slate-300"
                 >
                   Prev
                 </button>
@@ -2729,7 +2729,7 @@ function WalletPane({
                   type="button"
                   disabled={page >= totalPages}
                   onClick={() => onPage(page + 1)}
-                  className="px-3 py-1.5 rounded-lg border border-white/15 md:border-slate-200 text-white md:text-slate-900 text-sm disabled:opacity-40 hover:border-white/30 md:border-slate-300"
+                  className="px-3 py-1.5 rounded-[10px] border border-white/15 md:border-slate-200 text-white md:text-slate-900 text-sm disabled:opacity-40 hover:border-white/30 md:border-slate-300"
                 >
                   Next
                 </button>
@@ -2749,7 +2749,7 @@ function SocialPane({ data }: { data: DashboardSocial | null }) {
   return (
     <div>
       <div className="-mx-1 mb-4 overflow-x-auto no-scrollbar">
-        <div className="inline-flex min-w-max rounded-lg bg-[#141418] md:bg-white md:shadow-sm border border-white/10 md:border-slate-200 p-1 gap-1 mx-1">
+        <div className="inline-flex min-w-max rounded-[10px] bg-[#141418] md:bg-white md:shadow-sm border border-white/10 md:border-slate-200 p-1 gap-1 mx-1">
           <TabButton active={sub === "followers"} onClick={() => setSub("followers")}>
             Followers ({data.followers.length})
           </TabButton>
@@ -2809,7 +2809,7 @@ function SocialPane({ data }: { data: DashboardSocial | null }) {
                 className="rounded-xl border border-white/10 md:border-slate-200 bg-[#141418] md:bg-white md:shadow-sm p-3 flex items-center justify-between gap-3"
               >
                 <div className="flex items-center gap-3 min-w-0">
-                  <div className="w-10 h-10 rounded-lg bg-white/5 md:bg-slate-50 border border-white/10 md:border-slate-200 flex items-center justify-center text-lg">
+                  <div className="w-10 h-10 rounded-[10px] bg-white/5 md:bg-slate-50 border border-white/10 md:border-slate-200 flex items-center justify-center text-lg">
                     {c.emoji ?? "◎"}
                   </div>
                   <div className="min-w-0">

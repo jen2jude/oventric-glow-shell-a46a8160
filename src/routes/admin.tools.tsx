@@ -23,7 +23,7 @@ export const Route = createFileRoute("/admin/tools")({
 });
 
 const inputCls =
-  "w-full rounded-lg border border-slate-300 bg-white px-3 py-2 text-sm text-slate-900 outline-none focus:border-emerald-500";
+  "w-full rounded-[10px] border border-slate-300 bg-white px-3 py-2 text-sm text-slate-900 outline-none focus:border-emerald-500";
 
 function AdminToolsPage() {
   const load = useServerFn(adminListToolLibrary);
@@ -95,7 +95,7 @@ function AdminToolsPage() {
       </header>
 
       {error && (
-        <p className="rounded-lg bg-red-50 px-3 py-2 text-sm font-semibold text-red-600">{error}</p>
+        <p className="rounded-[10px] bg-red-50 px-3 py-2 text-sm font-semibold text-red-600">{error}</p>
       )}
 
       <div className="grid gap-6 lg:grid-cols-2">
@@ -137,7 +137,7 @@ function AdminToolsPage() {
                   setCatForm({ name: "", imageUrl: "", sortOrder: 100 });
                 })
               }
-              className="inline-flex items-center gap-1.5 rounded-lg bg-emerald-500 px-4 py-2 text-sm font-bold text-black disabled:opacity-50"
+              className="inline-flex items-center gap-1.5 rounded-[10px] bg-emerald-500 px-4 py-2 text-sm font-bold text-black disabled:opacity-50"
             >
               <Plus className="h-4 w-4" /> Add category
             </button>
@@ -195,7 +195,7 @@ function AdminToolsPage() {
                   setToolForm((f) => ({ ...f, name: "", imageUrl: "" }));
                 })
               }
-              className="inline-flex items-center gap-1.5 rounded-lg bg-emerald-500 px-4 py-2 text-sm font-bold text-black disabled:opacity-50"
+              className="inline-flex items-center gap-1.5 rounded-[10px] bg-emerald-500 px-4 py-2 text-sm font-bold text-black disabled:opacity-50"
             >
               <Plus className="h-4 w-4" /> Add tool
             </button>
@@ -232,7 +232,7 @@ function AdminToolsPage() {
                     if (!confirm(`Delete “${category.name}” and its tools?`)) return;
                     void run(() => remove({ data: { kind: "category", id: category.id } }));
                   }}
-                  className="inline-flex shrink-0 items-center gap-1 rounded-lg border border-slate-300 px-2.5 py-1.5 text-xs font-bold text-red-600"
+                  className="inline-flex shrink-0 items-center gap-1 rounded-[10px] border border-slate-300 px-2.5 py-1.5 text-xs font-bold text-red-600"
                 >
                   <Trash2 className="h-3.5 w-3.5" /> Delete
                 </button>

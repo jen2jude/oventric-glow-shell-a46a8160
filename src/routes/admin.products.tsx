@@ -342,7 +342,7 @@ function ProductsPage() {
         </div>
         <div className="flex items-center gap-2 flex-wrap">
           <div
-            className="inline-flex rounded-lg bg-[#141418] border border-white/10 p-0.5"
+            className="inline-flex rounded-[10px] bg-[#141418] border border-white/10 p-0.5"
             role="group"
             aria-label="Price currency"
           >
@@ -350,7 +350,7 @@ function ProductsPage() {
               <button
                 key={c}
                 onClick={() => setPriceCurrency(c)}
-                className={`px-2.5 py-1 rounded-md text-xs font-bold transition ${
+                className={`px-2.5 py-1 rounded-[10px] text-xs font-bold transition ${
                   priceCurrency === c
                     ? "bg-emerald-500 text-black"
                     : "text-slate-300 hover:text-white"
@@ -374,7 +374,7 @@ function ProductsPage() {
           <button
             onClick={refresh}
             disabled={refreshing}
-            className="px-3 py-2 bg-white/5 hover:bg-white/10 border border-white/10 text-slate-200 text-sm font-semibold rounded-lg flex items-center gap-2 disabled:opacity-50"
+            className="px-3 py-2 bg-white/5 hover:bg-white/10 border border-white/10 text-slate-200 text-sm font-semibold rounded-[10px] flex items-center gap-2 disabled:opacity-50"
             aria-label="Refresh"
           >
             <RefreshCw className={`w-4 h-4 ${refreshing ? "animate-spin" : ""}`} />
@@ -382,7 +382,7 @@ function ProductsPage() {
           </button>
           <button
             onClick={openCreate}
-            className="px-4 py-2 bg-emerald-500 hover:bg-emerald-400 text-black text-sm font-bold rounded-lg flex items-center gap-2"
+            className="px-4 py-2 bg-emerald-500 hover:bg-emerald-400 text-black text-sm font-bold rounded-[10px] flex items-center gap-2"
           >
             <Plus className="w-4 h-4" /> New product
           </button>
@@ -395,7 +395,7 @@ function ProductsPage() {
           <button
             key={k}
             onClick={() => setKindFilter(k)}
-            className={`px-4 py-2 rounded-lg text-sm font-semibold transition ${
+            className={`px-4 py-2 rounded-[10px] text-sm font-semibold transition ${
               kindFilter === k ? "bg-emerald-500 text-black" : "text-slate-300 hover:text-white"
             }`}
           >
@@ -499,7 +499,7 @@ function ProductsPage() {
                 <div className="w-full sm:w-auto flex flex-wrap items-center justify-start sm:justify-end gap-2">
                   <button
                     onClick={() => setPreviewId(id)}
-                    className="px-3 py-2 rounded-lg bg-white/5 hover:bg-white/10 border border-white/10 text-slate-200 text-xs font-bold flex items-center gap-1.5"
+                    className="px-3 py-2 rounded-[10px] bg-white/5 hover:bg-white/10 border border-white/10 text-slate-200 text-xs font-bold flex items-center gap-1.5"
                     aria-label={`View ${kind} product`}
                   >
                     <Eye className="w-3.5 h-3.5" /> View
@@ -518,7 +518,7 @@ function ProductsPage() {
                         setBusy(null);
                       }}
                       disabled={busy === id}
-                      className="px-3 py-2 rounded-lg bg-emerald-500 text-black text-xs font-bold flex items-center gap-1.5 disabled:opacity-50"
+                      className="px-3 py-2 rounded-[10px] bg-emerald-500 text-black text-xs font-bold flex items-center gap-1.5 disabled:opacity-50"
                     >
                       <Check className="w-3.5 h-3.5" /> Approve
                     </button>
@@ -531,7 +531,7 @@ function ProductsPage() {
                         setRejectHint("");
                       }}
                       disabled={busy === id}
-                      className="px-3 py-2 rounded-lg bg-red-500/15 border border-red-500/40 text-red-300 text-xs font-bold flex items-center gap-1.5 disabled:opacity-50"
+                      className="px-3 py-2 rounded-[10px] bg-red-500/15 border border-red-500/40 text-red-300 text-xs font-bold flex items-center gap-1.5 disabled:opacity-50"
                     >
                       <XCircle className="w-3.5 h-3.5" /> Reject
                     </button>
@@ -549,14 +549,14 @@ function ProductsPage() {
                       setBusy(null);
                     }}
                     disabled={busy === id}
-                    className="px-3 py-2 rounded-lg bg-white/5 hover:bg-white/10 border border-white/10 text-amber-300 text-xs font-bold flex items-center gap-1.5 disabled:opacity-50"
+                    className="px-3 py-2 rounded-[10px] bg-white/5 hover:bg-white/10 border border-white/10 text-amber-300 text-xs font-bold flex items-center gap-1.5 disabled:opacity-50"
                     aria-label={`Toggle ${kind} product promotion`}
                   >
                     <Star className={`w-3.5 h-3.5 ${p.promoted ? "fill-amber-300" : ""}`} /> Promote
                   </button>
                   <button
                     onClick={() => openEdit(p)}
-                    className="px-3 py-2 rounded-lg bg-white/5 hover:bg-white/10 border border-white/10 text-slate-200 text-xs font-bold flex items-center gap-1.5"
+                    className="px-3 py-2 rounded-[10px] bg-white/5 hover:bg-white/10 border border-white/10 text-slate-200 text-xs font-bold flex items-center gap-1.5"
                     aria-label={`Edit ${kind} product`}
                   >
                     <Pencil className="w-3.5 h-3.5" /> Edit
@@ -576,7 +576,7 @@ function ProductsPage() {
                       setBusy(null);
                     }}
                     disabled={busy === id}
-                    className="px-3 py-2 rounded-lg bg-red-500/10 hover:bg-red-500/20 border border-red-500/30 text-red-300 text-xs font-bold flex items-center gap-1.5 disabled:opacity-50"
+                    className="px-3 py-2 rounded-[10px] bg-red-500/10 hover:bg-red-500/20 border border-red-500/30 text-red-300 text-xs font-bold flex items-center gap-1.5 disabled:opacity-50"
                     aria-label={`Delete ${kind} product`}
                   >
                     <Trash2 className="w-3.5 h-3.5" /> Delete
@@ -598,7 +598,7 @@ function ProductsPage() {
                 rows={3}
                 value={rejectReason}
                 onChange={(e) => setRejectReason(e.target.value)}
-                className="mt-1 w-full bg-[#0F0F12] border border-white/10 rounded-lg p-2 text-sm text-white"
+                className="mt-1 w-full bg-[#0F0F12] border border-white/10 rounded-[10px] p-2 text-sm text-white"
               />
             </label>
             <label className="block mb-4">
@@ -607,13 +607,13 @@ function ProductsPage() {
                 rows={2}
                 value={rejectHint}
                 onChange={(e) => setRejectHint(e.target.value)}
-                className="mt-1 w-full bg-[#0F0F12] border border-white/10 rounded-lg p-2 text-sm text-white"
+                className="mt-1 w-full bg-[#0F0F12] border border-white/10 rounded-[10px] p-2 text-sm text-white"
               />
             </label>
             <div className="flex justify-end gap-2">
               <button
                 onClick={() => setRejectingId(null)}
-                className="px-4 py-2 rounded-lg border border-white/10 text-slate-300 text-sm"
+                className="px-4 py-2 rounded-[10px] border border-white/10 text-slate-300 text-sm"
               >
                 Cancel
               </button>
@@ -638,7 +638,7 @@ function ProductsPage() {
                   }
                   setBusy(null);
                 }}
-                className="px-4 py-2 rounded-lg bg-red-500 text-white text-sm font-bold"
+                className="px-4 py-2 rounded-[10px] bg-red-500 text-white text-sm font-bold"
               >
                 Send rejection
               </button>
@@ -673,7 +673,7 @@ function ProductsPage() {
               </h2>
               <button
                 onClick={() => setModal(null)}
-                className="p-1.5 rounded-lg hover:bg-white/10 text-slate-400"
+                className="p-1.5 rounded-[10px] hover:bg-white/10 text-slate-400"
                 aria-label="Close"
               >
                 <X className="w-4 h-4" />
@@ -702,19 +702,19 @@ function ProductsPage() {
                   type="button"
                   onClick={() => fileInputRef.current?.click()}
                   disabled={uploadingCover}
-                  className="w-full flex items-center gap-3 p-3 rounded-lg border border-dashed border-white/15 hover:border-emerald-500/50 bg-black/20 hover:bg-black/30 disabled:opacity-50 text-left"
+                  className="w-full flex items-center gap-3 p-3 rounded-[10px] border border-dashed border-white/15 hover:border-emerald-500/50 bg-black/20 hover:bg-black/30 disabled:opacity-50 text-left"
                 >
                   {modal.cover_preview ? (
                     <ResponsiveImage
                       sizes="80px"
                       src={modal.cover_preview}
                       alt="Cover preview"
-                      className="w-20 h-20 object-cover rounded-md border border-white/10"
+                      className="w-20 h-20 object-cover rounded-[10px] border border-white/10"
                       loading="lazy"
                       decoding="async"
                     />
                   ) : (
-                    <div className="w-20 h-20 rounded-md border border-white/10 bg-white/5 flex items-center justify-center text-slate-500">
+                    <div className="w-20 h-20 rounded-[10px] border border-white/10 bg-white/5 flex items-center justify-center text-slate-500">
                       <ImagePlus className="w-6 h-6" />
                     </div>
                   )}
@@ -750,7 +750,7 @@ function ProductsPage() {
                           );
                         }
                       }}
-                      className="p-1.5 rounded-md bg-white/5 hover:bg-red-500/20 border border-white/10 text-red-300"
+                      className="p-1.5 rounded-[10px] bg-white/5 hover:bg-red-500/20 border border-white/10 text-red-300"
                       aria-label="Remove image"
                     >
                       <X className="w-3.5 h-3.5" />
@@ -938,9 +938,9 @@ function ProductsPage() {
                       type="button"
                       onClick={() => assetInputRef.current?.click()}
                       disabled={uploadingAsset}
-                      className="w-full flex items-center gap-3 p-3 rounded-lg border border-dashed border-white/15 hover:border-emerald-500/50 bg-black/20 hover:bg-black/30 disabled:opacity-50 text-left"
+                      className="w-full flex items-center gap-3 p-3 rounded-[10px] border border-dashed border-white/15 hover:border-emerald-500/50 bg-black/20 hover:bg-black/30 disabled:opacity-50 text-left"
                     >
-                      <div className="w-12 h-12 rounded-md border border-white/10 bg-white/5 flex items-center justify-center text-emerald-400">
+                      <div className="w-12 h-12 rounded-[10px] border border-white/10 bg-white/5 flex items-center justify-center text-emerald-400">
                         <FileArchive className="w-6 h-6" />
                       </div>
                       <div className="flex-1 min-w-0 text-xs">
@@ -975,7 +975,7 @@ function ProductsPage() {
                               setModal((m) => (m ? { ...m, file_path: null, file_name: null } : m));
                             }
                           }}
-                          className="p-1.5 rounded-md bg-white/5 hover:bg-red-500/20 border border-white/10 text-red-300"
+                          className="p-1.5 rounded-[10px] bg-white/5 hover:bg-red-500/20 border border-white/10 text-red-300"
                           aria-label="Remove file"
                         >
                           <X className="w-3.5 h-3.5" />
@@ -998,14 +998,14 @@ function ProductsPage() {
                 <button
                   disabled={saving}
                   onClick={save}
-                  className="px-4 py-2 bg-emerald-500 hover:bg-emerald-400 disabled:opacity-50 text-black text-sm font-bold rounded-lg flex items-center gap-2"
+                  className="px-4 py-2 bg-emerald-500 hover:bg-emerald-400 disabled:opacity-50 text-black text-sm font-bold rounded-[10px] flex items-center gap-2"
                 >
                   {saving ? <Loader2 className="w-4 h-4 animate-spin" /> : null}
                   {modal.id ? "Save changes" : "Create product"}
                 </button>
                 <button
                   onClick={() => setModal(null)}
-                  className="px-4 py-2 bg-white/5 hover:bg-white/10 border border-white/10 text-slate-200 text-sm font-semibold rounded-lg"
+                  className="px-4 py-2 bg-white/5 hover:bg-white/10 border border-white/10 text-slate-200 text-sm font-semibold rounded-[10px]"
                 >
                   Cancel
                 </button>
@@ -1019,7 +1019,7 @@ function ProductsPage() {
 }
 
 const inputCls =
-  "w-full bg-black/30 border border-white/10 rounded-lg px-3 py-2 text-sm text-white placeholder:text-slate-500 focus:border-emerald-500/60 outline-none";
+  "w-full bg-black/30 border border-white/10 rounded-[10px] px-3 py-2 text-sm text-white placeholder:text-slate-500 focus:border-emerald-500/60 outline-none";
 
 function Field({ label, children }: { label: string; children: React.ReactNode }) {
   return (
@@ -1107,7 +1107,7 @@ function ProductPreviewModal({ product, onClose }: { product: Row; onClose: () =
           </div>
           <button
             onClick={onClose}
-            className="p-1.5 rounded-lg hover:bg-white/10 text-slate-400 shrink-0"
+            className="p-1.5 rounded-[10px] hover:bg-white/10 text-slate-400 shrink-0"
             aria-label="Close"
           >
             <X className="w-4 h-4" />
@@ -1137,7 +1137,7 @@ function ProductPreviewModal({ product, onClose }: { product: Row; onClose: () =
                 <button
                   key={u}
                   onClick={() => setActive(i)}
-                  className={`shrink-0 w-16 h-16 rounded-md overflow-hidden border-2 ${i === active ? "border-emerald-500" : "border-white/10"}`}
+                  className={`shrink-0 w-16 h-16 rounded-[10px] overflow-hidden border-2 ${i === active ? "border-emerald-500" : "border-white/10"}`}
                 >
                   <img src={u} alt="" className="w-full h-full object-cover" />
                 </button>
@@ -1152,7 +1152,7 @@ function ProductPreviewModal({ product, onClose }: { product: Row; onClose: () =
         </div>
 
         <div className="grid grid-cols-2 gap-3 mb-4 text-xs">
-          <div className="bg-black/30 border border-white/10 rounded-lg p-3">
+          <div className="bg-black/30 border border-white/10 rounded-[10px] p-3">
             <div className="text-slate-500 uppercase tracking-wider text-[10px] mb-1">Price</div>
             <div className="text-white font-bold text-lg">
               ${Number(product.price_usd).toFixed(2)}
@@ -1164,7 +1164,7 @@ function ProductPreviewModal({ product, onClose }: { product: Row; onClose: () =
             ) : null}
           </div>
           {product.location ? (
-            <div className="bg-black/30 border border-white/10 rounded-lg p-3">
+            <div className="bg-black/30 border border-white/10 rounded-[10px] p-3">
               <div className="text-slate-500 uppercase tracking-wider text-[10px] mb-1">
                 Location
               </div>
@@ -1226,7 +1226,7 @@ function ProductPreviewModal({ product, onClose }: { product: Row; onClose: () =
         </dl>
 
         {status === "rejected" && Boolean(product.reject_reason) && (
-          <div className="mt-4 rounded-lg border border-red-500/40 bg-red-500/10 p-3 text-xs text-red-200 whitespace-pre-wrap">
+          <div className="mt-4 rounded-[10px] border border-red-500/40 bg-red-500/10 p-3 text-xs text-red-200 whitespace-pre-wrap">
             <div className="font-bold text-red-300 mb-1">Rejection reason</div>
             {product.reject_reason as string}
           </div>

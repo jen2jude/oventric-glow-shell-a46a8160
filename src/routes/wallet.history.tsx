@@ -62,7 +62,7 @@ function TopupHistoryPage() {
         <div className="flex items-center gap-2 mb-6">
           <Link
             to="/dashboard"
-            className="p-2 rounded-lg hover:bg-white/10 md:hover:bg-slate-100 text-white/70 md:text-slate-600 hover:text-white md:hover:text-slate-900"
+            className="p-2 rounded-[10px] hover:bg-white/10 md:hover:bg-slate-100 text-white/70 md:text-slate-600 hover:text-white md:hover:text-slate-900"
             aria-label="Back to dashboard"
           >
             <ArrowLeft className="w-5 h-5" />
@@ -95,17 +95,17 @@ function TopupHistoryPage() {
         </div>
 
         {error ? (
-          <div className="rounded-lg border border-red-500/40 md:border-red-200 bg-red-500/10 md:bg-red-50 p-4 text-sm text-red-200 md:text-red-700">
+          <div className="rounded-[10px] border border-red-500/40 md:border-red-200 bg-red-500/10 md:bg-red-50 p-4 text-sm text-red-200 md:text-red-700">
             {error}
           </div>
         ) : rows === null ? (
           <div className="space-y-2">
             {Array.from({ length: 5 }).map((_, i) => (
-              <div key={i} className="h-16 rounded-lg bg-white/5 md:bg-slate-200 animate-pulse" />
+              <div key={i} className="h-16 rounded-[10px] bg-white/5 md:bg-slate-200 animate-pulse" />
             ))}
           </div>
         ) : filtered.length === 0 ? (
-          <div className="rounded-lg border border-white/10 md:border-slate-200 bg-white/[0.03] md:bg-white p-8 text-center text-sm text-white/60 md:text-slate-500">
+          <div className="rounded-[10px] border border-white/10 md:border-slate-200 bg-white/[0.03] md:bg-white p-8 text-center text-sm text-white/60 md:text-slate-500">
             No transactions yet.
           </div>
         ) : (
@@ -138,8 +138,8 @@ function TopupRow({ row }: { row: PaystackTopupRow }) {
   const Icon = badge.icon;
   const dt = new Date(row.occurredAt || row.createdAt);
   return (
-    <li className="rounded-lg border border-white/10 md:border-slate-200 bg-white/[0.03] md:bg-white md:shadow-sm p-3 flex items-center gap-3">
-      <div className={`p-2 rounded-lg border ${badge.cls}`}>
+    <li className="rounded-[10px] border border-white/10 md:border-slate-200 bg-white/[0.03] md:bg-white md:shadow-sm p-3 flex items-center gap-3">
+      <div className={`p-2 rounded-[10px] border ${badge.cls}`}>
         <Icon className="w-4 h-4" />
       </div>
       <div className="min-w-0 flex-1">

@@ -1951,7 +1951,7 @@ function ProfilePage() {
                           <button
                             onClick={() => loadMore()}
                             disabled={st.loading}
-                            className="inline-flex items-center gap-2 px-4 py-2 rounded-lg border border-white/10 md:border-slate-200 text-sm text-slate-300 md:text-slate-600 hover:text-white md:hover:text-slate-900 hover:bg-white/5 md:bg-slate-100 md:hover:bg-slate-100 disabled:opacity-50"
+                            className="inline-flex items-center gap-2 px-4 py-2 rounded-[10px] border border-white/10 md:border-slate-200 text-sm text-slate-300 md:text-slate-600 hover:text-white md:hover:text-slate-900 hover:bg-white/5 md:bg-slate-100 md:hover:bg-slate-100 disabled:opacity-50"
                           >
                             {st.loading
                               ? "Loading…"
@@ -2178,7 +2178,7 @@ function TabFilters({
           value={draft}
           onChange={(e) => setDraft(e.target.value)}
           placeholder={SEARCH_PLACEHOLDER[tab]}
-          className="w-full bg-[#1E1E24] md:bg-white border border-white/10 md:border-slate-200 rounded-lg px-3 py-2 pr-8 text-sm text-slate-200 md:text-slate-700 placeholder:text-slate-500 md:text-slate-500 focus:outline-none focus:border-emerald-500/40 md:border-emerald-300"
+          className="w-full bg-[#1E1E24] md:bg-white border border-white/10 md:border-slate-200 rounded-[10px] px-3 py-2 pr-8 text-sm text-slate-200 md:text-slate-700 placeholder:text-slate-500 md:text-slate-500 focus:outline-none focus:border-emerald-500/40 md:border-emerald-300"
           aria-label={SEARCH_PLACEHOLDER[tab]}
         />
         {draft && (
@@ -2199,7 +2199,7 @@ function TabFilters({
         <select
           value={sort}
           onChange={(e) => onChangeSort(e.target.value as ProfileSortKey)}
-          className="bg-[#1E1E24] md:bg-white md:shadow-sm border border-white/10 md:border-slate-200 rounded-lg px-3 py-2 text-sm text-slate-200 md:text-slate-700 focus:outline-none focus:border-emerald-500/40 md:border-emerald-300"
+          className="bg-[#1E1E24] md:bg-white md:shadow-sm border border-white/10 md:border-slate-200 rounded-[10px] px-3 py-2 text-sm text-slate-200 md:text-slate-700 focus:outline-none focus:border-emerald-500/40 md:border-emerald-300"
         >
           {options.map((o) => (
             <option key={o.value} value={o.value}>
@@ -2302,7 +2302,7 @@ function EmptyState({
           {primary && (
             <button
               onClick={primary.onClick}
-              className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-emerald-500 hover:bg-emerald-400 text-black font-semibold text-xs transition-colors"
+              className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-[10px] bg-emerald-500 hover:bg-emerald-400 text-black font-semibold text-xs transition-colors"
             >
               {primary.label}
             </button>
@@ -2310,7 +2310,7 @@ function EmptyState({
           {secondary && (
             <button
               onClick={secondary.onClick}
-              className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg border border-white/10 md:border-slate-200 text-slate-300 md:text-slate-600 hover:text-white md:hover:text-slate-900 hover:bg-white/5 md:bg-slate-100 md:hover:bg-slate-100 text-xs transition-colors"
+              className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-[10px] border border-white/10 md:border-slate-200 text-slate-300 md:text-slate-600 hover:text-white md:hover:text-slate-900 hover:bg-white/5 md:bg-slate-100 md:hover:bg-slate-100 text-xs transition-colors"
             >
               {secondary.label}
             </button>
@@ -2340,7 +2340,7 @@ function ErrorState({
       <div className="mt-4 flex items-center justify-center">
         <button
           onClick={onRetry}
-          className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-emerald-500 hover:bg-emerald-400 text-black font-semibold text-xs transition-colors"
+          className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-[10px] bg-emerald-500 hover:bg-emerald-400 text-black font-semibold text-xs transition-colors"
         >
           <RefreshCw className="w-3.5 h-3.5" /> Try again
         </button>

@@ -485,7 +485,7 @@ export function PostComposerModal({
         <div className="flex items-center justify-between px-4 py-3 border-b border-white/10 shrink-0">
           <button
             onClick={onClose}
-            className="p-2 -ml-2 rounded-lg hover:bg-white/5 text-slate-300"
+            className="p-2 -ml-2 rounded-[10px] hover:bg-white/5 text-slate-300"
             aria-label="Close"
           >
             <X className="w-5 h-5" />
@@ -555,7 +555,7 @@ export function PostComposerModal({
                             setCircleId(c.id);
                             setAudienceOpen(false);
                           }}
-                          className={`w-full text-left flex items-center justify-between px-2 py-1.5 rounded-lg hover:bg-white/5 text-xs ${
+                          className={`w-full text-left flex items-center justify-between px-2 py-1.5 rounded-[10px] hover:bg-white/5 text-xs ${
                             audience === "circle" && circleId === c.id ? "bg-white/5" : ""
                           }`}
                         >
@@ -590,7 +590,7 @@ export function PostComposerModal({
             aria-invalid={showTextError}
             aria-describedby={showTextError ? "composer-text-error" : undefined}
             placeholder="What's on your mind?"
-            className={`w-full bg-transparent text-slate-100 placeholder:text-slate-500 resize-none focus:outline-none text-base mt-3 min-h-[100px] rounded-lg px-0 ${
+            className={`w-full bg-transparent text-slate-100 placeholder:text-slate-500 resize-none focus:outline-none text-base mt-3 min-h-[100px] rounded-[10px] px-0 ${
               showTextError ? "ring-1 ring-red-500/60" : ""
             }`}
           />
@@ -650,7 +650,7 @@ export function PostComposerModal({
                     key={p.id}
                     className="flex items-center gap-2 p-2 rounded-xl bg-white/5 border border-white/10"
                   >
-                    <div className="w-10 h-10 rounded-lg overflow-hidden bg-neutral-800">
+                    <div className="w-10 h-10 rounded-[10px] overflow-hidden bg-neutral-800">
                       {p.coverUrl ? (
                         <img src={p.coverUrl} alt="" className="w-full h-full object-cover" />
                       ) : (
@@ -762,7 +762,7 @@ export function PostComposerModal({
                   onClick={() => addProductTag(p)}
                   className="w-full flex items-center gap-3 px-3 py-2 hover:bg-white/5 text-left"
                 >
-                  <span className="w-9 h-9 rounded-lg overflow-hidden bg-white/10 flex items-center justify-center">
+                  <span className="w-9 h-9 rounded-[10px] overflow-hidden bg-white/10 flex items-center justify-center">
                     {p.coverUrl ? (
                       <img src={p.coverUrl} alt="" className="w-full h-full object-cover" />
                     ) : (
@@ -890,7 +890,7 @@ function AudienceOption({
     <button
       type="button"
       onClick={onClick}
-      className={`w-full text-left flex items-start gap-2 px-3 py-2 rounded-lg hover:bg-white/5 ${
+      className={`w-full text-left flex items-start gap-2 px-3 py-2 rounded-[10px] hover:bg-white/5 ${
         active ? "bg-white/5" : ""
       }`}
     >

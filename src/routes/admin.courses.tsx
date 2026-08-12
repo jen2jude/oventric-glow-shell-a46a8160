@@ -117,7 +117,7 @@ function AdminCourses() {
         <div className="flex gap-2">
           <Link
             to="/"
-            className="px-3 py-2 rounded-lg bg-white/5 border border-white/10 hover:bg-white/10 text-slate-300 text-sm"
+            className="px-3 py-2 rounded-[10px] bg-white/5 border border-white/10 hover:bg-white/10 text-slate-300 text-sm"
           >
             View catalog
           </Link>
@@ -126,7 +126,7 @@ function AdminCourses() {
               setEditingId(undefined);
               setEditorOpen(true);
             }}
-            className="inline-flex items-center gap-2 px-4 py-2 rounded-lg bg-emerald-500 hover:bg-emerald-400 text-black font-bold text-sm"
+            className="inline-flex items-center gap-2 px-4 py-2 rounded-[10px] bg-emerald-500 hover:bg-emerald-400 text-black font-bold text-sm"
           >
             <Plus className="w-4 h-4" /> New course
           </button>
@@ -137,7 +137,7 @@ function AdminCourses() {
         value={q}
         onChange={(e) => setQ(e.target.value)}
         placeholder="Search by title, instructor, or category"
-        className="w-full mb-4 px-3 py-2 bg-[#1E1E24] border border-white/10 rounded-lg text-sm text-white placeholder:text-slate-500 outline-none focus:border-emerald-500/50"
+        className="w-full mb-4 px-3 py-2 bg-[#1E1E24] border border-white/10 rounded-[10px] text-sm text-white placeholder:text-slate-500 outline-none focus:border-emerald-500/50"
       />
 
       {rows === null && (

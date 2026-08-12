@@ -150,21 +150,21 @@ export function CircleRequestsDrawer({ open, onClose }: { open: boolean; onClose
             onClick={refresh}
             aria-label="Refresh"
             disabled={loading}
-            className="p-1.5 rounded-md hover:bg-white/5 text-slate-400 hover:text-white disabled:opacity-40"
+            className="p-1.5 rounded-[10px] hover:bg-white/5 text-slate-400 hover:text-white disabled:opacity-40"
           >
             <RefreshCw className={`w-4 h-4 ${loading ? "animate-spin" : ""}`} />
           </button>
           <button
             onClick={onClose}
             aria-label="Close"
-            className="p-1.5 rounded-md hover:bg-white/5 text-slate-400 hover:text-white"
+            className="p-1.5 rounded-[10px] hover:bg-white/5 text-slate-400 hover:text-white"
           >
             <X className="w-4 h-4" />
           </button>
         </header>
 
         {error && (
-          <div className="mx-4 mt-3 text-xs text-red-300 bg-red-500/10 border border-red-500/30 rounded-lg px-3 py-2">
+          <div className="mx-4 mt-3 text-xs text-red-300 bg-red-500/10 border border-red-500/30 rounded-[10px] px-3 py-2">
             {error}
           </div>
         )}
@@ -219,7 +219,7 @@ export function CircleRequestsDrawer({ open, onClose }: { open: boolean; onClose
                         onClick={() => handleAccept(r)}
                         disabled={busy}
                         aria-label={`Accept request from ${label}`}
-                        className="inline-flex items-center gap-1 px-2.5 py-1.5 rounded-md bg-emerald-500 hover:bg-emerald-400 text-black text-xs font-semibold disabled:opacity-40"
+                        className="inline-flex items-center gap-1 px-2.5 py-1.5 rounded-[10px] bg-emerald-500 hover:bg-emerald-400 text-black text-xs font-semibold disabled:opacity-40"
                       >
                         {busy ? (
                           <Loader2 className="w-3.5 h-3.5 animate-spin" />
@@ -232,7 +232,7 @@ export function CircleRequestsDrawer({ open, onClose }: { open: boolean; onClose
                         onClick={() => handleDecline(r)}
                         disabled={busy}
                         aria-label={`Reject request from ${label}`}
-                        className="inline-flex items-center gap-1 px-2.5 py-1.5 rounded-md border border-white/10 text-slate-300 hover:text-red-300 hover:bg-red-500/10 text-xs font-semibold disabled:opacity-40"
+                        className="inline-flex items-center gap-1 px-2.5 py-1.5 rounded-[10px] border border-white/10 text-slate-300 hover:text-red-300 hover:bg-red-500/10 text-xs font-semibold disabled:opacity-40"
                       >
                         <X className="w-3.5 h-3.5" />
                         <span className="hidden sm:inline">Reject</span>

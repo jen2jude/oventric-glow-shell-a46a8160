@@ -89,14 +89,14 @@ export function EarningsBreakdown({ isOwner }: EarningsBreakdownProps) {
           <TrendingUp className="h-4 w-4 text-emerald-400" />
           Earnings breakdown
         </CardTitle>
-        <div className="flex items-center gap-1 rounded-lg bg-black/30 md:bg-slate-100 p-1">
+        <div className="flex items-center gap-1 rounded-[10px] bg-black/30 md:bg-slate-100 p-1">
           {RANGE_OPTIONS.map((opt) => (
             <button
               key={opt.value}
               type="button"
               onClick={() => setRange(opt.value)}
               className={cn(
-                "px-2.5 py-1 text-xs font-medium rounded-md transition-colors",
+                "px-2.5 py-1 text-xs font-medium rounded-[10px] transition-colors",
                 range === opt.value
                   ? "bg-emerald-500 text-white"
                   : "text-slate-400 md:text-slate-500 hover:text-slate-100 md:hover:text-slate-900",
@@ -161,14 +161,14 @@ export function EarningsBreakdown({ isOwner }: EarningsBreakdownProps) {
               <WalletIcon className="h-4 w-4 text-sky-400" />
               Payout timeline
             </h4>
-            <div className="flex items-center gap-1 rounded-lg bg-black/30 md:bg-slate-100 p-1">
+            <div className="flex items-center gap-1 rounded-[10px] bg-black/30 md:bg-slate-100 p-1">
               {STATUS_OPTIONS.map((opt) => (
                 <button
                   key={opt.value}
                   type="button"
                   onClick={() => setStatus(opt.value)}
                   className={cn(
-                    "px-2.5 py-1 text-xs font-medium rounded-md transition-colors",
+                    "px-2.5 py-1 text-xs font-medium rounded-[10px] transition-colors",
                     status === opt.value
                       ? "bg-sky-500 text-white"
                       : "text-slate-400 md:text-slate-500 hover:text-slate-100 md:hover:text-slate-900",

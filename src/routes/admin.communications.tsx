@@ -235,7 +235,7 @@ function AnnouncementsTab() {
             value={form.title}
             onChange={(e) => setForm({ ...form, title: e.target.value })}
             placeholder="Title"
-            className="w-full bg-black/30 border border-white/10 rounded-lg px-3 py-2 text-sm text-white placeholder:text-slate-500 focus:border-emerald-500/60 outline-none"
+            className="w-full bg-black/30 border border-white/10 rounded-[10px] px-3 py-2 text-sm text-white placeholder:text-slate-500 focus:border-emerald-500/60 outline-none"
           />
           <div>
             <div className="text-xs uppercase tracking-wider text-slate-500 mb-1.5">
@@ -258,7 +258,7 @@ function AnnouncementsTab() {
                 <button
                   key={a}
                   onClick={() => setForm({ ...form, audience: a })}
-                  className={`px-3 py-1.5 rounded-lg text-xs font-semibold border ${
+                  className={`px-3 py-1.5 rounded-[10px] text-xs font-semibold border ${
                     form.audience === a
                       ? "bg-emerald-500/15 border-emerald-500/50 text-emerald-300"
                       : "bg-white/5 border-white/10 text-slate-400 hover:text-white"
@@ -280,7 +280,7 @@ function AnnouncementsTab() {
                   <button
                     key={c.key}
                     onClick={() => toggleChannel(c.key)}
-                    className={`px-3 py-1.5 rounded-lg text-xs font-semibold border flex items-center gap-1.5 ${
+                    className={`px-3 py-1.5 rounded-[10px] text-xs font-semibold border flex items-center gap-1.5 ${
                       on
                         ? "bg-emerald-500/15 border-emerald-500/50 text-emerald-300"
                         : "bg-white/5 border-white/10 text-slate-400 hover:text-white"
@@ -309,7 +309,7 @@ function AnnouncementsTab() {
             <button
               disabled={busy}
               onClick={submit}
-              className="px-4 py-2 bg-emerald-500 hover:bg-emerald-400 disabled:opacity-50 text-black text-sm font-bold rounded-lg flex items-center gap-2"
+              className="px-4 py-2 bg-emerald-500 hover:bg-emerald-400 disabled:opacity-50 text-black text-sm font-bold rounded-[10px] flex items-center gap-2"
             >
               {busy ? (
                 <Loader2 className="w-4 h-4 animate-spin" />
@@ -321,7 +321,7 @@ function AnnouncementsTab() {
             {form.id && (
               <button
                 onClick={resetForm}
-                className="px-4 py-2 bg-white/5 hover:bg-white/10 border border-white/10 text-slate-200 text-sm font-semibold rounded-lg"
+                className="px-4 py-2 bg-white/5 hover:bg-white/10 border border-white/10 text-slate-200 text-sm font-semibold rounded-[10px]"
               >
                 Cancel edit
               </button>
@@ -475,7 +475,7 @@ function DirectMessageTab() {
             onChange={(e) => setRecipients(e.target.value)}
             placeholder="user_id, @username, comma or newline separated"
             rows={2}
-            className="w-full bg-black/30 border border-white/10 rounded-lg px-3 py-2 text-sm text-white placeholder:text-slate-500 focus:border-emerald-500/60 outline-none font-mono"
+            className="w-full bg-black/30 border border-white/10 rounded-[10px] px-3 py-2 text-sm text-white placeholder:text-slate-500 focus:border-emerald-500/60 outline-none font-mono"
           />
           <p className="text-[11px] text-slate-500 mt-1">
             Paste user IDs directly, or usernames prefixed with @.
@@ -488,7 +488,7 @@ function DirectMessageTab() {
               <button
                 key={k}
                 onClick={() => setKind(k)}
-                className={`px-3 py-1.5 rounded-lg text-xs font-semibold border ${
+                className={`px-3 py-1.5 rounded-[10px] text-xs font-semibold border ${
                   kind === k
                     ? "bg-emerald-500/15 border-emerald-500/50 text-emerald-300"
                     : "bg-white/5 border-white/10 text-slate-400 hover:text-white"
@@ -503,7 +503,7 @@ function DirectMessageTab() {
           value={title}
           onChange={(e) => setTitle(e.target.value)}
           placeholder="Title"
-          className="w-full bg-black/30 border border-white/10 rounded-lg px-3 py-2 text-sm text-white placeholder:text-slate-500 focus:border-emerald-500/60 outline-none"
+          className="w-full bg-black/30 border border-white/10 rounded-[10px] px-3 py-2 text-sm text-white placeholder:text-slate-500 focus:border-emerald-500/60 outline-none"
         />
         <div>
           <div className="text-xs uppercase tracking-wider text-slate-500 mb-1.5">
@@ -523,12 +523,12 @@ function DirectMessageTab() {
           value={link}
           onChange={(e) => setLink(e.target.value)}
           placeholder="Optional link (e.g. /product/abc)"
-          className="w-full bg-black/30 border border-white/10 rounded-lg px-3 py-2 text-sm text-white placeholder:text-slate-500 focus:border-emerald-500/60 outline-none"
+          className="w-full bg-black/30 border border-white/10 rounded-[10px] px-3 py-2 text-sm text-white placeholder:text-slate-500 focus:border-emerald-500/60 outline-none"
         />
         <button
           disabled={busy}
           onClick={submit}
-          className="px-4 py-2 bg-emerald-500 hover:bg-emerald-400 disabled:opacity-50 text-black text-sm font-bold rounded-lg flex items-center gap-2"
+          className="px-4 py-2 bg-emerald-500 hover:bg-emerald-400 disabled:opacity-50 text-black text-sm font-bold rounded-[10px] flex items-center gap-2"
         >
           {busy ? <Loader2 className="w-4 h-4 animate-spin" /> : <Send className="w-4 h-4" />}
           Send message

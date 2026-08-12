@@ -136,7 +136,7 @@ function CampaignDetailPage() {
           <p className="text-slate-400 text-sm mb-4">{error ?? "This campaign is unavailable."}</p>
           <button
             onClick={() => navigate({ to: "/ads-manager" })}
-            className="rounded-lg bg-emerald-500 text-black px-4 py-2 text-sm font-semibold"
+            className="rounded-[10px] bg-emerald-500 text-black px-4 py-2 text-sm font-semibold"
           >
             Back to Ads Manager
           </button>
@@ -328,7 +328,7 @@ function MiniStat({
   icon: React.ComponentType<{ className?: string }>;
 }) {
   return (
-    <div className="rounded-lg bg-black/20 border border-white/5 p-2">
+    <div className="rounded-[10px] bg-black/20 border border-white/5 p-2">
       <div className="flex items-center gap-1.5 text-[10px] uppercase tracking-widest text-slate-500 font-bold">
         <Icon className="w-3 h-3" /> {label}
       </div>
@@ -528,14 +528,14 @@ function MetricsChart({ metrics }: { metrics: MyCampaignMetrics | null }) {
   );
   if (series.length === 0) {
     return (
-      <div className="h-32 rounded-lg bg-black/20 border border-white/5 flex items-center justify-center text-slate-500 text-sm">
+      <div className="h-32 rounded-[10px] bg-black/20 border border-white/5 flex items-center justify-center text-slate-500 text-sm">
         No delivery data yet
       </div>
     );
   }
   return (
     <div>
-      <div className="h-40 flex items-end gap-[2px] rounded-lg bg-black/20 border border-white/5 p-2">
+      <div className="h-40 flex items-end gap-[2px] rounded-[10px] bg-black/20 border border-white/5 p-2">
         {series.map((s) => {
           const impH = (s.impressions / max) * 100;
           const clkH = ((s.clicks * 10) / max) * 100;

@@ -290,7 +290,7 @@ export function DesktopHome({ onSelect, onCreate }: DesktopHomeProps) {
           <button
             type="submit"
             className={`inline-flex items-center bg-emerald-600 font-bold text-white transition-transform active:scale-95 ${
-              compact ? "h-7 rounded-lg px-3 text-xs" : "h-10 rounded-xl px-5 text-sm"
+              compact ? "h-7 rounded-[10px] px-3 text-xs" : "h-10 rounded-xl px-5 text-sm"
             }`}
           >
             Search
@@ -314,7 +314,7 @@ export function DesktopHome({ onSelect, onCreate }: DesktopHomeProps) {
                 }}
                 className="flex w-full items-center gap-3 px-4 py-3 text-left transition-colors hover:bg-slate-50"
               >
-                <span className="h-9 w-9 shrink-0 overflow-hidden rounded-lg bg-slate-100">
+                <span className="h-9 w-9 shrink-0 overflow-hidden rounded-[10px] bg-slate-100">
                   {r.coverUrl && (
                     <img
                       src={r.coverUrl}

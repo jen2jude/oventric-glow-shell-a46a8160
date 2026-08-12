@@ -405,7 +405,7 @@ function BountiesAdminPage() {
         </div>
         <div className="flex items-center gap-2 flex-wrap">
           <div
-            className="inline-flex rounded-lg border border-white/10 bg-white/5 overflow-hidden"
+            className="inline-flex rounded-[10px] border border-white/10 bg-white/5 overflow-hidden"
             role="group"
             aria-label="Display currency"
           >
@@ -422,13 +422,13 @@ function BountiesAdminPage() {
           </div>
           <button
             onClick={() => setShowCategoryManager(true)}
-            className="px-3 py-2 bg-white/5 hover:bg-white/10 border border-white/10 text-slate-200 text-sm font-semibold rounded-lg flex items-center gap-2"
+            className="px-3 py-2 bg-white/5 hover:bg-white/10 border border-white/10 text-slate-200 text-sm font-semibold rounded-[10px] flex items-center gap-2"
           >
             <Tags className="w-4 h-4" /> Categories
           </button>
           <button
             onClick={openCreate}
-            className="px-4 py-2 bg-white hover:bg-slate-200 text-black text-sm font-bold rounded-lg flex items-center gap-2"
+            className="px-4 py-2 bg-white hover:bg-slate-200 text-black text-sm font-bold rounded-[10px] flex items-center gap-2"
           >
             <Plus className="w-4 h-4" /> New bounty
           </button>
@@ -621,7 +621,7 @@ function BountiesAdminPage() {
                 </div>
                 <button
                   onClick={() => setDetailId(id)}
-                  className="px-3 py-2 rounded-lg bg-white/5 hover:bg-white/10 border border-white/15 text-slate-100 text-xs font-bold inline-flex items-center gap-1.5"
+                  className="px-3 py-2 rounded-[10px] bg-white/5 hover:bg-white/10 border border-white/15 text-slate-100 text-xs font-bold inline-flex items-center gap-1.5"
                   aria-label="Manage bounty"
                 >
                   <Users className="w-4 h-4" /> Manage
@@ -629,7 +629,7 @@ function BountiesAdminPage() {
                 <button
                   onClick={() => togglePromoted(id, !b.promoted)}
                   disabled={busy === id}
-                  className={`px-3 py-2 rounded-lg border text-xs font-bold inline-flex items-center gap-1.5 ${
+                  className={`px-3 py-2 rounded-[10px] border text-xs font-bold inline-flex items-center gap-1.5 ${
                     b.promoted
                       ? "bg-white/10 border-white/20 text-slate-100 hover:bg-white/15"
                       : "bg-white/5 border-white/10 text-slate-300 hover:bg-white/10"
@@ -640,7 +640,7 @@ function BountiesAdminPage() {
                 </button>
                 <button
                   onClick={() => openEdit(b)}
-                  className="p-2 rounded-lg bg-white/5 hover:bg-white/10 border border-white/10 text-slate-200"
+                  className="p-2 rounded-[10px] bg-white/5 hover:bg-white/10 border border-white/10 text-slate-200"
                   aria-label="Edit bounty"
                 >
                   <Pencil className="w-4 h-4" />
@@ -659,7 +659,7 @@ function BountiesAdminPage() {
                     setBusy(null);
                   }}
                   disabled={busy === id}
-                  className="p-2 rounded-lg bg-red-500/10 hover:bg-red-500/20 border border-red-500/30 text-red-300"
+                  className="p-2 rounded-[10px] bg-red-500/10 hover:bg-red-500/20 border border-red-500/30 text-red-300"
                   aria-label="Delete bounty"
                 >
                   <Trash2 className="w-4 h-4" />
@@ -679,7 +679,7 @@ function BountiesAdminPage() {
               </h2>
               <button
                 onClick={() => setModal(null)}
-                className="p-1.5 rounded-lg hover:bg-white/10 text-slate-400"
+                className="p-1.5 rounded-[10px] hover:bg-white/10 text-slate-400"
                 aria-label="Close"
               >
                 <X className="w-4 h-4" />
@@ -709,7 +709,7 @@ function BountiesAdminPage() {
                   {modal.images.map((img, idx) => (
                     <div
                       key={img.path}
-                      className="relative aspect-square rounded-md overflow-hidden border border-white/10 bg-white/5"
+                      className="relative aspect-square rounded-[10px] overflow-hidden border border-white/10 bg-white/5"
                     >
                       {img.preview ? (
                         <ResponsiveImage
@@ -745,7 +745,7 @@ function BountiesAdminPage() {
                       type="button"
                       onClick={() => fileInputRef.current?.click()}
                       disabled={uploadingImage}
-                      className="aspect-square rounded-md border border-dashed border-white/15 hover:border-emerald-500/50 bg-black/20 hover:bg-black/30 disabled:opacity-50 flex flex-col items-center justify-center gap-1 text-slate-400"
+                      className="aspect-square rounded-[10px] border border-dashed border-white/15 hover:border-emerald-500/50 bg-black/20 hover:bg-black/30 disabled:opacity-50 flex flex-col items-center justify-center gap-1 text-slate-400"
                     >
                       {uploadingImage ? (
                         <Loader2 className="w-5 h-5 animate-spin" />
@@ -796,7 +796,7 @@ function BountiesAdminPage() {
                 </Field>
               </div>
 
-              <label className="flex items-center gap-2 p-3 rounded-lg border border-fuchsia-500/30 bg-fuchsia-500/5 cursor-pointer">
+              <label className="flex items-center gap-2 p-3 rounded-[10px] border border-fuchsia-500/30 bg-fuchsia-500/5 cursor-pointer">
                 <input
                   type="checkbox"
                   checked={modal.promoted}
@@ -883,14 +883,14 @@ function BountiesAdminPage() {
                 <button
                   disabled={saving}
                   onClick={save}
-                  className="px-4 py-2 bg-white hover:bg-slate-200 disabled:opacity-50 text-black text-sm font-bold rounded-lg flex items-center gap-2"
+                  className="px-4 py-2 bg-white hover:bg-slate-200 disabled:opacity-50 text-black text-sm font-bold rounded-[10px] flex items-center gap-2"
                 >
                   {saving ? <Loader2 className="w-4 h-4 animate-spin" /> : null}
                   {modal.id ? "Save changes" : "Publish bounty"}
                 </button>
                 <button
                   onClick={() => setModal(null)}
-                  className="px-4 py-2 bg-white/5 hover:bg-white/10 border border-white/10 text-slate-200 text-sm font-semibold rounded-lg"
+                  className="px-4 py-2 bg-white/5 hover:bg-white/10 border border-white/10 text-slate-200 text-sm font-semibold rounded-[10px]"
                 >
                   Cancel
                 </button>
@@ -984,7 +984,7 @@ function BountyDetailModal({
       <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/70">
         <Loader2 className="w-8 h-8 animate-spin text-slate-400" />
         <button
-          className="absolute top-4 right-4 p-2 rounded-lg bg-white/10 text-white"
+          className="absolute top-4 right-4 p-2 rounded-[10px] bg-white/10 text-white"
           onClick={onClose}
         >
           <X className="w-4 h-4" />
@@ -1007,7 +1007,7 @@ function BountyDetailModal({
           <h2 className="text-white font-black text-lg inline-flex items-center gap-2">
             <Users className="w-5 h-5 text-emerald-400" /> Manage bounty
           </h2>
-          <button onClick={onClose} className="p-1.5 rounded-lg hover:bg-white/10 text-slate-400">
+          <button onClick={onClose} className="p-1.5 rounded-[10px] hover:bg-white/10 text-slate-400">
             <X className="w-4 h-4" />
           </button>
         </div>
@@ -1076,7 +1076,7 @@ function BountyDetailModal({
                   onClick={() =>
                     runAction("Approved", () => approveFn({ data: { id, approve: true } }))
                   }
-                  className="px-3 py-1.5 rounded-lg bg-emerald-500 hover:bg-emerald-400 text-black text-xs font-bold inline-flex items-center gap-1.5 disabled:opacity-50"
+                  className="px-3 py-1.5 rounded-[10px] bg-emerald-500 hover:bg-emerald-400 text-black text-xs font-bold inline-flex items-center gap-1.5 disabled:opacity-50"
                 >
                   <ShieldCheck className="w-3.5 h-3.5" /> Approve
                 </button>
@@ -1088,7 +1088,7 @@ function BountyDetailModal({
                       approveFn({ data: { id, approve: false, reason } }),
                     );
                   }}
-                  className="px-3 py-1.5 rounded-lg bg-red-500/20 hover:bg-red-500/30 border border-red-500/40 text-red-200 text-xs font-bold inline-flex items-center gap-1.5 disabled:opacity-50"
+                  className="px-3 py-1.5 rounded-[10px] bg-red-500/20 hover:bg-red-500/30 border border-red-500/40 text-red-200 text-xs font-bold inline-flex items-center gap-1.5 disabled:opacity-50"
                 >
                   <ShieldX className="w-3.5 h-3.5" /> Reject & refund
                 </button>
@@ -1101,7 +1101,7 @@ function BountyDetailModal({
                   holdFn({ data: { id, hold: !b.admin_hold } }),
                 )
               }
-              className="px-3 py-1.5 rounded-lg bg-amber-500/20 hover:bg-amber-500/30 border border-amber-500/40 text-amber-200 text-xs font-bold inline-flex items-center gap-1.5 disabled:opacity-50"
+              className="px-3 py-1.5 rounded-[10px] bg-amber-500/20 hover:bg-amber-500/30 border border-amber-500/40 text-amber-200 text-xs font-bold inline-flex items-center gap-1.5 disabled:opacity-50"
             >
               {b.admin_hold ? <Unlock className="w-3.5 h-3.5" /> : <Lock className="w-3.5 h-3.5" />}
               {b.admin_hold ? "Release hold" : "Hold escrow"}
@@ -1117,7 +1117,7 @@ function BountyDetailModal({
                   return;
                 return runAction("Escrow released", () => releaseFn({ data: { id } }));
               }}
-              className="px-3 py-1.5 rounded-lg bg-emerald-500/20 hover:bg-emerald-500/30 border border-emerald-500/40 text-emerald-200 text-xs font-bold inline-flex items-center gap-1.5 disabled:opacity-50"
+              className="px-3 py-1.5 rounded-[10px] bg-emerald-500/20 hover:bg-emerald-500/30 border border-emerald-500/40 text-emerald-200 text-xs font-bold inline-flex items-center gap-1.5 disabled:opacity-50"
             >
               <CheckCircle2 className="w-3.5 h-3.5" /> Release to solver
             </button>
@@ -1128,7 +1128,7 @@ function BountyDetailModal({
                 if (!confirm(`Refund $${price.toFixed(2)} to poster wallet?`)) return;
                 return runAction("Escrow refunded", () => refundFn({ data: { id, reason } }));
               }}
-              className="px-3 py-1.5 rounded-lg bg-red-500/10 hover:bg-red-500/20 border border-red-500/30 text-red-300 text-xs font-bold inline-flex items-center gap-1.5 disabled:opacity-50"
+              className="px-3 py-1.5 rounded-[10px] bg-red-500/10 hover:bg-red-500/20 border border-red-500/30 text-red-300 text-xs font-bold inline-flex items-center gap-1.5 disabled:opacity-50"
             >
               <RotateCcw className="w-3.5 h-3.5" /> Refund poster
             </button>
@@ -1158,7 +1158,7 @@ function BountyDetailModal({
                 return (
                   <div
                     key={a.id}
-                    className={`p-2.5 rounded-lg border ${isAccepted ? "border-emerald-500/40 bg-emerald-500/5" : "border-white/10 bg-black/20"}`}
+                    className={`p-2.5 rounded-[10px] border ${isAccepted ? "border-emerald-500/40 bg-emerald-500/5" : "border-white/10 bg-black/20"}`}
                   >
                     <div className="flex items-center justify-between gap-2">
                       <div className="text-sm text-white font-semibold">
@@ -1199,7 +1199,7 @@ function BountyDetailModal({
 }
 
 const inputCls =
-  "w-full bg-black/30 border border-white/10 rounded-lg px-3 py-2 text-sm text-white placeholder:text-slate-500 focus:border-emerald-500/60 outline-none";
+  "w-full bg-black/30 border border-white/10 rounded-[10px] px-3 py-2 text-sm text-white placeholder:text-slate-500 focus:border-emerald-500/60 outline-none";
 
 function Field({ label, children }: { label: string; children: React.ReactNode }) {
   return (
@@ -1288,7 +1288,7 @@ function CategoryManagerModal({
           </h2>
           <button
             onClick={onClose}
-            className="p-1.5 rounded-lg hover:bg-white/10 text-slate-400"
+            className="p-1.5 rounded-[10px] hover:bg-white/10 text-slate-400"
             aria-label="Close"
           >
             <X className="w-4 h-4" />
@@ -1299,7 +1299,7 @@ function CategoryManagerModal({
           {rows.map((row, idx) => (
             <div
               key={row.slug}
-              className="flex items-center gap-2 p-2 rounded-lg bg-white/5 border border-white/10"
+              className="flex items-center gap-2 p-2 rounded-[10px] bg-white/5 border border-white/10"
             >
               <span className="text-[10px] text-slate-500 font-mono w-20 truncate">{row.slug}</span>
               <input
@@ -1350,18 +1350,18 @@ function CategoryManagerModal({
               value={newSlug}
               onChange={(e) => setNewSlug(e.target.value)}
               placeholder="slug (e.g. mobile)"
-              className="flex-1 px-3 py-2 rounded-lg bg-black/40 border border-white/10 text-white text-sm"
+              className="flex-1 px-3 py-2 rounded-[10px] bg-black/40 border border-white/10 text-white text-sm"
             />
             <input
               value={newLabel}
               onChange={(e) => setNewLabel(e.target.value)}
               placeholder="Label (e.g. Mobile Apps)"
-              className="flex-1 px-3 py-2 rounded-lg bg-black/40 border border-white/10 text-white text-sm"
+              className="flex-1 px-3 py-2 rounded-[10px] bg-black/40 border border-white/10 text-white text-sm"
             />
             <button
               onClick={add}
               disabled={busy}
-              className="px-4 py-2 bg-emerald-500 hover:bg-emerald-400 text-black text-sm font-bold rounded-lg flex items-center justify-center gap-1"
+              className="px-4 py-2 bg-emerald-500 hover:bg-emerald-400 text-black text-sm font-bold rounded-[10px] flex items-center justify-center gap-1"
             >
               <Plus className="w-4 h-4" /> Add
             </button>

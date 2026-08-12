@@ -175,7 +175,7 @@ export function RequestsInboxDrawer({ open, onClose, initialTab = "follow" }: Pr
           </div>
           <button
             onClick={onClose}
-            className="p-2 -m-2 rounded-lg text-slate-500 hover:text-white hover:bg-white/5"
+            className="p-2 -m-2 rounded-[10px] text-slate-500 hover:text-white hover:bg-white/5"
             aria-label="Close"
           >
             <X className="w-4 h-4" />
@@ -184,12 +184,12 @@ export function RequestsInboxDrawer({ open, onClose, initialTab = "follow" }: Pr
 
         {/* Tab toggle */}
         <div className="px-5 pt-4">
-          <div className="grid grid-cols-2 gap-1 p-1 rounded-lg bg-[#1E1E24] border border-white/10">
+          <div className="grid grid-cols-2 gap-1 p-1 rounded-[10px] bg-[#1E1E24] border border-white/10">
             <button
               type="button"
               onClick={() => setTab("follow")}
               aria-pressed={tab === "follow"}
-              className={`inline-flex items-center justify-center gap-1.5 py-2 rounded-md text-xs font-bold transition-colors ${
+              className={`inline-flex items-center justify-center gap-1.5 py-2 rounded-[10px] text-xs font-bold transition-colors ${
                 tab === "follow" ? "bg-emerald-500 text-black" : "text-slate-300 hover:text-white"
               }`}
             >
@@ -209,7 +209,7 @@ export function RequestsInboxDrawer({ open, onClose, initialTab = "follow" }: Pr
               type="button"
               onClick={() => setTab("circle")}
               aria-pressed={tab === "circle"}
-              className={`inline-flex items-center justify-center gap-1.5 py-2 rounded-md text-xs font-bold transition-colors ${
+              className={`inline-flex items-center justify-center gap-1.5 py-2 rounded-[10px] text-xs font-bold transition-colors ${
                 tab === "circle" ? "bg-emerald-500 text-black" : "text-slate-300 hover:text-white"
               }`}
             >
@@ -248,7 +248,7 @@ export function RequestsInboxDrawer({ open, onClose, initialTab = "follow" }: Pr
               followRows.map((r) => (
                 <div
                   key={r.requesterId}
-                  className="flex items-center gap-3 p-3 rounded-lg bg-[#1E1E24] border border-white/10"
+                  className="flex items-center gap-3 p-3 rounded-[10px] bg-[#1E1E24] border border-white/10"
                 >
                   <button
                     onClick={() => {
@@ -282,7 +282,7 @@ export function RequestsInboxDrawer({ open, onClose, initialTab = "follow" }: Pr
                     <button
                       onClick={() => actFollow(r.requesterId, acceptFollow)}
                       disabled={busy === r.requesterId}
-                      className="inline-flex items-center gap-1 px-2.5 py-1.5 rounded-lg bg-emerald-500 text-black text-xs font-bold hover:bg-emerald-400 disabled:opacity-60"
+                      className="inline-flex items-center gap-1 px-2.5 py-1.5 rounded-[10px] bg-emerald-500 text-black text-xs font-bold hover:bg-emerald-400 disabled:opacity-60"
                       aria-label={`Accept ${r.requesterName}`}
                     >
                       {busy === r.requesterId ? (
@@ -295,7 +295,7 @@ export function RequestsInboxDrawer({ open, onClose, initialTab = "follow" }: Pr
                     <button
                       onClick={() => actFollow(r.requesterId, declineFollow)}
                       disabled={busy === r.requesterId}
-                      className="inline-flex items-center gap-1 px-2.5 py-1.5 rounded-lg border border-white/10 text-slate-300 text-xs font-bold hover:bg-white/5 disabled:opacity-60"
+                      className="inline-flex items-center gap-1 px-2.5 py-1.5 rounded-[10px] border border-white/10 text-slate-300 text-xs font-bold hover:bg-white/5 disabled:opacity-60"
                       aria-label={`Decline ${r.requesterName}`}
                     >
                       <Ban className="w-3 h-3" />
@@ -327,7 +327,7 @@ export function RequestsInboxDrawer({ open, onClose, initialTab = "follow" }: Pr
               return (
                 <div
                   key={r.requesterId}
-                  className="flex items-center gap-3 p-3 rounded-lg bg-[#1E1E24] border border-white/10"
+                  className="flex items-center gap-3 p-3 rounded-[10px] bg-[#1E1E24] border border-white/10"
                 >
                   <div className="w-10 h-10 rounded-full bg-gradient-to-br from-emerald-400 to-emerald-600 flex items-center justify-center text-black font-bold text-xs shrink-0">
                     {initials}
@@ -353,7 +353,7 @@ export function RequestsInboxDrawer({ open, onClose, initialTab = "follow" }: Pr
                     <button
                       onClick={() => actCircle(r.requesterId, acceptCircle)}
                       disabled={busy === r.requesterId}
-                      className="inline-flex items-center gap-1 px-2.5 py-1.5 rounded-lg bg-emerald-500 text-black text-xs font-bold hover:bg-emerald-400 disabled:opacity-60"
+                      className="inline-flex items-center gap-1 px-2.5 py-1.5 rounded-[10px] bg-emerald-500 text-black text-xs font-bold hover:bg-emerald-400 disabled:opacity-60"
                       aria-label={`Accept ${label}`}
                     >
                       {busy === r.requesterId ? (
@@ -366,7 +366,7 @@ export function RequestsInboxDrawer({ open, onClose, initialTab = "follow" }: Pr
                     <button
                       onClick={() => actCircle(r.requesterId, declineCircle)}
                       disabled={busy === r.requesterId}
-                      className="inline-flex items-center gap-1 px-2.5 py-1.5 rounded-lg border border-white/10 text-slate-300 text-xs font-bold hover:bg-white/5 disabled:opacity-60"
+                      className="inline-flex items-center gap-1 px-2.5 py-1.5 rounded-[10px] border border-white/10 text-slate-300 text-xs font-bold hover:bg-white/5 disabled:opacity-60"
                       aria-label={`Decline ${label}`}
                     >
                       <Ban className="w-3 h-3" />

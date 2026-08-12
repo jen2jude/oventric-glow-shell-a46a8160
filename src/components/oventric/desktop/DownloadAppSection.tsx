@@ -178,7 +178,7 @@ export function DownloadAppSection() {
                 <div className="mt-1 text-lg font-bold text-white tabular-nums">$0.00</div>
                 <div className="mt-2 grid grid-cols-3 gap-1">
                   {["Cashback", "Bounty", "Escrow"].map((l) => (
-                    <div key={l} className="rounded-lg bg-[#1E1E24]/80 p-1 text-center">
+                    <div key={l} className="rounded-[10px] bg-[#1E1E24]/80 p-1 text-center">
                       <div className="text-[7px] text-slate-500">{l}</div>
                       <div className="text-[9px] font-semibold text-slate-200">—</div>
                     </div>

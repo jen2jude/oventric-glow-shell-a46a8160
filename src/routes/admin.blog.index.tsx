@@ -48,7 +48,7 @@ function BlogListPage() {
         <Link
           to="/admin/blog/$id"
           params={{ id: "new" }}
-          className="inline-flex items-center gap-1 px-3 py-2 rounded-lg bg-emerald-500 text-black text-sm font-bold hover:bg-emerald-400"
+          className="inline-flex items-center gap-1 px-3 py-2 rounded-[10px] bg-emerald-500 text-black text-sm font-bold hover:bg-emerald-400"
         >
           <Plus className="w-4 h-4" /> New post
         </Link>
@@ -67,7 +67,7 @@ function BlogListPage() {
               key={r.id}
               className="bg-[#141418] border border-white/10 rounded-xl p-3 flex items-center gap-3"
             >
-              <div className="w-16 h-16 shrink-0 rounded-lg overflow-hidden bg-black/40 border border-white/10">
+              <div className="w-16 h-16 shrink-0 rounded-[10px] overflow-hidden bg-black/40 border border-white/10">
                 {r.cover_url ? (
                   <ResponsiveImage
                     sizes="96px"
@@ -92,7 +92,7 @@ function BlogListPage() {
               <Link
                 to="/admin/blog/$id"
                 params={{ id: r.id }}
-                className="px-3 py-1.5 rounded-lg bg-white/5 hover:bg-white/10 border border-white/10 text-slate-200 text-xs inline-flex items-center gap-1"
+                className="px-3 py-1.5 rounded-[10px] bg-white/5 hover:bg-white/10 border border-white/10 text-slate-200 text-xs inline-flex items-center gap-1"
               >
                 <Pencil className="w-3 h-3" /> Edit
               </Link>
@@ -103,7 +103,7 @@ function BlogListPage() {
                     refresh();
                   }
                 }}
-                className="p-2 rounded-lg bg-red-500/10 hover:bg-red-500/20 border border-red-500/30 text-red-300"
+                className="p-2 rounded-[10px] bg-red-500/10 hover:bg-red-500/20 border border-red-500/30 text-red-300"
               >
                 <Trash2 className="w-4 h-4" />
               </button>

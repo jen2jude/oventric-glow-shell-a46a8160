@@ -383,7 +383,7 @@ function BlogEditorPage() {
     }
   };
 
-  const btn = "p-2 rounded-md hover:bg-white/10 text-slate-300 hover:text-white transition";
+  const btn = "p-2 rounded-[10px] hover:bg-white/10 text-slate-300 hover:text-white transition";
 
   if (loading) {
     return (
@@ -416,7 +416,7 @@ function BlogEditorPage() {
         <div className="flex items-center gap-2">
           <button
             onClick={() => setShowPreview((v) => !v)}
-            className={`px-3 py-2 rounded-lg border text-sm inline-flex items-center gap-1 ${showPreview ? "bg-emerald-500/15 border-emerald-500/40 text-emerald-200" : "bg-white/5 hover:bg-white/10 border-white/10 text-slate-200"}`}
+            className={`px-3 py-2 rounded-[10px] border text-sm inline-flex items-center gap-1 ${showPreview ? "bg-emerald-500/15 border-emerald-500/40 text-emerald-200" : "bg-white/5 hover:bg-white/10 border-white/10 text-slate-200"}`}
             title={showPreview ? "Back to editor" : "Live preview"}
           >
             {showPreview ? (
@@ -432,21 +432,21 @@ function BlogEditorPage() {
           <button
             onClick={() => save("draft")}
             disabled={saving}
-            className="px-3 py-2 rounded-lg bg-white/5 hover:bg-white/10 border border-white/10 text-slate-200 text-sm inline-flex items-center gap-1"
+            className="px-3 py-2 rounded-[10px] bg-white/5 hover:bg-white/10 border border-white/10 text-slate-200 text-sm inline-flex items-center gap-1"
           >
             <Save className="w-4 h-4" /> Save draft
           </button>
           <button
             onClick={() => save("scheduled")}
             disabled={saving || !scheduledAt}
-            className="px-3 py-2 rounded-lg bg-amber-500/20 hover:bg-amber-500/30 border border-amber-500/40 text-amber-200 text-sm disabled:opacity-40"
+            className="px-3 py-2 rounded-[10px] bg-amber-500/20 hover:bg-amber-500/30 border border-amber-500/40 text-amber-200 text-sm disabled:opacity-40"
           >
             Schedule
           </button>
           <button
             onClick={() => save("published")}
             disabled={saving}
-            className="px-3 py-2 rounded-lg bg-emerald-500 hover:bg-emerald-400 text-black text-sm font-bold inline-flex items-center gap-1"
+            className="px-3 py-2 rounded-[10px] bg-emerald-500 hover:bg-emerald-400 text-black text-sm font-bold inline-flex items-center gap-1"
           >
             {saving ? <Loader2 className="w-4 h-4 animate-spin" /> : null}
             Publish
@@ -528,7 +528,7 @@ function BlogEditorPage() {
                 value={slug}
                 onChange={(e) => setSlug(e.target.value)}
                 placeholder="url-slug (auto-generated if empty)"
-                className="w-full bg-black/30 border border-white/10 rounded-lg px-3 py-2 text-sm text-slate-300 font-mono"
+                className="w-full bg-black/30 border border-white/10 rounded-[10px] px-3 py-2 text-sm text-slate-300 font-mono"
               />
 
               {/* Toolbar */}
@@ -615,19 +615,19 @@ function BlogEditorPage() {
                   >
                     <button
                       onClick={() => applyImgWidth(25)}
-                      className={`px-2 py-1 rounded-md text-xs font-semibold ${imgMenu.width <= 30 ? "bg-emerald-500 text-black" : "bg-white/5 text-slate-200 hover:bg-white/10"}`}
+                      className={`px-2 py-1 rounded-[10px] text-xs font-semibold ${imgMenu.width <= 30 ? "bg-emerald-500 text-black" : "bg-white/5 text-slate-200 hover:bg-white/10"}`}
                     >
                       Small
                     </button>
                     <button
                       onClick={() => applyImgWidth(50)}
-                      className={`px-2 py-1 rounded-md text-xs font-semibold ${imgMenu.width > 30 && imgMenu.width <= 70 ? "bg-emerald-500 text-black" : "bg-white/5 text-slate-200 hover:bg-white/10"}`}
+                      className={`px-2 py-1 rounded-[10px] text-xs font-semibold ${imgMenu.width > 30 && imgMenu.width <= 70 ? "bg-emerald-500 text-black" : "bg-white/5 text-slate-200 hover:bg-white/10"}`}
                     >
                       Medium
                     </button>
                     <button
                       onClick={() => applyImgWidth(100)}
-                      className={`px-2 py-1 rounded-md text-xs font-semibold ${imgMenu.width > 70 ? "bg-emerald-500 text-black" : "bg-white/5 text-slate-200 hover:bg-white/10"}`}
+                      className={`px-2 py-1 rounded-[10px] text-xs font-semibold ${imgMenu.width > 70 ? "bg-emerald-500 text-black" : "bg-white/5 text-slate-200 hover:bg-white/10"}`}
                     >
                       Full
                     </button>
@@ -648,14 +648,14 @@ function BlogEditorPage() {
                     <span className="w-px h-5 bg-white/10 mx-1" />
                     <button
                       onClick={removeActiveImg}
-                      className="px-2 py-1 rounded-md text-xs font-semibold bg-red-500/20 hover:bg-red-500/30 text-red-200"
+                      className="px-2 py-1 rounded-[10px] text-xs font-semibold bg-red-500/20 hover:bg-red-500/30 text-red-200"
                       title="Remove image"
                     >
                       Remove
                     </button>
                     <button
                       onClick={() => setImgMenu(null)}
-                      className="p-1 rounded-md hover:bg-white/10 text-slate-400"
+                      className="p-1 rounded-[10px] hover:bg-white/10 text-slate-400"
                       title="Close"
                     >
                       <X className="w-3.5 h-3.5" />
@@ -669,7 +669,7 @@ function BlogEditorPage() {
                 onChange={(e) => setExcerpt(e.target.value)}
                 rows={2}
                 placeholder="Excerpt (optional — auto-derived if empty)"
-                className="w-full bg-black/30 border border-white/10 rounded-lg px-3 py-2 text-sm text-slate-200"
+                className="w-full bg-black/30 border border-white/10 rounded-[10px] px-3 py-2 text-sm text-slate-200"
               />
             </>
           )}
@@ -685,14 +685,14 @@ function BlogEditorPage() {
                   sizes="(min-width: 768px) 640px, 100vw"
                   src={coverUrl}
                   alt=""
-                  className="w-full aspect-video rounded-lg object-cover"
+                  className="w-full aspect-video rounded-[10px] object-cover"
                 />
                 <button
                   onClick={() => {
                     setCoverPath(null);
                     setCoverUrl(null);
                   }}
-                  className="absolute top-2 right-2 p-1 rounded-md bg-black/70 text-white"
+                  className="absolute top-2 right-2 p-1 rounded-[10px] bg-black/70 text-white"
                 >
                   <X className="w-4 h-4" />
                 </button>
@@ -700,7 +700,7 @@ function BlogEditorPage() {
             ) : (
               <button
                 onClick={() => coverInputRef.current?.click()}
-                className="w-full aspect-video rounded-lg border border-dashed border-white/20 flex flex-col items-center justify-center text-slate-500 hover:text-white hover:border-white/40 text-xs"
+                className="w-full aspect-video rounded-[10px] border border-dashed border-white/20 flex flex-col items-center justify-center text-slate-500 hover:text-white hover:border-white/40 text-xs"
               >
                 {uploading ? (
                   <Loader2 className="w-4 h-4 animate-spin" />
@@ -728,7 +728,7 @@ function BlogEditorPage() {
                 <button
                   key={s}
                   onClick={() => setStatus(s)}
-                  className={`py-2 rounded-lg border capitalize ${status === s ? "bg-emerald-500/15 border-emerald-500/40 text-emerald-200" : "border-white/10 text-slate-400 hover:text-white"}`}
+                  className={`py-2 rounded-[10px] border capitalize ${status === s ? "bg-emerald-500/15 border-emerald-500/40 text-emerald-200" : "border-white/10 text-slate-400 hover:text-white"}`}
                 >
                   {s}
                 </button>
@@ -739,7 +739,7 @@ function BlogEditorPage() {
                 type="datetime-local"
                 value={scheduledAt}
                 onChange={(e) => setScheduledAt(e.target.value)}
-                className="mt-2 w-full bg-black/30 border border-white/10 rounded-lg px-2 py-1.5 text-sm text-white"
+                className="mt-2 w-full bg-black/30 border border-white/10 rounded-[10px] px-2 py-1.5 text-sm text-white"
               />
             )}
           </section>
@@ -749,7 +749,7 @@ function BlogEditorPage() {
             <select
               value={categoryId ?? ""}
               onChange={(e) => setCategoryId(e.target.value || null)}
-              className="w-full bg-black/30 border border-white/10 rounded-lg px-2 py-1.5 text-sm text-white"
+              className="w-full bg-black/30 border border-white/10 rounded-[10px] px-2 py-1.5 text-sm text-white"
             >
               <option value="">— none —</option>
               {categories.map((c) => (
@@ -763,11 +763,11 @@ function BlogEditorPage() {
                 value={newCat}
                 onChange={(e) => setNewCat(e.target.value)}
                 placeholder="Add new category"
-                className="flex-1 bg-black/30 border border-white/10 rounded-lg px-2 py-1.5 text-xs text-white"
+                className="flex-1 bg-black/30 border border-white/10 rounded-[10px] px-2 py-1.5 text-xs text-white"
               />
               <button
                 onClick={addCategory}
-                className="px-2 py-1.5 rounded-lg bg-emerald-500/20 border border-emerald-500/40 text-emerald-200 text-xs"
+                className="px-2 py-1.5 rounded-[10px] bg-emerald-500/20 border border-emerald-500/40 text-emerald-200 text-xs"
               >
                 <Plus className="w-3 h-3" />
               </button>
@@ -798,11 +798,11 @@ function BlogEditorPage() {
                 value={newTag}
                 onChange={(e) => setNewTag(e.target.value)}
                 placeholder="Add new tag"
-                className="flex-1 bg-black/30 border border-white/10 rounded-lg px-2 py-1.5 text-xs text-white"
+                className="flex-1 bg-black/30 border border-white/10 rounded-[10px] px-2 py-1.5 text-xs text-white"
               />
               <button
                 onClick={addTag}
-                className="px-2 py-1.5 rounded-lg bg-emerald-500/20 border border-emerald-500/40 text-emerald-200 text-xs"
+                className="px-2 py-1.5 rounded-[10px] bg-emerald-500/20 border border-emerald-500/40 text-emerald-200 text-xs"
               >
                 <Plus className="w-3 h-3" />
               </button>

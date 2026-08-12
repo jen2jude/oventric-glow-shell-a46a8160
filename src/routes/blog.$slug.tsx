@@ -245,7 +245,7 @@ function BlogArticle() {
                   <button
                     key={r}
                     onClick={() => react(r)}
-                    className={`p-2 rounded-lg hover:bg-white/5 md:hover:bg-slate-100 ${on ? "bg-white/5 md:bg-slate-100" : ""}`}
+                    className={`p-2 rounded-[10px] hover:bg-white/5 md:hover:bg-slate-100 ${on ? "bg-white/5 md:bg-slate-100" : ""}`}
                     style={{ color: on ? REACTION_META[r].color : undefined }}
                     aria-label={r}
                   >
@@ -259,7 +259,7 @@ function BlogArticle() {
             </div>
             <button
               onClick={openShare}
-              className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg hover:bg-white/5 md:hover:bg-slate-100 text-slate-400 md:text-slate-600 hover:text-white md:hover:text-slate-900 text-sm"
+              className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-[10px] hover:bg-white/5 md:hover:bg-slate-100 text-slate-400 md:text-slate-600 hover:text-white md:hover:text-slate-900 text-sm"
             >
               <Share2 className="w-4 h-4" /> Share
             </button>
@@ -276,12 +276,12 @@ function BlogArticle() {
                 onChange={(e) => setDraft(e.target.value)}
                 rows={2}
                 placeholder="Write a comment…"
-                className="flex-1 bg-[#141418] md:bg-white border border-white/10 md:border-slate-200 rounded-lg px-3 py-2 text-sm text-slate-200 md:text-slate-800 md:placeholder:text-slate-400"
+                className="flex-1 bg-[#141418] md:bg-white border border-white/10 md:border-slate-200 rounded-[10px] px-3 py-2 text-sm text-slate-200 md:text-slate-800 md:placeholder:text-slate-400"
               />
               <button
                 onClick={submit}
                 disabled={!draft.trim() || posting}
-                className="px-3 py-2 rounded-lg bg-emerald-500 hover:bg-emerald-400 disabled:opacity-40 text-black font-bold text-sm inline-flex items-center gap-1"
+                className="px-3 py-2 rounded-[10px] bg-emerald-500 hover:bg-emerald-400 disabled:opacity-40 text-black font-bold text-sm inline-flex items-center gap-1"
               >
                 {posting ? (
                   <Loader2 className="w-4 h-4 animate-spin" />
@@ -299,7 +299,7 @@ function BlogArticle() {
                     <div className="w-8 h-8 rounded-full bg-gradient-to-br from-emerald-400 to-emerald-600 flex items-center justify-center text-black text-[10px] font-bold">
                       {c.initials}
                     </div>
-                    <div className="flex-1 bg-[#141418] md:bg-slate-50 border border-white/10 md:border-slate-200 rounded-lg px-3 py-2">
+                    <div className="flex-1 bg-[#141418] md:bg-slate-50 border border-white/10 md:border-slate-200 rounded-[10px] px-3 py-2">
                       <div className="flex items-center justify-between gap-2">
                         <div className="text-xs font-bold text-white md:text-slate-900">
                           {c.author_name}

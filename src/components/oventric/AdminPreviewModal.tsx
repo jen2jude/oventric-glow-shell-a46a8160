@@ -144,7 +144,7 @@ export function PreviewModal({
             type="button"
             onClick={onClose}
             disabled={isSubmitting}
-            className="px-4 py-2 rounded-lg bg-[#121214] border border-white/10 text-slate-300 hover:text-white text-xs font-bold disabled:opacity-50 disabled:cursor-not-allowed"
+            className="px-4 py-2 rounded-[10px] bg-[#121214] border border-white/10 text-slate-300 hover:text-white text-xs font-bold disabled:opacity-50 disabled:cursor-not-allowed"
           >
             Back to edit
           </button>
@@ -152,7 +152,7 @@ export function PreviewModal({
             type="button"
             onClick={onConfirm}
             disabled={isSubmitting}
-            className={`px-4 py-2 rounded-lg text-xs font-black inline-flex items-center gap-2 disabled:opacity-70 disabled:cursor-wait ${styles.btn}`}
+            className={`px-4 py-2 rounded-[10px] text-xs font-black inline-flex items-center gap-2 disabled:opacity-70 disabled:cursor-wait ${styles.btn}`}
           >
             {isSubmitting && <Loader2 className="w-3.5 h-3.5 animate-spin" />}
             {isSubmitting ? "Submitting…" : confirmLabel}

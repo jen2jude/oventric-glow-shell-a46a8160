@@ -334,7 +334,7 @@ export function SellAssetModal({ open, onClose }: { open: boolean; onClose: () =
                 reset();
                 onClose();
               }}
-              className="px-6 py-2 bg-emerald-500 hover:bg-emerald-400 text-black font-semibold text-sm rounded-lg"
+              className="px-6 py-2 bg-emerald-500 hover:bg-emerald-400 text-black font-semibold text-sm rounded-[10px]"
             >
               OK
             </button>
@@ -353,14 +353,14 @@ export function SellAssetModal({ open, onClose }: { open: boolean; onClose: () =
               <button
                 onClick={onClose}
                 disabled={submitting}
-                className="p-2 rounded-lg hover:bg-white/5 sm:hover:bg-slate-100 text-slate-400 sm:text-slate-600 hover:text-white sm:hover:text-slate-900 disabled:opacity-40"
+                className="p-2 rounded-[10px] hover:bg-white/5 sm:hover:bg-slate-100 text-slate-400 sm:text-slate-600 hover:text-white sm:hover:text-slate-900 disabled:opacity-40"
                 aria-label="Close"
               >
                 <X className="w-5 h-5" />
               </button>
             </div>
 
-            <div className="mb-4 flex items-start gap-2 p-3 rounded-lg bg-amber-500/5 sm:bg-amber-50 border border-amber-500/20 sm:border-amber-200">
+            <div className="mb-4 flex items-start gap-2 p-3 rounded-[10px] bg-amber-500/5 sm:bg-amber-50 border border-amber-500/20 sm:border-amber-200">
               <ShieldAlert className="w-4 h-4 text-amber-400 sm:text-amber-600 shrink-0 mt-0.5" />
               <p className="text-[11px] sm:text-xs text-amber-200/90 sm:text-amber-900 leading-relaxed font-medium">
                 Every submission is scanned for malware and verified for licensing. Nulled, pirated,
@@ -379,7 +379,7 @@ export function SellAssetModal({ open, onClose }: { open: boolean; onClose: () =
                     value={name}
                     onChange={(e) => setName(e.target.value)}
                     placeholder="Neon Analytics Dashboard"
-                    className="mt-1 w-full bg-[#121214] sm:bg-white border border-white/10 sm:border-slate-300 rounded-lg px-3 py-2 text-sm text-white sm:text-slate-900 placeholder-slate-500 sm:placeholder-slate-400 focus:border-emerald-500/60 sm:focus:border-emerald-500 outline-none"
+                    className="mt-1 w-full bg-[#121214] sm:bg-white border border-white/10 sm:border-slate-300 rounded-[10px] px-3 py-2 text-sm text-white sm:text-slate-900 placeholder-slate-500 sm:placeholder-slate-400 focus:border-emerald-500/60 sm:focus:border-emerald-500 outline-none"
                   />
                 </label>
                 <label className="block">
@@ -392,7 +392,7 @@ export function SellAssetModal({ open, onClose }: { open: boolean; onClose: () =
                       setCategory(e.target.value as ProductCategory);
                       setSubcategory("");
                     }}
-                    className="mt-1 w-full bg-[#121214] sm:bg-white border border-white/10 sm:border-slate-300 rounded-lg px-3 py-2 text-sm text-white sm:text-slate-900 outline-none focus:border-emerald-500/60 sm:focus:border-emerald-500"
+                    className="mt-1 w-full bg-[#121214] sm:bg-white border border-white/10 sm:border-slate-300 rounded-[10px] px-3 py-2 text-sm text-white sm:text-slate-900 outline-none focus:border-emerald-500/60 sm:focus:border-emerald-500"
                   >
                     {categories.map((c) => (
                       <option key={c.id} value={c.slug}>
@@ -413,7 +413,7 @@ export function SellAssetModal({ open, onClose }: { open: boolean; onClose: () =
                     <select
                       value={subcategory}
                       onChange={(e) => setSubcategory(e.target.value)}
-                      className="mt-1 w-full bg-[#121214] sm:bg-white border border-white/10 sm:border-slate-300 rounded-lg px-3 py-2 text-sm text-white sm:text-slate-900 outline-none focus:border-emerald-500/60 sm:focus:border-emerald-500"
+                      className="mt-1 w-full bg-[#121214] sm:bg-white border border-white/10 sm:border-slate-300 rounded-[10px] px-3 py-2 text-sm text-white sm:text-slate-900 outline-none focus:border-emerald-500/60 sm:focus:border-emerald-500"
                     >
                       <option value="">— None —</option>
                       {chosen.children.map((s) => (
@@ -447,7 +447,7 @@ export function SellAssetModal({ open, onClose }: { open: boolean; onClose: () =
                         onChange={(e) => setPriceInput(e.target.value)}
                         inputMode="decimal"
                         placeholder="29.00"
-                        className="mt-1 w-full bg-[#121214] sm:bg-white border border-white/10 sm:border-slate-300 rounded-lg px-3 py-2 text-sm text-white sm:text-slate-900 placeholder-slate-500 sm:placeholder-slate-400 focus:border-emerald-500/60 sm:focus:border-emerald-500 outline-none"
+                        className="mt-1 w-full bg-[#121214] sm:bg-white border border-white/10 sm:border-slate-300 rounded-[10px] px-3 py-2 text-sm text-white sm:text-slate-900 placeholder-slate-500 sm:placeholder-slate-400 focus:border-emerald-500/60 sm:focus:border-emerald-500 outline-none"
                       />
                     </label>
                   </div>
@@ -467,7 +467,7 @@ export function SellAssetModal({ open, onClose }: { open: boolean; onClose: () =
                         maximumFractionDigits: 2,
                       }).format(n);
                     return (
-                      <div className="mt-2 rounded-lg border border-emerald-500/20 sm:border-emerald-200 bg-emerald-500/5 sm:bg-emerald-50 p-3 text-xs space-y-1.5">
+                      <div className="mt-2 rounded-[10px] border border-emerald-500/20 sm:border-emerald-200 bg-emerald-500/5 sm:bg-emerald-50 p-3 text-xs space-y-1.5">
                         <div className="flex items-center justify-between text-slate-200 sm:text-slate-800">
                           <span>
                             You keep{" "}
@@ -495,7 +495,7 @@ export function SellAssetModal({ open, onClose }: { open: boolean; onClose: () =
                   })()}
                 {!isFree && (
                   <label
-                    className={`mt-2 flex items-start gap-2 text-xs p-3 rounded-lg border cursor-pointer ${agreedToSplit ? "border-emerald-500/50 sm:border-emerald-400 bg-emerald-500/5 sm:bg-emerald-50 text-slate-100 sm:text-slate-900" : "border-white/10 sm:border-slate-300 bg-[#121214] sm:bg-white text-slate-300 sm:text-slate-700"}`}
+                    className={`mt-2 flex items-start gap-2 text-xs p-3 rounded-[10px] border cursor-pointer ${agreedToSplit ? "border-emerald-500/50 sm:border-emerald-400 bg-emerald-500/5 sm:bg-emerald-50 text-slate-100 sm:text-slate-900" : "border-white/10 sm:border-slate-300 bg-[#121214] sm:bg-white text-slate-300 sm:text-slate-700"}`}
                   >
                     <input
                       type="checkbox"
@@ -525,7 +525,7 @@ export function SellAssetModal({ open, onClose }: { open: boolean; onClose: () =
                   rows={3}
                   placeholder="What buyers get, tech stack, key features…"
                   style={{ fieldSizing: "content" } as React.CSSProperties}
-                  className="mt-1 w-full min-h-[80px] bg-[#121214] sm:bg-white border border-white/10 sm:border-slate-300 rounded-lg px-3 py-2 text-sm text-white sm:text-slate-900 placeholder-slate-500 sm:placeholder-slate-400 focus:border-emerald-500/60 sm:focus:border-emerald-500 outline-none resize-y"
+                  className="mt-1 w-full min-h-[80px] bg-[#121214] sm:bg-white border border-white/10 sm:border-slate-300 rounded-[10px] px-3 py-2 text-sm text-white sm:text-slate-900 placeholder-slate-500 sm:placeholder-slate-400 focus:border-emerald-500/60 sm:focus:border-emerald-500 outline-none resize-y"
                 />
               </label>
 
@@ -540,7 +540,7 @@ export function SellAssetModal({ open, onClose }: { open: boolean; onClose: () =
                     rows={3}
                     placeholder="Key specifications, requirements..."
                     style={{ fieldSizing: "content" } as React.CSSProperties}
-                    className="mt-1 w-full min-h-[80px] bg-[#121214] sm:bg-white border border-white/10 sm:border-slate-300 rounded-lg px-3 py-2 text-sm text-white sm:text-slate-900 placeholder-slate-500 sm:placeholder-slate-400 focus:border-emerald-500/60 sm:focus:border-emerald-500 outline-none resize-y"
+                    className="mt-1 w-full min-h-[80px] bg-[#121214] sm:bg-white border border-white/10 sm:border-slate-300 rounded-[10px] px-3 py-2 text-sm text-white sm:text-slate-900 placeholder-slate-500 sm:placeholder-slate-400 focus:border-emerald-500/60 sm:focus:border-emerald-500 outline-none resize-y"
                   />
                 </label>
                 <label className="block">
@@ -553,7 +553,7 @@ export function SellAssetModal({ open, onClose }: { open: boolean; onClose: () =
                     rows={3}
                     placeholder="How to activate/install the product..."
                     style={{ fieldSizing: "content" } as React.CSSProperties}
-                    className="mt-1 w-full min-h-[80px] bg-[#121214] sm:bg-white border border-white/10 sm:border-slate-300 rounded-lg px-3 py-2 text-sm text-white sm:text-slate-900 placeholder-slate-500 sm:placeholder-slate-400 focus:border-emerald-500/60 sm:focus:border-emerald-500 outline-none resize-y"
+                    className="mt-1 w-full min-h-[80px] bg-[#121214] sm:bg-white border border-white/10 sm:border-slate-300 rounded-[10px] px-3 py-2 text-sm text-white sm:text-slate-900 placeholder-slate-500 sm:placeholder-slate-400 focus:border-emerald-500/60 sm:focus:border-emerald-500 outline-none resize-y"
                   />
                 </label>
               </div>
@@ -582,9 +582,9 @@ export function SellAssetModal({ open, onClose }: { open: boolean; onClose: () =
                 />
                 <label
                   htmlFor="sell-asset-images"
-                  className="mt-2 w-full flex items-center gap-3 border border-dashed border-white/15 sm:border-slate-300 rounded-lg p-3 hover:border-emerald-500/60 sm:hover:border-emerald-500 text-left cursor-pointer select-none"
+                  className="mt-2 w-full flex items-center gap-3 border border-dashed border-white/15 sm:border-slate-300 rounded-[10px] p-3 hover:border-emerald-500/60 sm:hover:border-emerald-500 text-left cursor-pointer select-none"
                 >
-                  <div className="w-16 h-16 rounded-md bg-[#121214] sm:bg-slate-100 border border-white/10 sm:border-slate-300 flex items-center justify-center text-emerald-400 sm:text-emerald-600">
+                  <div className="w-16 h-16 rounded-[10px] bg-[#121214] sm:bg-slate-100 border border-white/10 sm:border-slate-300 flex items-center justify-center text-emerald-400 sm:text-emerald-600">
                     <ImagePlus className="w-6 h-6" />
                   </div>
                   <div className="text-xs text-slate-400 sm:text-slate-600">
@@ -598,7 +598,7 @@ export function SellAssetModal({ open, onClose }: { open: boolean; onClose: () =
                     {previews.map((src, i) => (
                       <div
                         key={i}
-                        className={`relative aspect-square rounded-md overflow-hidden border ${i === 0 ? "border-emerald-500/60 sm:border-emerald-500" : "border-white/10 sm:border-slate-200"}`}
+                        className={`relative aspect-square rounded-[10px] overflow-hidden border ${i === 0 ? "border-emerald-500/60 sm:border-emerald-500" : "border-white/10 sm:border-slate-200"}`}
                       >
                         <img src={src} alt="" className="w-full h-full object-cover" />
                         {i === 0 && (
@@ -633,7 +633,7 @@ export function SellAssetModal({ open, onClose }: { open: boolean; onClose: () =
                     type="button"
                     onClick={() => setMode("file")}
                     disabled={requiresManualDelivery}
-                    className={`flex items-center gap-2 px-3 py-2 rounded-lg border text-sm transition-colors ${mode === "file" ? "border-emerald-500/60 sm:border-emerald-500 bg-emerald-500/10 sm:bg-emerald-50 text-white sm:text-slate-900" : "border-white/10 sm:border-slate-300 bg-[#121214] sm:bg-white text-slate-400 sm:text-slate-600 hover:text-white sm:hover:text-slate-900"}`}
+                    className={`flex items-center gap-2 px-3 py-2 rounded-[10px] border text-sm transition-colors ${mode === "file" ? "border-emerald-500/60 sm:border-emerald-500 bg-emerald-500/10 sm:bg-emerald-50 text-white sm:text-slate-900" : "border-white/10 sm:border-slate-300 bg-[#121214] sm:bg-white text-slate-400 sm:text-slate-600 hover:text-white sm:hover:text-slate-900"}`}
                   >
                     <Upload className="w-4 h-4" /> Upload file
                   </button>
@@ -641,7 +641,7 @@ export function SellAssetModal({ open, onClose }: { open: boolean; onClose: () =
                     type="button"
                     onClick={() => setMode("url")}
                     disabled={requiresManualDelivery}
-                    className={`flex items-center gap-2 px-3 py-2 rounded-lg border text-sm transition-colors ${mode === "url" ? "border-emerald-500/60 sm:border-emerald-500 bg-emerald-500/10 sm:bg-emerald-50 text-white sm:text-slate-900" : "border-white/10 sm:border-slate-300 bg-[#121214] sm:bg-white text-slate-400 sm:text-slate-600 hover:text-white sm:hover:text-slate-900"}`}
+                    className={`flex items-center gap-2 px-3 py-2 rounded-[10px] border text-sm transition-colors ${mode === "url" ? "border-emerald-500/60 sm:border-emerald-500 bg-emerald-500/10 sm:bg-emerald-50 text-white sm:text-slate-900" : "border-white/10 sm:border-slate-300 bg-[#121214] sm:bg-white text-slate-400 sm:text-slate-600 hover:text-white sm:hover:text-slate-900"}`}
                   >
                     <Link2 className="w-4 h-4" /> External link
                   </button>
@@ -669,7 +669,7 @@ export function SellAssetModal({ open, onClose }: { open: boolean; onClose: () =
                     />
                     <label
                       htmlFor="sell-asset-file"
-                      className="mt-2 w-full block border border-dashed border-white/15 sm:border-slate-300 rounded-lg p-4 text-center cursor-pointer hover:border-emerald-500/60 sm:hover:border-emerald-500 transition-colors select-none"
+                      className="mt-2 w-full block border border-dashed border-white/15 sm:border-slate-300 rounded-[10px] p-4 text-center cursor-pointer hover:border-emerald-500/60 sm:hover:border-emerald-500 transition-colors select-none"
                     >
                       {file ? (
                         <div className="text-sm text-white sm:text-slate-900">
@@ -695,13 +695,13 @@ export function SellAssetModal({ open, onClose }: { open: boolean; onClose: () =
                     onChange={(e) => setExternalUrl(e.target.value)}
                     disabled={requiresManualDelivery}
                     placeholder="https://your-delivery-link.com/download"
-                    className="mt-2 w-full bg-[#121214] sm:bg-white border border-white/10 sm:border-slate-300 rounded-lg px-3 py-2 text-sm text-white sm:text-slate-900 placeholder-slate-500 sm:placeholder-slate-400 focus:border-emerald-500/60 sm:focus:border-emerald-500 outline-none"
+                    className="mt-2 w-full bg-[#121214] sm:bg-white border border-white/10 sm:border-slate-300 rounded-[10px] px-3 py-2 text-sm text-white sm:text-slate-900 placeholder-slate-500 sm:placeholder-slate-400 focus:border-emerald-500/60 sm:focus:border-emerald-500 outline-none"
                   />
                 )}
               </div>
 
               {requiresManualDelivery && (
-                <div className="rounded-lg border border-amber-500/40 sm:border-amber-300 bg-amber-500/5 sm:bg-amber-50 p-3 text-[12px] sm:text-xs text-amber-100 sm:text-amber-900 leading-relaxed">
+                <div className="rounded-[10px] border border-amber-500/40 sm:border-amber-300 bg-amber-500/5 sm:bg-amber-50 p-3 text-[12px] sm:text-xs text-amber-100 sm:text-amber-900 leading-relaxed">
                   <div className="font-semibold text-amber-200 sm:text-amber-900 mb-1">
                     Manual delivery selected — file / link fields are locked.
                   </div>
@@ -718,7 +718,7 @@ export function SellAssetModal({ open, onClose }: { open: boolean; onClose: () =
 
               <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
                 <label
-                  className={`flex items-start gap-2 text-sm p-3 rounded-lg border ${!requiresManualDelivery ? "bg-emerald-500/5 sm:bg-emerald-50 border-emerald-500/30 sm:border-emerald-200 text-slate-100 sm:text-slate-900" : "bg-[#121214] sm:bg-slate-100 border-white/10 sm:border-slate-300 text-slate-200 sm:text-slate-800"}`}
+                  className={`flex items-start gap-2 text-sm p-3 rounded-[10px] border ${!requiresManualDelivery ? "bg-emerald-500/5 sm:bg-emerald-50 border-emerald-500/30 sm:border-emerald-200 text-slate-100 sm:text-slate-900" : "bg-[#121214] sm:bg-slate-100 border-white/10 sm:border-slate-300 text-slate-200 sm:text-slate-800"}`}
                 >
                   <input
                     type="checkbox"
@@ -739,7 +739,7 @@ export function SellAssetModal({ open, onClose }: { open: boolean; onClose: () =
                   </span>
                 </label>
                 <label
-                  className={`flex items-start gap-2 text-sm p-3 rounded-lg border ${requiresManualDelivery ? "bg-emerald-500/5 sm:bg-emerald-50 border-emerald-500/30 sm:border-emerald-200 text-slate-100 sm:text-slate-900" : "bg-[#121214] sm:bg-slate-100 border-white/10 sm:border-slate-300 text-slate-200 sm:text-slate-800"}`}
+                  className={`flex items-start gap-2 text-sm p-3 rounded-[10px] border ${requiresManualDelivery ? "bg-emerald-500/5 sm:bg-emerald-50 border-emerald-500/30 sm:border-emerald-200 text-slate-100 sm:text-slate-900" : "bg-[#121214] sm:bg-slate-100 border-white/10 sm:border-slate-300 text-slate-200 sm:text-slate-800"}`}
                 >
                   <input
                     type="checkbox"
@@ -767,14 +767,14 @@ export function SellAssetModal({ open, onClose }: { open: boolean; onClose: () =
                     type="button"
                     onClick={onClose}
                     disabled={submitting}
-                    className="px-4 py-2 rounded-lg border border-white/10 sm:border-slate-300 text-slate-300 sm:text-slate-700 hover:text-white sm:hover:text-slate-900 hover:bg-white/5 sm:hover:bg-slate-100 text-sm disabled:opacity-40"
+                    className="px-4 py-2 rounded-[10px] border border-white/10 sm:border-slate-300 text-slate-300 sm:text-slate-700 hover:text-white sm:hover:text-slate-900 hover:bg-white/5 sm:hover:bg-slate-100 text-sm disabled:opacity-40"
                   >
                     Cancel
                   </button>
                   <button
                     type="submit"
                     disabled={submitting || (!isFree && !agreedToSplit)}
-                    className="px-4 py-2 rounded-lg bg-emerald-500 hover:bg-emerald-400 text-black font-semibold text-sm flex items-center gap-2 disabled:opacity-40 disabled:cursor-not-allowed"
+                    className="px-4 py-2 rounded-[10px] bg-emerald-500 hover:bg-emerald-400 text-black font-semibold text-sm flex items-center gap-2 disabled:opacity-40 disabled:cursor-not-allowed"
                   >
                     {submitting && <Loader2 className="w-4 h-4 animate-spin" />}
                     {submitting ? "Submitting…" : "Submit for review"}

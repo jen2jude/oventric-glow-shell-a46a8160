@@ -30,7 +30,7 @@ export const EMPTY_BANNER: BannerAdDraft = {
 const PLACEMENTS = ["feed", "marketplace", "academy", "bounties"] as const;
 
 const inputCls =
-  "w-full rounded-lg bg-black/40 md:bg-white border border-white/10 md:border-slate-300 px-3 py-2 text-sm text-white md:text-slate-900 placeholder:text-slate-500 outline-none focus:border-emerald-500/60";
+  "w-full rounded-[10px] bg-black/40 md:bg-white border border-white/10 md:border-slate-300 px-3 py-2 text-sm text-white md:text-slate-900 placeholder:text-slate-500 outline-none focus:border-emerald-500/60";
 
 export function BannerAdModal({
   open,
@@ -158,7 +158,7 @@ export function BannerAdModal({
             />
           </Field>
           {form.media_url.trim() ? (
-            <div className="rounded-lg overflow-hidden border border-white/10 md:border-slate-200 aspect-[16/6] bg-black/30">
+            <div className="rounded-[10px] overflow-hidden border border-white/10 md:border-slate-200 aspect-[16/6] bg-black/30">
               <img
                 src={form.media_url}
                 alt="Banner preview"
@@ -166,7 +166,7 @@ export function BannerAdModal({
               />
             </div>
           ) : (
-            <div className="rounded-lg border border-dashed border-white/10 md:border-slate-300 aspect-[16/6] flex items-center justify-center text-slate-500 text-xs gap-2">
+            <div className="rounded-[10px] border border-dashed border-white/10 md:border-slate-300 aspect-[16/6] flex items-center justify-center text-slate-500 text-xs gap-2">
               <ImageIcon className="w-4 h-4" /> Banner preview
             </div>
           )}
@@ -226,14 +226,14 @@ export function BannerAdModal({
         <div className="flex gap-2 mt-5">
           <button
             onClick={onClose}
-            className="flex-1 rounded-lg border border-white/15 md:border-slate-300 px-4 py-2.5 text-sm font-semibold text-slate-300"
+            className="flex-1 rounded-[10px] border border-white/15 md:border-slate-300 px-4 py-2.5 text-sm font-semibold text-slate-300"
           >
             Cancel
           </button>
           <button
             onClick={save}
             disabled={saving}
-            className="flex-1 inline-flex items-center justify-center gap-2 rounded-lg bg-emerald-500 text-black px-4 py-2.5 text-sm font-bold hover:bg-emerald-400 disabled:opacity-60"
+            className="flex-1 inline-flex items-center justify-center gap-2 rounded-[10px] bg-emerald-500 text-black px-4 py-2.5 text-sm font-bold hover:bg-emerald-400 disabled:opacity-60"
           >
             {saving && <Loader2 className="w-4 h-4 animate-spin" />}
             {form.id ? "Save changes" : "Create ad"}

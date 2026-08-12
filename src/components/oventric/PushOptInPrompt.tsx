@@ -139,7 +139,7 @@ export function PushOptInPrompt() {
             type="button"
             aria-label="Dismiss"
             onClick={dismiss}
-            className="shrink-0 rounded-lg p-1 text-muted-foreground hover:text-foreground"
+            className="shrink-0 rounded-[10px] p-1 text-muted-foreground hover:text-foreground"
           >
             <X className="h-4 w-4" />
           </button>

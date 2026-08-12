@@ -97,11 +97,11 @@ function CircleRow({
 }) {
   return (
     <Row onClick={() => onOpen(c.slug)} title={c.name} collapsed={collapsed}>
-      <span className="h-7 w-7 shrink-0 overflow-hidden rounded-lg">
+      <span className="h-7 w-7 shrink-0 overflow-hidden rounded-[10px]">
         {c.avatarUrl ? (
-          <AvatarImage src={c.avatarUrl} alt={c.name} className="rounded-lg" />
+          <AvatarImage src={c.avatarUrl} alt={c.name} className="rounded-[10px]" />
         ) : (
-          <span className="flex h-full w-full items-center justify-center rounded-lg bg-slate-100 text-sm">
+          <span className="flex h-full w-full items-center justify-center rounded-[10px] bg-slate-100 text-sm">
             {c.emoji || "◎"}
           </span>
         )}
@@ -188,7 +188,7 @@ export function DesktopAppSidebar({ onSelect }: { onSelect: (section: string) =>
         type="button"
         onClick={() => setCollapsed((v) => !v)}
         aria-label={collapsed ? "Expand sidebar" : "Collapse sidebar"}
-        className="mb-2 flex h-8 w-8 shrink-0 items-center justify-center self-end rounded-lg text-slate-500 transition-colors hover:bg-slate-100 hover:text-slate-900"
+        className="mb-2 flex h-8 w-8 shrink-0 items-center justify-center self-end rounded-[10px] text-slate-500 transition-colors hover:bg-slate-100 hover:text-slate-900"
       >
         <ChevronLeft className={`h-4 w-4 transition-transform ${collapsed ? "rotate-180" : ""}`} />
       </button>

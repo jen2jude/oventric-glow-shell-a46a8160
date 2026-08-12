@@ -504,7 +504,7 @@ function BatchDetail({
                   type="button"
                   onClick={() => void removeItem(item)}
                   aria-label="Remove photo"
-                  className="absolute top-1 right-1 p-1 rounded-lg bg-black/70 text-white opacity-0 group-hover:opacity-100 focus:opacity-100 transition-opacity"
+                  className="absolute top-1 right-1 p-1 rounded-[10px] bg-black/70 text-white opacity-0 group-hover:opacity-100 focus:opacity-100 transition-opacity"
                 >
                   <Trash2 className="w-3.5 h-3.5" />
                 </button>

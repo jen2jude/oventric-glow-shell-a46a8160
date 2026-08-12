@@ -391,7 +391,7 @@ export function NotificationsDrawer({ open, onClose }: { open: boolean; onClose:
                 aria-label={pushOn ? "Turn off background alerts" : "Turn on background alerts"}
                 title={pushOn ? "Background alerts on" : "Background alerts off"}
                 aria-pressed={pushOn}
-                className={`p-2 rounded-lg hover:bg-white/5 transition-colors disabled:opacity-50 ${
+                className={`p-2 rounded-[10px] hover:bg-white/5 transition-colors disabled:opacity-50 ${
                   pushOn ? "text-emerald-400" : "text-slate-400 hover:text-white"
                 }`}
               >
@@ -403,14 +403,14 @@ export function NotificationsDrawer({ open, onClose }: { open: boolean; onClose:
               aria-label={muted ? "Unmute notification sound" : "Mute notification sound"}
               title={muted ? "Sound off" : "Sound on"}
               aria-pressed={!muted}
-              className="p-2 rounded-lg hover:bg-white/5 text-slate-400 hover:text-white transition-colors"
+              className="p-2 rounded-[10px] hover:bg-white/5 text-slate-400 hover:text-white transition-colors"
             >
               {muted ? <VolumeX className="w-4 h-4" /> : <Volume2 className="w-4 h-4" />}
             </button>
             <button
               onClick={onClose}
               aria-label="Close notifications"
-              className="p-2 rounded-lg hover:bg-white/5 text-slate-400 hover:text-white transition-colors"
+              className="p-2 rounded-[10px] hover:bg-white/5 text-slate-400 hover:text-white transition-colors"
             >
               <X className="w-4 h-4" />
             </button>
@@ -479,7 +479,7 @@ export function NotificationsDrawer({ open, onClose }: { open: boolean; onClose:
                   className={`bg-[#121214] w-full text-left ${!n.read_at ? "rounded-[10px] p-3" : ""}`}
                 >
                   <div className="flex items-start gap-3">
-                    <div className="w-8 h-8 shrink-0 rounded-lg flex items-center justify-center bg-[#1E1E24] border border-white/10">
+                    <div className="w-8 h-8 shrink-0 rounded-[10px] flex items-center justify-center bg-[#1E1E24] border border-white/10">
                       {iconForKind(n.kind)}
                     </div>
                     <div className="flex-1 min-w-0">
@@ -519,7 +519,7 @@ export function NotificationsDrawer({ open, onClose }: { open: boolean; onClose:
           <button
             onClick={handleMarkAll}
             disabled={!isAuthenticated || items.every((n) => n.read_at)}
-            className="w-full py-2 rounded-lg text-xs font-semibold text-slate-300 hover:text-white bg-[#121214] border border-white/10 hover:border-emerald-500/40 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
+            className="w-full py-2 rounded-[10px] text-xs font-semibold text-slate-300 hover:text-white bg-[#121214] border border-white/10 hover:border-emerald-500/40 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
           >
             Mark All as Read
           </button>
@@ -541,7 +541,7 @@ export function NotificationsDrawer({ open, onClose }: { open: boolean; onClose:
               onClick={(e) => e.stopPropagation()}
             >
               <div className="flex items-start gap-3 px-5 py-4 border-b border-white/5">
-                <div className="w-9 h-9 rounded-lg flex items-center justify-center bg-[#121214] border border-white/10 shrink-0">
+                <div className="w-9 h-9 rounded-[10px] flex items-center justify-center bg-[#121214] border border-white/10 shrink-0">
                   {iconForKind(viewing.kind)}
                 </div>
                 <div className="flex-1 min-w-0">
@@ -552,7 +552,7 @@ export function NotificationsDrawer({ open, onClose }: { open: boolean; onClose:
                 </div>
                 <button
                   onClick={() => setViewing(null)}
-                  className="p-1.5 rounded-lg hover:bg-white/5 text-slate-400 hover:text-white"
+                  className="p-1.5 rounded-[10px] hover:bg-white/5 text-slate-400 hover:text-white"
                   aria-label="Close"
                 >
                   <X className="w-4 h-4" />
@@ -626,7 +626,7 @@ export function NotificationsDrawer({ open, onClose }: { open: boolean; onClose:
                         window.location.href = url;
                       }
                     }}
-                    className="w-full py-2.5 rounded-lg bg-emerald-500 hover:bg-emerald-400 text-black text-sm font-bold flex items-center justify-center gap-2"
+                    className="w-full py-2.5 rounded-[10px] bg-emerald-500 hover:bg-emerald-400 text-black text-sm font-bold flex items-center justify-center gap-2"
                   >
                     Open link <ArrowRight className="w-4 h-4" />
                   </button>

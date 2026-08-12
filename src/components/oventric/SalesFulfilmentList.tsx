@@ -222,7 +222,7 @@ export function SalesFulfilmentList({
                 type="button"
                 onClick={() => setQ("")}
                 aria-label="Clear search"
-                className="absolute right-2 top-1/2 -translate-y-1/2 p-1 rounded-md text-slate-400 hover:text-white md:hover:text-slate-900"
+                className="absolute right-2 top-1/2 -translate-y-1/2 p-1 rounded-[10px] text-slate-400 hover:text-white md:hover:text-slate-900"
               >
                 <X className="w-3.5 h-3.5" />
               </button>
@@ -301,7 +301,7 @@ export function SalesFulfilmentList({
                       <button
                         onClick={() => setConfirmId(s.orderId)}
                         disabled={deliveringId === s.orderId}
-                        className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-emerald-500 hover:bg-emerald-400 text-black text-xs font-bold disabled:opacity-60"
+                        className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-[10px] bg-emerald-500 hover:bg-emerald-400 text-black text-xs font-bold disabled:opacity-60"
                       >
                         {deliveringId === s.orderId ? (
                           <Loader2 className="w-3.5 h-3.5 animate-spin" />
@@ -313,13 +313,13 @@ export function SalesFulfilmentList({
                     )}
                     <button
                       onClick={() => messageBuyer(s.buyerId)}
-                      className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-white/5 md:bg-slate-50 hover:bg-white/10 md:hover:bg-slate-100 border border-white/10 md:border-slate-200 text-slate-200 md:text-slate-700 text-xs font-semibold"
+                      className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-[10px] bg-white/5 md:bg-slate-50 hover:bg-white/10 md:hover:bg-slate-100 border border-white/10 md:border-slate-200 text-slate-200 md:text-slate-700 text-xs font-semibold"
                     >
                       <MessageCircle className="w-3.5 h-3.5" /> Message
                     </button>
                     <button
                       onClick={() => setOpenId(s.orderId)}
-                      className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-white/10 hover:bg-white/15 md:bg-slate-100 md:hover:bg-slate-200 border border-white/10 md:border-slate-200 text-white md:text-slate-900 text-xs font-bold"
+                      className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-[10px] bg-white/10 hover:bg-white/15 md:bg-slate-100 md:hover:bg-slate-200 border border-white/10 md:border-slate-200 text-white md:text-slate-900 text-xs font-bold"
                     >
                       <Truck className="w-3.5 h-3.5" /> Manage
                     </button>
@@ -344,7 +344,7 @@ export function SalesFulfilmentList({
                 onClick={() => setPage((p) => Math.max(1, p - 1))}
                 disabled={safePage <= 1}
                 aria-label="Previous page"
-                className="p-1.5 rounded-lg border border-white/10 md:border-slate-200 bg-white/5 md:bg-white text-slate-300 md:text-slate-600 disabled:opacity-40 hover:bg-white/10 md:hover:bg-slate-50"
+                className="p-1.5 rounded-[10px] border border-white/10 md:border-slate-200 bg-white/5 md:bg-white text-slate-300 md:text-slate-600 disabled:opacity-40 hover:bg-white/10 md:hover:bg-slate-50"
               >
                 <ChevronLeft className="w-4 h-4" />
               </button>
@@ -356,7 +356,7 @@ export function SalesFulfilmentList({
                 onClick={() => setPage((p) => Math.min(totalPages, p + 1))}
                 disabled={safePage >= totalPages}
                 aria-label="Next page"
-                className="p-1.5 rounded-lg border border-white/10 md:border-slate-200 bg-white/5 md:bg-white text-slate-300 md:text-slate-600 disabled:opacity-40 hover:bg-white/10 md:hover:bg-slate-50"
+                className="p-1.5 rounded-[10px] border border-white/10 md:border-slate-200 bg-white/5 md:bg-white text-slate-300 md:text-slate-600 disabled:opacity-40 hover:bg-white/10 md:hover:bg-slate-50"
               >
                 <ChevronRight className="w-4 h-4" />
               </button>
@@ -412,14 +412,14 @@ export function SalesFulfilmentList({
                 <div className="flex flex-wrap gap-2">
                   <button
                     onClick={() => messageBuyer(openSale.buyerId)}
-                    className="inline-flex items-center gap-1.5 px-3 py-2 rounded-lg bg-white/5 md:bg-slate-50 hover:bg-white/10 md:hover:bg-slate-100 border border-white/10 md:border-slate-200 text-slate-200 md:text-slate-700 text-xs font-semibold"
+                    className="inline-flex items-center gap-1.5 px-3 py-2 rounded-[10px] bg-white/5 md:bg-slate-50 hover:bg-white/10 md:hover:bg-slate-100 border border-white/10 md:border-slate-200 text-slate-200 md:text-slate-700 text-xs font-semibold"
                   >
                     <MessageCircle className="w-3.5 h-3.5" /> Message buyer
                   </button>
                   <Link
                     to="/order/$id"
                     params={{ id: openSale.orderId }}
-                    className="inline-flex items-center gap-1.5 px-3 py-2 rounded-lg bg-white/5 md:bg-slate-50 hover:bg-white/10 md:hover:bg-slate-100 border border-white/10 md:border-slate-200 text-slate-200 md:text-slate-700 text-xs font-semibold"
+                    className="inline-flex items-center gap-1.5 px-3 py-2 rounded-[10px] bg-white/5 md:bg-slate-50 hover:bg-white/10 md:hover:bg-slate-100 border border-white/10 md:border-slate-200 text-slate-200 md:text-slate-700 text-xs font-semibold"
                   >
                     Open full order page
                   </Link>
@@ -455,7 +455,7 @@ export function SalesFulfilmentList({
                 type="button"
                 onClick={() => deliveringId === null && setConfirmId(null)}
                 aria-label="Close"
-                className="p-1 rounded-md text-slate-400 hover:text-white md:hover:text-slate-900"
+                className="p-1 rounded-[10px] text-slate-400 hover:text-white md:hover:text-slate-900"
               >
                 <X className="w-4 h-4" />
               </button>
@@ -468,7 +468,7 @@ export function SalesFulfilmentList({
               to {confirmSale.buyerName} inside Oventric chat. The buyer has 48 hours to confirm
               before escrow auto-releases.
             </p>
-            <div className="rounded-lg border border-white/10 md:border-slate-200 bg-white/5 md:bg-slate-50 px-3 py-2 text-[11px] text-slate-400 md:text-slate-600 mb-4">
+            <div className="rounded-[10px] border border-white/10 md:border-slate-200 bg-white/5 md:bg-slate-50 px-3 py-2 text-[11px] text-slate-400 md:text-slate-600 mb-4">
               Delivery will be timestamped{" "}
               <span className="font-semibold text-white md:text-slate-900">
                 {new Date().toLocaleString()}
@@ -479,7 +479,7 @@ export function SalesFulfilmentList({
                 type="button"
                 onClick={() => setConfirmId(null)}
                 disabled={deliveringId !== null}
-                className="py-2.5 rounded-lg text-xs font-bold border border-white/10 md:border-slate-200 bg-white/5 md:bg-white text-slate-200 md:text-slate-700 hover:bg-white/10 md:hover:bg-slate-50 disabled:opacity-60"
+                className="py-2.5 rounded-[10px] text-xs font-bold border border-white/10 md:border-slate-200 bg-white/5 md:bg-white text-slate-200 md:text-slate-700 hover:bg-white/10 md:hover:bg-slate-50 disabled:opacity-60"
               >
                 Cancel
               </button>
@@ -487,7 +487,7 @@ export function SalesFulfilmentList({
                 type="button"
                 onClick={() => void markDelivered(confirmSale)}
                 disabled={deliveringId !== null}
-                className="inline-flex items-center justify-center gap-1.5 py-2.5 rounded-lg bg-emerald-500 hover:bg-emerald-400 text-black text-xs font-bold disabled:opacity-60"
+                className="inline-flex items-center justify-center gap-1.5 py-2.5 rounded-[10px] bg-emerald-500 hover:bg-emerald-400 text-black text-xs font-bold disabled:opacity-60"
               >
                 {deliveringId ? (
                   <Loader2 className="w-3.5 h-3.5 animate-spin" />

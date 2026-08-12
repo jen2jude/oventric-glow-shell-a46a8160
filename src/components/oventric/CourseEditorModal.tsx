@@ -357,7 +357,7 @@ export function CourseEditorModal({
           </div>
           <button
             onClick={onClose}
-            className="p-2 rounded-lg hover:bg-white/5 text-slate-400 hover:text-white"
+            className="p-2 rounded-[10px] hover:bg-white/5 text-slate-400 hover:text-white"
           >
             <X className="w-5 h-5" />
           </button>
@@ -437,12 +437,12 @@ export function CourseEditorModal({
                       sizes="96px"
                       src={coverUrl}
                       alt="cover"
-                      className="w-24 h-14 rounded-lg object-cover border border-white/10"
+                      className="w-24 h-14 rounded-[10px] object-cover border border-white/10"
                       loading="lazy"
                       decoding="async"
                     />
                   )}
-                  <label className="cursor-pointer inline-flex items-center gap-2 px-3 py-2 rounded-lg bg-white/5 border border-white/10 hover:bg-white/10 text-sm text-white">
+                  <label className="cursor-pointer inline-flex items-center gap-2 px-3 py-2 rounded-[10px] bg-white/5 border border-white/10 hover:bg-white/10 text-sm text-white">
                     <Upload className="w-4 h-4" />
                     {uploading ? "Uploading..." : coverPath ? "Replace" : "Upload cover"}
                     <input
@@ -457,7 +457,7 @@ export function CourseEditorModal({
               </Field>
 
               <div className="grid sm:grid-cols-2 gap-3">
-                <label className="flex items-center gap-2 p-3 rounded-lg bg-[#121214] border border-white/10 cursor-pointer">
+                <label className="flex items-center gap-2 p-3 rounded-[10px] bg-[#121214] border border-white/10 cursor-pointer">
                   <input
                     type="checkbox"
                     checked={form.isFree}
@@ -495,7 +495,7 @@ export function CourseEditorModal({
               )}
 
               <div className="flex flex-wrap gap-3">
-                <label className="flex items-center gap-2 p-3 rounded-lg bg-[#121214] border border-white/10 cursor-pointer">
+                <label className="flex items-center gap-2 p-3 rounded-[10px] bg-[#121214] border border-white/10 cursor-pointer">
                   <input
                     type="checkbox"
                     checked={form.isPublished}
@@ -505,7 +505,7 @@ export function CourseEditorModal({
                   <span className="text-sm text-white">Published (visible in catalog)</span>
                 </label>
                 {isAdmin && (
-                  <label className="flex items-center gap-2 p-3 rounded-lg bg-emerald-500/10 border border-emerald-500/30 cursor-pointer">
+                  <label className="flex items-center gap-2 p-3 rounded-[10px] bg-emerald-500/10 border border-emerald-500/30 cursor-pointer">
                     <input
                       type="checkbox"
                       checked={form.promoted}
@@ -521,7 +521,7 @@ export function CourseEditorModal({
                 <button
                   onClick={saveCourse}
                   disabled={saving}
-                  className="px-4 py-2 rounded-lg bg-emerald-500 hover:bg-emerald-400 disabled:opacity-50 text-black font-bold text-sm inline-flex items-center gap-2"
+                  className="px-4 py-2 rounded-[10px] bg-emerald-500 hover:bg-emerald-400 disabled:opacity-50 text-black font-bold text-sm inline-flex items-center gap-2"
                 >
                   {saving && <Loader2 className="w-4 h-4 animate-spin" />}
                   {savedId ? "Save changes" : "Create course & add modules"}
@@ -529,7 +529,7 @@ export function CourseEditorModal({
                 {savedId && (
                   <button
                     onClick={removeCourseHandler}
-                    className="px-4 py-2 rounded-lg bg-red-500/10 hover:bg-red-500/20 border border-red-500/30 text-red-300 text-sm font-semibold"
+                    className="px-4 py-2 rounded-[10px] bg-red-500/10 hover:bg-red-500/20 border border-red-500/30 text-red-300 text-sm font-semibold"
                   >
                     Delete course
                   </button>
@@ -548,7 +548,7 @@ export function CourseEditorModal({
                   {modules.map((m, i) => (
                     <div
                       key={m.id}
-                      className="flex items-center gap-2 p-3 rounded-lg bg-[#121214] border border-white/10"
+                      className="flex items-center gap-2 p-3 rounded-[10px] bg-[#121214] border border-white/10"
                     >
                       <GripVertical className="w-4 h-4 text-slate-600" />
                       <span className="text-xs font-bold text-slate-500 w-6">{i + 1}.</span>
@@ -574,13 +574,13 @@ export function CourseEditorModal({
                     </div>
                   ))}
                   {modules.length === 0 && (
-                    <div className="text-xs text-slate-500 text-center py-4 border border-dashed border-white/10 rounded-lg">
+                    <div className="text-xs text-slate-500 text-center py-4 border border-dashed border-white/10 rounded-[10px]">
                       No modules yet. Add your first video below.
                     </div>
                   )}
                 </div>
 
-                <div className="p-4 rounded-lg bg-[#121214] border border-emerald-500/20 space-y-3">
+                <div className="p-4 rounded-[10px] bg-[#121214] border border-emerald-500/20 space-y-3">
                   <div className="text-xs font-bold uppercase tracking-wider text-emerald-300">
                     {modForm.id ? "Editing module" : "Add new module"}
                   </div>
@@ -612,7 +612,7 @@ export function CourseEditorModal({
                         className="input"
                       />
                     </Field>
-                    <label className="flex items-center gap-2 p-3 rounded-lg bg-[#1E1E24] border border-white/10 cursor-pointer">
+                    <label className="flex items-center gap-2 p-3 rounded-[10px] bg-[#1E1E24] border border-white/10 cursor-pointer">
                       <input
                         type="checkbox"
                         checked={modForm.isPreview}
@@ -635,7 +635,7 @@ export function CourseEditorModal({
                   </Field>
                   <Field label="Upload module video (optional, ≤ 500 MB)">
                     <div className="flex items-center gap-2">
-                      <label className="inline-flex items-center gap-2 px-3 py-2 rounded-lg bg-white/5 hover:bg-white/10 border border-white/10 text-sm text-slate-200 cursor-pointer">
+                      <label className="inline-flex items-center gap-2 px-3 py-2 rounded-[10px] bg-white/5 hover:bg-white/10 border border-white/10 text-sm text-slate-200 cursor-pointer">
                         <Film className="w-4 h-4" />
                         {modVideoUploading
                           ? "Uploading…"
@@ -668,7 +668,7 @@ export function CourseEditorModal({
                       <video
                         src={modForm.videoFileUrl}
                         controls
-                        className="mt-2 w-full max-h-48 rounded-lg border border-white/10 bg-black"
+                        className="mt-2 w-full max-h-48 rounded-[10px] border border-white/10 bg-black"
                       />
                     )}
                   </Field>
@@ -682,14 +682,14 @@ export function CourseEditorModal({
                   <div className="flex gap-2">
                     <button
                       onClick={addOrUpdateModule}
-                      className="px-3 py-2 rounded-lg bg-emerald-500 hover:bg-emerald-400 text-black font-bold text-sm inline-flex items-center gap-2"
+                      className="px-3 py-2 rounded-[10px] bg-emerald-500 hover:bg-emerald-400 text-black font-bold text-sm inline-flex items-center gap-2"
                     >
                       <Plus className="w-4 h-4" /> {modForm.id ? "Update module" : "Add module"}
                     </button>
                     {modForm.id && (
                       <button
                         onClick={() => setModForm(emptyModForm)}
-                        className="px-3 py-2 rounded-lg bg-white/5 hover:bg-white/10 border border-white/10 text-slate-300 text-sm"
+                        className="px-3 py-2 rounded-[10px] bg-white/5 hover:bg-white/10 border border-white/10 text-slate-300 text-sm"
                       >
                         Cancel
                       </button>
@@ -704,14 +704,14 @@ export function CourseEditorModal({
         <div className="p-4 border-t border-white/10 flex justify-end gap-2 shrink-0">
           <button
             onClick={onClose}
-            className="px-4 py-2 rounded-lg text-slate-300 hover:text-white text-sm"
+            className="px-4 py-2 rounded-[10px] text-slate-300 hover:text-white text-sm"
           >
             Close
           </button>
           {savedId && (
             <button
               onClick={finish}
-              className="px-4 py-2 rounded-lg bg-emerald-500 hover:bg-emerald-400 text-black font-bold text-sm"
+              className="px-4 py-2 rounded-[10px] bg-emerald-500 hover:bg-emerald-400 text-black font-bold text-sm"
             >
               Done
             </button>

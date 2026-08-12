@@ -251,7 +251,7 @@ export function CourseCheckoutModal({
           </div>
           <button
             onClick={onClose}
-            className="p-2 rounded-lg hover:bg-white/5 text-slate-400 hover:text-white"
+            className="p-2 rounded-[10px] hover:bg-white/5 text-slate-400 hover:text-white"
             aria-label="Close"
           >
             <X className="w-5 h-5" />
@@ -293,7 +293,7 @@ export function CourseCheckoutModal({
                       <button
                         key={m.key}
                         onClick={() => setMethod(m.key)}
-                        className={`text-left p-3 rounded-lg border transition-colors ${
+                        className={`text-left p-3 rounded-[10px] border transition-colors ${
                           active
                             ? "bg-emerald-500/10 border-emerald-500/50"
                             : "bg-[#121214] border-white/10 hover:border-white/20"
@@ -324,12 +324,12 @@ export function CourseCheckoutModal({
                     value={couponInput}
                     onChange={(e) => setCouponInput(e.target.value.toUpperCase())}
                     placeholder="ENTER CODE"
-                    className="flex-1 px-3 py-2 bg-[#121214] border border-white/10 rounded-lg text-sm text-white placeholder:text-slate-600 outline-none focus:border-emerald-500/50"
+                    className="flex-1 px-3 py-2 bg-[#121214] border border-white/10 rounded-[10px] text-sm text-white placeholder:text-slate-600 outline-none focus:border-emerald-500/50"
                   />
                   <button
                     onClick={applyCoupon}
                     disabled={couponBusy || !couponInput.trim()}
-                    className="px-3 py-2 rounded-lg bg-white/5 border border-white/10 hover:bg-white/10 text-sm text-slate-200 font-semibold disabled:opacity-50"
+                    className="px-3 py-2 rounded-[10px] bg-white/5 border border-white/10 hover:bg-white/10 text-sm text-slate-200 font-semibold disabled:opacity-50"
                   >
                     {couponBusy ? <Loader2 className="w-4 h-4 animate-spin" /> : "Apply"}
                   </button>
@@ -343,7 +343,7 @@ export function CourseCheckoutModal({
               </div>
 
               <label
-                className={`flex items-start gap-3 p-3 rounded-lg border ${
+                className={`flex items-start gap-3 p-3 rounded-[10px] border ${
                   cashbackUSD > 0
                     ? "bg-[#121214] border-emerald-500/30 cursor-pointer"
                     : "bg-[#121214] border-white/10 opacity-70 cursor-not-allowed"
@@ -371,7 +371,7 @@ export function CourseCheckoutModal({
                 </div>
               </label>
 
-              <div className="p-4 rounded-lg bg-[#121214] border border-white/10 space-y-1.5">
+              <div className="p-4 rounded-[10px] bg-[#121214] border border-white/10 space-y-1.5">
                 <Row label="Course price" value={grossFormatted} />
                 {discountDisplay > 0 && (
                   <Row
@@ -395,7 +395,7 @@ export function CourseCheckoutModal({
 
               {fxInvalid && (
                 <div
-                  className={`p-3 rounded-lg border text-xs flex gap-2 ${
+                  className={`p-3 rounded-[10px] border text-xs flex gap-2 ${
                     fxBlocksCheckout
                       ? "bg-rose-500/10 border-rose-500/40 text-rose-200"
                       : "bg-amber-500/10 border-amber-500/40 text-amber-200"
@@ -420,7 +420,7 @@ export function CourseCheckoutModal({
               <button
                 onClick={enroll}
                 disabled={!canPay}
-                className="w-full py-3 rounded-lg bg-emerald-500 hover:bg-emerald-400 disabled:opacity-50 disabled:cursor-not-allowed text-black font-black text-sm inline-flex items-center justify-center gap-2"
+                className="w-full py-3 rounded-[10px] bg-emerald-500 hover:bg-emerald-400 disabled:opacity-50 disabled:cursor-not-allowed text-black font-black text-sm inline-flex items-center justify-center gap-2"
               >
                 {busy && <Loader2 className="w-4 h-4 animate-spin" />}
                 Continue to payment · {totalFormatted}
