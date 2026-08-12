@@ -21,10 +21,16 @@ import {
   Wallet as WalletIcon,
   ChevronRight,
   ChevronUp,
+  TrendingUp,
+  ShoppingCart,
+  Download,
+  Award,
+  ArrowLeftRight,
 } from "lucide-react";
 import { useOnboarding, type Currency } from "@/lib/onboarding/OnboardingContext";
-import { getWalletBalances } from "@/lib/wallet.functions";
+import { getWalletBalances, listWalletTransactions, type WalletTxType } from "@/lib/wallet.functions";
 import { formatMoney, usdRate } from "@/lib/fx-display";
+
 import { TransferModal } from "@/components/oventric/wallet/TransferModal";
 import { AddCapitalModal } from "@/components/oventric/wallet/AddCapitalModal";
 import { PayoutModal } from "@/components/oventric/wallet/PayoutModal";
