@@ -3,9 +3,13 @@ import { useEffect, useMemo, useState } from "react";
 import { useServerFn } from "@tanstack/react-start";
 import {
   ShieldCheck,
+  LayoutGrid,
   LayoutDashboard,
+
   Users,
+  ShoppingBag,
   Package,
+
   Megaphone,
   Tags,
   ToggleLeft,
@@ -71,7 +75,9 @@ type NavItem = { to: string; label: string; icon: typeof LayoutDashboard; exact?
 const NAV: NavItem[] = [
   { to: "/admin", label: "Overview", icon: LayoutDashboard, exact: true },
   { to: "/admin/users", label: "Users", icon: Users },
+  { to: "/admin/sellers", label: "Sellers", icon: ShoppingBag },
   { to: "/admin/products", label: "Products", icon: Package },
+
   { to: "/admin/campaigns", label: "Campaigns", icon: Megaphone },
   { to: "/admin/ad-inquiries", label: "Ad Inquiries", icon: Megaphone },
   { to: "/admin/bounties", label: "Bounties", icon: Target },
@@ -84,7 +90,9 @@ const NAV: NavItem[] = [
   { to: "/admin/affiliates", label: "Affiliates", icon: Users },
   { to: "/admin/communications", label: "Communications", icon: Radio },
   { to: "/admin/categories", label: "Categories", icon: Tags },
+  { to: "/admin/marketplace-controls", label: "Marketplace Curation", icon: LayoutGrid },
   { to: "/admin/circle-categories", label: "Circle Categories", icon: ShieldCheck },
+
   { to: "/admin/tools", label: "Tools Library", icon: Wrench },
   { to: "/admin/features", label: "Features", icon: ToggleLeft },
   { to: "/admin/audit", label: "Audit Log", icon: ScrollText },
