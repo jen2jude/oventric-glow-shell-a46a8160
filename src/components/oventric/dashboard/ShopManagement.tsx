@@ -79,7 +79,7 @@ export function ShopManagement() {
             <div className="absolute -top-10 left-6">
               <div className="w-20 h-20 rounded-2xl bg-[#141418] border-4 border-[#141418] shadow-xl overflow-hidden flex items-center justify-center group cursor-pointer">
                 {logoPath ? (
-                  <img src={logoPath} alt="Logo" className="w-full h-full object-cover" />
+                  <img loading="lazy" decoding="async" src={logoPath} alt="Logo" className="w-full h-full object-cover" />
                 ) : (
                   <Store className="w-8 h-8 text-slate-700" />
                 )}
@@ -97,7 +97,7 @@ export function ShopManagement() {
                   value={shopName}
                   onChange={(e) => setShopName(e.target.value)}
                   placeholder="Your Shop Name"
-                  className="w-full px-4 py-2 rounded-xl bg-white/5 border border-white/10 text-white text-sm focus:outline-none focus:border-[#E5484D]/50 transition-colors"
+                  className="w-full px-4 py-3 rounded-xl bg-white/5 border border-white/10 text-white text-sm focus:outline-none focus:border-[#E5484D]/50 transition-colors"
                 />
               </div>
 
@@ -108,7 +108,7 @@ export function ShopManagement() {
                   value={description}
                   onChange={(e) => setDescription(e.target.value)}
                   placeholder="One-liner about your shop"
-                  className="w-full px-4 py-2 rounded-xl bg-white/5 border border-white/10 text-white text-sm focus:outline-none focus:border-[#E5484D]/50 transition-colors"
+                  className="w-full px-4 py-3 rounded-xl bg-white/5 border border-white/10 text-white text-sm focus:outline-none focus:border-[#E5484D]/50 transition-colors"
                 />
               </div>
 
@@ -119,7 +119,7 @@ export function ShopManagement() {
                   value={about}
                   onChange={(e) => setAbout(e.target.value)}
                   placeholder="Tell customers more about what you do..."
-                  className="w-full px-4 py-2 rounded-xl bg-white/5 border border-white/10 text-white text-sm focus:outline-none focus:border-[#E5484D]/50 transition-colors resize-none"
+                  className="w-full px-4 py-3 rounded-xl bg-white/5 border border-white/10 text-white text-sm focus:outline-none focus:border-[#E5484D]/50 transition-colors resize-none"
                 />
               </div>
             </div>
@@ -135,7 +135,7 @@ export function ShopManagement() {
           <button 
             onClick={handleSave}
             disabled={saving}
-            className="flex items-center gap-2 px-6 py-2 rounded-xl bg-white text-black text-sm font-bold hover:bg-slate-200 transition-colors disabled:opacity-50"
+            className="flex items-center gap-2 px-6 py-3 rounded-xl bg-white text-black text-sm font-bold hover:bg-slate-200 transition-colors disabled:opacity-50"
           >
             {saving ? <Loader2 className="w-4 h-4 animate-spin" /> : <Save className="w-4 h-4" />}
             Save Changes

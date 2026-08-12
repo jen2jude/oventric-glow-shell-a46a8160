@@ -73,7 +73,7 @@ export function MarketplaceBanner() {
     >
       <div className="max-w-7xl mx-auto w-full px-2 sm:px-4">
         {/* Single horizontal rail on all viewports. */}
-        <div className="flex flex-row items-stretch gap-2 py-2 md:gap-3 lg:gap-6">
+        <div className="flex flex-row items-stretch gap-2 py-3 md:gap-3 lg:gap-6">
           <Item
             Icon={BadgePercent}
             title="Get up to 10% cashback on purchase"

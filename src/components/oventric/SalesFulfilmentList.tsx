@@ -215,7 +215,7 @@ export function SalesFulfilmentList({
               onChange={(e) => setQ(e.target.value)}
               placeholder="Search product, buyer, order id"
               aria-label="Search orders"
-              className="w-full pl-9 pr-8 py-2 rounded-xl bg-white/5 md:bg-white border border-white/10 md:border-slate-200 text-sm text-white md:text-slate-900 placeholder:text-slate-500 focus:outline-none focus:ring-2 focus:ring-emerald-500/50"
+              className="w-full pl-9 pr-8 py-3 rounded-xl bg-white/5 md:bg-white border border-white/10 md:border-slate-200 text-sm text-white md:text-slate-900 placeholder:text-slate-500 focus:outline-none focus:ring-2 focus:ring-emerald-500/50"
             />
             {q && (
               <button
@@ -234,7 +234,7 @@ export function SalesFulfilmentList({
               value={sort}
               onChange={(e) => setSort(e.target.value as SaleSort)}
               aria-label="Sort orders"
-              className="appearance-none pl-8 pr-7 py-2 rounded-xl bg-white/5 md:bg-white border border-white/10 md:border-slate-200 text-xs font-semibold text-white md:text-slate-900 focus:outline-none focus:ring-2 focus:ring-emerald-500/50"
+              className="appearance-none pl-8 pr-7 py-3 rounded-xl bg-white/5 md:bg-white border border-white/10 md:border-slate-200 text-xs font-semibold text-white md:text-slate-900 focus:outline-none focus:ring-2 focus:ring-emerald-500/50"
             >
               {SORTS.map((o) => (
                 <option key={o.id} value={o.id} className="text-slate-900">
@@ -412,14 +412,14 @@ export function SalesFulfilmentList({
                 <div className="flex flex-wrap gap-2">
                   <button
                     onClick={() => messageBuyer(openSale.buyerId)}
-                    className="inline-flex items-center gap-1.5 px-3 py-2 rounded-[10px] bg-white/5 md:bg-slate-50 hover:bg-white/10 md:hover:bg-slate-100 border border-white/10 md:border-slate-200 text-slate-200 md:text-slate-700 text-xs font-semibold"
+                    className="inline-flex items-center gap-1.5 px-3 py-3 rounded-[10px] bg-white/5 md:bg-slate-50 hover:bg-white/10 md:hover:bg-slate-100 border border-white/10 md:border-slate-200 text-slate-200 md:text-slate-700 text-xs font-semibold"
                   >
                     <MessageCircle className="w-3.5 h-3.5" /> Message buyer
                   </button>
                   <Link
                     to="/order/$id"
                     params={{ id: openSale.orderId }}
-                    className="inline-flex items-center gap-1.5 px-3 py-2 rounded-[10px] bg-white/5 md:bg-slate-50 hover:bg-white/10 md:hover:bg-slate-100 border border-white/10 md:border-slate-200 text-slate-200 md:text-slate-700 text-xs font-semibold"
+                    className="inline-flex items-center gap-1.5 px-3 py-3 rounded-[10px] bg-white/5 md:bg-slate-50 hover:bg-white/10 md:hover:bg-slate-100 border border-white/10 md:border-slate-200 text-slate-200 md:text-slate-700 text-xs font-semibold"
                   >
                     Open full order page
                   </Link>
@@ -468,7 +468,7 @@ export function SalesFulfilmentList({
               to {confirmSale.buyerName} inside Oventric chat. The buyer has 48 hours to confirm
               before escrow auto-releases.
             </p>
-            <div className="rounded-[10px] border border-white/10 md:border-slate-200 bg-white/5 md:bg-slate-50 px-3 py-2 text-[11px] text-slate-400 md:text-slate-600 mb-4">
+            <div className="rounded-[10px] border border-white/10 md:border-slate-200 bg-white/5 md:bg-slate-50 px-3 py-3 text-[11px] text-slate-400 md:text-slate-600 mb-4">
               Delivery will be timestamped{" "}
               <span className="font-semibold text-white md:text-slate-900">
                 {new Date().toLocaleString()}

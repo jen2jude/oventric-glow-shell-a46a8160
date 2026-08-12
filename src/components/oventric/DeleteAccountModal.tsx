@@ -209,7 +209,7 @@ export function DeleteAccountModal({ open, onClose, onDeleted }: Props) {
           {phase === "confirm" && selfieUrl && (
             <>
               <p className="text-xs text-slate-300">Use this photo?</p>
-              <img
+              <img loading="lazy" decoding="async"
                 src={selfieUrl}
                 alt="Liveness selfie"
                 className="w-full rounded-2xl border border-white/10"

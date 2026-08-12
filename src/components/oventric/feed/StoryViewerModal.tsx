@@ -198,7 +198,7 @@ export function StoryViewerModal({
             onClick={(e) => e.stopPropagation()}
             className="flex min-w-0 items-center gap-2.5 active:scale-[0.98] transition-transform"
           >
-            <span className="h-9 w-9 shrink-0 overflow-hidden rounded-full ring-2 ring-[#E5484D]">
+            <span className="h-11 w-11 shrink-0 overflow-hidden rounded-full ring-2 ring-[#E5484D]">
               <AvatarImage src={group.avatarUrl} alt={group.displayName} />
             </span>
             <div className="min-w-0">
@@ -211,7 +211,7 @@ export function StoryViewerModal({
             type="button"
             onClick={onClose}
             aria-label="Close story"
-            className="ml-auto grid h-9 w-9 place-items-center rounded-full bg-black/40 text-white active:scale-95"
+            className="ml-auto grid h-11 w-11 place-items-center rounded-full bg-black/40 text-white active:scale-95"
           >
             <X className="h-5 w-5" />
           </button>
@@ -237,7 +237,7 @@ export function StoryViewerModal({
               onEnded={next}
             />
           ) : (
-            <img
+            <img loading="lazy" decoding="async"
               key={item.id}
               src={item.mediaUrl}
               alt=""
@@ -282,13 +282,13 @@ export function StoryViewerModal({
 
         {!group.isMe && (
           <div className="absolute bottom-0 left-0 right-0 z-20 px-4 pb-6">
-            <div className="flex items-center justify-center gap-2 rounded-full border border-white/10 bg-black/55 px-3 py-2 backdrop-blur-md">
+            <div className="flex items-center justify-center gap-2 rounded-full border border-white/10 bg-black/55 px-3 py-3 backdrop-blur-md">
               {REACTIONS.map((r) => (
                 <button
                   key={r}
                   type="button"
                   onClick={() => onReact(r)}
-                  className={`grid h-9 w-9 place-items-center rounded-full text-[19px] transition-transform active:scale-90 ${
+                  className={`grid h-11 w-11 place-items-center rounded-full text-[19px] transition-transform active:scale-90 ${
                     sent === r ? "scale-110 bg-[#E5484D]/25" : "hover:bg-white/10"
                   }`}
                 >
@@ -299,7 +299,7 @@ export function StoryViewerModal({
                 type="button"
                 onClick={() => onReact("💬", true)}
                 aria-label="Reply in chat"
-                className="ml-1 grid h-9 w-9 place-items-center rounded-full bg-[#E5484D] text-white active:scale-95"
+                className="ml-1 grid h-11 w-11 place-items-center rounded-full bg-[#E5484D] text-white active:scale-95"
               >
                 <Send className="h-4 w-4" />
               </button>

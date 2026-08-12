@@ -40,7 +40,7 @@ export function AvatarImage({ src, alt, className, loading = "lazy", fetchPriori
         </span>
       )}
       {showImage && (
-        <img
+        <img loading="lazy" decoding="async"
           src={src as string}
           alt={alt}
           loading={loading}

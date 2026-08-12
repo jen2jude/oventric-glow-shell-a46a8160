@@ -238,7 +238,7 @@ export function SkillsEditModal({
                       }`}
                     >
                       {c.imageUrl && (
-                        <img src={c.imageUrl} alt="" className="h-4 w-4 rounded" loading="lazy" />
+                        <img loading="lazy" decoding="async" src={c.imageUrl} alt="" className="h-4 w-4 rounded" loading="lazy" />
                       )}
                       {c.name}
                     </button>
@@ -274,7 +274,7 @@ export function SkillsEditModal({
                             <Check className="h-2.5 w-2.5" strokeWidth={4} />
                           </span>
                         )}
-                        <img
+                        <img loading="lazy" decoding="async"
                           src={t.imageUrl ?? toolIconUrl(t.slug)}
                           alt=""
                           loading="lazy"

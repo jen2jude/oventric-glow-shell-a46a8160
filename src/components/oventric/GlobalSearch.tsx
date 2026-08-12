@@ -87,7 +87,7 @@ export function GlobalSearch({
         label: p.name,
         sub: p.username ? `@${p.username}` : p.slug,
         icon: p.avatarUrl ? (
-          <img src={p.avatarUrl} alt="" className="w-7 h-7 rounded-full object-cover" />
+          <img loading="lazy" decoding="async" src={p.avatarUrl} alt="" className="w-7 h-7 rounded-full object-cover" />
         ) : (
           <div className="w-7 h-7 rounded-full bg-emerald-500/20 text-emerald-300 flex items-center justify-center">
             <User className="w-3.5 h-3.5" />
@@ -104,7 +104,7 @@ export function GlobalSearch({
         label: p.title,
         sub: `$${p.priceUsd.toLocaleString()} · ${p.category}${p.vendor ? ` · ${p.vendor}` : ""}`,
         icon: p.coverUrl ? (
-          <img src={p.coverUrl} alt="" className="w-7 h-7 rounded-[10px] object-cover" />
+          <img loading="lazy" decoding="async" src={p.coverUrl} alt="" className="w-7 h-7 rounded-[10px] object-cover" />
         ) : (
           <div className="w-7 h-7 rounded-[10px] bg-sky-500/20 text-sky-300 flex items-center justify-center">
             <Store className="w-3.5 h-3.5" />
@@ -119,7 +119,7 @@ export function GlobalSearch({
         label: p.authorName,
         sub: p.text,
         icon: p.authorAvatarUrl ? (
-          <img src={p.authorAvatarUrl} alt="" className="w-7 h-7 rounded-full object-cover" />
+          <img loading="lazy" decoding="async" src={p.authorAvatarUrl} alt="" className="w-7 h-7 rounded-full object-cover" />
         ) : (
           <div className="w-7 h-7 rounded-full bg-slate-500/20 text-slate-300 flex items-center justify-center">
             <User className="w-3.5 h-3.5" />
@@ -273,7 +273,7 @@ function ResultRow({
       <button
         type="button"
         onClick={() => onSelect(item.onSelect)}
-        className="w-full flex items-center gap-3 px-4 py-2 hover:bg-white/5 text-left"
+        className="w-full flex items-center gap-3 px-4 py-3 hover:bg-white/5 text-left"
       >
         {item.icon}
         <div className="flex-1 min-w-0">

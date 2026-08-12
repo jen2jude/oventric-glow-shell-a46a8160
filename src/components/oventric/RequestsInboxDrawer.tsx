@@ -189,7 +189,7 @@ export function RequestsInboxDrawer({ open, onClose, initialTab = "follow" }: Pr
               type="button"
               onClick={() => setTab("follow")}
               aria-pressed={tab === "follow"}
-              className={`inline-flex items-center justify-center gap-1.5 py-2 rounded-[10px] text-xs font-bold transition-colors ${
+              className={`inline-flex items-center justify-center gap-1.5 py-3 rounded-[10px] text-xs font-bold transition-colors ${
                 tab === "follow" ? "bg-emerald-500 text-black" : "text-slate-300 hover:text-white"
               }`}
             >
@@ -209,7 +209,7 @@ export function RequestsInboxDrawer({ open, onClose, initialTab = "follow" }: Pr
               type="button"
               onClick={() => setTab("circle")}
               aria-pressed={tab === "circle"}
-              className={`inline-flex items-center justify-center gap-1.5 py-2 rounded-[10px] text-xs font-bold transition-colors ${
+              className={`inline-flex items-center justify-center gap-1.5 py-3 rounded-[10px] text-xs font-bold transition-colors ${
                 tab === "circle" ? "bg-emerald-500 text-black" : "text-slate-300 hover:text-white"
               }`}
             >
@@ -261,7 +261,7 @@ export function RequestsInboxDrawer({ open, onClose, initialTab = "follow" }: Pr
                     aria-label={`Open ${r.requesterName}'s profile`}
                   >
                     {r.avatarUrl ? (
-                      <img
+                      <img loading="lazy" decoding="async"
                         src={r.avatarUrl}
                         alt=""
                         className="w-10 h-10 rounded-full object-cover"

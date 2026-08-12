@@ -221,7 +221,7 @@ export const Academy = ({ hubMode = false }: { hubMode?: boolean }) => {
                 placeholder="Search courses..."
                 value={searchQuery}
                 onChange={(e) => setSearchQuery(e.target.value)}
-                className="w-full bg-[#1A1A1C] border border-white/5 rounded-[10px] py-2 pl-9 pr-4 text-xs text-white focus:outline-none"
+                className="w-full bg-[#1A1A1C] border border-white/5 rounded-[10px] py-3 pl-9 pr-4 text-xs text-white focus:outline-none"
               />
             </div>
 
@@ -271,7 +271,7 @@ export const Academy = ({ hubMode = false }: { hubMode?: boolean }) => {
                   <button
                     key={c.key}
                     onClick={() => setCategory(c.key)}
-                    className={`shrink-0 px-4 py-2 rounded-full text-sm font-medium border transition-colors whitespace-nowrap ${
+                    className={`shrink-0 px-4 py-3 rounded-full text-sm font-medium border transition-colors whitespace-nowrap ${
                       active
                         ? "bg-emerald-600 border-emerald-600 text-white"
                         : "bg-white border-slate-200 text-slate-600 hover:text-slate-900 hover:border-slate-300"
@@ -321,7 +321,7 @@ export const Academy = ({ hubMode = false }: { hubMode?: boolean }) => {
                           </svg>
                           <div className="absolute inset-[5px] rounded-full overflow-hidden border border-white/5 bg-[#121214]">
                             {course.coverUrl ? (
-                              <img 
+                              <img loading="lazy" decoding="async" 
                                 src={course.coverUrl} 
                                 className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-300"
                                 alt={course.title}
@@ -350,7 +350,7 @@ export const Academy = ({ hubMode = false }: { hubMode?: boolean }) => {
                     <div key={enrollment.id} className={`shrink-0 w-64 rounded-xl border shadow-lg overflow-hidden flex flex-col ${!isAppShell ? "bg-white border-slate-200" : "bg-[#1A1A1C] border-white/5"}`}>
                       <div className="relative aspect-[21/9] bg-[#121214]">
                         {course.coverUrl ? (
-                          <img 
+                          <img loading="lazy" decoding="async" 
                             src={course.coverUrl} 
                             className="w-full h-full object-cover"
                             alt={course.title}
@@ -392,7 +392,7 @@ export const Academy = ({ hubMode = false }: { hubMode?: boolean }) => {
 
                         <button 
                           onClick={() => { setSelectedId(course.id); setView("course"); }}
-                          className={`w-full py-2 rounded-[10px] text-xs font-bold transition-colors ${isFinished ? "bg-emerald-500 text-black hover:bg-emerald-400" : "bg-pink-500 text-white hover:bg-pink-600"}`}
+                          className={`w-full py-3 rounded-[10px] text-xs font-bold transition-colors ${isFinished ? "bg-emerald-500 text-black hover:bg-emerald-400" : "bg-pink-500 text-white hover:bg-pink-600"}`}
                         >
                           {isFinished ? "Finished" : "Resume Learning"}
                         </button>
@@ -462,14 +462,14 @@ export const Academy = ({ hubMode = false }: { hubMode?: boolean }) => {
                             </p>
                             <button
                               onClick={() => { setSelectedId(course.id); setView("course"); }}
-                              className="self-start bg-red-500 hover:bg-red-600 text-white px-5 md:px-6 py-2 md:py-2.5 rounded-full text-xs md:text-sm font-bold active:scale-95 transition-transform shadow-lg"
+                              className="self-start bg-red-500 hover:bg-red-600 text-white px-5 md:px-6 py-3 md:py-2.5 rounded-full text-xs md:text-sm font-bold active:scale-95 transition-transform shadow-lg"
                             >
                               Start Now
                             </button>
                           </div>
                           <div className="flex-1 relative min-w-0">
                             {course.coverUrl ? (
-                              <img
+                              <img loading="lazy" decoding="async"
                                 src={course.coverUrl}
                                 className="absolute right-0 bottom-0 h-full w-full object-cover object-center"
                                 alt={course.title}
@@ -944,7 +944,7 @@ const CourseDetail = ({
                     <button
                       onClick={toggleComplete}
                       disabled={busy}
-                      className={`mt-3 inline-flex items-center gap-2 px-4 py-2 rounded-[10px] text-sm font-bold ${
+                      className={`mt-3 inline-flex items-center gap-2 px-4 py-3 rounded-[10px] text-sm font-bold ${
                         isDone
                           ? "bg-emerald-500/10 border border-emerald-500/40 text-emerald-300"
                           : "bg-emerald-500 hover:bg-emerald-400 text-black"
@@ -1097,7 +1097,7 @@ function AcademyHero({ isAppShell }: { isAppShell: boolean }) {
         {/* Banner Card */}
         <div className="relative overflow-hidden rounded-2xl aspect-[21/9] md:aspect-[21/7] bg-[#1A1A1C] border border-white/5 shadow-2xl">
           <div className="absolute inset-0 bg-gradient-to-r from-black/80 to-transparent z-10" />
-          <img 
+          <img loading="lazy" decoding="async" 
             src="https://images.unsplash.com/photo-1516321318423-f06f85e504b3?auto=format&fit=crop&w=600&q=80" 
             className="absolute inset-0 w-full h-full object-cover opacity-60" 
             alt="Digital Skills"
@@ -1194,7 +1194,7 @@ function AcademyHero({ isAppShell }: { isAppShell: boolean }) {
 function SlimValueCard({ Icon, title, img }: { Icon: any; title: string; img: string }) {
   return (
     <div className="shrink-0 w-40 md:w-full h-24 relative rounded-xl overflow-hidden border border-white/5 md:border-slate-200 shadow-lg group">
-      <img src={img} className="absolute inset-0 w-full h-full object-cover group-hover:scale-110 transition-transform duration-500" alt={title} />
+      <img loading="lazy" decoding="async" src={img} className="absolute inset-0 w-full h-full object-cover group-hover:scale-110 transition-transform duration-500" alt={title} />
       <div className="absolute inset-0 bg-black/60 backdrop-blur-[1px]" />
       <div className="absolute inset-0 p-3 flex flex-col justify-between">
         <Icon className="w-4 h-4 text-pink-500" />

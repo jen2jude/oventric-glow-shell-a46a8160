@@ -30,7 +30,7 @@ export const EMPTY_BANNER: BannerAdDraft = {
 const PLACEMENTS = ["feed", "marketplace", "academy", "bounties"] as const;
 
 const inputCls =
-  "w-full rounded-[10px] bg-black/40 md:bg-white border border-white/10 md:border-slate-300 px-3 py-2 text-sm text-white md:text-slate-900 placeholder:text-slate-500 outline-none focus:border-emerald-500/60";
+  "w-full rounded-[10px] bg-black/40 md:bg-white border border-white/10 md:border-slate-300 px-3 py-3 text-sm text-white md:text-slate-900 placeholder:text-slate-500 outline-none focus:border-emerald-500/60";
 
 export function BannerAdModal({
   open,
@@ -159,7 +159,7 @@ export function BannerAdModal({
           </Field>
           {form.media_url.trim() ? (
             <div className="rounded-[10px] overflow-hidden border border-white/10 md:border-slate-200 aspect-[16/6] bg-black/30">
-              <img
+              <img loading="lazy" decoding="async"
                 src={form.media_url}
                 alt="Banner preview"
                 className="w-full h-full object-cover"

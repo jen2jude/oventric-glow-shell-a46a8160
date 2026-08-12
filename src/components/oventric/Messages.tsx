@@ -693,7 +693,7 @@ export function Messages({
             </p>
             <button
               onClick={() => openGate("interaction")}
-              className="mt-4 inline-flex items-center gap-2 px-4 py-2 rounded-[10px] bg-emerald-500 hover:bg-emerald-400 text-black font-bold text-sm"
+              className="mt-4 inline-flex items-center gap-2 px-4 py-3 rounded-[10px] bg-emerald-500 hover:bg-emerald-400 text-black font-bold text-sm"
             >
               Connect account
             </button>
@@ -916,7 +916,7 @@ export function Messages({
               )}
               {peerTyping && activeThread && (
                 <div className="flex justify-start">
-                  <div className="inline-flex items-center gap-2 rounded-xl px-3 py-2 bg-[#2A2A32] md:bg-white border border-white/5 md:border-slate-200">
+                  <div className="inline-flex items-center gap-2 rounded-xl px-3 py-3 bg-[#2A2A32] md:bg-white border border-white/5 md:border-slate-200">
                     <span className="text-[11px] text-slate-400 md:text-slate-500">
                       {activeThread.peerName.split(/\s+/)[0]} is typing
                     </span>
@@ -932,7 +932,7 @@ export function Messages({
 
             <div className="border-t border-white/10 md:border-slate-200 bg-[#16161B] md:bg-white p-3">
               {OFF_PLATFORM_RE.test(draft) && (
-                <div className="mb-2 flex items-start gap-2 rounded-[10px] border border-amber-500/40 md:border-amber-300 bg-amber-500/5 md:bg-amber-50 px-3 py-2 text-[11px] text-amber-100 md:text-amber-800">
+                <div className="mb-2 flex items-start gap-2 rounded-[10px] border border-amber-500/40 md:border-amber-300 bg-amber-500/5 md:bg-amber-50 px-3 py-3 text-[11px] text-amber-100 md:text-amber-800">
                   <AlertTriangle className="w-3.5 h-3.5 mt-0.5 shrink-0" />
                   <span>
                     Heads up — trades finished off Oventric aren't covered by escrow, refunds or
@@ -957,7 +957,7 @@ export function Messages({
                   }}
                   rows={1}
                   placeholder="Type a message…"
-                  className="flex-1 resize-none max-h-32 min-h-[40px] bg-[#1E1E24] md:bg-slate-100 border border-white/10 md:border-transparent rounded-[10px] px-3 py-2 text-sm text-slate-200 md:text-slate-800 placeholder:text-slate-500 md:placeholder:text-slate-400 focus:outline-none focus:border-emerald-500/60 md:focus:bg-white md:focus:border-emerald-500/60"
+                  className="flex-1 resize-none max-h-32 min-h-[40px] bg-[#1E1E24] md:bg-slate-100 border border-white/10 md:border-transparent rounded-[10px] px-3 py-3 text-sm text-slate-200 md:text-slate-800 placeholder:text-slate-500 md:placeholder:text-slate-400 focus:outline-none focus:border-emerald-500/60 md:focus:bg-white md:focus:border-emerald-500/60"
                 />
                 <button
                   onClick={() => void send()}

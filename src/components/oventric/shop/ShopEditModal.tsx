@@ -96,7 +96,7 @@ export function ShopEditModal({
           <button
             type="button"
             onClick={onClose}
-            className="grid h-9 w-9 place-items-center rounded-full bg-white/10 hover:bg-white/15"
+            className="grid h-11 w-11 place-items-center rounded-full bg-white/10 hover:bg-white/15"
             aria-label="Close"
           >
             <X className="h-4 w-4" />
@@ -110,7 +110,7 @@ export function ShopEditModal({
           className="relative mt-4 block h-32 w-full overflow-hidden rounded-2xl border border-white/10 bg-[#1A1A1F]"
         >
           {coverPreview ? (
-            <img src={coverPreview} alt="" className="h-full w-full object-cover" />
+            <img loading="lazy" decoding="async" src={coverPreview} alt="" className="h-full w-full object-cover" />
           ) : null}
           <span className="absolute inset-0 grid place-items-center bg-black/40 text-xs font-bold">
             <span className="inline-flex items-center gap-2">
@@ -139,7 +139,7 @@ export function ShopEditModal({
             className="relative h-20 w-20 shrink-0 overflow-hidden rounded-2xl border border-white/10 bg-[#1A1A1F]"
           >
             {logoPreview ? (
-              <img src={logoPreview} alt="" className="h-full w-full object-cover" />
+              <img loading="lazy" decoding="async" src={logoPreview} alt="" className="h-full w-full object-cover" />
             ) : null}
             <span className="absolute inset-0 grid place-items-center bg-black/40">
               <Camera className="h-4 w-4" />

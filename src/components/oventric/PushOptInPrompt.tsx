@@ -97,7 +97,7 @@ export function PushOptInPrompt() {
     <div className="fixed inset-x-3 bottom-24 z-[70] md:left-auto md:right-6 md:bottom-6 md:w-96">
       <div className="rounded-2xl border border-border bg-popover p-4 shadow-xl shadow-black/25">
         <div className="flex items-start gap-3">
-          <span className="flex h-10 w-10 shrink-0 items-center justify-center rounded-full bg-primary">
+          <span className="flex h-11 w-11 shrink-0 items-center justify-center rounded-full bg-primary">
             <Bell className="h-5 w-5 text-primary-foreground" strokeWidth={2.5} />
           </span>
           <div className="min-w-0 flex-1">
@@ -112,7 +112,7 @@ export function PushOptInPrompt() {
                 <button
                   type="button"
                   onClick={dismiss}
-                  className="inline-flex items-center gap-1.5 rounded-xl bg-primary px-3.5 py-2 text-xs font-bold text-primary-foreground"
+                  className="inline-flex items-center gap-1.5 rounded-xl bg-primary px-3.5 py-3 text-xs font-bold text-primary-foreground"
                 >
                   <Share className="h-3.5 w-3.5" /> Got it
                 </button>
@@ -121,7 +121,7 @@ export function PushOptInPrompt() {
                   type="button"
                   onClick={() => void allow()}
                   disabled={busy}
-                  className="rounded-xl bg-primary px-3.5 py-2 text-xs font-bold text-primary-foreground disabled:opacity-60"
+                  className="rounded-xl bg-primary px-3.5 py-3 text-xs font-bold text-primary-foreground disabled:opacity-60"
                 >
                   {busy ? "Turning on…" : "Turn on alerts"}
                 </button>
@@ -129,7 +129,7 @@ export function PushOptInPrompt() {
               <button
                 type="button"
                 onClick={dismiss}
-                className="rounded-xl px-3 py-2 text-xs font-semibold text-muted-foreground hover:text-foreground"
+                className="rounded-xl px-3 py-3 text-xs font-semibold text-muted-foreground hover:text-foreground"
               >
                 Not now
               </button>

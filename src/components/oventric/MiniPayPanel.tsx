@@ -139,7 +139,7 @@ export function MiniPayPanel({
               <div className="rounded-xl border border-emerald-500/30 bg-emerald-500/5 p-4 text-center">
                 <div className="flex justify-center mb-4">
                   <div className="relative p-2 bg-white rounded-xl">
-                    <img 
+                    <img loading="lazy" decoding="async" 
                       src={minipayQrAsset.url} 
                       alt="MiniPay QR Code" 
 

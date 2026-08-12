@@ -244,7 +244,7 @@ export function HomeHub({ onSelect, onCreate, onOpenMessages, returnedToHub }: H
             </div>
           </button>
         )}
-        <span className="inline-flex shrink-0 items-center gap-1.5 rounded-full border border-white/10 bg-[#121216] px-3 py-2 text-[12px] font-bold text-white">
+        <span className="inline-flex shrink-0 items-center gap-1.5 rounded-full border border-white/10 bg-[#121216] px-3 py-3 text-[12px] font-bold text-white">
           <span aria-hidden>{flagEmoji(country)}</span>
           {currency}
         </span>
@@ -274,7 +274,7 @@ export function HomeHub({ onSelect, onCreate, onOpenMessages, returnedToHub }: H
           <button
             type="button"
             onClick={() => onSelect("Wallet")}
-            className="inline-flex shrink-0 items-center gap-1 rounded-full border border-white/10 bg-[#17171D] px-3.5 py-2 text-[12px] font-bold text-white"
+            className="inline-flex shrink-0 items-center gap-1 rounded-full border border-white/10 bg-[#17171D] px-3.5 py-3 text-[12px] font-bold text-white"
           >
             Wallet <ChevronRight className="h-3.5 w-3.5" />
           </button>
@@ -525,7 +525,7 @@ function MiniRail({
           >
             <span className="block w-32 h-24 rounded-none overflow-hidden bg-[#1E1E24] border border-white/10">
               {it.coverUrl ? (
-                <img
+                <img loading="lazy" decoding="async"
                   src={it.coverUrl}
                   alt={it.title}
                   className="w-full h-full object-cover"
@@ -550,7 +550,7 @@ function MiniRail({
 
 function SubChip({ label, value }: { label: string; value: string }) {
   return (
-    <div className="rounded-[10px] bg-black/25 border border-white/10 px-2.5 py-2 min-w-0">
+    <div className="rounded-[10px] bg-black/25 border border-white/10 px-2.5 py-3 min-w-0">
       <div className="text-[10px] uppercase tracking-wide text-slate-500 truncate">{label}</div>
       <div className="text-xs font-bold text-white tabular-nums truncate">{value}</div>
     </div>

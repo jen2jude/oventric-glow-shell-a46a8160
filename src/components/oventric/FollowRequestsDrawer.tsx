@@ -139,7 +139,7 @@ export function FollowRequestsDrawer({ open, onClose }: Props) {
                   aria-label={`Open ${r.requesterName}'s profile`}
                 >
                   {r.avatarUrl ? (
-                    <img src={r.avatarUrl} alt="" className="w-10 h-10 rounded-full object-cover" />
+                    <img loading="lazy" decoding="async" src={r.avatarUrl} alt="" className="w-10 h-10 rounded-full object-cover" />
                   ) : (
                     <div className="w-10 h-10 rounded-full bg-emerald-500/20 text-emerald-300 flex items-center justify-center">
                       <UserIcon className="w-4 h-4" />

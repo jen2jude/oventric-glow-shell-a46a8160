@@ -113,7 +113,7 @@ export function ServiceComposerModal({
           <button
             type="button"
             onClick={onClose}
-            className="grid h-9 w-9 place-items-center rounded-full bg-white/10 hover:bg-white/15"
+            className="grid h-11 w-11 place-items-center rounded-full bg-white/10 hover:bg-white/15"
             aria-label="Close"
           >
             <X className="h-4 w-4" />
@@ -125,7 +125,7 @@ export function ServiceComposerModal({
           onClick={() => fileRef.current?.click()}
           className="relative mt-4 block h-32 w-full overflow-hidden rounded-2xl border border-white/10 bg-[#1A1A1F]"
         >
-          {preview ? <img src={preview} alt="" className="h-full w-full object-cover" /> : null}
+          {preview ? <img loading="lazy" decoding="async" src={preview} alt="" className="h-full w-full object-cover" /> : null}
           <span className="absolute inset-0 grid place-items-center bg-black/40 text-xs font-bold">
             <span className="inline-flex items-center gap-2">
               <ImagePlus className="h-4 w-4" /> Add a sample of your work

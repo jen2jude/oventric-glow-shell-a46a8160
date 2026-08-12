@@ -432,7 +432,7 @@ function CheckoutPage() {
           : "page-light bg-white text-slate-900"
       }`}
     >
-      <div className="sticky top-0 z-50">
+      <div className="sticky top-0 z-50 backdrop-blur-xl bg-[#0A0A0B]/80 border-b border-white/5">
         <Header onOpenMessages={() => {}} light={!isAppShell} desktopNav={!isAppShell} forceSiteNavbar={!isAppShell} />
       </div>
       <main

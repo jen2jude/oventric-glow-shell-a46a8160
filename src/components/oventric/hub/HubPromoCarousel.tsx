@@ -123,12 +123,12 @@ export function HubPromoCarousel({ onSelect }: { onSelect: (section: string) => 
                 </div>
                 <div className={`mt-1 text-[12px] leading-snug ${s.sub}`}>{s.subtitle}</div>
                 <span
-                  className={`mt-3 inline-flex items-center gap-1 rounded-full px-3.5 py-2 text-[12px] font-bold ${s.pill}`}
+                  className={`mt-3 inline-flex items-center gap-1 rounded-full px-3.5 py-3 text-[12px] font-bold ${s.pill}`}
                 >
                   {s.cta} <ChevronRight className="h-3.5 w-3.5" />
                 </span>
               </div>
-              <img
+              <img loading="lazy" decoding="async"
                 src={s.img}
                 alt=""
                 aria-hidden

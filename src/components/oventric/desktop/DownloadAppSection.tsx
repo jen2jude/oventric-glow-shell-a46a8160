@@ -95,7 +95,7 @@ export function DownloadAppSection() {
           {/* Floating cards */}
           <div className="app-float-card absolute -left-4 top-8 z-30 hidden rounded-2xl border border-slate-200 bg-white p-3 shadow-xl md:block">
             <div className="flex items-center gap-3">
-              <span className="inline-flex h-9 w-9 items-center justify-center rounded-xl bg-emerald-500 text-white">
+              <span className="inline-flex h-11 w-11 items-center justify-center rounded-xl bg-emerald-500 text-white">
                 <svg
                   className="h-5 w-5"
                   fill="none"
@@ -119,7 +119,7 @@ export function DownloadAppSection() {
 
           <div className="app-float-card app-float-card-delayed absolute -right-2 bottom-16 z-30 hidden rounded-2xl border border-slate-200 bg-white p-3 shadow-xl md:block">
             <div className="flex items-center gap-3">
-              <span className="inline-flex h-9 w-9 items-center justify-center rounded-xl bg-slate-900 text-white">
+              <span className="inline-flex h-11 w-11 items-center justify-center rounded-xl bg-slate-900 text-white">
                 <svg
                   className="h-5 w-5"
                   fill="none"
@@ -214,7 +214,7 @@ export function DownloadAppSection() {
                     <div key={t.label} className="flex flex-col items-center gap-1">
                       <span className="flex h-8 w-8 items-center justify-center rounded-xl bg-gradient-to-b from-emerald-500/25 to-emerald-500/5 border border-white/10">
                         {t.img ? (
-                          <img
+                          <img loading="lazy" decoding="async"
                             src={t.img}
                             alt=""
                             className="h-5 w-5 object-contain"

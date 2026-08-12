@@ -326,7 +326,7 @@ export function CommentsSheet({
                         setSort(s.key);
                         setSortOpen(false);
                       }}
-                      className={`w-full text-left px-3 py-2 text-[13px] hover:bg-white/5 md:hover:bg-slate-50 ${
+                      className={`w-full text-left px-3 py-3 text-[13px] hover:bg-white/5 md:hover:bg-slate-50 ${
                         sort === s.key
                           ? "text-[#E5484D] font-semibold"
                           : "text-slate-200 md:text-slate-700"

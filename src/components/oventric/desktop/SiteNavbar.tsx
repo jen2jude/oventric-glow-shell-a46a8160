@@ -49,7 +49,7 @@ export function SiteNavbar({ onSelect, onCreate, avatarUrl, name, country, curre
             className="shrink-0"
             aria-label="Oventric home"
           >
-            <img src={logo} alt="Oventric" className="h-6 sm:h-8 w-auto object-contain" />
+            <img loading="lazy" decoding="async" src={logo} alt="Oventric" className="h-6 sm:h-8 w-auto object-contain" />
           </button>
 
           {/* Large Search Bar */}
@@ -81,7 +81,7 @@ export function SiteNavbar({ onSelect, onCreate, avatarUrl, name, country, curre
             ))}
             <button
               onClick={() => onSelect("Marketplace")}
-              className="px-4 py-2 bg-slate-900 text-white rounded-full hover:bg-slate-800 transition-colors"
+              className="px-4 py-3 bg-slate-900 text-white rounded-full hover:bg-slate-800 transition-colors"
             >
               Marketplace
             </button>
@@ -107,7 +107,7 @@ export function SiteNavbar({ onSelect, onCreate, avatarUrl, name, country, curre
                 params={{ id: isAuthenticated ? (avatarUrl?.split('/')[avatarUrl?.split('/').length - 2] || "me") : "me" }}
                 className="flex items-center gap-2 cursor-pointer group p-1 rounded-full hover:bg-slate-100 transition-colors"
               >
-                <div className="h-9 w-9 rounded-full overflow-hidden border border-slate-200 bg-slate-100 flex items-center justify-center">
+                <div className="h-11 w-11 rounded-full overflow-hidden border border-slate-200 bg-slate-100 flex items-center justify-center">
                   {isAuthenticated ? (
                     <AvatarImage src={avatarUrl ?? null} alt={name || "You"} loading="eager" />
                   ) : (
@@ -133,7 +133,7 @@ export function SiteNavbar({ onSelect, onCreate, avatarUrl, name, country, curre
       {menuOpen && (
         <div className="fixed inset-0 z-50 bg-white lg:hidden overflow-y-auto">
           <div className="p-4 border-b flex items-center justify-between">
-            <img src={logo} alt="Oventric" className="h-6 w-auto" />
+            <img loading="lazy" decoding="async" src={logo} alt="Oventric" className="h-6 w-auto" />
             <button onClick={() => setMenuOpen(false)}><X className="w-6 h-6" /></button>
           </div>
           <nav className="p-6 space-y-6">

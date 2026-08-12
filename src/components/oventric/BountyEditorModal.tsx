@@ -627,7 +627,7 @@ export function BountyEditorModal({
             <button
               disabled={saving}
               onClick={save}
-              className="px-4 py-2 bg-emerald-500 hover:bg-emerald-400 disabled:opacity-50 text-black text-sm font-bold rounded-[10px] flex items-center gap-2"
+              className="px-4 py-3 bg-emerald-500 hover:bg-emerald-400 disabled:opacity-50 text-black text-sm font-bold rounded-[10px] flex items-center gap-2"
             >
               {saving ? <Loader2 className="w-4 h-4 animate-spin" /> : null}
               Publish bounty
@@ -635,13 +635,13 @@ export function BountyEditorModal({
             <button
               type="button"
               onClick={() => saveDraft()}
-              className="px-4 py-2 bg-white/5 hover:bg-white/10 border border-white/10 text-slate-200 text-sm font-semibold rounded-[10px] inline-flex items-center gap-2"
+              className="px-4 py-3 bg-white/5 hover:bg-white/10 border border-white/10 text-slate-200 text-sm font-semibold rounded-[10px] inline-flex items-center gap-2"
             >
               <Save className="w-4 h-4" /> Save draft
             </button>
             <button
               onClick={onClose}
-              className="px-4 py-2 bg-white/5 hover:bg-white/10 border border-white/10 text-slate-200 text-sm font-semibold rounded-[10px]"
+              className="px-4 py-3 bg-white/5 hover:bg-white/10 border border-white/10 text-slate-200 text-sm font-semibold rounded-[10px]"
             >
               Cancel
             </button>
@@ -675,7 +675,7 @@ export function BountyEditorModal({
               <div className="flex flex-wrap gap-2 mt-4">
                 <button
                   onClick={goToWallet}
-                  className="px-4 py-2 bg-emerald-500 hover:bg-emerald-400 text-black text-sm font-bold rounded-[10px] inline-flex items-center gap-2"
+                  className="px-4 py-3 bg-emerald-500 hover:bg-emerald-400 text-black text-sm font-bold rounded-[10px] inline-flex items-center gap-2"
                 >
                   <Wallet className="w-4 h-4" /> Save draft & top up
                 </button>
@@ -684,13 +684,13 @@ export function BountyEditorModal({
                     saveDraft();
                     setShowFundPrompt(false);
                   }}
-                  className="px-4 py-2 bg-white/5 hover:bg-white/10 border border-white/10 text-slate-200 text-sm font-semibold rounded-[10px] inline-flex items-center gap-2"
+                  className="px-4 py-3 bg-white/5 hover:bg-white/10 border border-white/10 text-slate-200 text-sm font-semibold rounded-[10px] inline-flex items-center gap-2"
                 >
                   <Save className="w-4 h-4" /> Save draft only
                 </button>
                 <button
                   onClick={() => setShowFundPrompt(false)}
-                  className="px-4 py-2 text-slate-400 hover:text-white text-sm font-semibold rounded-[10px]"
+                  className="px-4 py-3 text-slate-400 hover:text-white text-sm font-semibold rounded-[10px]"
                 >
                   Back to editor
                 </button>
@@ -767,7 +767,7 @@ function BountyPublishedSplash({
           awaiting admin review.
         </p>
         <div
-          className="inline-flex items-center gap-2 rounded-xl px-3 py-2 mb-4 text-white text-sm font-bold"
+          className="inline-flex items-center gap-2 rounded-xl px-3 py-3 mb-4 text-white text-sm font-bold"
           style={{
             background: "linear-gradient(135deg, rgba(96, 165, 250,0.35), rgba(96,165,250,0.35))",
             border: "1px solid rgba(255,255,255,0.25)",
@@ -782,7 +782,7 @@ function BountyPublishedSplash({
         </p>
         <button
           onClick={onDone}
-          className="mt-5 px-4 py-2 rounded-[10px] bg-white/10 hover:bg-white/20 text-white text-xs font-bold"
+          className="mt-5 px-4 py-3 rounded-[10px] bg-white/10 hover:bg-white/20 text-white text-xs font-bold"
         >
           Got it
         </button>
@@ -800,7 +800,7 @@ function BountyPublishedSplash({
 }
 
 const inputCls =
-  "w-full bg-black/30 border border-white/10 rounded-[10px] px-3 py-2 text-sm text-white placeholder:text-slate-500 focus:border-emerald-500/60 outline-none";
+  "w-full bg-black/30 border border-white/10 rounded-[10px] px-3 py-3 text-sm text-white placeholder:text-slate-500 focus:border-emerald-500/60 outline-none";
 
 function Field({ label, children }: { label: string; children: React.ReactNode }) {
   return (

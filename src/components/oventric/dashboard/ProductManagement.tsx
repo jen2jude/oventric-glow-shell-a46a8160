@@ -76,12 +76,12 @@ export function ProductManagement() {
             placeholder="Search products..."
             value={search}
             onChange={(e) => setSearch(e.target.value)}
-            className="w-full pl-9 pr-4 py-2 rounded-xl bg-white/5 border border-white/10 text-sm text-white focus:outline-none focus:border-[#E5484D]/50 transition-colors"
+            className="w-full pl-9 pr-4 py-3 rounded-xl bg-white/5 border border-white/10 text-sm text-white focus:outline-none focus:border-[#E5484D]/50 transition-colors"
           />
         </div>
         <button 
           onClick={() => setCreateOpen(true)}
-          className="w-full sm:w-auto flex items-center justify-center gap-2 px-4 py-2 rounded-xl bg-[#E5484D] text-white text-sm font-bold hover:bg-[#E5484D]/90 transition-colors"
+          className="w-full sm:w-auto flex items-center justify-center gap-2 px-4 py-3 rounded-xl bg-[#E5484D] text-white text-sm font-bold hover:bg-[#E5484D]/90 transition-colors"
         >
           <Plus className="w-4 h-4" />
           Create Product
@@ -97,7 +97,7 @@ export function ProductManagement() {
             <div className="flex gap-4">
               <div className="w-20 h-20 rounded-xl overflow-hidden bg-white/5 shrink-0 border border-white/5">
                 {product.coverUrl ? (
-                  <img src={product.coverUrl} alt={product.name} className="w-full h-full object-cover" />
+                  <img loading="lazy" decoding="async" src={product.coverUrl} alt={product.name} className="w-full h-full object-cover" />
                 ) : (
                   <div className="w-full h-full flex items-center justify-center">
                     <Package className="w-8 h-8 text-slate-700" />

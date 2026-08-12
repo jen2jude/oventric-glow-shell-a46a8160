@@ -442,7 +442,7 @@ export function CourseEditorModal({
                       decoding="async"
                     />
                   )}
-                  <label className="cursor-pointer inline-flex items-center gap-2 px-3 py-2 rounded-[10px] bg-white/5 border border-white/10 hover:bg-white/10 text-sm text-white">
+                  <label className="cursor-pointer inline-flex items-center gap-2 px-3 py-3 rounded-[10px] bg-white/5 border border-white/10 hover:bg-white/10 text-sm text-white">
                     <Upload className="w-4 h-4" />
                     {uploading ? "Uploading..." : coverPath ? "Replace" : "Upload cover"}
                     <input
@@ -521,7 +521,7 @@ export function CourseEditorModal({
                 <button
                   onClick={saveCourse}
                   disabled={saving}
-                  className="px-4 py-2 rounded-[10px] bg-emerald-500 hover:bg-emerald-400 disabled:opacity-50 text-black font-bold text-sm inline-flex items-center gap-2"
+                  className="px-4 py-3 rounded-[10px] bg-emerald-500 hover:bg-emerald-400 disabled:opacity-50 text-black font-bold text-sm inline-flex items-center gap-2"
                 >
                   {saving && <Loader2 className="w-4 h-4 animate-spin" />}
                   {savedId ? "Save changes" : "Create course & add modules"}
@@ -529,7 +529,7 @@ export function CourseEditorModal({
                 {savedId && (
                   <button
                     onClick={removeCourseHandler}
-                    className="px-4 py-2 rounded-[10px] bg-red-500/10 hover:bg-red-500/20 border border-red-500/30 text-red-300 text-sm font-semibold"
+                    className="px-4 py-3 rounded-[10px] bg-red-500/10 hover:bg-red-500/20 border border-red-500/30 text-red-300 text-sm font-semibold"
                   >
                     Delete course
                   </button>
@@ -635,7 +635,7 @@ export function CourseEditorModal({
                   </Field>
                   <Field label="Upload module video (optional, ≤ 500 MB)">
                     <div className="flex items-center gap-2">
-                      <label className="inline-flex items-center gap-2 px-3 py-2 rounded-[10px] bg-white/5 hover:bg-white/10 border border-white/10 text-sm text-slate-200 cursor-pointer">
+                      <label className="inline-flex items-center gap-2 px-3 py-3 rounded-[10px] bg-white/5 hover:bg-white/10 border border-white/10 text-sm text-slate-200 cursor-pointer">
                         <Film className="w-4 h-4" />
                         {modVideoUploading
                           ? "Uploading…"
@@ -682,14 +682,14 @@ export function CourseEditorModal({
                   <div className="flex gap-2">
                     <button
                       onClick={addOrUpdateModule}
-                      className="px-3 py-2 rounded-[10px] bg-emerald-500 hover:bg-emerald-400 text-black font-bold text-sm inline-flex items-center gap-2"
+                      className="px-3 py-3 rounded-[10px] bg-emerald-500 hover:bg-emerald-400 text-black font-bold text-sm inline-flex items-center gap-2"
                     >
                       <Plus className="w-4 h-4" /> {modForm.id ? "Update module" : "Add module"}
                     </button>
                     {modForm.id && (
                       <button
                         onClick={() => setModForm(emptyModForm)}
-                        className="px-3 py-2 rounded-[10px] bg-white/5 hover:bg-white/10 border border-white/10 text-slate-300 text-sm"
+                        className="px-3 py-3 rounded-[10px] bg-white/5 hover:bg-white/10 border border-white/10 text-slate-300 text-sm"
                       >
                         Cancel
                       </button>
@@ -704,14 +704,14 @@ export function CourseEditorModal({
         <div className="p-4 border-t border-white/10 flex justify-end gap-2 shrink-0">
           <button
             onClick={onClose}
-            className="px-4 py-2 rounded-[10px] text-slate-300 hover:text-white text-sm"
+            className="px-4 py-3 rounded-[10px] text-slate-300 hover:text-white text-sm"
           >
             Close
           </button>
           {savedId && (
             <button
               onClick={finish}
-              className="px-4 py-2 rounded-[10px] bg-emerald-500 hover:bg-emerald-400 text-black font-bold text-sm"
+              className="px-4 py-3 rounded-[10px] bg-emerald-500 hover:bg-emerald-400 text-black font-bold text-sm"
             >
               Done
             </button>

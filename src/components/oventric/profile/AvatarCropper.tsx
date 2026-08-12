@@ -73,7 +73,7 @@ export function AvatarCropper({
       ctx.fillStyle = "#000";
       ctx.fillRect(0, 0, outW, outH);
 
-      // The <img> is rendered with object-fit: cover inside the frame, then
+      // The <img loading="lazy" decoding="async"> is rendered with object-fit: cover inside the frame, then
       // scaled by `zoom` and translated by `offset`. Mirror that maths here.
       const baseScale = Math.max(rect.width / natural.w, rect.height / natural.h);
       const scale = baseScale * zoom;
@@ -119,7 +119,7 @@ export function AvatarCropper({
           aspect === 1 ? "rounded-full max-w-[220px] mx-auto" : "rounded-xl"
         }`}
       >
-        <img
+        <img loading="lazy" decoding="async"
           ref={imgRef}
           src={src}
           alt="Crop preview"

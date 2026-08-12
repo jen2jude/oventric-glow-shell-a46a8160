@@ -236,7 +236,7 @@ export function ProfileWall({
                                 className="w-full max-h-[420px] object-cover"
                               />
                             ) : (
-                              <img
+                              <img loading="lazy" decoding="async"
                                 src={m.url}
                                 alt=""
                                 loading="lazy"

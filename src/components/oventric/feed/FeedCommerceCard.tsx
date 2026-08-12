@@ -66,7 +66,7 @@ export function FeedCommerceCard({ item }: { item: CommerceItem }) {
     <>
       <div className="relative">
         {item.coverUrl ? (
-          <img src={item.coverUrl} alt="" loading="lazy" className="h-40 w-full object-cover" />
+          <img loading="lazy" decoding="async" src={item.coverUrl} alt="" loading="lazy" className="h-40 w-full object-cover" />
         ) : (
           <div
             className={`h-40 w-full bg-gradient-to-br ${

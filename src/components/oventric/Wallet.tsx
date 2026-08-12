@@ -301,7 +301,7 @@ export function Wallet() {
         </div>
         <button
           onClick={toggleBalancesHidden}
-          className="shrink-0 inline-flex items-center gap-2 rounded-[10px] border border-[#222226] md:border-slate-200 bg-[#141418] md:bg-white md:shadow-sm px-3 py-2 text-xs font-semibold text-slate-300 md:text-slate-600 hover:border-emerald-500/40 hover:text-emerald-300 transition-colors"
+          className="shrink-0 inline-flex items-center gap-2 rounded-[10px] border border-[#222226] md:border-slate-200 bg-[#141418] md:bg-white md:shadow-sm px-3 py-3 text-xs font-semibold text-slate-300 md:text-slate-600 hover:border-emerald-500/40 hover:text-emerald-300 transition-colors"
         >
           {hide ? <EyeOff className="w-4 h-4" /> : <Eye className="w-4 h-4" />}
           <span className="hidden sm:inline">{hide ? "Show Balances" : "Hide Balances"}</span>
@@ -684,7 +684,7 @@ export function Wallet() {
           </div>
           <Link
             to="/affiliate"
-            className="shrink-0 inline-flex items-center justify-center text-xs font-black px-4 py-2 rounded-[10px]"
+            className="shrink-0 inline-flex items-center justify-center text-xs font-black px-4 py-3 rounded-[10px]"
             style={
               affiliateReserved
                 ? { backgroundColor: "#1e3a8a", color: "#dbeafe", border: "1px solid #3b82f6" }
@@ -876,7 +876,7 @@ export function Wallet() {
 function TierPill({ active, label, desc }: { active: boolean; label: string; desc: string }) {
   return (
     <div
-      className={`rounded-[10px] border px-2.5 py-2 text-center transition-all ${
+      className={`rounded-[10px] border px-2.5 py-3 text-center transition-all ${
         active
           ? "border-emerald-500/60 bg-emerald-500/10 text-emerald-200"
           : "border-[#222226] md:border-slate-200 bg-[#0A0A0C] md:bg-white text-slate-400 md:text-slate-500"
@@ -1691,14 +1691,14 @@ function AddRecipientForm({
           <button
             type="button"
             onClick={() => setMethod("momo")}
-            className={`rounded-[10px] border px-3 py-2 text-xs font-bold uppercase tracking-wider transition-colors ${method === "momo" ? "border-amber-500/60 bg-amber-500/10 text-amber-200" : "border-[#222226] md:border-slate-200 bg-[#0A0A0C] md:bg-white text-slate-400 md:text-slate-500"}`}
+            className={`rounded-[10px] border px-3 py-3 text-xs font-bold uppercase tracking-wider transition-colors ${method === "momo" ? "border-amber-500/60 bg-amber-500/10 text-amber-200" : "border-[#222226] md:border-slate-200 bg-[#0A0A0C] md:bg-white text-slate-400 md:text-slate-500"}`}
           >
             Mobile Money
           </button>
           <button
             type="button"
             onClick={() => setMethod("bank")}
-            className={`rounded-[10px] border px-3 py-2 text-xs font-bold uppercase tracking-wider transition-colors ${method === "bank" ? "border-amber-500/60 bg-amber-500/10 text-amber-200" : "border-[#222226] md:border-slate-200 bg-[#0A0A0C] md:bg-white text-slate-400 md:text-slate-500"}`}
+            className={`rounded-[10px] border px-3 py-3 text-xs font-bold uppercase tracking-wider transition-colors ${method === "bank" ? "border-amber-500/60 bg-amber-500/10 text-amber-200" : "border-[#222226] md:border-slate-200 bg-[#0A0A0C] md:bg-white text-slate-400 md:text-slate-500"}`}
           >
             Bank Transfer
           </button>
@@ -1711,7 +1711,7 @@ function AddRecipientForm({
             <select
               value={bankCode}
               onChange={(e) => setBankCode(e.target.value)}
-              className="w-full rounded-[10px] border border-[#222226] md:border-slate-200 bg-[#0A0A0C] md:bg-white px-3 py-2 text-sm text-white md:text-slate-900 focus:outline-none focus:border-emerald-500/50"
+              className="w-full rounded-[10px] border border-[#222226] md:border-slate-200 bg-[#0A0A0C] md:bg-white px-3 py-3 text-sm text-white md:text-slate-900 focus:outline-none focus:border-emerald-500/50"
             >
               <option value="">{banks.length ? "Select bank…" : "Loading banks…"}</option>
               {banks.map((b) => (
@@ -1755,7 +1755,7 @@ function AddRecipientForm({
             <select
               value={network}
               onChange={(e) => setNetwork(e.target.value as never)}
-              className="w-full rounded-[10px] border border-[#222226] md:border-slate-200 bg-[#0A0A0C] md:bg-white px-3 py-2 text-sm text-white md:text-slate-900 focus:outline-none focus:border-amber-500/50"
+              className="w-full rounded-[10px] border border-[#222226] md:border-slate-200 bg-[#0A0A0C] md:bg-white px-3 py-3 text-sm text-white md:text-slate-900 focus:outline-none focus:border-amber-500/50"
             >
               <option value="MTN">MTN Mobile Money</option>
               <option value="Vodafone">Vodafone Cash</option>
@@ -2163,7 +2163,7 @@ function TxtInput({
       onChange={(e) => onChange(e.target.value)}
       placeholder={placeholder}
       maxLength={maxLength}
-      className="w-full rounded-[10px] border border-[#222226] md:border-slate-200 bg-[#0A0A0C] md:bg-white px-3 py-2 text-sm text-white md:text-slate-900 placeholder:text-slate-600 md:text-slate-400 focus:outline-none focus:border-sky-500/50"
+      className="w-full rounded-[10px] border border-[#222226] md:border-slate-200 bg-[#0A0A0C] md:bg-white px-3 py-3 text-sm text-white md:text-slate-900 placeholder:text-slate-600 md:text-slate-400 focus:outline-none focus:border-sky-500/50"
     />
   );
 }
@@ -2268,7 +2268,7 @@ function BountyWalletModal({
             max={balanceUSD}
             value={amount}
             onChange={(e) => setAmount(e.target.value)}
-            className="w-full bg-black/40 border border-white/10 rounded-[10px] px-3 py-2 text-white mt-1"
+            className="w-full bg-black/40 border border-white/10 rounded-[10px] px-3 py-3 text-white mt-1"
             placeholder="0.00"
           />
         </div>

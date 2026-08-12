@@ -50,7 +50,7 @@ export function ProductBubbleCard({
       <button
         type="button"
         onClick={go}
-        className="w-full flex items-center gap-2 px-2.5 py-2 hover:opacity-90 text-left"
+        className="w-full flex items-center gap-2 px-2.5 py-3 hover:opacity-90 text-left"
       >
         <ShoppingBag className={`w-4 h-4 shrink-0 ${mine ? "text-white" : "text-emerald-400"}`} />
         <span

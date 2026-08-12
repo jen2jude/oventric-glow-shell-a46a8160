@@ -515,7 +515,7 @@ export function EditProfileModal({ open, onClose, initial, userId, onSaved }: Pr
           >
             <div className="relative h-24 bg-gradient-to-r from-emerald-600/40 via-cyan-500/25 to-emerald-400/30">
               {coverPreview && (
-                <img
+                <img loading="lazy" decoding="async"
                   src={coverPreview}
                   alt=""
                   className="absolute inset-0 w-full h-full object-cover"
@@ -525,7 +525,7 @@ export function EditProfileModal({ open, onClose, initial, userId, onSaved }: Pr
             <div className="bg-[#141418] md:bg-slate-50 px-4 pb-4 -mt-8">
               <div className="w-16 h-16 rounded-full overflow-hidden border-4 border-[#1a1a1f] md:border-white bg-emerald-500 flex items-center justify-center text-black font-black">
                 {avatarPreview ? (
-                  <img src={avatarPreview} alt="" className="w-full h-full object-cover" />
+                  <img loading="lazy" decoding="async" src={avatarPreview} alt="" className="w-full h-full object-cover" />
                 ) : (
                   initials
                 )}
@@ -871,14 +871,14 @@ export function EditProfileModal({ open, onClose, initial, userId, onSaved }: Pr
             <button
               type="button"
               onClick={onClose}
-              className="px-4 py-2 rounded-[10px] text-sm font-semibold text-slate-300 md:text-slate-600 hover:bg-white/10 md:hover:bg-slate-100 focus:outline-none focus:ring-2 focus:ring-emerald-500/40"
+              className="px-4 py-3 rounded-[10px] text-sm font-semibold text-slate-300 md:text-slate-600 hover:bg-white/10 md:hover:bg-slate-100 focus:outline-none focus:ring-2 focus:ring-emerald-500/40"
             >
               Cancel
             </button>
             <button
               type="submit"
               disabled={saving}
-              className="inline-flex items-center gap-2 px-5 py-2 rounded-[10px] bg-emerald-500 hover:bg-emerald-400 disabled:opacity-60 text-black text-sm font-black focus:outline-none focus:ring-2 focus:ring-emerald-400/60"
+              className="inline-flex items-center gap-2 px-5 py-3 rounded-[10px] bg-emerald-500 hover:bg-emerald-400 disabled:opacity-60 text-black text-sm font-black focus:outline-none focus:ring-2 focus:ring-emerald-400/60"
             >
               {saving && <Loader2 className="w-4 h-4 animate-spin" />}
               {saving ? "Saving…" : "Save changes"}

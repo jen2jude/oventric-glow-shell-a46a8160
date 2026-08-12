@@ -1369,7 +1369,7 @@ export function Feed() {
                             className="w-full max-h-72 object-cover rounded-[10px] bg-black/40"
                           />
                         ) : (
-                          <img
+                          <img loading="lazy" decoding="async"
                             key={m.url}
                             src={m.url}
                             alt=""
@@ -1699,7 +1699,7 @@ export function Feed() {
                             className="inline-flex items-center gap-1.5 text-emerald-300 md:text-emerald-700 font-semibold hover:underline"
                           >
                             {post.circle.avatarUrl ? (
-                              <img
+                              <img loading="lazy" decoding="async"
                                 src={post.circle.avatarUrl}
                                 alt=""
                                 className="w-4 h-4 rounded-full object-cover"
@@ -1742,7 +1742,7 @@ export function Feed() {
                   </header>
                   {isReported && (
                     <div
-                      className={`mb-3 flex items-center gap-2 rounded-[10px] bg-amber-500/10 border border-amber-500/30 px-3 py-2 text-[11px] text-amber-300 md:text-amber-600 ${isAppShell ? "mx-4 md:mx-0" : ""}`}
+                      className={`mb-3 flex items-center gap-2 rounded-[10px] bg-amber-500/10 border border-amber-500/30 px-3 py-3 text-[11px] text-amber-300 md:text-amber-600 ${isAppShell ? "mx-4 md:mx-0" : ""}`}
                     >
                       <Flag className="w-3 h-3" />
                       You reported this post. It's hidden from your feed pending review.
@@ -1899,7 +1899,7 @@ export function Feed() {
                     <div className={isAppShell ? "px-4 md:px-0" : ""}>
                       <div className="mt-3 flex gap-3 rounded-2xl border border-white/10 md:border-slate-200 bg-white/[0.03] md:bg-slate-50 p-3">
                         {(post.repost_of.media_url || post.repost_of.poster_url) && (
-                          <img
+                          <img loading="lazy" decoding="async"
                             src={post.repost_of.poster_url ?? post.repost_of.media_url ?? ""}
                             alt=""
                             loading="lazy"
@@ -1989,7 +1989,7 @@ export function Feed() {
                             setPickerFor((v) => (v === post.id ? null : post.id));
                           }
                         }}
-                        className="flex items-center gap-1.5 px-2.5 py-2 rounded-[10px] hover:bg-white/5 md:hover:bg-slate-100 transition-colors font-semibold"
+                        className="flex items-center gap-1.5 px-2.5 py-3 rounded-[10px] hover:bg-white/5 md:hover:bg-slate-100 transition-colors font-semibold"
                         style={{
                           color: post.viewer_reaction
                             ? REACTION_META[post.viewer_reaction].color
@@ -2021,7 +2021,7 @@ export function Feed() {
                     <button
                       type="button"
                       onClick={() => setCommentsSheetPostId(post.id)}
-                      className="flex items-center gap-1.5 px-2.5 py-2 rounded-[10px] hover:bg-white/5 md:hover:bg-slate-100 hover:text-white md:hover:text-slate-900 transition-colors font-semibold"
+                      className="flex items-center gap-1.5 px-2.5 py-3 rounded-[10px] hover:bg-white/5 md:hover:bg-slate-100 hover:text-white md:hover:text-slate-900 transition-colors font-semibold"
                       aria-label="Open comments"
                     >
                       <MessageCircle className="w-[18px] h-[18px]" />
@@ -2032,7 +2032,7 @@ export function Feed() {
                     <button
                       type="button"
                       onClick={() => setRepostTarget(post)}
-                      className="flex items-center gap-1.5 px-2.5 py-2 rounded-[10px] hover:bg-white/5 md:hover:bg-slate-100 hover:text-white md:hover:text-slate-900 transition-colors font-semibold"
+                      className="flex items-center gap-1.5 px-2.5 py-3 rounded-[10px] hover:bg-white/5 md:hover:bg-slate-100 hover:text-white md:hover:text-slate-900 transition-colors font-semibold"
                       style={{ color: post.viewer_reposted ? "#E5484D" : undefined }}
                       aria-label="Repost"
                     >
@@ -2044,7 +2044,7 @@ export function Feed() {
                     <button
                       type="button"
                       onClick={() => shareUrl(shareHref, `${post.author_name} on Oventric`)}
-                      className="ml-auto flex items-center gap-1.5 px-2.5 py-2 rounded-[10px] hover:bg-white/5 md:hover:bg-slate-100 hover:text-white md:hover:text-slate-900 transition-colors font-semibold"
+                      className="ml-auto flex items-center gap-1.5 px-2.5 py-3 rounded-[10px] hover:bg-white/5 md:hover:bg-slate-100 hover:text-white md:hover:text-slate-900 transition-colors font-semibold"
                       aria-label="Share"
                     >
                       <Share2 className="w-[18px] h-[18px]" />

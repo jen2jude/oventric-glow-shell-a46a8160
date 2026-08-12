@@ -95,7 +95,7 @@ export function SearchProductCard({ product }: { product: SearchResultProduct })
         >
             <div className="relative h-32 w-full overflow-hidden bg-[#1A1A1F]">
                 {product.coverUrl ? (
-                    <img src={product.coverUrl} alt="" className="h-full w-full object-cover group-hover:scale-105 transition-transform duration-500" />
+                    <img loading="lazy" decoding="async" src={product.coverUrl} alt="" className="h-full w-full object-cover group-hover:scale-105 transition-transform duration-500" />
                 ) : (
                     <div className="h-full w-full bg-white/[0.02] flex items-center justify-center">
                         <ShoppingBag className="w-8 h-8 text-white/10" />
@@ -160,7 +160,7 @@ export function ServiceCard({ service }: { service: SearchResultService }) {
         >
             <div className="h-14 w-14 rounded-[10px] overflow-hidden bg-[#1A1A1F] shrink-0">
                 {service.coverUrl ? (
-                    <img src={service.coverUrl} alt="" className="h-full w-full object-cover" />
+                    <img loading="lazy" decoding="async" src={service.coverUrl} alt="" className="h-full w-full object-cover" />
                 ) : (
                     <div className="h-full w-full flex items-center justify-center bg-rose-500/10">
                         <Briefcase className="w-6 h-6 text-rose-500" />
@@ -188,7 +188,7 @@ export function CourseCard({ course }: { course: SearchResultCourse }) {
         >
             <div className="relative aspect-video w-full bg-[#1A1A1F]">
                 {course.coverUrl ? (
-                    <img src={course.coverUrl} alt="" className="h-full w-full object-cover" />
+                    <img loading="lazy" decoding="async" src={course.coverUrl} alt="" className="h-full w-full object-cover" />
                 ) : (
                     <div className="h-full w-full flex items-center justify-center bg-violet-500/10">
                         <GraduationCap className="w-8 h-8 text-violet-500" />

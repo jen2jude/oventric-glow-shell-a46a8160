@@ -111,7 +111,7 @@ export function PreviewModal({
         <div className="flex-1 overflow-y-auto p-5 space-y-4">
           {visual}
           <div className="rounded-xl border border-white/10 bg-[#121214] overflow-hidden">
-            <div className="px-3 py-2 border-b border-white/5 text-[10px] font-bold uppercase tracking-widest text-slate-500">
+            <div className="px-3 py-3 border-b border-white/5 text-[10px] font-bold uppercase tracking-widest text-slate-500">
               Exact Token Payload
             </div>
             <dl className="divide-y divide-white/5">
@@ -144,7 +144,7 @@ export function PreviewModal({
             type="button"
             onClick={onClose}
             disabled={isSubmitting}
-            className="px-4 py-2 rounded-[10px] bg-[#121214] border border-white/10 text-slate-300 hover:text-white text-xs font-bold disabled:opacity-50 disabled:cursor-not-allowed"
+            className="px-4 py-3 rounded-[10px] bg-[#121214] border border-white/10 text-slate-300 hover:text-white text-xs font-bold disabled:opacity-50 disabled:cursor-not-allowed"
           >
             Back to edit
           </button>
@@ -152,7 +152,7 @@ export function PreviewModal({
             type="button"
             onClick={onConfirm}
             disabled={isSubmitting}
-            className={`px-4 py-2 rounded-[10px] text-xs font-black inline-flex items-center gap-2 disabled:opacity-70 disabled:cursor-wait ${styles.btn}`}
+            className={`px-4 py-3 rounded-[10px] text-xs font-black inline-flex items-center gap-2 disabled:opacity-70 disabled:cursor-wait ${styles.btn}`}
           >
             {isSubmitting && <Loader2 className="w-3.5 h-3.5 animate-spin" />}
             {isSubmitting ? "Submitting…" : confirmLabel}

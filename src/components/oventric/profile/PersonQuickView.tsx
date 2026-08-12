@@ -122,7 +122,7 @@ export function PersonQuickView({ person, isOnline, viewerId, onClose, onMessage
           {viewerId && viewerId !== person.userId ? (
             <FollowButton targetId={person.userId} className="w-full" />
           ) : (
-            <span className="rounded-[10px] border border-white/10 md:border-slate-200 px-3 py-2 text-center text-xs font-semibold text-slate-500">
+            <span className="rounded-[10px] border border-white/10 md:border-slate-200 px-3 py-3 text-center text-xs font-semibold text-slate-500">
               {viewerId ? "This is you" : "Sign in to follow"}
             </span>
           )}
@@ -130,7 +130,7 @@ export function PersonQuickView({ person, isOnline, viewerId, onClose, onMessage
             <button
               type="button"
               onClick={() => onMessage(person)}
-              className="inline-flex items-center justify-center gap-1.5 rounded-[10px] bg-emerald-500 hover:bg-emerald-400 px-3 py-2 text-sm font-black text-black focus:outline-none focus-visible:ring-2 focus-visible:ring-emerald-300/80"
+              className="inline-flex items-center justify-center gap-1.5 rounded-[10px] bg-emerald-500 hover:bg-emerald-400 px-3 py-3 text-sm font-black text-black focus:outline-none focus-visible:ring-2 focus-visible:ring-emerald-300/80"
             >
               <MessageCircle className="h-4 w-4" /> Message
             </button>
@@ -143,7 +143,7 @@ export function PersonQuickView({ person, isOnline, viewerId, onClose, onMessage
           to="/profile/$id"
           params={{ id: person.slug || person.userId }}
           onClick={onClose}
-          className="mt-3 inline-flex w-full items-center justify-center gap-1.5 rounded-[10px] border border-white/10 md:border-slate-200 px-3 py-2 text-sm font-semibold text-slate-300 md:text-slate-700 hover:bg-white/5 md:hover:bg-slate-50 focus:outline-none focus-visible:ring-2 focus-visible:ring-emerald-400/70"
+          className="mt-3 inline-flex w-full items-center justify-center gap-1.5 rounded-[10px] border border-white/10 md:border-slate-200 px-3 py-3 text-sm font-semibold text-slate-300 md:text-slate-700 hover:bg-white/5 md:hover:bg-slate-50 focus:outline-none focus-visible:ring-2 focus-visible:ring-emerald-400/70"
         >
           <ExternalLink className="h-4 w-4" /> View full profile
         </Link>

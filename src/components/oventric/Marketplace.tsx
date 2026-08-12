@@ -190,7 +190,7 @@ export function Marketplace() {
             </div>
 
             {/* Filter pills */}
-            <div className="no-scrollbar mt-4 flex gap-2.5 overflow-x-auto px-4 pb-1">
+            <div className="no-scrollbar mt-4 flex gap-2.5 overflow-x-auto snap-x snap-mandatory scroll-smooth no-scrollbar px-4 pb-1">
               <Pill active={mode === "all"} onClick={() => setMode("all")} label="All" />
               <Pill active={mode === "digital"} onClick={() => setMode("digital")} label="Digital" />
               <Pill active={mode === "physical"} onClick={() => setMode("physical")} label="Physical" />
@@ -218,12 +218,12 @@ export function Marketplace() {
                 {/* Catalog — sort tabs + grid (Digital / Physical modes) */}
                 {mode !== "all" && byMode.length > 0 && (
                   <section className="px-4">
-                    <div className="no-scrollbar -mx-1 mb-4 flex gap-5 overflow-x-auto px-1">
+                    <div className="no-scrollbar -mx-1 mb-4 flex gap-5 overflow-x-auto snap-x snap-mandatory scroll-smooth no-scrollbar px-1">
                       {SORTS.map((s) => (
                         <button
                           key={s.key}
             {/* Filter pills */}
-            <div className="no-scrollbar mt-4 flex gap-2.5 overflow-x-auto px-4 pb-1">
+            <div className="no-scrollbar mt-4 flex gap-2.5 overflow-x-auto snap-x snap-mandatory scroll-smooth no-scrollbar px-4 pb-1">
               <Pill active={mode === "all"} onClick={() => setMode("all")} label="All" />
               <Pill active={mode === "digital"} onClick={() => setMode("digital")} label="Digital" />
               <Pill active={mode === "physical"} onClick={() => setMode("physical")} label="Physical" />
@@ -249,7 +249,7 @@ export function Marketplace() {
             ) : (
               <div className="space-y-8 pt-6">
                 {/* Horizontal Category Shortcuts */}
-                <div className="no-scrollbar flex gap-4 overflow-x-auto px-4">
+                <div className="no-scrollbar flex gap-4 overflow-x-auto snap-x snap-mandatory scroll-smooth no-scrollbar px-4">
                   {cats.slice(0, 10).map((cat) => (
                     <button
                       key={cat.id}
@@ -272,7 +272,7 @@ export function Marketplace() {
                         const el = e.currentTarget;
                         setFeaturedIndex(Math.round(el.scrollLeft / Math.max(el.clientWidth, 1)));
                       }}
-                      className="no-scrollbar flex snap-x snap-mandatory gap-4 overflow-x-auto pb-2"
+                      className="no-scrollbar flex snap-x snap-mandatory gap-4 overflow-x-auto snap-x snap-mandatory scroll-smooth no-scrollbar pb-2"
                     >
                       {discovery.featured.slice(0, 8).map((item) => (
                         <button
@@ -283,7 +283,7 @@ export function Marketplace() {
                         >
                           <div className="absolute inset-0">
                             {item.coverUrl ? (
-                              <img
+                              <img loading="lazy" decoding="async"
                                 src={item.coverUrl}
                                 alt={item.name}
                                 loading="lazy"
@@ -327,7 +327,7 @@ export function Marketplace() {
                 {/* What's Moving */}
                 {discovery && discovery.trending.length > 0 && (
                   <Rail title="What's Moving 🔥" onSeeAll={() => setShowCategories(true)}>
-                    <div className="no-scrollbar flex gap-3 overflow-x-auto px-4">
+                    <div className="no-scrollbar flex gap-3 snap-start overflow-x-auto snap-x snap-mandatory scroll-smooth no-scrollbar px-4">
                       {discovery.trending.slice(0, 10).map((p) => (
                         <TileCard key={p.id} product={p} onClick={() => openProduct(p)} />
                       ))}
@@ -349,7 +349,7 @@ export function Marketplace() {
                 {/* New on Oventric */}
                 {discovery && discovery.newArrivals.length > 0 && (
                   <Rail title="New on Oventric" onSeeAll={scrollTop}>
-                    <div className="no-scrollbar flex gap-3 overflow-x-auto px-4">
+                    <div className="no-scrollbar flex gap-3 snap-start overflow-x-auto snap-x snap-mandatory scroll-smooth no-scrollbar px-4">
                       {discovery.newArrivals.slice(0, 10).map((p) => (
                         <TileCard key={p.id} product={p} onClick={() => openProduct(p)} />
                       ))}
@@ -371,7 +371,7 @@ export function Marketplace() {
                 {/* Top Sellers */}
                 {sellers.length > 0 && (
                   <Rail title="Top Sellers" onSeeAll={() => setShowTopSellers(true)}>
-                    <div className="no-scrollbar flex gap-4 overflow-x-auto px-4 pb-2">
+                    <div className="no-scrollbar flex gap-4 overflow-x-auto snap-x snap-mandatory scroll-smooth no-scrollbar px-4 pb-2">
                       {sellers.map((s) => (
                         <button
                           key={s.id}
@@ -382,7 +382,7 @@ export function Marketplace() {
                           <span className="relative h-[62px] w-[62px] shrink-0 rounded-full bg-gradient-to-tr from-[#E5484D] to-[#FF7A7F] p-[1.5px] transition-transform group-active:scale-95">
                             <span className="flex h-full w-full items-center justify-center overflow-hidden rounded-full border-[1.5px] border-[#0A0A0B] bg-black">
                               {s.avatarUrl ? (
-                                <img src={s.avatarUrl} alt={s.name} className="h-full w-full object-cover" />
+                                <img loading="lazy" decoding="async" src={s.avatarUrl} alt={s.name} className="h-full w-full object-cover" />
                               ) : (
                                 <span className="text-[14px] font-black text-white/40">
                                   {s.name.slice(0, 2).toUpperCase()}
@@ -410,7 +410,7 @@ export function Marketplace() {
 
                 {sellers.length > 0 && (
                   <Rail title="Recommended Sellers">
-                    <div className="no-scrollbar flex gap-3 overflow-x-auto px-4">
+                    <div className="no-scrollbar flex gap-3 snap-start overflow-x-auto snap-x snap-mandatory scroll-smooth no-scrollbar px-4">
                       {sellers.map((s) => (
                         <button
                           key={s.id}
@@ -420,7 +420,7 @@ export function Marketplace() {
                         >
                           <span className="relative mx-auto grid h-16 w-16 place-items-center overflow-hidden rounded-full bg-black ring-[1.5px] ring-white/10 group-hover:ring-[#E5484D]">
                             {s.avatarUrl ? (
-                              <img src={s.avatarUrl} alt={s.name} className="h-full w-full object-cover" />
+                              <img loading="lazy" decoding="async" src={s.avatarUrl} alt={s.name} className="h-full w-full object-cover" />
                             ) : (
                               <span className="text-[14px] font-black text-white/40">
                                 {s.name.slice(0, 2).toUpperCase()}
@@ -458,7 +458,7 @@ export function Marketplace() {
                       scrollTop();
                     }}
                   >
-                    <div className="no-scrollbar overflow-x-auto px-4 pb-2">
+                    <div className="no-scrollbar overflow-x-auto snap-x snap-mandatory scroll-smooth no-scrollbar px-4 pb-2">
                       <div
                         className={`grid grid-flow-col gap-x-4 gap-y-6 ${items.length <= 2 ? "grid-rows-1" : "grid-rows-2"}`}
                       >
@@ -542,7 +542,7 @@ function CategoryResults({
   return (
     <div className="pt-2">
       <div className="flex items-center gap-2 px-4">
-        <button type="button" onClick={onBack} className="grid h-10 w-10 place-items-center rounded-full">
+        <button type="button" onClick={onBack} className="grid h-11 w-11 place-items-center rounded-full">
           <ChevronLeft className="h-6 w-6 text-white" />
         </button>
         <div className="min-w-0">
@@ -571,17 +571,17 @@ function CategoryResults({
 function MarketplaceSkeleton() {
   return (
     <div className="min-h-full animate-pulse space-y-5 bg-[#0A0A0B] px-4 pt-12">
-      <div className="h-10 w-2/3 rounded-[10px] bg-white/5" />
-      <div className="h-12 w-full rounded-[10px] bg-white/5" />
+      <div className="h-10 w-2/3 rounded-[10px] bg-white/5 animate-pulse" />
+      <div className="h-12 w-full rounded-[10px] bg-white/5 animate-pulse" />
       <div className="flex gap-2">
         {[0, 1, 2, 3].map((i) => (
-          <div key={i} className="h-10 w-24 rounded-full bg-white/5" />
+          <div key={i} className="h-10 w-24 rounded-full bg-white/5 animate-pulse" />
         ))}
       </div>
-      <div className="h-[190px] w-full rounded-3xl bg-white/5" />
+      <div className="h-[190px] w-full rounded-3xl bg-white/5 animate-pulse" />
       <div className="grid grid-cols-2 gap-3">
         {[0, 1, 2, 3].map((i) => (
-          <div key={i} className="h-40 rounded-[10px] bg-white/5" />
+          <div key={i} className="h-40 rounded-[10px] bg-white/5 animate-pulse" />
         ))}
       </div>
     </div>

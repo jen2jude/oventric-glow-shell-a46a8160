@@ -75,7 +75,7 @@ function Rail({ children }: { children: React.ReactNode }) {
 function Chip({ label, tone = "neutral" }: { label: string; tone?: "neutral" | "accent" }) {
   return (
     <span
-      className={`inline-flex items-center rounded-full border px-3 py-1.5 text-xs font-bold ${
+      className={`inline-flex items-center rounded-[10px] border px-3 py-1.5 text-xs font-bold ${
         tone === "accent"
           ? "border-[#E5484D]/30 bg-[#E5484D]/12 text-[#E5484D]"
           : "border-white/10 bg-white/[0.05] text-slate-200 md:border-slate-200 md:bg-slate-50 md:text-slate-700"
@@ -155,7 +155,7 @@ export function ProfileOverview({
     >
       <div className="relative aspect-[4/3] overflow-hidden bg-neutral-900 md:bg-slate-100">
         {l.coverUrl ? (
-          <img
+          <img loading="lazy" decoding="async"
             src={l.coverUrl}
             alt={l.title}
             loading="lazy"
@@ -239,7 +239,7 @@ export function ProfileOverview({
               >
                 <div className="relative aspect-[16/9] overflow-hidden bg-neutral-900 md:bg-slate-100">
                   {a.coverUrl ? (
-                    <img
+                    <img loading="lazy" decoding="async"
                       src={a.coverUrl}
                       alt={a.title}
                       loading="lazy"
@@ -274,7 +274,7 @@ export function ProfileOverview({
                 search={itemSearch as never}
                 className="flex items-start gap-3 rounded-2xl border border-white/10 bg-[#141418] p-3 md:border-slate-200 md:bg-white md:shadow-sm"
               >
-                <span className="mt-0.5 grid h-8 w-8 shrink-0 place-items-center rounded-full bg-white/[0.06] md:bg-slate-100">
+                <span className="mt-0.5 grid h-8 w-8 shrink-0 place-items-center rounded-[10px] bg-white/[0.06] md:bg-slate-100">
                   <MessageCircle className="h-4 w-4 text-[#E5484D]" />
                 </span>
                 <span className="min-w-0">
@@ -302,7 +302,7 @@ export function ProfileOverview({
                 search={itemSearch as never}
                 className="w-[60%] min-w-[180px] max-w-[240px] shrink-0 snap-start rounded-2xl border border-white/10 bg-[#141418] p-3 md:border-slate-200 md:bg-white md:shadow-sm"
               >
-                <span className="grid h-9 w-9 place-items-center rounded-full bg-white/[0.06] md:bg-slate-100">
+                <span className="grid h-11 w-11 place-items-center rounded-[10px] bg-white/[0.06] md:bg-slate-100">
                   <Users className="h-4 w-4 text-[#E5484D]" />
                 </span>
                 <p className="mt-2 line-clamp-1 text-sm font-bold text-white md:text-slate-900">

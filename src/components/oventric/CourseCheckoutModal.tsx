@@ -324,12 +324,12 @@ export function CourseCheckoutModal({
                     value={couponInput}
                     onChange={(e) => setCouponInput(e.target.value.toUpperCase())}
                     placeholder="ENTER CODE"
-                    className="flex-1 px-3 py-2 bg-[#121214] border border-white/10 rounded-[10px] text-sm text-white placeholder:text-slate-600 outline-none focus:border-emerald-500/50"
+                    className="flex-1 px-3 py-3 bg-[#121214] border border-white/10 rounded-[10px] text-sm text-white placeholder:text-slate-600 outline-none focus:border-emerald-500/50"
                   />
                   <button
                     onClick={applyCoupon}
                     disabled={couponBusy || !couponInput.trim()}
-                    className="px-3 py-2 rounded-[10px] bg-white/5 border border-white/10 hover:bg-white/10 text-sm text-slate-200 font-semibold disabled:opacity-50"
+                    className="px-3 py-3 rounded-[10px] bg-white/5 border border-white/10 hover:bg-white/10 text-sm text-slate-200 font-semibold disabled:opacity-50"
                   >
                     {couponBusy ? <Loader2 className="w-4 h-4 animate-spin" /> : "Apply"}
                   </button>

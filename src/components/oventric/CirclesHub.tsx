@@ -144,7 +144,7 @@ export function CirclesHub() {
         </p>
         <button
           onClick={() => openGate("generic")}
-          className="mt-4 px-4 py-2 rounded-[10px] bg-emerald-500 text-black font-bold text-sm"
+          className="mt-4 px-4 py-3 rounded-[10px] bg-emerald-500 text-black font-bold text-sm"
         >
           Sign in to continue
         </button>
@@ -166,7 +166,7 @@ export function CirclesHub() {
         </div>
         <button
           onClick={() => setForgeOpen(true)}
-          className="shrink-0 inline-flex items-center gap-1.5 px-3 sm:px-4 py-2 rounded-[10px] bg-emerald-500 hover:bg-emerald-400 text-black font-bold text-sm transition-colors"
+          className="shrink-0 inline-flex items-center gap-1.5 px-3 sm:px-4 py-3 rounded-[10px] bg-emerald-500 hover:bg-emerald-400 text-black font-bold text-sm transition-colors"
         >
           <Plus className="w-4 h-4" />
           <span className="hidden sm:inline">Forge New Circle</span>
@@ -216,7 +216,7 @@ export function CirclesHub() {
             value={query}
             onChange={(e) => setQuery(e.target.value)}
             placeholder="Search guilds…"
-            className="w-full bg-[#1E1E24] border border-white/10 rounded-[10px] pl-9 pr-3 py-2 text-sm text-white placeholder:text-slate-500 focus:outline-none focus:border-emerald-500/50 md:bg-white md:shadow-sm md:border-slate-200 md:text-slate-900"
+            className="w-full bg-[#1E1E24] border border-white/10 rounded-[10px] pl-9 pr-3 py-3 text-sm text-white placeholder:text-slate-500 focus:outline-none focus:border-emerald-500/50 md:bg-white md:shadow-sm md:border-slate-200 md:text-slate-900"
           />
         </div>
         <div className="flex gap-2 overflow-x-auto scrollbar-none min-w-0">
@@ -300,7 +300,7 @@ function Rail({
               className={`h-16 relative overflow-hidden ${c.coverUrl ? "" : `bg-gradient-to-br ${c.bannerHue}`}`}
             >
               {c.coverUrl && (
-                <img
+                <img loading="lazy" decoding="async"
                   src={c.coverUrl}
                   alt=""
                   className="absolute inset-0 w-full h-full object-cover"
@@ -310,7 +310,7 @@ function Rail({
               )}
               <div className="absolute bottom-0 left-3 translate-y-1/2 w-10 h-10 rounded-full bg-[#121214] md:bg-white border-2 border-[#1E1E24] md:border-white flex items-center justify-center text-lg overflow-hidden">
                 {c.avatarUrl ? (
-                  <img
+                  <img loading="lazy" decoding="async"
                     src={c.avatarUrl}
                     alt=""
                     className="w-full h-full object-cover"
@@ -355,7 +355,7 @@ function CircleCard({ circle, onOpen }: { circle: CircleSummary; onOpen: () => v
         className={`h-20 relative overflow-hidden ${circle.coverUrl ? "" : `bg-gradient-to-br ${circle.bannerHue}`}`}
       >
         {circle.coverUrl && (
-          <img
+          <img loading="lazy" decoding="async"
             src={circle.coverUrl}
             alt=""
             className="absolute inset-0 w-full h-full object-cover"
@@ -365,7 +365,7 @@ function CircleCard({ circle, onOpen }: { circle: CircleSummary; onOpen: () => v
         )}
         <div className="absolute bottom-0 left-4 translate-y-1/2 w-12 h-12 rounded-full bg-[#121214] md:bg-white border-2 border-[#1E1E24] md:border-white flex items-center justify-center text-xl overflow-hidden">
           {circle.avatarUrl ? (
-            <img
+            <img loading="lazy" decoding="async"
               src={circle.avatarUrl}
               alt=""
               className="w-full h-full object-cover"
@@ -478,7 +478,7 @@ function CircleWorkspace({ slug, onBack }: { slug: string; onBack: () => void })
         className={`h-40 md:h-48 relative overflow-hidden ${circle.coverUrl ? "" : `bg-gradient-to-br ${circle.bannerHue}`}`}
       >
         {circle.coverUrl && (
-          <img
+          <img loading="lazy" decoding="async"
             src={circle.coverUrl}
             alt=""
             className="absolute inset-0 w-full h-full object-cover"
@@ -505,7 +505,7 @@ function CircleWorkspace({ slug, onBack }: { slug: string; onBack: () => void })
             className={`w-20 h-20 md:w-24 md:h-24 rounded-2xl border-4 border-[#121214] md:border-white shrink-0 overflow-hidden flex items-center justify-center text-3xl md:text-4xl ${circle.avatarUrl ? "bg-neutral-900" : `bg-gradient-to-br ${circle.avatarHue}`}`}
           >
             {circle.avatarUrl ? (
-              <img
+              <img loading="lazy" decoding="async"
                 src={circle.avatarUrl}
                 alt=""
                 className="w-full h-full object-cover"
@@ -548,19 +548,19 @@ function CircleWorkspace({ slug, onBack }: { slug: string; onBack: () => void })
             <button
               onClick={() => joinM.mutate(circle.id)}
               disabled={joinM.isPending}
-              className="inline-flex items-center gap-1.5 px-4 py-2 rounded-[10px] bg-emerald-500 hover:bg-emerald-400 text-black font-bold text-sm"
+              className="inline-flex items-center gap-1.5 px-4 py-3 rounded-[10px] bg-emerald-500 hover:bg-emerald-400 text-black font-bold text-sm"
             >
               <UserPlus className="w-4 h-4" /> Request to Join
             </button>
           )}
           {circle.myStatus === "pending" && (
             <>
-              <span className="px-3 py-2 rounded-[10px] bg-amber-500/15 border border-amber-500/40 text-amber-300 text-xs font-bold">
+              <span className="px-3 py-3 rounded-[10px] bg-amber-500/15 border border-amber-500/40 text-amber-300 text-xs font-bold">
                 Request pending admin approval
               </span>
               <button
                 onClick={() => cancelM.mutate(circle.id)}
-                className="px-3 py-2 rounded-[10px] bg-[#1E1E24] border border-white/10 text-slate-300 text-xs md:bg-white md:shadow-sm md:border-slate-200 md:text-slate-600"
+                className="px-3 py-3 rounded-[10px] bg-[#1E1E24] border border-white/10 text-slate-300 text-xs md:bg-white md:shadow-sm md:border-slate-200 md:text-slate-600"
               >
                 Cancel request
               </button>
@@ -569,7 +569,7 @@ function CircleWorkspace({ slug, onBack }: { slug: string; onBack: () => void })
           {circle.myStatus === "awaiting_coc" && (
             <button
               onClick={() => setCocOpen(true)}
-              className="inline-flex items-center gap-1.5 px-4 py-2 rounded-[10px] bg-emerald-500 hover:bg-emerald-400 text-black font-bold text-sm"
+              className="inline-flex items-center gap-1.5 px-4 py-3 rounded-[10px] bg-emerald-500 hover:bg-emerald-400 text-black font-bold text-sm"
             >
               <ShieldCheck className="w-4 h-4" /> Accept Code of Conduct
             </button>
@@ -998,18 +998,18 @@ function ResourcesTab({ circle, isMember }: { circle: CircleSummary; isMember: b
           value={title}
           onChange={(e) => setTitle(e.target.value)}
           placeholder="Title"
-          className="bg-[#121214] border border-white/10 rounded-[10px] px-3 py-2 text-sm text-white placeholder:text-slate-500 focus:outline-none focus:border-emerald-500/50 md:bg-white md:border-slate-200 md:text-slate-900"
+          className="bg-[#121214] border border-white/10 rounded-[10px] px-3 py-3 text-sm text-white placeholder:text-slate-500 focus:outline-none focus:border-emerald-500/50 md:bg-white md:border-slate-200 md:text-slate-900"
         />
         <input
           value={url}
           onChange={(e) => setUrl(e.target.value)}
           placeholder="https://…"
-          className="bg-[#121214] border border-white/10 rounded-[10px] px-3 py-2 text-sm text-white placeholder:text-slate-500 focus:outline-none focus:border-emerald-500/50 md:bg-white md:border-slate-200 md:text-slate-900"
+          className="bg-[#121214] border border-white/10 rounded-[10px] px-3 py-3 text-sm text-white placeholder:text-slate-500 focus:outline-none focus:border-emerald-500/50 md:bg-white md:border-slate-200 md:text-slate-900"
         />
         <button
           onClick={() => addM.mutate()}
           disabled={!title.trim() || !url.trim() || addM.isPending}
-          className="px-3 py-2 rounded-[10px] bg-emerald-500 hover:bg-emerald-400 text-black font-bold text-xs disabled:opacity-40"
+          className="px-3 py-3 rounded-[10px] bg-emerald-500 hover:bg-emerald-400 text-black font-bold text-xs disabled:opacity-40"
         >
           Share
         </button>
@@ -1214,7 +1214,7 @@ function ForgeCircleModal({
             </label>
             <div className="mt-1 relative w-full h-28 rounded-xl border border-white/10 overflow-hidden bg-[#2a2a30]">
               {coverPreview ? (
-                <img src={coverPreview} alt="Cover" className="w-full h-full object-cover" />
+                <img loading="lazy" decoding="async" src={coverPreview} alt="Cover" className="w-full h-full object-cover" />
               ) : (
                 <div className="w-full h-full flex items-center justify-center text-xs text-slate-500">
                   {uploadingCover ? "Uploading…" : "No cover — a grey background will be used"}
@@ -1251,7 +1251,7 @@ function ForgeCircleModal({
               </label>
               <div className="mt-1 relative w-16 h-16 rounded-full border border-white/10 overflow-hidden bg-[#2a2a30] flex items-center justify-center">
                 {avatarPreview ? (
-                  <img src={avatarPreview} alt="Avatar" className="w-full h-full object-cover" />
+                  <img loading="lazy" decoding="async" src={avatarPreview} alt="Avatar" className="w-full h-full object-cover" />
                 ) : (
                   <Users className="w-6 h-6 text-slate-500" />
                 )}
@@ -1286,7 +1286,7 @@ function ForgeCircleModal({
                 onChange={(e) => setName(e.target.value)}
                 maxLength={60}
                 placeholder="e.g. Edge Runtime Council"
-                className="mt-1 w-full bg-[#121214] border border-white/10 rounded-[10px] px-3 py-2 text-sm text-white focus:outline-none focus:border-emerald-500/50"
+                className="mt-1 w-full bg-[#121214] border border-white/10 rounded-[10px] px-3 py-3 text-sm text-white focus:outline-none focus:border-emerald-500/50"
               />
             </div>
           </div>
@@ -1300,7 +1300,7 @@ function ForgeCircleModal({
               onChange={(e) => setBio(e.target.value)}
               maxLength={500}
               placeholder="What will this guild ship together?"
-              className="mt-1 w-full bg-[#121214] border border-white/10 rounded-[10px] px-3 py-2 text-sm text-white focus:outline-none focus:border-emerald-500/50 resize-none min-h-[70px]"
+              className="mt-1 w-full bg-[#121214] border border-white/10 rounded-[10px] px-3 py-3 text-sm text-white focus:outline-none focus:border-emerald-500/50 resize-none min-h-[70px]"
             />
           </div>
 
@@ -1345,7 +1345,7 @@ function ForgeCircleModal({
                 onChange={(e) => setOtherCategory(e.target.value)}
                 maxLength={40}
                 placeholder="Type your own category…"
-                className="mt-2 w-full bg-[#121214] border border-white/10 rounded-[10px] px-3 py-2 text-sm text-white focus:outline-none focus:border-emerald-500/50"
+                className="mt-2 w-full bg-[#121214] border border-white/10 rounded-[10px] px-3 py-3 text-sm text-white focus:outline-none focus:border-emerald-500/50"
               />
             )}
           </div>
@@ -1406,7 +1406,7 @@ function ForgeCircleModal({
                 value={pledge}
                 onChange={(e) => setPledge(e.target.value)}
                 maxLength={2000}
-                className="mt-1 w-full bg-[#0b0b0d] border border-white/10 rounded-[10px] px-3 py-2 text-xs text-white focus:outline-none focus:border-emerald-500/50 resize-none min-h-[60px]"
+                className="mt-1 w-full bg-[#0b0b0d] border border-white/10 rounded-[10px] px-3 py-3 text-xs text-white focus:outline-none focus:border-emerald-500/50 resize-none min-h-[60px]"
               />
             </div>
             <div className="space-y-2">
@@ -1424,7 +1424,7 @@ function ForgeCircleModal({
                     }
                     maxLength={500}
                     placeholder={`Rule ${idx + 1} (e.g. Keep discussions on-topic)`}
-                    className="flex-1 bg-[#0b0b0d] border border-white/10 rounded-[10px] px-3 py-2 text-xs text-white focus:outline-none focus:border-emerald-500/50"
+                    className="flex-1 bg-[#0b0b0d] border border-white/10 rounded-[10px] px-3 py-3 text-xs text-white focus:outline-none focus:border-emerald-500/50"
                   />
                   <button
                     type="button"
@@ -1457,14 +1457,14 @@ function ForgeCircleModal({
         <div className="flex items-center justify-end gap-2 px-5 py-4 border-t border-white/10 bg-[#121214]/50 shrink-0">
           <button
             onClick={onClose}
-            className="px-4 py-2 rounded-[10px] text-sm text-slate-300 hover:bg-white/5"
+            className="px-4 py-3 rounded-[10px] text-sm text-slate-300 hover:bg-white/5"
           >
             Cancel
           </button>
           <button
             onClick={submit}
             disabled={!name.trim() || busy}
-            className="inline-flex items-center gap-1.5 px-4 py-2 rounded-[10px] bg-emerald-500 hover:bg-emerald-400 text-black font-bold text-sm disabled:opacity-40"
+            className="inline-flex items-center gap-1.5 px-4 py-3 rounded-[10px] bg-emerald-500 hover:bg-emerald-400 text-black font-bold text-sm disabled:opacity-40"
           >
             <Plus className="w-4 h-4" /> {busy ? "Forging…" : "Forge Circle"}
           </button>
@@ -1555,7 +1555,7 @@ function CoCAcceptModal({
                 value={answers[q.id] ?? ""}
                 onChange={(e) => setAnswers((prev) => ({ ...prev, [q.id]: e.target.value }))}
                 maxLength={1000}
-                className="mt-1 w-full bg-[#121214] border border-white/10 rounded-[10px] px-3 py-2 text-sm text-white focus:outline-none focus:border-emerald-500/50 resize-none min-h-[60px]"
+                className="mt-1 w-full bg-[#121214] border border-white/10 rounded-[10px] px-3 py-3 text-sm text-white focus:outline-none focus:border-emerald-500/50 resize-none min-h-[60px]"
               />
             </div>
           ))}
@@ -1582,14 +1582,14 @@ function CoCAcceptModal({
         <div className="flex items-center justify-end gap-2 px-5 py-4 border-t border-white/10 bg-[#121214]/50">
           <button
             onClick={onClose}
-            className="px-4 py-2 rounded-[10px] text-sm text-slate-300 hover:bg-white/5"
+            className="px-4 py-3 rounded-[10px] text-sm text-slate-300 hover:bg-white/5"
           >
             Later
           </button>
           <button
             onClick={submit}
             disabled={!allAnswered || !agreed || busy}
-            className="inline-flex items-center gap-1.5 px-4 py-2 rounded-[10px] bg-emerald-500 hover:bg-emerald-400 text-black font-bold text-sm disabled:opacity-40"
+            className="inline-flex items-center gap-1.5 px-4 py-3 rounded-[10px] bg-emerald-500 hover:bg-emerald-400 text-black font-bold text-sm disabled:opacity-40"
           >
             <Check className="w-4 h-4" /> {busy ? "Joining…" : "Join Circle"}
           </button>

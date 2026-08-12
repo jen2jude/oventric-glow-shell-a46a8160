@@ -108,7 +108,7 @@ export function PromoBanners({ onSelect }: { onSelect: (section: string) => void
             onClick={() => scrollTo(i)}
             aria-label={`Show promotion ${i + 1}`}
             aria-current={i === active ? "true" : undefined}
-            className="group inline-flex h-9 w-9 items-center justify-center"
+            className="group inline-flex h-11 w-11 items-center justify-center"
           >
             <span
               className={`block h-1.5 rounded-full transition-all duration-300 ${
@@ -146,7 +146,7 @@ function PromoSlide({ promo: p, onSelect }: { promo: Promo; onSelect: (section: 
       <div className="promo-banner-card relative overflow-hidden rounded-[10px] bg-oklch(0.24 0 0) border border-white/10 px-4 py-4 min-h-[5.5rem] md:px-5 md:py-5 flex items-center gap-3 md:gap-4 active:scale-[0.985] transition-transform duration-300 shadow-lg shadow-black/40">
         {p.img && (
           <div className="absolute inset-0 opacity-40">
-            <img src={p.img} alt="" className="w-full h-full object-cover" />
+            <img loading="lazy" decoding="async" src={p.img} alt="" className="w-full h-full object-cover" />
             <div className="absolute inset-0 bg-gradient-to-r from-oklch(0.24 0 0) via-oklch(0.24 0 0 / 80%) to-transparent" />
           </div>
         )}

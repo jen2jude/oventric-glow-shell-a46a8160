@@ -176,7 +176,7 @@ export function ServicePackagesModal({
           <button
             type="button"
             onClick={onClose}
-            className="grid h-9 w-9 shrink-0 place-items-center rounded-full bg-white/10 hover:bg-white/15"
+            className="grid h-11 w-11 shrink-0 place-items-center rounded-full bg-white/10 hover:bg-white/15"
             aria-label="Close"
           >
             <X className="h-4 w-4" />

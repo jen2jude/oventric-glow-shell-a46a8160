@@ -273,7 +273,7 @@ export function PhotoBatchManager() {
             type="button"
             onClick={() => inputRef.current?.click()}
             disabled={busy}
-            className="inline-flex items-center gap-2 px-3 py-2 rounded-xl bg-emerald-500 hover:bg-emerald-400 text-black text-xs font-bold disabled:opacity-60"
+            className="inline-flex items-center gap-2 px-3 py-3 rounded-xl bg-emerald-500 hover:bg-emerald-400 text-black text-xs font-bold disabled:opacity-60"
           >
             {busy ? <Loader2 className="w-4 h-4 animate-spin" /> : <Upload className="w-4 h-4" />}
             {busy ? "Uploading…" : "Upload photos"}
@@ -477,7 +477,7 @@ function BatchDetail({
                     className="absolute inset-0"
                     aria-label={`Open ${item.file_name ?? "photo"}`}
                   >
-                    <img
+                    <img loading="lazy" decoding="async"
                       src={url}
                       alt=""
                       loading="lazy"

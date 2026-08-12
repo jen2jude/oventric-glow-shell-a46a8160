@@ -380,7 +380,7 @@ export function CoursePublishWizard({
             className={`inline-flex items-center gap-1 rounded-[10px] text-sm text-slate-300 disabled:opacity-40 ${
               isAppShell
                 ? "px-4 py-3 bg-white/5 hover:bg-white/10 border border-white/10 font-semibold"
-                : "px-3 py-2 bg-white/5 hover:bg-white/10 border border-white/10"
+                : "px-3 py-3 bg-white/5 hover:bg-white/10 border border-white/10"
             }`}
           >
             <ChevronLeft className="w-4 h-4" /> Back
@@ -451,7 +451,7 @@ function Label({ children }: { children: React.ReactNode }) {
   );
 }
 const inputCls =
-  "w-full px-3 py-2 rounded-[10px] bg-[#121214] border border-white/10 text-white text-sm placeholder:text-slate-600 outline-none focus:border-emerald-500/50";
+  "w-full px-3 py-3 rounded-[10px] bg-[#121214] border border-white/10 text-white text-sm placeholder:text-slate-600 outline-none focus:border-emerald-500/50";
 
 function BasicsStep(props: {
   isAppShell: boolean;
@@ -524,7 +524,7 @@ function BasicsStep(props: {
         {isAppShell ? (
           <label className="cursor-pointer block relative w-full aspect-[16/10] rounded-xl bg-[#121214] border border-dashed border-white/15 overflow-hidden">
             {coverPreview ? (
-              <img src={coverPreview} alt="cover" className="w-full h-full object-cover" />
+              <img loading="lazy" decoding="async" src={coverPreview} alt="cover" className="w-full h-full object-cover" />
             ) : (
               <div className="absolute inset-0 flex flex-col items-center justify-center gap-2 text-slate-500">
                 <div className="w-14 h-14 rounded-full bg-white/5 grid place-items-center">
@@ -550,12 +550,12 @@ function BasicsStep(props: {
           <div className="flex items-center gap-3">
             <div className="w-32 h-20 rounded-[10px] bg-[#121214] border border-white/10 grid place-items-center overflow-hidden">
               {coverPreview ? (
-                <img src={coverPreview} alt="cover" className="w-full h-full object-cover" />
+                <img loading="lazy" decoding="async" src={coverPreview} alt="cover" className="w-full h-full object-cover" />
               ) : (
                 <FileType2 className="w-6 h-6 text-slate-600" />
               )}
             </div>
-            <label className="cursor-pointer inline-flex items-center gap-2 px-3 py-2 rounded-[10px] bg-white/5 hover:bg-white/10 border border-white/10 text-sm text-white">
+            <label className="cursor-pointer inline-flex items-center gap-2 px-3 py-3 rounded-[10px] bg-white/5 hover:bg-white/10 border border-white/10 text-sm text-white">
               <Upload className="w-4 h-4" />
               {uploading ? "Uploading…" : coverPath ? "Replace" : "Upload"}
               <input
@@ -708,7 +708,7 @@ function CurriculumStep({
             ))}
             <button
               onClick={() => addLesson(section.id)}
-              className="w-full inline-flex items-center justify-center gap-1 px-3 py-2 rounded-[10px] bg-white/5 hover:bg-white/10 border border-dashed border-white/10 text-slate-300 text-xs font-semibold"
+              className="w-full inline-flex items-center justify-center gap-1 px-3 py-3 rounded-[10px] bg-white/5 hover:bg-white/10 border border-dashed border-white/10 text-slate-300 text-xs font-semibold"
             >
               <Plus className="w-4 h-4" /> Add Lesson
             </button>
@@ -869,7 +869,7 @@ function VideoLessonEditor({
       <div>
         <Label>Or upload a video file (≤ 500 MB)</Label>
         <div className="flex items-center gap-2">
-          <label className="inline-flex items-center gap-2 px-3 py-2 rounded-[10px] bg-white/5 hover:bg-white/10 border border-white/10 text-sm text-slate-200 cursor-pointer">
+          <label className="inline-flex items-center gap-2 px-3 py-3 rounded-[10px] bg-white/5 hover:bg-white/10 border border-white/10 text-sm text-slate-200 cursor-pointer">
             <Upload className="w-4 h-4" />
             {uploading ? "Uploading…" : videoPath ? "Replace video" : "Choose video"}
             <input
@@ -1018,7 +1018,7 @@ function QuizzesStep({
             ))}
             <button
               onClick={() => addQuestion(quiz.id)}
-              className="w-full inline-flex items-center justify-center gap-1 px-3 py-2 rounded-[10px] bg-white/5 hover:bg-white/10 border border-dashed border-white/10 text-slate-300 text-xs font-semibold"
+              className="w-full inline-flex items-center justify-center gap-1 px-3 py-3 rounded-[10px] bg-white/5 hover:bg-white/10 border border-dashed border-white/10 text-slate-300 text-xs font-semibold"
             >
               <Plus className="w-4 h-4" /> Add Question
             </button>
@@ -1169,7 +1169,7 @@ function SettingsStep(props: {
           <button
             onClick={() => setIsFree(true)}
             className={`flex-1 rounded-[10px] border font-semibold ${
-              isAppShell ? "px-4 py-3 text-base" : "px-3 py-2 text-sm"
+              isAppShell ? "px-4 py-3 text-base" : "px-3 py-3 text-sm"
             } ${isFree ? "bg-emerald-500/15 border-emerald-500/50 text-emerald-300" : "bg-white/5 border-white/10 text-slate-300"}`}
           >
             Free
@@ -1177,7 +1177,7 @@ function SettingsStep(props: {
           <button
             onClick={() => setIsFree(false)}
             className={`flex-1 rounded-[10px] border font-semibold ${
-              isAppShell ? "px-4 py-3 text-base" : "px-3 py-2 text-sm"
+              isAppShell ? "px-4 py-3 text-base" : "px-3 py-3 text-sm"
             } ${!isFree ? "bg-emerald-500/15 border-emerald-500/50 text-emerald-300" : "bg-white/5 border-white/10 text-slate-300"}`}
           >
             Paid

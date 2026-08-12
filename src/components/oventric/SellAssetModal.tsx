@@ -334,7 +334,7 @@ export function SellAssetModal({ open, onClose }: { open: boolean; onClose: () =
                 reset();
                 onClose();
               }}
-              className="px-6 py-2 bg-emerald-500 hover:bg-emerald-400 text-black font-semibold text-sm rounded-[10px]"
+              className="px-6 py-3 bg-emerald-500 hover:bg-emerald-400 text-black font-semibold text-sm rounded-[10px]"
             >
               OK
             </button>
@@ -379,7 +379,7 @@ export function SellAssetModal({ open, onClose }: { open: boolean; onClose: () =
                     value={name}
                     onChange={(e) => setName(e.target.value)}
                     placeholder="Neon Analytics Dashboard"
-                    className="mt-1 w-full bg-[#121214] sm:bg-white border border-white/10 sm:border-slate-300 rounded-[10px] px-3 py-2 text-sm text-white sm:text-slate-900 placeholder-slate-500 sm:placeholder-slate-400 focus:border-emerald-500/60 sm:focus:border-emerald-500 outline-none"
+                    className="mt-1 w-full bg-[#121214] sm:bg-white border border-white/10 sm:border-slate-300 rounded-[10px] px-3 py-3 text-sm text-white sm:text-slate-900 placeholder-slate-500 sm:placeholder-slate-400 focus:border-emerald-500/60 sm:focus:border-emerald-500 outline-none"
                   />
                 </label>
                 <label className="block">
@@ -392,7 +392,7 @@ export function SellAssetModal({ open, onClose }: { open: boolean; onClose: () =
                       setCategory(e.target.value as ProductCategory);
                       setSubcategory("");
                     }}
-                    className="mt-1 w-full bg-[#121214] sm:bg-white border border-white/10 sm:border-slate-300 rounded-[10px] px-3 py-2 text-sm text-white sm:text-slate-900 outline-none focus:border-emerald-500/60 sm:focus:border-emerald-500"
+                    className="mt-1 w-full bg-[#121214] sm:bg-white border border-white/10 sm:border-slate-300 rounded-[10px] px-3 py-3 text-sm text-white sm:text-slate-900 outline-none focus:border-emerald-500/60 sm:focus:border-emerald-500"
                   >
                     {categories.map((c) => (
                       <option key={c.id} value={c.slug}>
@@ -413,7 +413,7 @@ export function SellAssetModal({ open, onClose }: { open: boolean; onClose: () =
                     <select
                       value={subcategory}
                       onChange={(e) => setSubcategory(e.target.value)}
-                      className="mt-1 w-full bg-[#121214] sm:bg-white border border-white/10 sm:border-slate-300 rounded-[10px] px-3 py-2 text-sm text-white sm:text-slate-900 outline-none focus:border-emerald-500/60 sm:focus:border-emerald-500"
+                      className="mt-1 w-full bg-[#121214] sm:bg-white border border-white/10 sm:border-slate-300 rounded-[10px] px-3 py-3 text-sm text-white sm:text-slate-900 outline-none focus:border-emerald-500/60 sm:focus:border-emerald-500"
                     >
                       <option value="">— None —</option>
                       {chosen.children.map((s) => (
@@ -447,7 +447,7 @@ export function SellAssetModal({ open, onClose }: { open: boolean; onClose: () =
                         onChange={(e) => setPriceInput(e.target.value)}
                         inputMode="decimal"
                         placeholder="29.00"
-                        className="mt-1 w-full bg-[#121214] sm:bg-white border border-white/10 sm:border-slate-300 rounded-[10px] px-3 py-2 text-sm text-white sm:text-slate-900 placeholder-slate-500 sm:placeholder-slate-400 focus:border-emerald-500/60 sm:focus:border-emerald-500 outline-none"
+                        className="mt-1 w-full bg-[#121214] sm:bg-white border border-white/10 sm:border-slate-300 rounded-[10px] px-3 py-3 text-sm text-white sm:text-slate-900 placeholder-slate-500 sm:placeholder-slate-400 focus:border-emerald-500/60 sm:focus:border-emerald-500 outline-none"
                       />
                     </label>
                   </div>
@@ -525,7 +525,7 @@ export function SellAssetModal({ open, onClose }: { open: boolean; onClose: () =
                   rows={3}
                   placeholder="What buyers get, tech stack, key features…"
                   style={{ fieldSizing: "content" } as React.CSSProperties}
-                  className="mt-1 w-full min-h-[80px] bg-[#121214] sm:bg-white border border-white/10 sm:border-slate-300 rounded-[10px] px-3 py-2 text-sm text-white sm:text-slate-900 placeholder-slate-500 sm:placeholder-slate-400 focus:border-emerald-500/60 sm:focus:border-emerald-500 outline-none resize-y"
+                  className="mt-1 w-full min-h-[80px] bg-[#121214] sm:bg-white border border-white/10 sm:border-slate-300 rounded-[10px] px-3 py-3 text-sm text-white sm:text-slate-900 placeholder-slate-500 sm:placeholder-slate-400 focus:border-emerald-500/60 sm:focus:border-emerald-500 outline-none resize-y"
                 />
               </label>
 
@@ -540,7 +540,7 @@ export function SellAssetModal({ open, onClose }: { open: boolean; onClose: () =
                     rows={3}
                     placeholder="Key specifications, requirements..."
                     style={{ fieldSizing: "content" } as React.CSSProperties}
-                    className="mt-1 w-full min-h-[80px] bg-[#121214] sm:bg-white border border-white/10 sm:border-slate-300 rounded-[10px] px-3 py-2 text-sm text-white sm:text-slate-900 placeholder-slate-500 sm:placeholder-slate-400 focus:border-emerald-500/60 sm:focus:border-emerald-500 outline-none resize-y"
+                    className="mt-1 w-full min-h-[80px] bg-[#121214] sm:bg-white border border-white/10 sm:border-slate-300 rounded-[10px] px-3 py-3 text-sm text-white sm:text-slate-900 placeholder-slate-500 sm:placeholder-slate-400 focus:border-emerald-500/60 sm:focus:border-emerald-500 outline-none resize-y"
                   />
                 </label>
                 <label className="block">
@@ -553,7 +553,7 @@ export function SellAssetModal({ open, onClose }: { open: boolean; onClose: () =
                     rows={3}
                     placeholder="How to activate/install the product..."
                     style={{ fieldSizing: "content" } as React.CSSProperties}
-                    className="mt-1 w-full min-h-[80px] bg-[#121214] sm:bg-white border border-white/10 sm:border-slate-300 rounded-[10px] px-3 py-2 text-sm text-white sm:text-slate-900 placeholder-slate-500 sm:placeholder-slate-400 focus:border-emerald-500/60 sm:focus:border-emerald-500 outline-none resize-y"
+                    className="mt-1 w-full min-h-[80px] bg-[#121214] sm:bg-white border border-white/10 sm:border-slate-300 rounded-[10px] px-3 py-3 text-sm text-white sm:text-slate-900 placeholder-slate-500 sm:placeholder-slate-400 focus:border-emerald-500/60 sm:focus:border-emerald-500 outline-none resize-y"
                   />
                 </label>
               </div>
@@ -600,7 +600,7 @@ export function SellAssetModal({ open, onClose }: { open: boolean; onClose: () =
                         key={i}
                         className={`relative aspect-square rounded-[10px] overflow-hidden border ${i === 0 ? "border-emerald-500/60 sm:border-emerald-500" : "border-white/10 sm:border-slate-200"}`}
                       >
-                        <img src={src} alt="" className="w-full h-full object-cover" />
+                        <img loading="lazy" decoding="async" src={src} alt="" className="w-full h-full object-cover" />
                         {i === 0 && (
                           <span className="absolute top-1 left-1 text-[9px] font-bold uppercase bg-emerald-500/90 text-black rounded px-1">
                             Cover
@@ -633,7 +633,7 @@ export function SellAssetModal({ open, onClose }: { open: boolean; onClose: () =
                     type="button"
                     onClick={() => setMode("file")}
                     disabled={requiresManualDelivery}
-                    className={`flex items-center gap-2 px-3 py-2 rounded-[10px] border text-sm transition-colors ${mode === "file" ? "border-emerald-500/60 sm:border-emerald-500 bg-emerald-500/10 sm:bg-emerald-50 text-white sm:text-slate-900" : "border-white/10 sm:border-slate-300 bg-[#121214] sm:bg-white text-slate-400 sm:text-slate-600 hover:text-white sm:hover:text-slate-900"}`}
+                    className={`flex items-center gap-2 px-3 py-3 rounded-[10px] border text-sm transition-colors ${mode === "file" ? "border-emerald-500/60 sm:border-emerald-500 bg-emerald-500/10 sm:bg-emerald-50 text-white sm:text-slate-900" : "border-white/10 sm:border-slate-300 bg-[#121214] sm:bg-white text-slate-400 sm:text-slate-600 hover:text-white sm:hover:text-slate-900"}`}
                   >
                     <Upload className="w-4 h-4" /> Upload file
                   </button>
@@ -641,7 +641,7 @@ export function SellAssetModal({ open, onClose }: { open: boolean; onClose: () =
                     type="button"
                     onClick={() => setMode("url")}
                     disabled={requiresManualDelivery}
-                    className={`flex items-center gap-2 px-3 py-2 rounded-[10px] border text-sm transition-colors ${mode === "url" ? "border-emerald-500/60 sm:border-emerald-500 bg-emerald-500/10 sm:bg-emerald-50 text-white sm:text-slate-900" : "border-white/10 sm:border-slate-300 bg-[#121214] sm:bg-white text-slate-400 sm:text-slate-600 hover:text-white sm:hover:text-slate-900"}`}
+                    className={`flex items-center gap-2 px-3 py-3 rounded-[10px] border text-sm transition-colors ${mode === "url" ? "border-emerald-500/60 sm:border-emerald-500 bg-emerald-500/10 sm:bg-emerald-50 text-white sm:text-slate-900" : "border-white/10 sm:border-slate-300 bg-[#121214] sm:bg-white text-slate-400 sm:text-slate-600 hover:text-white sm:hover:text-slate-900"}`}
                   >
                     <Link2 className="w-4 h-4" /> External link
                   </button>
@@ -695,7 +695,7 @@ export function SellAssetModal({ open, onClose }: { open: boolean; onClose: () =
                     onChange={(e) => setExternalUrl(e.target.value)}
                     disabled={requiresManualDelivery}
                     placeholder="https://your-delivery-link.com/download"
-                    className="mt-2 w-full bg-[#121214] sm:bg-white border border-white/10 sm:border-slate-300 rounded-[10px] px-3 py-2 text-sm text-white sm:text-slate-900 placeholder-slate-500 sm:placeholder-slate-400 focus:border-emerald-500/60 sm:focus:border-emerald-500 outline-none"
+                    className="mt-2 w-full bg-[#121214] sm:bg-white border border-white/10 sm:border-slate-300 rounded-[10px] px-3 py-3 text-sm text-white sm:text-slate-900 placeholder-slate-500 sm:placeholder-slate-400 focus:border-emerald-500/60 sm:focus:border-emerald-500 outline-none"
                   />
                 )}
               </div>
@@ -767,14 +767,14 @@ export function SellAssetModal({ open, onClose }: { open: boolean; onClose: () =
                     type="button"
                     onClick={onClose}
                     disabled={submitting}
-                    className="px-4 py-2 rounded-[10px] border border-white/10 sm:border-slate-300 text-slate-300 sm:text-slate-700 hover:text-white sm:hover:text-slate-900 hover:bg-white/5 sm:hover:bg-slate-100 text-sm disabled:opacity-40"
+                    className="px-4 py-3 rounded-[10px] border border-white/10 sm:border-slate-300 text-slate-300 sm:text-slate-700 hover:text-white sm:hover:text-slate-900 hover:bg-white/5 sm:hover:bg-slate-100 text-sm disabled:opacity-40"
                   >
                     Cancel
                   </button>
                   <button
                     type="submit"
                     disabled={submitting || (!isFree && !agreedToSplit)}
-                    className="px-4 py-2 rounded-[10px] bg-emerald-500 hover:bg-emerald-400 text-black font-semibold text-sm flex items-center gap-2 disabled:opacity-40 disabled:cursor-not-allowed"
+                    className="px-4 py-3 rounded-[10px] bg-emerald-500 hover:bg-emerald-400 text-black font-semibold text-sm flex items-center gap-2 disabled:opacity-40 disabled:cursor-not-allowed"
                   >
                     {submitting && <Loader2 className="w-4 h-4 animate-spin" />}
                     {submitting ? "Submitting…" : "Submit for review"}

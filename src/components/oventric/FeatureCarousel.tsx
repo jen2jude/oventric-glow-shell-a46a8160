@@ -224,7 +224,7 @@ export function FeatureCarousel({ onComplete }: { onComplete: () => void }) {
           <p className="text-sm font-semibold tracking-[0.3em] uppercase text-slate-400 mb-6">
             Welcome to
           </p>
-          <img
+          <img loading="lazy" decoding="async"
             src={oventricFull}
             alt="Oventric"
             className="h-12 sm:h-14 w-auto select-none mb-6"
@@ -238,7 +238,7 @@ export function FeatureCarousel({ onComplete }: { onComplete: () => void }) {
                 background: "radial-gradient(circle, rgba(59,130,246,0.45), transparent 70%)",
               }}
             />
-            <img
+            <img loading="lazy" decoding="async"
               src={heroCollageMobile.url}
               alt="Oventric features: social feed, marketplace, academy and rewards"
               width={860}
@@ -287,7 +287,7 @@ export function FeatureCarousel({ onComplete }: { onComplete: () => void }) {
         >
           {/* Top bar */}
           <div className="absolute top-0 inset-x-0 flex items-center justify-between px-5 pt-5 pb-4 z-10">
-            <img
+            <img loading="lazy" decoding="async"
               src={oventricFull}
               alt="Oventric"
               className="h-8 w-auto select-none"
@@ -319,7 +319,7 @@ export function FeatureCarousel({ onComplete }: { onComplete: () => void }) {
                 className="relative w-full aspect-[4/3] mb-7 rounded-2xl overflow-hidden bg-[#1E1E24] border border-white/10"
                 style={{ boxShadow: `0 0 40px -14px ${slide.accent}55` }}
               >
-                <img
+                <img loading="lazy" decoding="async"
                   src={slide.image}
                   alt={`${slide.title} preview on desktop and mobile`}
                   width={1024}

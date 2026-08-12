@@ -27,7 +27,7 @@ export function MarketplaceHeader({ onSelect, avatarUrl, name, search, activeSec
   return (
     <div className="flex flex-col w-full">
       {/* Top Utility Bar (Black) */}
-      <div className="bg-black text-white py-2 px-4 hidden md:block">
+      <div className="bg-black text-white py-3 px-4 hidden md:block">
         <div className="mx-auto max-w-[1200px] flex items-center justify-between text-[11px] font-bold">
           <div className="flex items-center gap-6">
             <span className="flex items-center gap-1.5 text-emerald-400">
@@ -56,7 +56,7 @@ export function MarketplaceHeader({ onSelect, avatarUrl, name, search, activeSec
             className="shrink-0"
             aria-label="Oventric home"
           >
-            <img src={logo} alt="Oventric" className="h-6 sm:h-8 w-auto object-contain" />
+            <img loading="lazy" decoding="async" src={logo} alt="Oventric" className="h-6 sm:h-8 w-auto object-contain" />
           </button>
 
           <nav className="flex items-center gap-6 ml-4 text-[13px] font-bold hidden lg:flex">
@@ -105,7 +105,7 @@ export function MarketplaceHeader({ onSelect, avatarUrl, name, search, activeSec
                 params={{ id: isAuthenticated ? (avatarUrl?.split('/')[avatarUrl?.split('/').length - 2] || "me") : "me" }}
                 className="flex items-center gap-3 cursor-pointer group"
               >
-                <div className="h-10 w-10 rounded-full overflow-hidden border border-slate-200 ring-2 ring-white ring-offset-2 ring-offset-slate-50 group-hover:ring-emerald-400 transition-all">
+                <div className="h-11 w-11 rounded-full overflow-hidden border border-slate-200 ring-2 ring-white ring-offset-2 ring-offset-slate-50 group-hover:ring-emerald-400 transition-all">
                   {isAuthenticated ? (
                     <AvatarImage src={avatarUrl ?? null} alt={name || "You"} loading="eager" />
                   ) : (
@@ -122,7 +122,7 @@ export function MarketplaceHeader({ onSelect, avatarUrl, name, search, activeSec
               <Link 
                 to="/profile/$id"
                 params={{ id: isAuthenticated ? (avatarUrl?.split('/')[avatarUrl?.split('/').length - 2] || "me") : "me" }}
-                className="h-9 w-9 rounded-full overflow-hidden border border-slate-200 active:scale-95 transition-transform"
+                className="h-11 w-11 rounded-full overflow-hidden border border-slate-200 active:scale-95 transition-transform"
               >
                 {isAuthenticated ? (
                   <AvatarImage src={avatarUrl ?? null} alt={name || "You"} loading="eager" />
@@ -151,7 +151,7 @@ export function MarketplaceHeader({ onSelect, avatarUrl, name, search, activeSec
       {menuOpen && (
         <div className="fixed inset-0 z-50 bg-white md:hidden overflow-y-auto">
           <div className="p-4 border-b flex items-center justify-between">
-            <img src={logo} alt="Oventric" className="h-6 w-auto" />
+            <img loading="lazy" decoding="async" src={logo} alt="Oventric" className="h-6 w-auto" />
             <button onClick={() => setMenuOpen(false)}><X className="w-6 h-6" /></button>
           </div>
           <nav className="p-6 space-y-6">

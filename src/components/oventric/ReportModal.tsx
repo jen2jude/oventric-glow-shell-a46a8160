@@ -212,7 +212,7 @@ export function ReportModal({
                 value={note}
                 onChange={(e) => setNote(e.target.value)}
                 placeholder="Tell us anything else that helps us review this…"
-                className="w-full bg-black/30 border border-white/10 rounded-[10px] px-3 py-2 text-sm text-slate-200 placeholder:text-slate-500 focus:outline-none focus:border-emerald-500/60"
+                className="w-full bg-black/30 border border-white/10 rounded-[10px] px-3 py-3 text-sm text-slate-200 placeholder:text-slate-500 focus:outline-none focus:border-emerald-500/60"
               />
               <div className="text-[10px] text-slate-500 text-right mt-1">{note.length}/280</div>
             </div>
@@ -259,14 +259,14 @@ export function ReportModal({
               <button
                 onClick={onClose}
                 disabled={submitting}
-                className="flex-1 px-4 py-2 rounded-[10px] border border-white/10 text-slate-300 hover:bg-white/5 text-sm disabled:opacity-40"
+                className="flex-1 px-4 py-3 rounded-[10px] border border-white/10 text-slate-300 hover:bg-white/5 text-sm disabled:opacity-40"
               >
                 Cancel
               </button>
               <button
                 onClick={handleSubmit}
                 disabled={!reason || submitting || !targetId}
-                className="flex-1 inline-flex items-center justify-center gap-2 px-4 py-2 rounded-[10px] bg-emerald-500 hover:bg-emerald-400 disabled:opacity-40 disabled:cursor-not-allowed text-black font-semibold text-sm"
+                className="flex-1 inline-flex items-center justify-center gap-2 px-4 py-3 rounded-[10px] bg-emerald-500 hover:bg-emerald-400 disabled:opacity-40 disabled:cursor-not-allowed text-black font-semibold text-sm"
               >
                 {submitting && <Loader2 className="w-3.5 h-3.5 animate-spin" />}
                 {submitting ? "Submitting…" : error ? "Try again" : "Submit report"}

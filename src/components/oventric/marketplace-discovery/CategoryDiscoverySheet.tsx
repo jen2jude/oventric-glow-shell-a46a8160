@@ -105,7 +105,7 @@ export function CategoryDiscoverySheet({ open, onClose, categories, counts, onSe
           style={{ paddingTop: "max(env(safe-area-inset-top), 0.75rem)" }}
         >
           <div className="grid grid-cols-[auto_minmax(0,1fr)_auto] items-center gap-2">
-            <button type="button" onClick={back} className="grid h-10 w-10 place-items-center rounded-full">
+            <button type="button" onClick={back} className="grid h-11 w-11 place-items-center rounded-full">
               <ChevronLeft className="h-6 w-6 text-white" />
             </button>
             <h2 className="truncate text-center text-[17px] font-bold text-white">
@@ -114,7 +114,7 @@ export function CategoryDiscoverySheet({ open, onClose, categories, counts, onSe
             <button
               type="button"
               onClick={() => setSearching((s) => !s)}
-              className="grid h-10 w-10 place-items-center rounded-full"
+              className="grid h-11 w-11 place-items-center rounded-full"
             >
               {searching ? <X className="h-5 w-5 text-white" /> : <Search className="h-5 w-5 text-white" />}
             </button>

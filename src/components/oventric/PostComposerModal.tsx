@@ -606,7 +606,7 @@ export function PostComposerModal({
             {attachments.map((a, i) => (
               <div key={a.previewUrl} className="relative w-24 h-24 shrink-0 rounded-xl overflow-hidden group">
                 {a.kind === "image" ? (
-                  <img src={a.previewUrl} alt="" className="w-full h-full object-cover" />
+                  <img loading="lazy" decoding="async" src={a.previewUrl} alt="" className="w-full h-full object-cover" />
                 ) : (
                   <video src={a.previewUrl} className="w-full h-full object-cover" />
                 )}
@@ -652,7 +652,7 @@ export function PostComposerModal({
                   >
                     <div className="w-10 h-10 rounded-[10px] overflow-hidden bg-neutral-800">
                       {p.coverUrl ? (
-                        <img src={p.coverUrl} alt="" className="w-full h-full object-cover" />
+                        <img loading="lazy" decoding="async" src={p.coverUrl} alt="" className="w-full h-full object-cover" />
                       ) : (
                         <ShoppingBag className="w-4 h-4 m-auto mt-3 text-slate-500" />
                       )}
@@ -708,7 +708,7 @@ export function PostComposerModal({
 
           {/* Action List - Moved INSIDE scroll area */}
           <div className="bg-transparent border-t border-white/10 pt-2 pb-6">
-            <div className="py-2 text-[10px] text-slate-500 font-semibold tracking-wider uppercase">Add to your post</div>
+            <div className="py-3 text-[10px] text-slate-500 font-semibold tracking-wider uppercase">Add to your post</div>
             <div className="flex flex-col">
               <ActionButton icon={<ImageIcon className="w-5 h-5 text-sky-400" />} label="Photo/Video" onClick={onPickFile} />
               <ActionButton icon={<AtSign className="w-5 h-5 text-indigo-400" />} label="Mention People" onClick={() => setMentionPickerOpen(true)} />
@@ -760,11 +760,11 @@ export function PostComposerModal({
                 <button
                   key={p.id}
                   onClick={() => addProductTag(p)}
-                  className="w-full flex items-center gap-3 px-3 py-2 hover:bg-white/5 text-left"
+                  className="w-full flex items-center gap-3 px-3 py-3 hover:bg-white/5 text-left"
                 >
                   <span className="w-9 h-9 rounded-[10px] overflow-hidden bg-white/10 flex items-center justify-center">
                     {p.coverUrl ? (
-                      <img src={p.coverUrl} alt="" className="w-full h-full object-cover" />
+                      <img loading="lazy" decoding="async" src={p.coverUrl} alt="" className="w-full h-full object-cover" />
                     ) : (
                       <ShoppingBag className="w-4 h-4 text-slate-500" />
                     )}
@@ -824,7 +824,7 @@ export function PostComposerModal({
                 <button
                   key={u.userId}
                   onClick={() => addMention(u)}
-                  className="w-full flex items-center gap-3 px-3 py-2 hover:bg-white/5 text-left"
+                  className="w-full flex items-center gap-3 px-3 py-3 hover:bg-white/5 text-left"
                 >
                   <span className="w-9 h-9 rounded-full overflow-hidden bg-white/10 flex items-center justify-center text-xs font-semibold text-white">
                     <AvatarImage
@@ -890,7 +890,7 @@ function AudienceOption({
     <button
       type="button"
       onClick={onClick}
-      className={`w-full text-left flex items-start gap-2 px-3 py-2 rounded-[10px] hover:bg-white/5 ${
+      className={`w-full text-left flex items-start gap-2 px-3 py-3 rounded-[10px] hover:bg-white/5 ${
         active ? "bg-white/5" : ""
       }`}
     >

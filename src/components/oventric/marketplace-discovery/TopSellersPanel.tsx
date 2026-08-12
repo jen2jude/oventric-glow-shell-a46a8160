@@ -118,7 +118,7 @@ export function TopSellersPanel({
           type="button"
           onClick={onClose}
           aria-label="Back"
-          className="grid h-9 w-9 place-items-center rounded-full bg-white/[0.04] text-white"
+          className="grid h-11 w-11 place-items-center rounded-full bg-white/[0.04] text-white"
         >
           <ChevronLeft className="h-5 w-5" />
         </button>
@@ -132,7 +132,7 @@ export function TopSellersPanel({
             key={t.key}
             type="button"
             onClick={() => setTab(t.key)}
-            className={`shrink-0 rounded-[10px] px-4 py-2 text-[13px] font-bold transition-colors ${
+            className={`shrink-0 rounded-[10px] px-4 py-3 text-[13px] font-bold transition-colors ${
               tab === t.key ? "bg-[#E5484D] text-white" : "bg-[#141416] text-white/55"
             }`}
           >
@@ -179,7 +179,7 @@ export function TopSellersPanel({
                     className="mx-auto block h-14 w-14 overflow-hidden rounded-full border border-[#E5484D]/60 bg-black"
                   >
                     {s.avatarUrl ? (
-                      <img src={s.avatarUrl} alt={s.name} className="h-full w-full object-cover" />
+                      <img loading="lazy" decoding="async" src={s.avatarUrl} alt={s.name} className="h-full w-full object-cover" />
                     ) : (
                       <span className="grid h-full w-full place-items-center text-[13px] font-black text-white/40">
                         {s.name.slice(0, 2).toUpperCase()}
@@ -213,7 +213,7 @@ export function TopSellersPanel({
                       type="button"
                       onClick={() => toggleFollow(s)}
                       disabled={busy[s.id]}
-                      className={`flex w-full items-center justify-center gap-1 rounded-[10px] border py-2 text-[11.5px] font-bold transition-colors disabled:opacity-60 ${
+                      className={`flex w-full items-center justify-center gap-1 rounded-[10px] border py-3 text-[11.5px] font-bold transition-colors disabled:opacity-60 ${
                         isFollowing
                           ? "border-transparent bg-[#E5484D] text-white"
                           : isRequested
@@ -233,7 +233,7 @@ export function TopSellersPanel({
                     <button
                       type="button"
                       onClick={() => onOpenShop(s.slug)}
-                      className="w-full rounded-[10px] border border-white/10 bg-white/[0.03] py-2 text-[11.5px] font-bold text-white"
+                      className="w-full rounded-[10px] border border-white/10 bg-white/[0.03] py-3 text-[11.5px] font-bold text-white"
                     >
                       View Shop
                     </button>

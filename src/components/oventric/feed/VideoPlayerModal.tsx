@@ -266,7 +266,7 @@ function VideoItem({
           {menuOpen && (
             <div className="absolute right-0 bottom-full mb-2 min-w-[11rem] rounded-xl bg-[#1a1a1e] border border-white/15 shadow-xl py-1 text-[13px] text-slate-100">
               <button
-                className="w-full px-3 py-2 hover:bg-white/5 flex items-center gap-2"
+                className="w-full px-3 py-3 hover:bg-white/5 flex items-center gap-2"
                 onClick={() => {
                   setMenuOpen(false);
                   onInterest(post.id, 1);
@@ -275,7 +275,7 @@ function VideoItem({
                 <ThumbsUp className="w-4 h-4" /> Interested
               </button>
               <button
-                className="w-full px-3 py-2 hover:bg-white/5 flex items-center gap-2"
+                className="w-full px-3 py-3 hover:bg-white/5 flex items-center gap-2"
                 onClick={() => {
                   setMenuOpen(false);
                   onInterest(post.id, -1);
@@ -284,7 +284,7 @@ function VideoItem({
                 <ThumbsDown className="w-4 h-4" /> Not interested
               </button>
               <button
-                className="w-full px-3 py-2 hover:bg-white/5 flex items-center gap-2"
+                className="w-full px-3 py-3 hover:bg-white/5 flex items-center gap-2"
                 onClick={() => {
                   setMenuOpen(false);
                   onHide(post.id);
@@ -294,7 +294,7 @@ function VideoItem({
               </button>
               <div className="my-1 h-px bg-white/10" />
               <button
-                className="w-full px-3 py-2 hover:bg-white/5 flex items-center gap-2"
+                className="w-full px-3 py-3 hover:bg-white/5 flex items-center gap-2"
                 onClick={() => {
                   setMenuOpen(false);
                   togglePostSet("saved", post.id, true);
@@ -304,7 +304,7 @@ function VideoItem({
                 <Bookmark className="w-4 h-4" /> Save
               </button>
               <button
-                className="w-full px-3 py-2 hover:bg-white/5 flex items-center gap-2"
+                className="w-full px-3 py-3 hover:bg-white/5 flex items-center gap-2"
                 onClick={() => {
                   setMenuOpen(false);
                   if (post.media_url) downloadVideo(post.media_url, `oventric-${post.id}.mp4`);
@@ -313,7 +313,7 @@ function VideoItem({
                 <Download className="w-4 h-4" /> Download
               </button>
               <button
-                className="w-full px-3 py-2 hover:bg-white/5 flex items-center gap-2"
+                className="w-full px-3 py-3 hover:bg-white/5 flex items-center gap-2"
                 onClick={() => {
                   setMenuOpen(false);
                   shareVideo(post);
@@ -322,7 +322,7 @@ function VideoItem({
                 <Share2 className="w-4 h-4" /> Share
               </button>
               <button
-                className="w-full px-3 py-2 hover:bg-white/5 flex items-center gap-2"
+                className="w-full px-3 py-3 hover:bg-white/5 flex items-center gap-2"
                 onClick={() => {
                   setMenuOpen(false);
                   const url = post.media_url ?? window.location.href;
@@ -335,7 +335,7 @@ function VideoItem({
                 <Link2 className="w-4 h-4" /> Copy link
               </button>
               <button
-                className="w-full px-3 py-2 hover:bg-white/5 flex items-center gap-2 text-rose-300"
+                className="w-full px-3 py-3 hover:bg-white/5 flex items-center gap-2 text-rose-300"
                 onClick={() => {
                   setMenuOpen(false);
                   onReport?.(post.id);

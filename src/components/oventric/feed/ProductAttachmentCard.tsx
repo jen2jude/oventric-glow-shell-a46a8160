@@ -20,7 +20,7 @@ export function ProductAttachmentCard({
       >
         <div className="w-28 sm:w-32 shrink-0 bg-neutral-900 overflow-hidden">
           {product.coverUrl ? (
-            <img 
+            <img loading="lazy" decoding="async" 
               src={product.coverUrl} 
               alt={product.name} 
               className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500" 
@@ -50,7 +50,7 @@ export function ProductAttachmentCard({
             <div className="mt-2 flex items-center gap-1.5">
               <div className="w-4 h-4 rounded-full overflow-hidden bg-white/10 shrink-0">
                 {product.vendorAvatarUrl && (
-                  <img src={product.vendorAvatarUrl} alt="" className="w-full h-full object-cover" />
+                  <img loading="lazy" decoding="async" src={product.vendorAvatarUrl} alt="" className="w-full h-full object-cover" />
                 )}
               </div>
               <span className="text-[10px] text-white/70 font-medium truncate">

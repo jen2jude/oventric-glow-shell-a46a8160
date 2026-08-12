@@ -25,12 +25,12 @@ function FieldLabel({ children }: { children: React.ReactNode }) {
 }
 
 const inputCls =
-  "w-full bg-[#121214] border border-white/10 rounded-[10px] px-3 py-2 text-sm text-white placeholder:text-slate-600 focus:outline-none focus:border-emerald-500/60";
+  "w-full bg-[#121214] border border-white/10 rounded-[10px] px-3 py-3 text-sm text-white placeholder:text-slate-600 focus:outline-none focus:border-emerald-500/60";
 
 /** Merge error-state ring into the base input class. */
 function fieldCls(hasError: boolean): string {
   return hasError
-    ? "w-full bg-[#121214] border border-red-500/60 rounded-[10px] px-3 py-2 text-sm text-white placeholder:text-slate-600 focus:outline-none focus:border-red-400"
+    ? "w-full bg-[#121214] border border-red-500/60 rounded-[10px] px-3 py-3 text-sm text-white placeholder:text-slate-600 focus:outline-none focus:border-red-400"
     : inputCls;
 }
 
@@ -70,7 +70,7 @@ export function Admin() {
       <div className="sticky top-0 z-30 -mx-4 px-4 py-3 bg-[#121214] border-b border-white/5 mb-6">
         <div className="flex gap-2 overflow-x-auto scrollbar-none">
           <button
-            className={`shrink-0 px-4 py-2 rounded-full text-sm font-semibold border whitespace-nowrap ${
+            className={`shrink-0 px-4 py-3 rounded-full text-sm font-semibold border whitespace-nowrap ${
               tab === "factory"
                 ? "bg-emerald-500/15 border-emerald-500/50 text-emerald-300"
                 : "bg-[#1E1E24] border-white/10 text-slate-300"
@@ -742,7 +742,7 @@ function AdInjector() {
             </div>
             <button
               type="button"
-              className="w-full py-2 rounded-[10px] bg-fuchsia-500 text-black font-black text-xs"
+              className="w-full py-3 rounded-[10px] bg-fuchsia-500 text-black font-black text-xs"
             >
               {cta.trim() || "Learn more"}
             </button>

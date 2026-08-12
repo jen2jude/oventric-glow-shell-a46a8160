@@ -388,7 +388,7 @@ function ProductPage() {
                                     100,
                                   );
                                 }}
-                                className="absolute top-3 left-3 z-10 grid place-items-center h-9 w-9 rounded-full bg-black/50 backdrop-blur-md border border-white/10 text-white"
+                                className="absolute top-3 left-3 z-10 grid place-items-center h-9 w-9 rounded-full bg-black/50 backdrop-blur-xl-md border border-white/10 text-white"
                               >
                                 <ArrowLeft className="w-[18px] h-[18px]" />
                               </button>
@@ -397,7 +397,7 @@ function ProductPage() {
                                   type="button"
                                   onClick={() => toast.success("Saved to your wishlist")}
                                   aria-label="Save product"
-                                  className="grid place-items-center h-9 w-9 rounded-full bg-black/50 backdrop-blur-md border border-white/10 text-white"
+                                  className="grid place-items-center h-9 w-9 rounded-full bg-black/50 backdrop-blur-xl-md border border-white/10 text-white"
                                 >
                                   <Heart className="w-[18px] h-[18px]" />
                                 </button>
@@ -408,13 +408,13 @@ function ProductPage() {
                                     toast.success("Link copied");
                                   }}
                                   aria-label="Share product"
-                                  className="grid place-items-center h-9 w-9 rounded-full bg-black/50 backdrop-blur-md border border-white/10 text-white"
+                                  className="grid place-items-center h-9 w-9 rounded-full bg-black/50 backdrop-blur-xl-md border border-white/10 text-white"
                                 >
                                   <Share2 className="w-[18px] h-[18px]" />
                                 </button>
                               </div>
                               {gallery.length > 1 && (
-                                <span className="absolute bottom-3 left-3 z-10 rounded-full bg-black/60 backdrop-blur px-2 py-0.5 text-[11px] font-semibold text-white/90">
+                                <span className="absolute bottom-3 left-3 z-10 rounded-full bg-black/60 backdrop-blur-xl px-2 py-0.5 text-[11px] font-semibold text-white/90">
                                   {activeImage + 1}/{gallery.length}
                                 </span>
                               )}
@@ -693,7 +693,7 @@ function ProductPage() {
                 )}
                 {product.kind === "service" ? (
                   isAppShell ? (
-                    <div className="fixed bottom-[84px] left-0 right-0 z-20 px-4 py-3 bg-[#0A0A0B]/80 backdrop-blur-xl border-t border-white/[0.06]">
+                    <div className="fixed bottom-[92px] pb-safe left-0 right-0 z-20 px-4 py-3 bg-[#0A0A0B]/80 backdrop-blur-xl-xl border-t border-white/[0.06]">
                       <button
                         onClick={openSellerChat}
                         className="w-full inline-flex items-center justify-center gap-2 py-3.5 text-[14px] rounded-[10px] bg-[#E5484D] hover:bg-[#d13a3f] text-white font-black transition-colors"
@@ -710,7 +710,7 @@ function ProductPage() {
                     </button>
                   )
                 ) : isAppShell ? (
-                  <div className="fixed bottom-[84px] left-0 right-0 z-20 px-4 py-3 bg-[#0A0A0B]/80 backdrop-blur-xl border-t border-white/[0.06]">
+                  <div className="fixed bottom-[92px] pb-safe left-0 right-0 z-20 px-4 py-3 bg-[#0A0A0B]/80 backdrop-blur-xl-xl border-t border-white/[0.06]">
                     <div className="flex items-center gap-2">
                       <Link
                         to="/shop/$id"

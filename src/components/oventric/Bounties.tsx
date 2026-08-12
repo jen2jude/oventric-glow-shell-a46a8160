@@ -441,7 +441,7 @@ export function Bounties() {
           </div>
           <button
             onClick={() => require(1, () => setPostOpen(true), "issuer")}
-            className="inline-flex items-center gap-2 px-4 py-2 rounded-[10px] bg-emerald-500 hover:bg-emerald-400 text-black md:bg-emerald-600 md:hover:bg-emerald-700 md:text-white text-sm font-bold shadow-sm md:shadow-sm"
+            className="inline-flex items-center gap-2 px-4 py-3 rounded-[10px] bg-emerald-500 hover:bg-emerald-400 text-black md:bg-emerald-600 md:hover:bg-emerald-700 md:text-white text-sm font-bold shadow-sm md:shadow-sm"
           >
             <Plus className="w-4 h-4" /> Post a bounty
           </button>
@@ -481,7 +481,7 @@ export function Bounties() {
               <button
                 key={f.key}
                 onClick={() => setFilter(f.key)}
-                className={`shrink-0 px-4 py-2 rounded-full text-sm font-medium border transition-colors whitespace-nowrap ${
+                className={`shrink-0 px-4 py-3 rounded-full text-sm font-medium border transition-colors whitespace-nowrap ${
                   active
                     ? "bg-emerald-500/15 border-emerald-500/50 text-emerald-300 md:bg-emerald-600 md:border-emerald-600 md:text-white"
                     : "bg-[#1E1E24] border-white/10 text-slate-300 hover:text-white hover:border-white/20 md:bg-white md:border-slate-200 md:text-slate-600 md:hover:text-slate-900 md:hover:border-slate-300"
@@ -782,7 +782,7 @@ function LiveAdSlot({ index, ads, loading }: { index: number; ads: BountyAd[]; l
               Your brand could appear here. Reach builders across Oventric.
             </div>
           </div>
-          <span className="shrink-0 px-3 py-2 rounded-[10px] bg-[#1A1A1C] text-slate-400 text-xs font-semibold border border-white/[0.06] md:bg-slate-50 md:text-slate-600 md:border-slate-200">
+          <span className="shrink-0 px-3 py-3 rounded-[10px] bg-[#1A1A1C] text-slate-400 text-xs font-semibold border border-white/[0.06] md:bg-slate-50 md:text-slate-600 md:border-slate-200">
             Learn more
           </span>
         </div>
@@ -845,7 +845,7 @@ function LiveAdSlot({ index, ads, loading }: { index: number; ads: BountyAd[]; l
             loading="lazy"
           />
         ) : (
-          <span className="shrink-0 px-3 py-2 rounded-[10px] bg-[#1A1A1C] hover:bg-[#1F1F21] text-white md:bg-emerald-600 md:hover:bg-emerald-700 md:text-white text-xs font-semibold border border-white/[0.06] md:border-0">
+          <span className="shrink-0 px-3 py-3 rounded-[10px] bg-[#1A1A1C] hover:bg-[#1F1F21] text-white md:bg-emerald-600 md:hover:bg-emerald-700 md:text-white text-xs font-semibold border border-white/[0.06] md:border-0">
             {ctaLabel}
           </span>
         )}
@@ -1174,7 +1174,7 @@ function ContractWorkspace({
               onKeyDown={(e) => e.key === "Enter" && sendMsg()}
               disabled={isDisputed}
               placeholder={isDisputed ? "Chat frozen — dispute in review" : `Message as ${role}…`}
-              className="flex-1 bg-[#121214] border border-white/10 rounded-[10px] px-3 py-2 text-sm text-white placeholder:text-slate-500 focus:outline-none focus:border-emerald-500/50 disabled:opacity-40"
+              className="flex-1 bg-[#121214] border border-white/10 rounded-[10px] px-3 py-3 text-sm text-white placeholder:text-slate-500 focus:outline-none focus:border-emerald-500/50 disabled:opacity-40"
             />
             <button
               onClick={sendMsg}
@@ -1225,7 +1225,7 @@ function ContractWorkspace({
                 return (
                   <div key={s.key} className="flex items-center gap-1 flex-1">
                     <div
-                      className={`flex-1 rounded-[10px] px-2 py-2 text-center text-[10px] font-bold border ${
+                      className={`flex-1 rounded-[10px] px-2 py-3 text-center text-[10px] font-bold border ${
                         active
                           ? isCurrent
                             ? "bg-emerald-500/20 border-emerald-500/60 text-emerald-200"
@@ -1290,12 +1290,12 @@ function ContractWorkspace({
                       onChange={(e) => setRejectText(e.target.value)}
                       rows={4}
                       placeholder="Describe the issues with this delivery…"
-                      className="mt-1 w-full bg-[#121214] border border-white/10 rounded-[10px] px-3 py-2 text-sm text-white placeholder:text-slate-500 focus:outline-none focus:border-red-500/50"
+                      className="mt-1 w-full bg-[#121214] border border-white/10 rounded-[10px] px-3 py-3 text-sm text-white placeholder:text-slate-500 focus:outline-none focus:border-red-500/50"
                     />
                     <button
                       onClick={submitReject}
                       disabled={!rejectText.trim()}
-                      className="mt-2 w-full py-2 rounded-[10px] bg-red-500 hover:bg-red-400 text-black font-bold text-sm disabled:opacity-40"
+                      className="mt-2 w-full py-3 rounded-[10px] bg-red-500 hover:bg-red-400 text-black font-bold text-sm disabled:opacity-40"
                     >
                       Submit Rejection
                     </button>
@@ -1305,7 +1305,7 @@ function ContractWorkspace({
             )}
 
             {status === "released" && (
-              <div className="text-center text-xs text-emerald-300 font-semibold py-2 border border-emerald-500/30 rounded-[10px] bg-emerald-500/10">
+              <div className="text-center text-xs text-emerald-300 font-semibold py-3 border border-emerald-500/30 rounded-[10px] bg-emerald-500/10">
                 Contract fulfilled. No further actions required.
               </div>
             )}
@@ -1313,7 +1313,7 @@ function ContractWorkspace({
             <button
               onClick={escalate}
               disabled={isDisputed || status === "released"}
-              className="w-full text-xs text-slate-400 hover:text-amber-300 inline-flex items-center justify-center gap-1.5 py-2 disabled:opacity-40"
+              className="w-full text-xs text-slate-400 hover:text-amber-300 inline-flex items-center justify-center gap-1.5 py-3 disabled:opacity-40"
             >
               <ShieldAlert className="w-3.5 h-3.5" /> ⚖️ Escalate to Dispute Arbiter
             </button>
@@ -1338,7 +1338,7 @@ function ChatBubble({ msg, viewerRole }: { msg: ChatMsg; viewerRole: "poster" | 
   return (
     <div className={`flex ${mine ? "justify-end" : "justify-start"}`}>
       <div
-        className={`max-w-[80%] px-3 py-2 rounded-2xl text-sm whitespace-pre-wrap ${
+        className={`max-w-[80%] px-3 py-3 rounded-2xl text-sm whitespace-pre-wrap ${
           mine
             ? "bg-emerald-500 text-black rounded-br-sm"
             : "bg-[#121214] border border-white/10 text-slate-200 rounded-bl-sm"

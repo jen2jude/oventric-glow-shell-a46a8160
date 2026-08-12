@@ -206,16 +206,16 @@ export function ConnectionsDialog({
           type="button"
           onClick={() => onOpenChange(false)}
           aria-label="Close connections"
-          className="grid h-9 w-9 place-items-center rounded-full text-slate-300 hover:bg-white/10"
+          className="grid h-11 w-11 place-items-center rounded-full text-slate-300 hover:bg-white/10"
         >
           <X className="h-5 w-5" />
         </button>
         <h2 className="min-w-0 flex-1 truncate text-center text-base font-black">{name}</h2>
-        <span className="h-9 w-9" />
+        <span className="h-11 w-11" />
       </div>
 
       {/* Tabs */}
-      <div className="flex items-center gap-2 overflow-x-auto px-3 py-2 [scrollbar-width:none] [&::-webkit-scrollbar]:hidden">
+      <div className="flex items-center gap-2 overflow-x-auto px-3 py-3 [scrollbar-width:none] [&::-webkit-scrollbar]:hidden">
         {TABS.map((t) => {
           const active = t.key === tab;
           return (
@@ -224,7 +224,7 @@ export function ConnectionsDialog({
               type="button"
               onClick={() => setTab(t.key)}
               aria-pressed={active}
-              className={`shrink-0 rounded-full px-4 py-2 text-sm font-bold transition-colors ${
+              className={`shrink-0 rounded-full px-4 py-3 text-sm font-bold transition-colors ${
                 active
                   ? "bg-[#E5484D] text-white"
                   : "bg-white/8 text-slate-300 hover:bg-white/12"
@@ -336,7 +336,7 @@ export function ConnectionsDialog({
                         <button
                           type="button"
                           aria-label={`More options for ${p.displayName}`}
-                          className="grid h-9 w-9 shrink-0 place-items-center rounded-full text-slate-400 hover:bg-white/10 hover:text-white"
+                          className="grid h-11 w-11 shrink-0 place-items-center rounded-full text-slate-400 hover:bg-white/10 hover:text-white"
                         >
                           <MoreHorizontal className="h-5 w-5" />
                         </button>

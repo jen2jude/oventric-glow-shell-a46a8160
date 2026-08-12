@@ -659,7 +659,7 @@ export function AdvertInquiryModal({
               <button
                 onClick={() => setStep((s) => (s > 1 ? ((s - 1) as 1 | 2 | 3) : s))}
                 disabled={step === 1}
-                className="px-4 py-2 text-xs font-bold text-slate-400 disabled:opacity-40"
+                className="px-4 py-3 text-xs font-bold text-slate-400 disabled:opacity-40"
               >
                 Back
               </button>
