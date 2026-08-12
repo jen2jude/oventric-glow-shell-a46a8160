@@ -39,13 +39,9 @@ function isStandaloneLaunch() {
 }
 
 export function BootSplash() {
-  const [enabled] = useState(() => {
-    if (typeof window === "undefined") return false;
-    if (splashConsumed) return false;
-    if (!isStandaloneLaunch()) return false;
-    splashConsumed = true;
-    return true;
-  });
+  // Decide whether to show only after hydration so server and first client
+  // render match, avoiding a hydration mismatch.
+  const [enabled, setEnabled] = useState(false);
   const [visible, setVisible] = useState(true);
   const [fading, setFading] = useState(false);
   // Track start time for minimum duration.
@@ -64,6 +60,10 @@ export function BootSplash() {
     // Hand off from the server-rendered pre-hydration splash.
     document.getElementById("oventric-boot")?.remove();
     setHydrated(true);
+    if (!splashConsumed && isStandaloneLaunch()) {
+      splashConsumed = true;
+      setEnabled(true);
+    }
 
     const onLoad = () => setDocLoaded(true);
     if (document.readyState === "complete") setDocLoaded(true);

@@ -318,10 +318,15 @@ export function ProfileDropdown() {
   };
 
   const avatarBtn = (
-    <Link
-      to="/profile/$id"
-      params={{ id: userId }}
-      aria-label="View profile"
+    <button
+      type="button"
+      ref={triggerRef}
+      id={triggerId}
+      aria-label="Open profile menu"
+      aria-haspopup="menu"
+      aria-expanded={open}
+      aria-controls={open ? menuId : undefined}
+      onClick={() => setOpen((v) => !v)}
       className="rgb-static-border relative w-10 h-10 rounded-full flex items-center justify-center focus:outline-none focus-visible:ring-2 focus-visible:ring-emerald-400 focus-visible:ring-offset-2 focus-visible:ring-offset-[#121214] overflow-hidden"
     >
       <span className="absolute inset-0 flex items-center justify-center bg-neutral-800">
@@ -338,7 +343,7 @@ export function ProfileDropdown() {
           <User className="w-6 h-6 text-white/85" strokeWidth={1.75} aria-hidden />
         )}
       </span>
-    </Link>
+    </button>
   );
 
   const identityBanner = (
