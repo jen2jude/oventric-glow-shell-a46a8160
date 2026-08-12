@@ -212,13 +212,37 @@ export function Wallet() {
             </p>
           </div>
           <button
-            onClick={toggleBalancesHidden}
+            onClick={() => requireAuth(toggleBalancesHidden)}
             aria-label={hide ? "Show balances" : "Hide balances"}
             className="w-11 h-11 shrink-0 rounded-[10px] bg-[#141418] border border-white/10 flex items-center justify-center text-white/80 hover:text-white"
           >
             {hide ? <EyeOff className="w-5 h-5" /> : <Eye className="w-5 h-5" />}
           </button>
         </div>
+
+        {/* Sign-in prompt for anonymous visitors */}
+        {!isAuthenticated && checked && (
+          <div className="rounded-[10px] border border-[#E5484D]/30 bg-gradient-to-br from-[#1A1012] via-[#141216] to-[#0F0F16] p-4">
+            <div className="flex items-start gap-3">
+              <div className="w-10 h-10 rounded-full bg-[#E5484D]/15 flex items-center justify-center shrink-0">
+                <Fingerprint className="w-5 h-5 text-[#E5484D]" />
+              </div>
+              <div className="min-w-0 flex-1">
+                <h2 className="text-white font-bold text-[15px]">Your wallet is locked</h2>
+                <p className="text-[13px] text-slate-400 mt-1 leading-relaxed">
+                  Sign in to view your balance, add funds, and manage your sub-wallets.
+                </p>
+                <button
+                  onClick={() => openGate("funding")}
+                  className="mt-3 inline-flex items-center gap-2 h-9 px-4 rounded-full bg-[#E5484D] text-white text-[13px] font-bold hover:bg-[#D63D42] transition-colors"
+                >
+                  Sign in to Wallet
+                  <ArrowRight className="w-4 h-4" />
+                </button>
+              </div>
+            </div>
+          </div>
+        )}
 
         {/* Main balance card */}
         <div className="relative overflow-hidden rounded-[10px] border border-white/10 bg-gradient-to-br from-[#151327] via-[#101020] to-[#0C0C16] p-5">
