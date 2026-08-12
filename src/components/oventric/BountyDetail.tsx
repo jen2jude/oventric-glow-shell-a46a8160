@@ -817,7 +817,7 @@ export function BountyDetail({ bountyId, onBack }: Props) {
               <button
                 onClick={() => doAccept(acceptTarget)}
                 disabled={!!busy}
-                className="px-4 py-3 rounded-[10px] bg-emerald-500 hover:bg-emerald-400 text-black text-sm font-bold disabled:opacity-50 inline-flex items-center gap-1.5"
+                className="px-4 py-3 rounded-[10px] bg-[#E5484D] hover:bg-[#E5484D]/90 text-white text-sm font-bold disabled:opacity-50 inline-flex items-center gap-1.5"
               >
                 <CheckCircle2 className="w-4 h-4" /> Yes, assign solver
               </button>
