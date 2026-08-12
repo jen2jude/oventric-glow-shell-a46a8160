@@ -42,6 +42,7 @@ import { Route as AdminToolsRouteImport } from './routes/admin.tools'
 import { Route as AdminSystemWalletsRouteImport } from './routes/admin.system-wallets'
 import { Route as AdminSupportRouteImport } from './routes/admin.support'
 import { Route as AdminSettingsRouteImport } from './routes/admin.settings'
+import { Route as AdminSellersRouteImport } from './routes/admin.sellers'
 import { Route as AdminReportsRouteImport } from './routes/admin.reports'
 import { Route as AdminProductsRouteImport } from './routes/admin.products'
 import { Route as AdminPayoutsRouteImport } from './routes/admin.payouts'
@@ -239,6 +240,11 @@ const AdminSupportRoute = AdminSupportRouteImport.update({
 const AdminSettingsRoute = AdminSettingsRouteImport.update({
   id: '/settings',
   path: '/settings',
+  getParentRoute: () => AdminRoute,
+} as any)
+const AdminSellersRoute = AdminSellersRouteImport.update({
+  id: '/sellers',
+  path: '/sellers',
   getParentRoute: () => AdminRoute,
 } as any)
 const AdminReportsRoute = AdminReportsRouteImport.update({
@@ -451,6 +457,7 @@ export interface FileRoutesByFullPath {
   '/admin/payouts': typeof AdminPayoutsRoute
   '/admin/products': typeof AdminProductsRoute
   '/admin/reports': typeof AdminReportsRoute
+  '/admin/sellers': typeof AdminSellersRoute
   '/admin/settings': typeof AdminSettingsRoute
   '/admin/support': typeof AdminSupportRoute
   '/admin/system-wallets': typeof AdminSystemWalletsRoute
@@ -517,6 +524,7 @@ export interface FileRoutesByTo {
   '/admin/payouts': typeof AdminPayoutsRoute
   '/admin/products': typeof AdminProductsRoute
   '/admin/reports': typeof AdminReportsRoute
+  '/admin/sellers': typeof AdminSellersRoute
   '/admin/settings': typeof AdminSettingsRoute
   '/admin/support': typeof AdminSupportRoute
   '/admin/system-wallets': typeof AdminSystemWalletsRoute
@@ -586,6 +594,7 @@ export interface FileRoutesById {
   '/admin/payouts': typeof AdminPayoutsRoute
   '/admin/products': typeof AdminProductsRoute
   '/admin/reports': typeof AdminReportsRoute
+  '/admin/sellers': typeof AdminSellersRoute
   '/admin/settings': typeof AdminSettingsRoute
   '/admin/support': typeof AdminSupportRoute
   '/admin/system-wallets': typeof AdminSystemWalletsRoute
@@ -656,6 +665,7 @@ export interface FileRouteTypes {
     | '/admin/payouts'
     | '/admin/products'
     | '/admin/reports'
+    | '/admin/sellers'
     | '/admin/settings'
     | '/admin/support'
     | '/admin/system-wallets'
@@ -722,6 +732,7 @@ export interface FileRouteTypes {
     | '/admin/payouts'
     | '/admin/products'
     | '/admin/reports'
+    | '/admin/sellers'
     | '/admin/settings'
     | '/admin/support'
     | '/admin/system-wallets'
@@ -790,6 +801,7 @@ export interface FileRouteTypes {
     | '/admin/payouts'
     | '/admin/products'
     | '/admin/reports'
+    | '/admin/sellers'
     | '/admin/settings'
     | '/admin/support'
     | '/admin/system-wallets'
@@ -1097,6 +1109,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AdminSettingsRouteImport
       parentRoute: typeof AdminRoute
     }
+    '/admin/sellers': {
+      id: '/admin/sellers'
+      path: '/sellers'
+      fullPath: '/admin/sellers'
+      preLoaderRoute: typeof AdminSellersRouteImport
+      parentRoute: typeof AdminRoute
+    }
     '/admin/reports': {
       id: '/admin/reports'
       path: '/reports'
@@ -1364,6 +1383,7 @@ interface AdminRouteChildren {
   AdminPayoutsRoute: typeof AdminPayoutsRoute
   AdminProductsRoute: typeof AdminProductsRoute
   AdminReportsRoute: typeof AdminReportsRoute
+  AdminSellersRoute: typeof AdminSellersRoute
   AdminSettingsRoute: typeof AdminSettingsRoute
   AdminSupportRoute: typeof AdminSupportRoute
   AdminSystemWalletsRoute: typeof AdminSystemWalletsRoute
@@ -1391,6 +1411,7 @@ const AdminRouteChildren: AdminRouteChildren = {
   AdminPayoutsRoute: AdminPayoutsRoute,
   AdminProductsRoute: AdminProductsRoute,
   AdminReportsRoute: AdminReportsRoute,
+  AdminSellersRoute: AdminSellersRoute,
   AdminSettingsRoute: AdminSettingsRoute,
   AdminSupportRoute: AdminSupportRoute,
   AdminSystemWalletsRoute: AdminSystemWalletsRoute,
