@@ -872,3 +872,39 @@ export const adminResetWallet = createServerFn({ method: "POST" })
     if (error) throw new Error(error.message);
     return { ok: true };
   });
+
+/** Feature a seller (admin only). Toggles manually featured status. */
+export const featureSeller = createServerFn({ method: "POST" })
+  .middleware([requireSupabaseAuth])
+  .inputValidator((i: { userId: string; featured: boolean }) => i)
+  .handler(async ({ data, context }) => {
+    await assertAdmin(context);
+    const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
+    const sb = supabaseAdmin as any;
+    const { error } = await sb.from("profiles")
+      .update({ is_featured: data.featured })
+      .eq("user_id", data.userId);
+    if (error) throw new Error(error.message);
+    await writeAudit(sb, context.userId, `seller.${data.featured ? "feature" : "unfeature"}`, "user", data.userId);
+    return { ok: true };
+  });
+
+/** Update marketplace promotional placements. */
+export const updatePromotionalPlacement = createServerFn({ method: "POST" })
+  .middleware([requireSupabaseAuth])
+  .inputValidator((i: { section: string; data: any }) => i)
+  .handler(async ({ data, context }) => {
+    await assertAdmin(context);
+    const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
+    const sb = supabaseAdmin as any;
+    const { error } = await sb.from("marketplace_settings")
+      .upsert({ 
+        key: `promo_${data.section}`, 
+        value: data.data,
+        updated_at: new Date().toISOString() 
+      });
+    if (error) throw new Error(error.message);
+    await writeAudit(sb, context.userId, "marketplace.promo_update", "setting", data.section, { section: data.section });
+    return { ok: true };
+  });
+
