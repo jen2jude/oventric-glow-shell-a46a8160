@@ -260,12 +260,12 @@ export function Marketplace() {
                       <button
                         key={cat.id}
                         onClick={() => setActiveCategory(cat)}
-                        className="group flex snap-start shrink-0 flex-col items-center gap-2"
+                        className="group flex snap-start shrink-0 w-[64px] flex-col items-center gap-1.5"
                       >
-                        <div className={`flex h-16 w-16 items-center justify-center rounded-full bg-gradient-to-br transition-transform group-active:scale-90 ring-1 ring-white/5 ${hue}`}>
-                          <Icon className="h-7 w-7 text-white opacity-90 transition-all group-hover:scale-110 group-hover:opacity-100" />
+                        <div className={`flex h-[52px] w-[52px] items-center justify-center rounded-full bg-gradient-to-br transition-transform group-active:scale-90 ring-1 ring-white/5 ${hue}`}>
+                          <Icon className="h-6 w-6 text-white opacity-90 transition-all group-hover:scale-110 group-hover:opacity-100" />
                         </div>
-                        <span className="text-[11px] font-bold text-white/60 transition-colors group-hover:text-white">
+                        <span className="text-[10px] font-bold text-white/50 transition-colors group-hover:text-white text-center line-clamp-1 w-full">
                           {cat.name}
                         </span>
                       </button>
@@ -288,7 +288,7 @@ export function Marketplace() {
                           key={item.id}
                           type="button"
                           onClick={() => openProduct(item)}
-                          className="relative flex h-[360px] w-[68%] min-w-[68%] shrink-0 snap-center flex-col overflow-hidden rounded-[10px] bg-[#141416] text-left ring-1 ring-white/5"
+                          className="relative flex h-[360px] w-full min-w-full shrink-0 snap-center flex-col overflow-hidden rounded-[10px] bg-[#141416] text-left ring-1 ring-white/5"
                         >
                           <div className="absolute inset-0">
                             {item.coverUrl ? (
