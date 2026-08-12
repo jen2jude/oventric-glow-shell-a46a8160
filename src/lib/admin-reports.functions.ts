@@ -32,31 +32,34 @@ async function assertAdmin(ctx: { supabase: any; userId: string }) {
 }
 
 async function attachTargetPreviews(sb: any, reports: any[]): Promise<AdminReport[]> {
-  const commentIds = reports
-    .filter((r) => r.target_kind === "blog_comment")
-    .map((r) => r.target_id);
-  let commentMap = new Map<string, { text: string; author_name: string }>();
+  const commentIds = reports.filter((r) => r.target_kind === "blog_comment").map((r) => r.target_id);
+  const postIds = reports.filter((r) => r.target_kind === "post").map((r) => r.target_id);
+  const productIds = reports.filter((r) => r.target_kind === "product").map((r) => r.target_id);
+
+  const previewMap = new Map<string, { preview: string; author?: string }>();
+
   if (commentIds.length) {
-    const { data } = await sb
-      .from("blog_comments")
-      .select("id, text, author_name")
-      .in("id", commentIds);
-    (data ?? []).forEach((c: any) =>
-      commentMap.set(c.id, { text: c.text, author_name: c.author_name }),
-    );
+    const { data } = await sb.from("blog_comments").select("id, text, author_name").in("id", commentIds);
+    data?.forEach((c: any) => previewMap.set(c.id, { preview: c.text, author: c.author_name }));
   }
+  if (postIds.length) {
+    const { data } = await sb.from("posts").select("id, content, profiles(username)").in("id", postIds);
+    data?.forEach((p: any) => previewMap.set(p.id, { preview: p.content, author: p.profiles?.username }));
+  }
+  if (productIds.length) {
+    const { data } = await sb.from("products").select("id, name, vendor").in("id", productIds);
+    data?.forEach((p: any) => previewMap.set(p.id, { preview: p.name, author: p.vendor }));
+  }
+
   return reports.map((r) => {
-    let preview: string | null = null;
-    let author: string | null = null;
-    if (r.target_kind === "blog_comment") {
-      const c = commentMap.get(r.target_id);
-      if (c) {
-        preview = c.text.slice(0, 320);
-        author = c.author_name;
-      }
-    }
-    return { ...r, target_preview: preview, target_author: author } as AdminReport;
+    const entry = previewMap.get(r.target_id);
+    return {
+      ...r,
+      target_preview: entry?.preview?.slice(0, 320) ?? null,
+      target_author: entry?.author ?? null,
+    } as AdminReport;
   });
+
 }
 
 export const listPendingReports = createServerFn({ method: "GET" })
@@ -115,20 +118,17 @@ export const resolveReport = createServerFn({ method: "POST" })
     }
     if (!row) throw new Error("Report not found");
 
-    // Apply moderation side-effect for blog comments.
+    // Apply moderation side-effects.
+    const isHidden = data.action === "hide";
     if (row.target_kind === "blog_comment") {
-      if (data.action === "hide") {
-        await context.supabase
-          .from("blog_comments")
-          .update({ is_hidden: true })
-          .eq("id", row.target_id);
-      } else if (data.action === "reset" || data.action === "approve") {
-        await context.supabase
-          .from("blog_comments")
-          .update({ is_hidden: false })
-          .eq("id", row.target_id);
-      }
+      await context.supabase.from("blog_comments").update({ is_hidden: isHidden }).eq("id", row.target_id);
+    } else if (row.target_kind === "post") {
+      await context.supabase.from("posts").update({ is_hidden: isHidden }).eq("id", row.target_id);
+    } else if (row.target_kind === "product") {
+      const status = isHidden ? "rejected" : "active";
+      await context.supabase.from("products").update({ status }).eq("id", row.target_id);
     }
+
 
     const [enriched] = await attachTargetPreviews(context.supabase, [row]);
     return { report: enriched };
