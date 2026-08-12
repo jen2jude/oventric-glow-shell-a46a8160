@@ -59,7 +59,7 @@ export function SellPhysicalModal({
   const [condition, setCondition] = useState("Brand New");
   const [description, setDescription] = useState("");
   const [basicInfo, setBasicInfo] = useState("");
-  const [activationGuide, setActivationGuide] = useState("");
+  
   const [priceMode, setPriceMode] = useState<"single" | "bracket">("single");
   const [priceInput, setPriceInput] = useState("");
   const [discountInput, setDiscountInput] = useState("");
@@ -106,7 +106,7 @@ export function SellPhysicalModal({
     setCondition("Brand New");
     setDescription("");
     setBasicInfo("");
-    setActivationGuide("");
+    
     setPriceMode("single");
     setPriceInput("");
     setDiscountInput("");
@@ -315,7 +315,7 @@ export function SellPhysicalModal({
           whatsappNumber: digits,
           socialLink: socialLink.trim() || null,
           basicInfo: basicInfo.trim() || null,
-          activationGuide: activationGuide.trim() || null,
+          activationGuide: null,
         },
       });
 
@@ -594,17 +594,6 @@ export function SellPhysicalModal({
                     onChange={(e) => setBasicInfo(e.target.value)}
                     rows={3}
                     placeholder="Key specifications..."
-                    style={{ fieldSizing: "content" } as React.CSSProperties}
-                    className="mt-1 w-full min-h-[80px] bg-[#121214] border border-white/10 rounded-lg px-3 py-2 text-sm text-white outline-none focus:border-emerald-500/60 resize-y"
-                  />
-                </label>
-                <label className="block">
-                  <span className="text-xs font-medium text-slate-300">Activation Guide</span>
-                  <textarea
-                    value={activationGuide}
-                    onChange={(e) => setActivationGuide(e.target.value)}
-                    rows={3}
-                    placeholder="Setup instructions..."
                     style={{ fieldSizing: "content" } as React.CSSProperties}
                     className="mt-1 w-full min-h-[80px] bg-[#121214] border border-white/10 rounded-lg px-3 py-2 text-sm text-white outline-none focus:border-emerald-500/60 resize-y"
                   />

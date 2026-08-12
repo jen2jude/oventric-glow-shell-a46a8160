@@ -51,7 +51,7 @@ export function EditListingModal({ product, onClose, onResubmitted }: Props) {
   const [name, setName] = useState(product.name);
   const [description, setDescription] = useState(product.description);
   const [basicInfo, setBasicInfo] = useState(product.basicInfo ?? "");
-  const [activationGuide, setActivationGuide] = useState(product.activationGuide ?? "");
+  const [activationGuide, setActivationGuide] = useState(isPhysical ? "" : (product.activationGuide ?? ""));
   const [category, setCategory] = useState(product.category);
   const [subcategory, setSubcategory] = useState(product.subcategory ?? "");
   // Price is edited in the seller's base currency; on submit we resnap FX.
@@ -491,15 +491,17 @@ export function EditListingModal({ product, onClose, onResubmitted }: Props) {
                     className="mt-1 w-full bg-[#121214] border border-white/10 rounded-lg px-3 py-2 text-sm text-white outline-none focus:border-emerald-500/60 resize-none"
                   />
                 </label>
-                <label className="block">
-                  <span className="text-xs font-medium text-slate-300">Activation Guide</span>
-                  <textarea
-                    value={activationGuide}
-                    onChange={(e) => setActivationGuide(e.target.value)}
-                    rows={3}
-                    className="mt-1 w-full bg-[#121214] border border-white/10 rounded-lg px-3 py-2 text-sm text-white outline-none focus:border-emerald-500/60 resize-none"
-                  />
-                </label>
+                {!isPhysical && (
+                  <label className="block">
+                    <span className="text-xs font-medium text-slate-300">Activation Guide</span>
+                    <textarea
+                      value={activationGuide}
+                      onChange={(e) => setActivationGuide(e.target.value)}
+                      rows={3}
+                      className="mt-1 w-full bg-[#121214] border border-white/10 rounded-lg px-3 py-2 text-sm text-white outline-none focus:border-emerald-500/60 resize-none"
+                    />
+                  </label>
+                )}
               </div>
 
               <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
