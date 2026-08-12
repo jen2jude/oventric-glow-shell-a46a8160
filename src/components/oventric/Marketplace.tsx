@@ -254,22 +254,23 @@ export function Marketplace() {
 
                 {/* Horizontal Category Shortcuts */}
                 <div className="no-scrollbar flex gap-4 overflow-x-auto snap-x snap-mandatory scroll-smooth no-scrollbar px-4">
-                  {cats.map((cat) => (
-                    <button
-                      key={cat.id}
-                      onClick={() => setActiveCategory(cat)}
-                      className="flex flex-col items-center gap-2 shrink-0 group snap-start"
-                    >
-                      <div className="w-16 h-16 rounded-full bg-[#141416] ring-1 ring-white/5 flex items-center justify-center group-active:scale-90 transition-transform">
-                        <img 
-                          src={`https://api.dicebear.com/7.x/identicon/svg?seed=${cat.slug}&backgroundColor=141416&fontFamily=Arial&fontSize=32`}
-                          alt=""
-                          className="w-8 h-8 opacity-40 group-hover:opacity-100 group-hover:scale-110 transition-all"
-                        />
-                      </div>
-                      <span className="text-[11px] font-bold text-white/60 group-hover:text-white transition-colors">{cat.name}</span>
-                    </button>
-                  ))}
+                  {cats.map((cat) => {
+                    const { Icon, hue } = visualForCategory(cat.slug, cat.name);
+                    return (
+                      <button
+                        key={cat.id}
+                        onClick={() => setActiveCategory(cat)}
+                        className="group flex snap-start shrink-0 flex-col items-center gap-2"
+                      >
+                        <div className={`flex h-16 w-16 items-center justify-center rounded-full bg-gradient-to-br transition-transform group-active:scale-90 ring-1 ring-white/5 ${hue}`}>
+                          <Icon className="h-7 w-7 text-white opacity-90 transition-all group-hover:scale-110 group-hover:opacity-100" />
+                        </div>
+                        <span className="text-[11px] font-bold text-white/60 transition-colors group-hover:text-white">
+                          {cat.name}
+                        </span>
+                      </button>
+                    );
+                  })}
                 </div>
 
                 {/* Larger Featured Hero */}
