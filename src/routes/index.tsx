@@ -1,7 +1,7 @@
 import { createFileRoute, useNavigate } from "@tanstack/react-router";
 import { useEffect, useRef, useState } from "react";
 import { useServerFn } from "@tanstack/react-start";
-import { Header } from "@/components/oventric/Header";
+
 import { Sidebar } from "@/components/oventric/Sidebar";
 import { MobileNav } from "@/components/oventric/MobileNav";
 import { Feed } from "@/components/oventric/Feed";
@@ -326,7 +326,7 @@ function Index() {
       <div className="pointer-events-none fixed top-0 bottom-0 right-0 w-[2px] z-50  hidden md:block" />
 
       <div className="flex h-full flex-col">
-        {/* Managed Header (Desktop Landing/Browser Context vs App Shell) */}
+        {/* Managed Header (Desktop Landing/Browser Context only) */}
         {desktopLanding ? (
           active === "Marketplace" || active === "Academy" ? (
             <MarketplaceHeader
@@ -347,23 +347,10 @@ function Index() {
               search={renderNavSearch()}
             />
           )
-        ) : isAppShell && !isDesktop && active === "Feed" ? null : (
-
-          <Header
-            onOpenMessages={() => setMessagesOpen(true)}
-            showMobileTopRow={false}
-            hubMode={isDesktop ? false : (active === "Home" || (active === "Marketplace" && isAppShell))}
-            desktopNav={
-              isDesktop &&
-              ["Marketplace", "Academy", "Bounties", "Circles", "Feed"].includes(active)
-            }
-            light={isDesktop && !isMarketplace}
-            browserVisitorHeader={!isAppShell}
-          />
-        )}
+        ) : null}
 
         <div
-          className={`flex flex-1 min-h-0 ${(active === "Home" || active === "Marketplace") && !isDesktop && !desktopLanding ? "pt-12 md:pt-[4.5rem]" : ""} ${desktopLanding && active === "Marketplace" && !isDesktop ? "pt-0" : ""} ${!isAppShell && !desktopLanding ? "pt-16" : ""}`}
+          className={`flex flex-1 min-h-0 ${desktopLanding && active === "Marketplace" && !isDesktop ? "pt-0" : ""}`}
         >
           {!isDesktop && !desktopLanding && (
             <Sidebar onCreate={handleCreate} active={active} onSelect={setActive} />
