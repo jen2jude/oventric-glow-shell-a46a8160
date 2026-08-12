@@ -31,6 +31,11 @@ import { useOnboarding, type Currency } from "@/lib/onboarding/OnboardingContext
 import { useAuthGate } from "@/lib/auth-gate/AuthGateProvider";
 import { getWalletBalances, listWalletTransactions, type WalletTxType } from "@/lib/wallet.functions";
 import { formatMoney, usdRate } from "@/lib/fx-display";
+import { MegaMenu } from "@/components/oventric/MegaMenu";
+import {
+  NotificationsDrawer,
+  useUnreadNotificationsCount,
+} from "@/components/oventric/NotificationsDrawer";
 
 import { TransferModal } from "@/components/oventric/wallet/TransferModal";
 import { AddCapitalModal } from "@/components/oventric/wallet/AddCapitalModal";
@@ -61,8 +66,11 @@ export function Wallet() {
   const [addFundsOpen, setAddFundsOpen] = useState(false);
   const [payoutOpen, setPayoutOpen] = useState(false);
   const [subOpen, setSubOpen] = useState(true);
+  const [menuOpen, setMenuOpen] = useState(false);
+  const [notifOpen, setNotifOpen] = useState(false);
 
   const { isAuthenticated, checked, openGate } = useAuthGate();
+  const unreadNotifs = useUnreadNotificationsCount();
 
   const fetchBalances = useServerFn(getWalletBalances);
   const { data } = useQuery({
@@ -203,7 +211,7 @@ export function Wallet() {
           </button>
           <button
             aria-label="Scan to pay"
-            onClick={() => requireAuth(() => setScanOpen(true))}
+            onClick={() => requireAuth(() => setTransferOpen(true))}
             className="text-white/80 hover:text-white active:scale-95 transition-transform"
           >
             <ScanLine className="w-5 h-5" />
