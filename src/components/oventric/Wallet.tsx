@@ -442,13 +442,34 @@ export function Wallet() {
         <section>
           <div className="flex items-center justify-between mb-3">
             <h2 className="text-white text-lg font-bold">Recent Transactions</h2>
-            <Link to="/wallet/history" className="text-[13px] font-semibold text-[#60A5FA]">
-              View all
-            </Link>
+            {isAuthenticated ? (
+              <Link to="/wallet/history" className="text-[13px] font-semibold text-[#60A5FA]">
+                View all
+              </Link>
+            ) : (
+              <button
+                onClick={() => openGate("funding")}
+                className="text-[13px] font-semibold text-[#60A5FA]"
+              >
+                View all
+              </button>
+            )}
           </div>
           <div className="rounded-[10px] bg-[#111114] border border-white/5 divide-y divide-white/5">
             {txLoading ? (
               <div className="p-6 text-center text-[13px] text-slate-500">Loading activity…</div>
+            ) : !isAuthenticated ? (
+              <div className="p-6 text-center">
+                <div className="text-[13px] text-slate-400">
+                  Sign in to see your recent wallet activity.
+                </div>
+                <button
+                  onClick={() => openGate("funding")}
+                  className="mt-3 inline-flex items-center gap-1.5 text-[13px] font-semibold text-[#E5484D] hover:text-[#F87171]"
+                >
+                  Sign in <ArrowRight className="w-4 h-4" />
+                </button>
+              </div>
             ) : recentTx.length === 0 ? (
               <div className="p-6 text-center text-[13px] text-slate-500">No transactions yet.</div>
             ) : (
