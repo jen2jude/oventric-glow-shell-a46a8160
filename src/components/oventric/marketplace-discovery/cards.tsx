@@ -21,7 +21,7 @@ function Cover({ src, alt, className }: { src: string | null; alt: string; class
   if (!src) {
     return <div className={`bg-gradient-to-br from-[#1d1d22] to-[#101014] ${className ?? ""}`} />;
   }
-  return <img loading="lazy" decoding="async" src={src} alt={alt} loading="lazy" className={`object-cover ${className ?? ""}`} />;
+  return <img loading="lazy" decoding="async" src={src} alt={alt} className={`object-cover ${className ?? ""}`} />;
 }
 
 /** Small tile used in horizontal rails ("What's Moving", "New on Oventric"). */

@@ -238,7 +238,7 @@ export function FeatureCarousel({ onComplete }: { onComplete: () => void }) {
                 background: "radial-gradient(circle, rgba(59,130,246,0.45), transparent 70%)",
               }}
             />
-            <img loading="lazy" decoding="async"
+            <img
               src={heroCollageMobile.url}
               alt="Oventric features: social feed, marketplace, academy and rewards"
               width={860}

@@ -132,7 +132,6 @@ export function HubPromoCarousel({ onSelect }: { onSelect: (section: string) => 
                 src={s.img}
                 alt=""
                 aria-hidden
-                loading="lazy"
                 width={768}
                 height={768}
                 className="pointer-events-none absolute right-1 bottom-0 h-[112%] w-auto max-w-[46%] object-contain"

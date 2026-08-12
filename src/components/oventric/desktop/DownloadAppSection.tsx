@@ -218,7 +218,6 @@ export function DownloadAppSection() {
                             src={t.img}
                             alt=""
                             className="h-5 w-5 object-contain"
-                            loading="lazy"
                           />
                         ) : Icon ? (
                           <Icon className="h-4 w-4 text-white" strokeWidth={2.5} />

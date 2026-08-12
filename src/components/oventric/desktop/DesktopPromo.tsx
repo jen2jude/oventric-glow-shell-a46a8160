@@ -267,7 +267,6 @@ function DesktopPromoCard({
         src={art}
         alt=""
         aria-hidden
-        loading="lazy"
         width={768}
         height={768}
         className="promo-tile-art pointer-events-none absolute -bottom-3 right-[-10px] h-[100%] w-auto max-w-none object-contain drop-shadow-[0_8px_16px_rgba(0,0,0,0.2)] sm:h-[110%]"

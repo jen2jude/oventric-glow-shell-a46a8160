@@ -239,7 +239,6 @@ export function ProfileWall({
                               <img loading="lazy" decoding="async"
                                 src={m.url}
                                 alt=""
-                                loading="lazy"
                                 className="w-full max-h-[420px] object-cover"
                               />
                             )}

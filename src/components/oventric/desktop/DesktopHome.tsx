@@ -393,7 +393,7 @@ export function DesktopHome({ onSelect, onCreate }: DesktopHomeProps) {
             </div>
 
             {/* Mobile hero visual — hidden to keep the fold tight */}
-            <img loading="lazy" decoding="async"
+            <img
               src={heroCollage.url}
               alt="Oventric members shopping, learning and chatting across the platform"
               className="hidden"
@@ -412,7 +412,7 @@ export function DesktopHome({ onSelect, onCreate }: DesktopHomeProps) {
                 "radial-gradient(closest-side, rgba(59, 130, 246,0.14), transparent 75%), radial-gradient(closest-side at 70% 30%, rgba(99,102,241,0.12), transparent 75%)",
             }}
           />
-          <img loading="lazy" decoding="async"
+          <img
             src={heroCollage.url}
             alt="Oventric members shopping, learning and chatting across the platform"
             className="hp-float w-full select-none object-contain drop-shadow-[0_30px_80px_rgba(15,23,42,0.14)]"
@@ -799,7 +799,6 @@ function CardGrid({
                     src={it.coverUrl}
                     alt={it.title}
                     className="h-full w-full object-cover transition-transform duration-500 group-hover:scale-105"
-                    loading="lazy"
                   />
                 ) : (
                   <span className="flex h-full w-full items-center justify-center text-slate-400">

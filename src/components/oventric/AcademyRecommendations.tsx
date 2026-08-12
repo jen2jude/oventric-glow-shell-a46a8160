@@ -361,7 +361,6 @@ function PromotedStrip({ ads, isAppShell }: { ads: DiscoveryAd[]; isAppShell: bo
                 src={a.coverUrl}
                 alt=""
                 className="w-16 h-16 rounded-[10px] object-cover shrink-0"
-                loading="lazy"
               />
             ) : (
               <div className="w-16 h-16 rounded-[10px] bg-gradient-to-br from-emerald-500/40 to-indigo-600/40 shrink-0" />

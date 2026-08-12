@@ -135,7 +135,6 @@ export function ProfileSkillsTab({
                   <img loading="lazy" decoding="async"
                     src={t?.imageUrl ?? toolIconUrl(id)}
                     alt={label}
-                    loading="lazy"
                     className="h-8 w-8 object-contain"
                   />
                   <span className="line-clamp-1 text-[11px] font-bold text-slate-300 md:text-slate-600">

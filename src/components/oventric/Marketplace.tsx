@@ -1,7 +1,7 @@
 import { useEffect, useMemo, useRef, useState } from "react";
 import { useNavigate } from "@tanstack/react-router";
 import { useServerFn } from "@tanstack/react-start";
-import { ChevronLeft, LayoutGrid, Search, SlidersHorizontal } from "lucide-react";
+import { ChevronLeft, ChevronRight, LayoutGrid, Search, SlidersHorizontal } from "lucide-react";
 import { useOnboarding } from "@/lib/onboarding/OnboardingContext";
 import {
   listProducts,
@@ -218,36 +218,39 @@ export function Marketplace() {
                 {/* Catalog — sort tabs + grid (Digital / Physical modes) */}
                 {mode !== "all" && byMode.length > 0 && (
                   <section className="px-4">
-                    <div className="no-scrollbar -mx-1 mb-4 flex gap-5 overflow-x-auto snap-x snap-mandatory scroll-smooth no-scrollbar px-1">
+                    <div className="no-scrollbar -mx-1 mb-4 flex gap-5 overflow-x-auto px-1">
                       {SORTS.map((s) => (
                         <button
                           key={s.key}
-            {/* Filter pills */}
-            <div className="no-scrollbar mt-4 flex gap-2.5 overflow-x-auto snap-x snap-mandatory scroll-smooth no-scrollbar px-4 pb-1">
-              <Pill active={mode === "all"} onClick={() => setMode("all")} label="All" />
-              <Pill active={mode === "digital"} onClick={() => setMode("digital")} label="Digital" />
-              <Pill active={mode === "physical"} onClick={() => setMode("physical")} label="Physical" />
-              <Pill
-                active={false}
-                onClick={() => setShowCategories(true)}
-                label="Categories"
-                icon={<LayoutGrid className="h-3.5 w-3.5" />}
-              />
-            </div>
+                          type="button"
+                          onClick={() => setSort(s.key)}
+                          className={`shrink-0 whitespace-nowrap pb-2 text-[14px] font-semibold transition-colors ${
+                            sort === s.key
+                              ? "border-b-2 border-[#E5484D] text-white"
+                              : "border-b-2 border-transparent text-white/40"
+                          }`}
+                        >
+                          {s.label}
+                        </button>
+                      ))}
+                    </div>
+                    <div className="grid grid-cols-2 gap-x-3 gap-y-5">
+                      {sortedCatalog.slice(0, catalogLimit).map((p) => (
+                        <GridCard key={p.id} product={p} onClick={() => openProduct(p)} />
+                      ))}
+                    </div>
+                    {sortedCatalog.length > catalogLimit && (
+                      <button
+                        type="button"
+                        onClick={() => setCatalogLimit((n) => n + 8)}
+                        className="mt-5 w-full rounded-[10px] bg-[#141416] py-3 text-[13px] font-semibold text-white/70 ring-1 ring-white/5"
+                      >
+                        Show more
+                      </button>
+                    )}
+                  </section>
+                )}
 
-            {query.trim() ? (
-              <section className="px-4 pt-6">
-                <h2 className="mb-3 text-[19px] font-bold text-white">
-                  {searched.length} result{searched.length === 1 ? "" : "s"}
-                </h2>
-                <div className="grid grid-cols-2 gap-x-3 gap-y-5">
-                  {searched.map((p) => (
-                    <GridCard key={p.id} product={p} onClick={() => openProduct(p)} />
-                  ))}
-                </div>
-              </section>
-            ) : (
-              <div className="space-y-8 pt-6">
                 {/* Horizontal Category Shortcuts */}
                 <div className="no-scrollbar flex gap-4 overflow-x-auto snap-x snap-mandatory scroll-smooth no-scrollbar px-4">
                   {cats.slice(0, 10).map((cat) => (
@@ -283,7 +286,7 @@ export function Marketplace() {
                         >
                           <div className="absolute inset-0">
                             {item.coverUrl ? (
-                              <img loading="lazy" decoding="async"
+                              <img
                                 src={item.coverUrl}
                                 alt={item.name}
                                 loading="lazy"

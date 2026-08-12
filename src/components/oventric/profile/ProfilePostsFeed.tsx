@@ -296,7 +296,6 @@ export function ProfilePostsFeed({ wallUserId, wallOwnerName, viewerId }: Props)
                           <img loading="lazy" decoding="async"
                             src={m.url}
                             alt=""
-                            loading="lazy"
                             className="max-h-[420px] w-full object-cover"
                           />
                         )}

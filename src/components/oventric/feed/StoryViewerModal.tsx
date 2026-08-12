@@ -237,7 +237,7 @@ export function StoryViewerModal({
               onEnded={next}
             />
           ) : (
-            <img loading="lazy" decoding="async"
+            <img loading="lazy"
               key={item.id}
               src={item.mediaUrl}
               alt=""

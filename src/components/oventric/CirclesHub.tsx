@@ -300,21 +300,19 @@ function Rail({
               className={`h-16 relative overflow-hidden ${c.coverUrl ? "" : `bg-gradient-to-br ${c.bannerHue}`}`}
             >
               {c.coverUrl && (
-                <img loading="lazy" decoding="async"
+                <img loading="lazy"
                   src={c.coverUrl}
                   alt=""
                   className="absolute inset-0 w-full h-full object-cover"
-                  loading="lazy"
                   decoding="async"
                 />
               )}
               <div className="absolute bottom-0 left-3 translate-y-1/2 w-10 h-10 rounded-full bg-[#121214] md:bg-white border-2 border-[#1E1E24] md:border-white flex items-center justify-center text-lg overflow-hidden">
                 {c.avatarUrl ? (
-                  <img loading="lazy" decoding="async"
+                  <img loading="lazy"
                     src={c.avatarUrl}
                     alt=""
                     className="w-full h-full object-cover"
-                    loading="lazy"
                     decoding="async"
                   />
                 ) : (
@@ -355,21 +353,19 @@ function CircleCard({ circle, onOpen }: { circle: CircleSummary; onOpen: () => v
         className={`h-20 relative overflow-hidden ${circle.coverUrl ? "" : `bg-gradient-to-br ${circle.bannerHue}`}`}
       >
         {circle.coverUrl && (
-          <img loading="lazy" decoding="async"
+          <img loading="lazy"
             src={circle.coverUrl}
             alt=""
             className="absolute inset-0 w-full h-full object-cover"
-            loading="lazy"
             decoding="async"
           />
         )}
         <div className="absolute bottom-0 left-4 translate-y-1/2 w-12 h-12 rounded-full bg-[#121214] md:bg-white border-2 border-[#1E1E24] md:border-white flex items-center justify-center text-xl overflow-hidden">
           {circle.avatarUrl ? (
-            <img loading="lazy" decoding="async"
+            <img loading="lazy"
               src={circle.avatarUrl}
               alt=""
               className="w-full h-full object-cover"
-              loading="lazy"
               decoding="async"
             />
           ) : (
@@ -478,7 +474,7 @@ function CircleWorkspace({ slug, onBack }: { slug: string; onBack: () => void })
         className={`h-40 md:h-48 relative overflow-hidden ${circle.coverUrl ? "" : `bg-gradient-to-br ${circle.bannerHue}`}`}
       >
         {circle.coverUrl && (
-          <img loading="lazy" decoding="async"
+          <img
             src={circle.coverUrl}
             alt=""
             className="absolute inset-0 w-full h-full object-cover"
@@ -505,7 +501,7 @@ function CircleWorkspace({ slug, onBack }: { slug: string; onBack: () => void })
             className={`w-20 h-20 md:w-24 md:h-24 rounded-2xl border-4 border-[#121214] md:border-white shrink-0 overflow-hidden flex items-center justify-center text-3xl md:text-4xl ${circle.avatarUrl ? "bg-neutral-900" : `bg-gradient-to-br ${circle.avatarHue}`}`}
           >
             {circle.avatarUrl ? (
-              <img loading="lazy" decoding="async"
+              <img
                 src={circle.avatarUrl}
                 alt=""
                 className="w-full h-full object-cover"

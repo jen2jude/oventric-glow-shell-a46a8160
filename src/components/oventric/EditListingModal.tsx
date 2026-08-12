@@ -377,10 +377,9 @@ export function EditListingModal({ product, onClose, onResubmitted }: Props) {
                             className={`relative aspect-square rounded-[10px] overflow-hidden border ${i === 0 ? "border-emerald-500/60" : "border-white/10"}`}
                           >
                             {img.url ? (
-                              <img loading="lazy" decoding="async"
+                              <img loading="lazy"
                                 src={img.url}
                                 alt=""
-                                loading="lazy"
                                 decoding="async"
                                 className="w-full h-full object-cover bg-[#121214]"
                               />
@@ -406,10 +405,9 @@ export function EditListingModal({ product, onClose, onResubmitted }: Props) {
                             key={`n-${i}`}
                             className="relative aspect-square rounded-[10px] overflow-hidden border border-emerald-400/40"
                           >
-                            <img loading="lazy" decoding="async"
+                            <img loading="lazy"
                               src={src}
                               alt=""
-                              loading="lazy"
                               decoding="async"
                               className="w-full h-full object-cover bg-[#121214]"
                             />
