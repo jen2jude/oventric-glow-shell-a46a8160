@@ -35,7 +35,7 @@ import { TransferModal } from "@/components/oventric/wallet/TransferModal";
 import { AddCapitalModal } from "@/components/oventric/wallet/AddCapitalModal";
 import { PayoutModal } from "@/components/oventric/wallet/PayoutModal";
 import logoFull from "@/assets/oventric-full-transparent.png";
-import wallet3d from "@/assets/wallet-3d.webp.asset.json";
+import wallet3d from "@/assets/wallet-hero-3d.png.asset.json";
 
 function fmt(n: number, c: Currency) {
   return formatMoney(n, c);
@@ -216,7 +216,9 @@ export function Wallet() {
             src={wallet3d.url}
             alt=""
             aria-hidden
-            className="pointer-events-none absolute right-3 top-10 w-36 opacity-95 select-none"
+            width={1024}
+            height={1024}
+            className="pointer-events-none absolute right-2 top-8 w-[42%] max-w-[170px] select-none drop-shadow-[0_12px_24px_rgba(0,0,0,0.45)]"
           />
 
           <div className="flex items-center gap-2">
