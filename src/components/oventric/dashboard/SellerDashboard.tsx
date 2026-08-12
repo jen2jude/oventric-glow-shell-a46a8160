@@ -28,7 +28,7 @@ export function SellerDashboard() {
   
   const { data: metrics } = useSuspenseQuery({
     queryKey: ["seller-metrics"],
-    queryFn: () => fetchMetrics({ data: {} }),
+    queryFn: () => fetchMetrics({}),
   });
 
   const TABS = [
