@@ -105,8 +105,12 @@ export function Wallet() {
   const annual = spend * 12 * (tier.pct / 100);
   const sliderPct = Math.min(100, (spend / (tierMid * 10)) * 100);
 
-  const mask = (v: string) => (hide ? "••••••" : v);
+  const mask = (v: string) => (hide || !isAuthenticated ? "••••••" : v);
 
+  const requireAuth = (cb: () => void) => {
+    if (isAuthenticated) cb();
+    else openGate("funding");
+  };
 
   const actions = [
     {
@@ -114,28 +118,28 @@ export function Wallet() {
       icon: Plus,
       ring: "bg-[#8B5CF6]",
       text: "text-white",
-      onClick: () => setAddFundsOpen(true),
+      onClick: () => requireAuth(() => setAddFundsOpen(true)),
     },
     {
       label: "Withdraw",
       icon: ArrowUp,
       ring: "bg-transparent",
       text: "text-[#60A5FA]",
-      onClick: () => setPayoutOpen(true),
+      onClick: () => requireAuth(() => setPayoutOpen(true)),
     },
     {
       label: "Send",
       icon: Send,
       ring: "bg-transparent",
       text: "text-emerald-400",
-      onClick: () => setTransferOpen(true),
+      onClick: () => requireAuth(() => setTransferOpen(true)),
     },
     {
       label: "Request",
       icon: ArrowDown,
       ring: "bg-[#6366F1]",
       text: "text-white",
-      onClick: () => toast.info("Payment requests are coming soon"),
+      onClick: () => requireAuth(() => toast.info("Payment requests are coming soon")),
     },
   ];
 
