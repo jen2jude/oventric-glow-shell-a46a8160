@@ -317,29 +317,44 @@ export function Wallet() {
 
           {subOpen && (
             <div className="grid grid-cols-2 gap-3">
-              {subWallets.map((s) => (
-                <Link
-                  key={s.label}
-                  to={s.to}
-                  className="rounded-[10px] bg-[#17171C] border border-white/5 p-3.5 hover:border-white/15 transition-colors"
-                >
-                  <div className="flex items-center gap-2.5">
-                    <span className={`w-8 h-8 rounded-[10px] flex items-center justify-center ${s.tone}`}>
-                      <s.icon className="w-4 h-4" />
-                    </span>
-                    <span className="text-[13px] font-semibold text-white leading-tight">{s.label}</span>
-                  </div>
-                  <div className="mt-3 flex items-end justify-between gap-2">
-                    <div className="min-w-0">
-                      <div className="text-xl font-black text-white tabular-nums truncate">
-                        {mask(s.value)}
-                      </div>
-                      <div className="text-[11px] text-slate-500 mt-1 truncate">{s.sub}</div>
+              {subWallets.map((s) => {
+                const body = (
+                  <>
+                    <div className="flex items-center gap-2.5">
+                      <span className={`w-8 h-8 rounded-[10px] flex items-center justify-center ${s.tone}`}>
+                        <s.icon className="w-4 h-4" />
+                      </span>
+                      <span className="text-[13px] font-semibold text-white leading-tight">{s.label}</span>
                     </div>
-                    <ChevronRight className="w-4 h-4 text-slate-600 shrink-0 mb-1" />
-                  </div>
-                </Link>
-              ))}
+                    <div className="mt-3 flex items-end justify-between gap-2">
+                      <div className="min-w-0">
+                        <div className="text-xl font-black text-white tabular-nums truncate">
+                          {mask(s.value)}
+                        </div>
+                        <div className="text-[11px] text-slate-500 mt-1 truncate">{s.sub}</div>
+                      </div>
+                      <ChevronRight className="w-4 h-4 text-slate-600 shrink-0 mb-1" />
+                    </div>
+                  </>
+                );
+                return isAuthenticated ? (
+                  <Link
+                    key={s.label}
+                    to={s.to}
+                    className="rounded-[10px] bg-[#17171C] border border-white/5 p-3.5 hover:border-white/15 transition-colors"
+                  >
+                    {body}
+                  </Link>
+                ) : (
+                  <button
+                    key={s.label}
+                    onClick={() => openGate("funding")}
+                    className="rounded-[10px] bg-[#17171C] border border-white/5 p-3.5 text-left opacity-70 hover:opacity-100 transition-opacity"
+                  >
+                    {body}
+                  </button>
+                );
+              })}
             </div>
           )}
         </section>
