@@ -451,9 +451,9 @@ export function Wallet() {
                 </div>
                 <button
                   onClick={() => openGate("funding")}
-                  className="mt-3 inline-flex items-center gap-1.5 text-[13px] font-semibold text-[#E5484D] hover:text-[#F87171]"
+                  className="mt-3 text-[13px] font-semibold text-[#E5484D] hover:text-[#F87171]"
                 >
-                  Sign in <ArrowRight className="w-4 h-4" />
+                  Sign in to view
                 </button>
               </div>
             ) : recentTx.length === 0 ? (
