@@ -598,17 +598,6 @@ export function SellPhysicalModal({
                     className="mt-1 w-full min-h-[80px] bg-[#121214] border border-white/10 rounded-lg px-3 py-2 text-sm text-white outline-none focus:border-emerald-500/60 resize-y"
                   />
                 </label>
-                <label className="block">
-                  <span className="text-xs font-medium text-slate-300">Activation Guide</span>
-                  <textarea
-                    value={activationGuide}
-                    onChange={(e) => setActivationGuide(e.target.value)}
-                    rows={3}
-                    placeholder="Setup instructions..."
-                    style={{ fieldSizing: "content" } as React.CSSProperties}
-                    className="mt-1 w-full min-h-[80px] bg-[#121214] border border-white/10 rounded-lg px-3 py-2 text-sm text-white outline-none focus:border-emerald-500/60 resize-y"
-                  />
-                </label>
               </div>
 
               <div data-field="price">
