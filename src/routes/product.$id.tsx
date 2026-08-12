@@ -576,14 +576,16 @@ function ProductPage() {
                     </AccordionContent>
                   </AccordionItem>
 
-                  <AccordionItem value="activation" className={`${isAppShell ? "border-white/5" : "border-slate-200"}`}>
-                    <AccordionTrigger className={`${isAppShell ? "text-white" : "text-slate-900"} font-bold py-3 hover:no-underline`}>
-                      Activation Guide
-                    </AccordionTrigger>
-                    <AccordionContent className={`${isAppShell ? "text-slate-400" : "text-slate-600"} text-sm leading-relaxed whitespace-pre-wrap`}>
-                      {product.activationGuide || "No activation guide provided."}
-                    </AccordionContent>
-                  </AccordionItem>
+                  {product.kind !== "physical" && (
+                    <AccordionItem value="activation" className={`${isAppShell ? "border-white/5" : "border-slate-200"}`}>
+                      <AccordionTrigger className={`${isAppShell ? "text-white" : "text-slate-900"} font-bold py-3 hover:no-underline`}>
+                        Activation Guide
+                      </AccordionTrigger>
+                      <AccordionContent className={`${isAppShell ? "text-slate-400" : "text-slate-600"} text-sm leading-relaxed whitespace-pre-wrap`}>
+                        {product.activationGuide || "No activation guide provided."}
+                      </AccordionContent>
+                    </AccordionItem>
+                  )}
                 </Accordion>
               </div>
 

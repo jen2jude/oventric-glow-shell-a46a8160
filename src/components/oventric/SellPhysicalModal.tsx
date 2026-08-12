@@ -59,7 +59,7 @@ export function SellPhysicalModal({
   const [condition, setCondition] = useState("Brand New");
   const [description, setDescription] = useState("");
   const [basicInfo, setBasicInfo] = useState("");
-  const [activationGuide, setActivationGuide] = useState("");
+  
   const [priceMode, setPriceMode] = useState<"single" | "bracket">("single");
   const [priceInput, setPriceInput] = useState("");
   const [discountInput, setDiscountInput] = useState("");
@@ -106,7 +106,7 @@ export function SellPhysicalModal({
     setCondition("Brand New");
     setDescription("");
     setBasicInfo("");
-    setActivationGuide("");
+    
     setPriceMode("single");
     setPriceInput("");
     setDiscountInput("");
@@ -315,7 +315,7 @@ export function SellPhysicalModal({
           whatsappNumber: digits,
           socialLink: socialLink.trim() || null,
           basicInfo: basicInfo.trim() || null,
-          activationGuide: activationGuide.trim() || null,
+          activationGuide: null,
         },
       });
 
