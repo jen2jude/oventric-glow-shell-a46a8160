@@ -53,6 +53,8 @@ export interface ProductDTO {
   imageUrls: string[];
   requiresManualDelivery: boolean;
   salesCount?: number;
+  basicInfo: string | null;
+  activationGuide: string | null;
 }
 
 
@@ -138,6 +140,8 @@ function mapProduct(
     imagePaths: Array.isArray(r.image_paths) ? (r.image_paths as string[]) : [],
     imageUrls,
     requiresManualDelivery: Boolean(r.requires_manual_delivery),
+    basicInfo: (r.basic_info as string) ?? null,
+    activationGuide: (r.activation_guide as string) ?? null,
   };
 }
 
@@ -177,8 +181,8 @@ async function signBucket(
 // Sensitive contact columns (seller_phone, whatsapp_number, social_link) are excluded here;
 // anon has no column-level grant on them. Owner/admin flows fetch them via dedicated RPCs
 // or the authenticated context.supabase client (see PRODUCT_COLS_OWNER).
-const PRODUCT_COLS = "id, seller_id, name, category, subcategory, description, price_usd, original_currency, original_amount, fx_snapshot, hue, vendor, rating, reviews, promoted, external_url, file_path, cover_path, created_at, kind, status, reject_reason, condition, brand, location, negotiable, delivery, image_paths, requires_manual_delivery";
-const PRODUCT_COLS_OWNER = "id, seller_id, name, category, subcategory, description, price_usd, original_currency, original_amount, fx_snapshot, hue, vendor, rating, reviews, promoted, external_url, file_path, cover_path, created_at, kind, status, reject_reason, condition, brand, location, negotiable, delivery, image_paths, requires_manual_delivery, seller_phone, whatsapp_number, social_link";
+const PRODUCT_COLS = "id, seller_id, name, category, subcategory, description, price_usd, original_currency, original_amount, fx_snapshot, hue, vendor, rating, reviews, promoted, external_url, file_path, cover_path, created_at, kind, status, reject_reason, condition, brand, location, negotiable, delivery, image_paths, requires_manual_delivery, basic_info, activation_guide";
+const PRODUCT_COLS_OWNER = "id, seller_id, name, category, subcategory, description, price_usd, original_currency, original_amount, fx_snapshot, hue, vendor, rating, reviews, promoted, external_url, file_path, cover_path, created_at, kind, status, reject_reason, condition, brand, location, negotiable, delivery, image_paths, requires_manual_delivery, seller_phone, whatsapp_number, social_link, basic_info, activation_guide";
 
 async function signImagePaths(
   sb: ReturnType<typeof serverPublicClient>,
@@ -323,6 +327,8 @@ export const createProduct = createServerFn({ method: "POST" })
     coverPath?: string | null;
     imagePaths?: string[];
     requiresManualDelivery?: boolean;
+    basicInfo?: string | null;
+    activationGuide?: string | null;
     originalCurrency?: OrderCurrency;
     originalAmount?: number;
     fxSnapshot?: { base: string; rates: Record<string, number>; source?: string; fetched_at?: string } | null;
@@ -339,6 +345,8 @@ export const createProduct = createServerFn({ method: "POST" })
     coverPath: input.coverPath ?? null,
     imagePaths: (input.imagePaths ?? []).filter(Boolean),
     requiresManualDelivery: Boolean(input.requiresManualDelivery),
+    basicInfo: input.basicInfo ? String(input.basicInfo).trim() : null,
+    activationGuide: input.activationGuide ? String(input.activationGuide).trim() : null,
     originalCurrency: (input.originalCurrency ?? "USD") as OrderCurrency,
     originalAmount: Math.max(0, Number(input.originalAmount ?? input.priceUSD ?? 0)),
     fxSnapshot: input.fxSnapshot ?? null,
@@ -374,11 +382,13 @@ export const createProduct = createServerFn({ method: "POST" })
         cover_path: cover,
         image_paths: data.imagePaths,
         requires_manual_delivery: data.requiresManualDelivery,
+        basic_info: data.basicInfo,
+        activation_guide: data.activationGuide,
         promoted: false,
         kind: "digital",
         status: initialStatus,
       })
-      .select("id, seller_id, name, category, subcategory, description, price_usd, original_currency, original_amount, fx_snapshot, hue, vendor, rating, reviews, promoted, external_url, file_path, cover_path, image_paths, created_at, updated_at, kind, status, reject_reason, requires_manual_delivery")
+      .select("id, seller_id, name, category, subcategory, description, price_usd, original_currency, original_amount, fx_snapshot, hue, vendor, rating, reviews, promoted, external_url, file_path, cover_path, image_paths, created_at, updated_at, kind, status, reject_reason, requires_manual_delivery, basic_info, activation_guide")
       .single();
 
 
@@ -414,6 +424,8 @@ export const createPhysicalProduct = createServerFn({ method: "POST" })
     sellerPhone: string;
     whatsappNumber?: string | null;
     socialLink?: string | null;
+    basicInfo?: string | null;
+    activationGuide?: string | null;
     originalCurrency?: OrderCurrency;
     originalAmount?: number;
     fxSnapshot?: { base: string; rates: Record<string, number>; source?: string; fetched_at?: string } | null;
@@ -436,6 +448,8 @@ export const createPhysicalProduct = createServerFn({ method: "POST" })
       ? String(input.whatsappNumber).replace(/\D/g, "")
       : String(input.sellerPhone ?? "").replace(/\D/g, ""),
     socialLink: input.socialLink ? String(input.socialLink).trim() : null,
+    basicInfo: input.basicInfo ? String(input.basicInfo).trim() : null,
+    activationGuide: input.activationGuide ? String(input.activationGuide).trim() : null,
     originalCurrency: (input.originalCurrency ?? "USD") as OrderCurrency,
     originalAmount: Number(input.originalAmount ?? input.priceUSD),
     fxSnapshot: input.fxSnapshot ?? null,
@@ -481,6 +495,8 @@ export const createPhysicalProduct = createServerFn({ method: "POST" })
         seller_phone: data.sellerPhone,
         whatsapp_number: data.whatsappNumber,
         social_link: data.socialLink,
+        basic_info: data.basicInfo,
+        activation_guide: data.activationGuide,
         promoted: false,
       })
       .select("id")
@@ -560,6 +576,8 @@ export const updateAndResubmitProduct = createServerFn({ method: "POST" })
     sellerPhone?: string | null;
     whatsappNumber?: string | null;
     socialLink?: string | null;
+    basicInfo?: string | null;
+    activationGuide?: string | null;
     sellerResponse?: string | null;
   }) => ({
     id: String(input.id ?? ""),
@@ -587,6 +605,8 @@ export const updateAndResubmitProduct = createServerFn({ method: "POST" })
       ? String(input.whatsappNumber).replace(/\D/g, "")
       : input.whatsappNumber,
     socialLink: input.socialLink,
+    basicInfo: input.basicInfo !== undefined ? (input.basicInfo ? String(input.basicInfo).trim() : null) : undefined,
+    activationGuide: input.activationGuide !== undefined ? (input.activationGuide ? String(input.activationGuide).trim() : null) : undefined,
     sellerResponse: input.sellerResponse ? String(input.sellerResponse).trim().slice(0, 1000) : null,
   }))
   .handler(async ({ data, context }) => {
@@ -632,6 +652,8 @@ export const updateAndResubmitProduct = createServerFn({ method: "POST" })
     if (data.sellerPhone !== undefined) patch.seller_phone = data.sellerPhone;
     if (data.whatsappNumber !== undefined) patch.whatsapp_number = data.whatsappNumber;
     if (data.socialLink !== undefined) patch.social_link = data.socialLink;
+    if (data.basicInfo !== undefined) patch.basic_info = data.basicInfo;
+    if (data.activationGuide !== undefined) patch.activation_guide = data.activationGuide;
 
     const { error: updErr } = await context.supabase
       .from("products")
