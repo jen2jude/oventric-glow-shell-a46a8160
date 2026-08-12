@@ -1,6 +1,6 @@
 import { useEffect, useState } from "react";
 import { useServerFn } from "@tanstack/react-start";
-import { X, Loader2, Plus, Trash2, Upload, GripVertical, Video, Film } from "lucide-react";
+import { X, Loader2, Plus, Trash2, Upload, GripVertical, Video, Film, ImageIcon } from "lucide-react";
 import { RichTextEditor } from "@/components/ui/rich-text-editor";
 import { getCourseMediaUploadUrl } from "@/lib/academy.functions";
 import { toast } from "sonner";
@@ -342,14 +342,14 @@ export function CourseEditorModal({
 
   return (
     <div className="modal-light fixed inset-0 z-[60] flex items-end sm:items-center justify-center">
-      <div className="absolute inset-0 bg-black/70" onClick={onClose} />
-      <div className="relative w-full max-w-4xl max-h-[92vh] bg-[#1E1E24] border border-white/10 rounded-t-2xl sm:rounded-2xl shadow-2xl flex flex-col">
-        <div className="flex items-center justify-between p-5 border-b border-white/10 shrink-0">
+      <div className="absolute inset-0 bg-black/80 backdrop-blur-sm" onClick={onClose} />
+      <div className="relative w-full max-w-4xl max-h-[92vh] bg-[#0A0A0B] border border-white/10 rounded-t-3xl sm:rounded-2xl shadow-2xl flex flex-col overflow-hidden">
+        <div className="flex items-center justify-between p-5 border-b border-white/5 shrink-0 bg-[#0A0A0B]/80 backdrop-blur-md">
           <div>
-            <h2 className="text-lg font-bold text-white">
+            <h2 className="text-lg font-black text-white tracking-tight">
               {savedId ? "Edit Course" : "Publish a Course"}
             </h2>
-            <p className="text-xs text-slate-500">
+            <p className="text-[10px] text-slate-500 uppercase tracking-widest font-bold">
               {savedId
                 ? "Update details and manage modules"
                 : "Step 1: save details, then add video modules"}
@@ -357,21 +357,22 @@ export function CourseEditorModal({
           </div>
           <button
             onClick={onClose}
-            className="p-2 rounded-[10px] hover:bg-white/5 text-slate-400 hover:text-white"
+            className="p-2 rounded-full hover:bg-white/5 text-slate-400 hover:text-white transition-all"
           >
             <X className="w-5 h-5" />
           </button>
         </div>
 
         {loading ? (
-          <div className="p-10 text-center">
-            <Loader2 className="w-6 h-6 mx-auto text-emerald-400 animate-spin" />
+          <div className="p-10 text-center flex flex-col items-center justify-center gap-4">
+            <Loader2 className="w-8 h-8 text-[#E5484D] animate-spin" />
+            <p className="text-xs font-black uppercase tracking-widest text-slate-500">Loading course details...</p>
           </div>
         ) : (
-          <div className="flex-1 overflow-y-auto p-5 space-y-6">
+          <div className="flex-1 overflow-y-auto p-5 space-y-8">
             {/* DETAILS */}
-            <section className="space-y-3">
-              <h3 className="text-xs font-bold uppercase tracking-wider text-slate-400">
+            <section className="space-y-4">
+              <h3 className="text-[10px] font-black uppercase tracking-widest text-[#E5484D]">
                 Course Details
               </h3>
               <div className="grid sm:grid-cols-2 gap-3">
@@ -431,20 +432,23 @@ export function CourseEditorModal({
               </Field>
 
               <Field label="Cover image (optional, up to 5MB)">
-                <div className="flex items-center gap-3">
-                  {coverUrl && (
-                    <ResponsiveImage
-                      sizes="96px"
-                      src={coverUrl}
-                      alt="cover"
-                      className="w-24 h-14 rounded-[10px] object-cover border border-white/10"
-                      loading="lazy"
-                      decoding="async"
-                    />
-                  )}
-                  <label className="cursor-pointer inline-flex items-center gap-2 px-3 py-3 rounded-[10px] bg-white/5 border border-white/10 hover:bg-white/10 text-sm text-white">
+                <div className="flex items-center gap-4">
+                  <div className="w-40 h-24 rounded-xl bg-[#141416] border border-white/5 grid place-items-center overflow-hidden">
+                    {coverUrl ? (
+                      <img
+                        loading="lazy"
+                        decoding="async"
+                        src={coverUrl}
+                        alt="cover"
+                        className="w-full h-full object-cover"
+                      />
+                    ) : (
+                      <ImageIcon className="w-8 h-8 text-slate-700" />
+                    )}
+                  </div>
+                  <label className="cursor-pointer inline-flex items-center gap-2 px-5 py-3 rounded-[10px] bg-white/5 border border-white/5 hover:bg-white/10 text-sm font-bold text-white transition-all">
                     <Upload className="w-4 h-4" />
-                    {uploading ? "Uploading..." : coverPath ? "Replace" : "Upload cover"}
+                    {uploading ? "Uploading..." : coverPath ? "Replace Thumbnail" : "Upload Thumbnail"}
                     <input
                       type="file"
                       accept="image/*"
@@ -456,8 +460,8 @@ export function CourseEditorModal({
                 </div>
               </Field>
 
-              <div className="grid sm:grid-cols-2 gap-3">
-                <label className="flex items-center gap-2 p-3 rounded-[10px] bg-[#121214] border border-white/10 cursor-pointer">
+              <div className="grid sm:grid-cols-2 gap-4">
+                <label className="flex items-center gap-3 p-4 rounded-xl bg-[#141416] border border-white/5 cursor-pointer group hover:bg-white/5 transition-all">
                   <input
                     type="checkbox"
                     checked={form.isFree}
@@ -468,12 +472,12 @@ export function CourseEditorModal({
                         priceLocal: e.target.checked ? 0 : form.priceLocal,
                       })
                     }
-                    className="accent-emerald-500"
+                    className="w-5 h-5 rounded-[6px] border-white/10 bg-[#0A0A0B] checked:bg-[#E5484D] accent-[#E5484D] transition-all"
                   />
-                  <span className="text-sm text-white">This is a free course</span>
+                  <span className="text-sm font-bold text-slate-300 group-hover:text-white transition-colors">This is a free course</span>
                 </label>
                 <Field
-                  label={`Price (${currencySymbol(form.priceCurrency)} ${form.priceCurrency}) ${form.isFree ? "· disabled" : "· locked at publish"}`}
+                  label={`Price (${currencySymbol(form.priceCurrency)} ${form.priceCurrency})`}
                 >
                   <input
                     type="number"
@@ -494,42 +498,42 @@ export function CourseEditorModal({
                 </p>
               )}
 
-              <div className="flex flex-wrap gap-3">
-                <label className="flex items-center gap-2 p-3 rounded-[10px] bg-[#121214] border border-white/10 cursor-pointer">
+              <div className="flex flex-wrap gap-4">
+                <label className="flex items-center gap-3 p-4 rounded-xl bg-[#141416] border border-white/5 cursor-pointer group hover:bg-white/5 transition-all">
                   <input
                     type="checkbox"
                     checked={form.isPublished}
                     onChange={(e) => setForm({ ...form, isPublished: e.target.checked })}
-                    className="accent-emerald-500"
+                    className="w-5 h-5 rounded-[6px] border-white/10 bg-[#0A0A0B] checked:bg-[#E5484D] accent-[#E5484D] transition-all"
                   />
-                  <span className="text-sm text-white">Published (visible in catalog)</span>
+                  <span className="text-sm font-bold text-slate-300 group-hover:text-white transition-colors">Visible in catalog</span>
                 </label>
                 {isAdmin && (
-                  <label className="flex items-center gap-2 p-3 rounded-[10px] bg-emerald-500/10 border border-emerald-500/30 cursor-pointer">
+                  <label className="flex items-center gap-3 p-4 rounded-xl bg-[#E5484D]/5 border border-[#E5484D]/20 cursor-pointer group hover:bg-[#E5484D]/10 transition-all">
                     <input
                       type="checkbox"
                       checked={form.promoted}
                       onChange={(e) => setForm({ ...form, promoted: e.target.checked })}
-                      className="accent-emerald-500"
+                      className="w-5 h-5 rounded-[6px] border-[#E5484D]/30 bg-[#0A0A0B] checked:bg-[#E5484D] accent-[#E5484D] transition-all"
                     />
-                    <span className="text-sm text-emerald-300">Promote course (admin)</span>
+                    <span className="text-sm font-black uppercase tracking-widest text-[#E5484D]">Promote (Admin)</span>
                   </label>
                 )}
               </div>
 
-              <div className="flex gap-2 pt-1">
+              <div className="flex items-center gap-3 pt-2">
                 <button
                   onClick={saveCourse}
                   disabled={saving}
-                  className="px-4 py-3 rounded-[10px] bg-emerald-500 hover:bg-emerald-400 disabled:opacity-50 text-black font-bold text-sm inline-flex items-center gap-2"
+                  className="px-6 py-3.5 rounded-[10px] bg-[#E5484D] hover:bg-[#E5484D]/90 disabled:opacity-50 text-white font-black text-sm uppercase tracking-widest inline-flex items-center gap-2 shadow-[0_4px_15px_rgba(229,72,77,0.3)] transition-all"
                 >
                   {saving && <Loader2 className="w-4 h-4 animate-spin" />}
-                  {savedId ? "Save changes" : "Create course & add modules"}
+                  {savedId ? "Save Changes" : "Create Course"}
                 </button>
                 {savedId && (
                   <button
                     onClick={removeCourseHandler}
-                    className="px-4 py-3 rounded-[10px] bg-red-500/10 hover:bg-red-500/20 border border-red-500/30 text-red-300 text-sm font-semibold"
+                    className="px-5 py-3.5 rounded-[10px] bg-red-500/10 hover:bg-red-500/20 border border-red-500/30 text-red-400 text-sm font-bold uppercase tracking-tight transition-all"
                   >
                     Delete course
                   </button>
@@ -539,19 +543,19 @@ export function CourseEditorModal({
 
             {/* MODULES */}
             {savedId && (
-              <section className="space-y-3 border-t border-white/10 pt-5">
-                <h3 className="text-xs font-bold uppercase tracking-wider text-slate-400">
+              <section className="space-y-4 border-t border-white/5 pt-8">
+                <h3 className="text-[10px] font-black uppercase tracking-widest text-[#E5484D]">
                   Modules ({modules.length})
                 </h3>
 
-                <div className="space-y-2">
+                <div className="space-y-3">
                   {modules.map((m, i) => (
                     <div
                       key={m.id}
-                      className="flex items-center gap-2 p-3 rounded-[10px] bg-[#121214] border border-white/10"
+                      className="flex items-center gap-3 p-4 rounded-xl bg-[#141416] border border-white/5 shadow-sm transition-all hover:border-white/10"
                     >
                       <GripVertical className="w-4 h-4 text-slate-600" />
-                      <span className="text-xs font-bold text-slate-500 w-6">{i + 1}.</span>
+                      <span className="text-[10px] font-black text-[#E5484D] opacity-60 w-6 uppercase">M{i + 1}</span>
                       <div className="flex-1 min-w-0">
                         <div className="text-sm font-semibold text-white truncate">{m.title}</div>
                         <div className="text-[11px] text-slate-500 flex items-center gap-2">
@@ -561,7 +565,7 @@ export function CourseEditorModal({
                       </div>
                       <button
                         onClick={() => editModule(m)}
-                        className="text-xs text-emerald-400 hover:text-emerald-300 px-2 py-1"
+                        className="text-[10px] font-black uppercase tracking-widest text-[#E5484D] hover:bg-[#E5484D]/5 px-3 py-1.5 rounded-lg transition-all"
                       >
                         Edit
                       </button>
@@ -580,9 +584,10 @@ export function CourseEditorModal({
                   )}
                 </div>
 
-                <div className="p-4 rounded-[10px] bg-[#121214] border border-emerald-500/20 space-y-3">
-                  <div className="text-xs font-bold uppercase tracking-wider text-emerald-300">
-                    {modForm.id ? "Editing module" : "Add new module"}
+                <div className="p-6 rounded-2xl bg-[#141416] border border-white/5 space-y-6 shadow-md">
+                  <div className="text-[10px] font-black uppercase tracking-widest text-[#E5484D] flex items-center gap-2">
+                    <div className="w-1.5 h-1.5 rounded-full bg-[#E5484D]" />
+                    {modForm.id ? "Editing Module" : "Add New Module"}
                   </div>
                   <div className="grid sm:grid-cols-2 gap-3">
                     <Field label="Module title *">
@@ -612,15 +617,15 @@ export function CourseEditorModal({
                         className="input"
                       />
                     </Field>
-                    <label className="flex items-center gap-2 p-3 rounded-[10px] bg-[#1E1E24] border border-white/10 cursor-pointer">
+                    <label className="flex items-center gap-3 p-4 rounded-xl bg-[#0A0A0B] border border-white/5 cursor-pointer group hover:bg-white/5 transition-all">
                       <input
                         type="checkbox"
                         checked={modForm.isPreview}
                         onChange={(e) => setModForm({ ...modForm, isPreview: e.target.checked })}
-                        className="accent-emerald-500"
+                        className="w-5 h-5 rounded-[6px] border-white/10 bg-[#0A0A0B] checked:bg-[#E5484D] accent-[#E5484D] transition-all"
                       />
-                      <span className="text-sm text-white">
-                        Free preview (viewable pre-enrollment)
+                      <span className="text-sm font-bold text-slate-300 group-hover:text-white transition-colors">
+                        Free preview lesson
                       </span>
                     </label>
                   </div>
@@ -634,14 +639,14 @@ export function CourseEditorModal({
                     />
                   </Field>
                   <Field label="Upload module video (optional, ≤ 500 MB)">
-                    <div className="flex items-center gap-2">
-                      <label className="inline-flex items-center gap-2 px-3 py-3 rounded-[10px] bg-white/5 hover:bg-white/10 border border-white/10 text-sm text-slate-200 cursor-pointer">
+                    <div className="flex items-center gap-4">
+                      <label className="inline-flex items-center gap-2 px-5 py-3 rounded-[10px] bg-white/5 hover:bg-white/10 border border-white/5 text-sm font-bold text-white cursor-pointer transition-all">
                         <Film className="w-4 h-4" />
                         {modVideoUploading
                           ? "Uploading…"
                           : modForm.videoPath
-                            ? "Replace video"
-                            : "Choose video"}
+                            ? "Replace Video"
+                            : "Choose Video"}
                         <input
                           type="file"
                           accept="video/*"
@@ -682,14 +687,14 @@ export function CourseEditorModal({
                   <div className="flex gap-2">
                     <button
                       onClick={addOrUpdateModule}
-                      className="px-3 py-3 rounded-[10px] bg-emerald-500 hover:bg-emerald-400 text-black font-bold text-sm inline-flex items-center gap-2"
+                      className="px-5 py-3.5 rounded-[10px] bg-[#E5484D] hover:bg-[#E5484D]/90 text-white font-black text-sm uppercase tracking-widest inline-flex items-center gap-2 shadow-[0_4px_12px_rgba(229,72,77,0.2)] transition-all"
                     >
-                      <Plus className="w-4 h-4" /> {modForm.id ? "Update module" : "Add module"}
+                      <Plus className="w-4 h-4" /> {modForm.id ? "Update Module" : "Add Module"}
                     </button>
                     {modForm.id && (
                       <button
                         onClick={() => setModForm(emptyModForm)}
-                        className="px-3 py-3 rounded-[10px] bg-white/5 hover:bg-white/10 border border-white/10 text-slate-300 text-sm"
+                        className="px-5 py-3.5 rounded-[10px] bg-white/5 hover:bg-white/10 border border-white/5 text-slate-300 text-sm font-bold transition-all"
                       >
                         Cancel
                       </button>
@@ -704,14 +709,14 @@ export function CourseEditorModal({
         <div className="p-4 border-t border-white/10 flex justify-end gap-2 shrink-0">
           <button
             onClick={onClose}
-            className="px-4 py-3 rounded-[10px] text-slate-300 hover:text-white text-sm"
+            className="px-6 py-3.5 rounded-[10px] text-slate-400 hover:text-white text-sm font-bold transition-all"
           >
             Close
           </button>
           {savedId && (
             <button
               onClick={finish}
-              className="px-4 py-3 rounded-[10px] bg-emerald-500 hover:bg-emerald-400 text-black font-bold text-sm"
+              className="px-6 py-3.5 rounded-[10px] bg-[#E5484D] hover:bg-[#E5484D]/90 text-white font-black text-sm uppercase tracking-widest shadow-[0_4px_12px_rgba(229,72,77,0.2)] transition-all"
             >
               Done
             </button>
@@ -719,7 +724,7 @@ export function CourseEditorModal({
         </div>
       </div>
 
-      <style>{`.input{width:100%;padding:0.5rem 0.75rem;background:#121214;border:1px solid rgba(255,255,255,0.1);border-radius:0.5rem;color:white;font-size:0.875rem;outline:none}.input:focus{border-color:rgb(16 185 129 / 0.5)}`}</style>
+      <style>{`.input{width:100%;padding:0.875rem 1rem;background:#141416;border:1px solid rgba(255,255,255,0.05);border-radius:0.625rem;color:white;font-size:0.875rem;outline:none;transition:all 0.2s}.input:focus{border-color:rgba(229,72,77,0.5);background:#1A1A1F}`}</style>
     </div>
   );
 }
@@ -727,7 +732,7 @@ export function CourseEditorModal({
 function Field({ label, children }: { label: string; children: React.ReactNode }) {
   return (
     <label className="block">
-      <span className="text-[11px] font-semibold uppercase tracking-wider text-slate-500 mb-1 block">
+      <span className="text-[10px] font-black uppercase tracking-widest text-slate-500 mb-2 block">
         {label}
       </span>
       {children}

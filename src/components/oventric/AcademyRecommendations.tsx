@@ -47,7 +47,7 @@ function SectionHeader({ icon: Icon, title, hint, isAppShell }: { icon: any; tit
   return (
     <div className="flex items-end justify-between mb-3 px-1">
       <div className="flex items-center gap-2">
-        <Icon className={`w-5 h-5 ${!isAppShell ? "text-emerald-600" : "text-emerald-400 md:text-emerald-600"}`} strokeWidth={2.5} />
+        <Icon className={`w-5 h-5 ${!isAppShell ? "text-[#E5484D]" : "text-[#E5484D] md:text-[#E5484D]"}`} strokeWidth={2.5} />
         <h3 className={`font-black text-lg tracking-tight ${!isAppShell ? "text-slate-900" : "text-white md:text-slate-900"}`}>{title}</h3>
       </div>
       {hint && (
@@ -112,9 +112,9 @@ function CourseTile({
   return (
     <button
       onClick={() => onOpen(c.id)}
-      className={`text-left border rounded-xl overflow-hidden transition-colors group ${!isAppShell ? "bg-white border-slate-200 hover:border-emerald-300 shadow-sm" : "bg-[#1E1E24] border-white/10 hover:border-emerald-500/40"}`}
+      className={`text-left border rounded-xl overflow-hidden transition-colors group ${!isAppShell ? "bg-white border-slate-200 hover:border-[#E5484D]/30 shadow-sm" : "bg-[#1A1A1C] border-white/5 hover:border-[#E5484D]/40"}`}
     >
-      <div className="relative aspect-video bg-gradient-to-br from-emerald-600/40 to-indigo-700/40">
+      <div className="relative aspect-video bg-[#0A0A0B]">
         {c.coverUrl ? (
           <ResponsiveImage
             src={c.coverUrl}
@@ -132,7 +132,7 @@ function CourseTile({
         <span className="absolute top-2 left-2 text-[10px] font-bold bg-black/60 text-white border border-white/20 rounded px-2 py-0.5 uppercase tracking-wider">
           {c.category}
         </span>
-        <span className="absolute top-2 right-2 text-[10px] font-bold bg-emerald-500 text-black rounded px-2 py-0.5">
+        <span className="absolute top-2 right-2 text-[10px] font-bold bg-[#E5484D] text-white rounded px-2 py-0.5">
           {c.isFree ? "Free" : fmtPrice(c.priceUsd, currency)}
         </span>
       </div>
@@ -181,7 +181,7 @@ function ProductTile({ p, currency, isAppShell }: { p: DiscoveryProduct; currenc
     <Link
       to="/product/$id"
       params={{ id: p.id }}
-      className={`text-left border rounded-xl overflow-hidden transition-colors block ${!isAppShell ? "bg-white border-slate-200 hover:border-emerald-300 shadow-sm" : "bg-[#1E1E24] border-white/10 hover:border-emerald-500/40"}`}
+      className={`text-left border rounded-xl overflow-hidden transition-colors block ${!isAppShell ? "bg-white border-slate-200 hover:border-[#E5484D]/30 shadow-sm" : "bg-[#1A1A1C] border-white/5 hover:border-[#E5484D]/40"}`}
     >
       <div className={`relative aspect-video bg-gradient-to-br ${p.hue}`}>
         {p.coverUrl ? (
@@ -223,7 +223,7 @@ function BountyTile({ b, currency, isAppShell }: { b: DiscoveryBounty; currency:
   return (
     <button
       onClick={open}
-      className={`text-left border rounded-xl overflow-hidden transition-colors block w-full ${!isAppShell ? "bg-white border-slate-200 hover:border-amber-400/60 shadow-sm" : "bg-[#1E1E24] border-white/10 hover:border-amber-400/40"}`}
+      className={`text-left border rounded-xl overflow-hidden transition-colors block w-full ${!isAppShell ? "bg-white border-slate-200 hover:border-[#E5484D]/30 shadow-sm" : "bg-[#1A1A1C] border-white/5 hover:border-[#E5484D]/40"}`}
     >
       <div className="relative aspect-video bg-gradient-to-br from-amber-500/30 to-rose-600/30">
         {b.coverUrl ? (
@@ -268,7 +268,7 @@ function CircleTile({ c, isAppShell }: { c: RecoCircle; isAppShell: boolean }) {
   return (
     <button
       onClick={open}
-      className={`text-left border rounded-xl overflow-hidden transition-colors block w-full ${!isAppShell ? "bg-white border-slate-200 hover:border-indigo-400/60 shadow-sm" : "bg-[#1E1E24] border-white/10 hover:border-indigo-400/40"}`}
+      className={`text-left border rounded-xl overflow-hidden transition-colors block w-full ${!isAppShell ? "bg-white border-slate-200 hover:border-[#E5484D]/30 shadow-sm" : "bg-[#1A1A1C] border-white/5 hover:border-[#E5484D]/40"}`}
     >
       <div className="relative aspect-[3/1] bg-gradient-to-br from-indigo-600/40 to-fuchsia-600/40">
         {c.coverUrl ? (
@@ -306,7 +306,7 @@ function BlogTile({ b, isAppShell }: { b: RecoBlog; isAppShell: boolean }) {
     <Link
       to="/blog/$slug"
       params={{ slug: b.slug }}
-      className={`text-left border rounded-xl overflow-hidden transition-colors block ${!isAppShell ? "bg-white border-slate-200 hover:border-sky-400/60 shadow-sm" : "bg-[#1E1E24] border-white/10 hover:border-sky-400/40"}`}
+      className={`text-left border rounded-xl overflow-hidden transition-colors block ${!isAppShell ? "bg-white border-slate-200 hover:border-[#E5484D]/30 shadow-sm" : "bg-[#1A1A1C] border-white/5 hover:border-[#E5484D]/40"}`}
     >
       <div className="relative aspect-video bg-gradient-to-br from-sky-600/30 to-emerald-600/30">
         {b.coverUrl ? (
@@ -340,10 +340,10 @@ function BlogTile({ b, isAppShell }: { b: RecoBlog; isAppShell: boolean }) {
 function PromotedStrip({ ads, isAppShell }: { ads: DiscoveryAd[]; isAppShell: boolean }) {
   if (!ads.length) return null;
   return (
-    <div className={`my-6 rounded-xl border p-4 ${!isAppShell ? "border-emerald-100 bg-emerald-50/50" : "border-emerald-500/20 bg-gradient-to-r from-emerald-500/5 via-transparent to-indigo-500/5"}`}>
+    <div className={`my-6 rounded-xl border p-4 ${!isAppShell ? "border-[#E5484D]/10 bg-[#E5484D]/5" : "border-[#E5484D]/20 bg-gradient-to-r from-[#E5484D]/5 via-transparent to-crimson-500/5"}`}>
       <div className="flex items-center gap-2 mb-3">
-        <Sparkles className={`w-4 h-4 ${!isAppShell ? "text-emerald-600" : "text-emerald-400"}`} />
-        <span className={`text-[11px] uppercase tracking-wider font-bold ${!isAppShell ? "text-emerald-700" : "text-emerald-300"}`}>
+        <Sparkles className={`w-4 h-4 ${!isAppShell ? "text-[#E5484D]" : "text-[#E5484D]"}`} />
+        <span className={`text-[11px] uppercase tracking-wider font-bold ${!isAppShell ? "text-[#E5484D]" : "text-[#E5484D]"}`}>
           Promoted picks
         </span>
       </div>
@@ -354,7 +354,7 @@ function PromotedStrip({ ads, isAppShell }: { ads: DiscoveryAd[]; isAppShell: bo
             href={a.ctaUrl}
             target="_blank"
             rel="noreferrer"
-            className={`flex gap-3 items-center border rounded-[10px] p-3 transition-colors ${!isAppShell ? "bg-white border-slate-200 hover:border-emerald-300 shadow-sm" : "bg-[#1E1E24] border-white/10 hover:border-emerald-400/40"}`}
+            className={`flex gap-3 items-center border rounded-[10px] p-3 transition-colors ${!isAppShell ? "bg-white border-slate-200 hover:border-[#E5484D]/30 shadow-sm" : "bg-[#1A1A1C] border-white/5 hover:border-[#E5484D]/40"}`}
           >
             {a.coverUrl ? (
               <img loading="lazy" decoding="async"
@@ -372,7 +372,7 @@ function PromotedStrip({ ads, isAppShell }: { ads: DiscoveryAd[]; isAppShell: bo
               <div className={`font-bold text-sm truncate ${!isAppShell ? "text-slate-900" : "text-white"}`}>{a.title}</div>
               {a.body && <div className={`text-[12px] line-clamp-1 ${!isAppShell ? "text-slate-600" : "text-slate-400"}`}>{a.body}</div>}
             </div>
-            <ArrowRight className="w-4 h-4 text-emerald-400 shrink-0" />
+            <ArrowRight className="w-4 h-4 text-[#E5484D] shrink-0" />
           </a>
         ))}
       </div>

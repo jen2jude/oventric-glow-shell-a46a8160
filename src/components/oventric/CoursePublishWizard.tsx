@@ -229,26 +229,29 @@ export function CoursePublishWizard({
     >
       <div className="absolute inset-0 bg-black/80" onClick={isAppShell ? undefined : onClose} />
       <div
-        className={`relative w-full bg-[#1E1E24] border border-white/10 shadow-2xl flex flex-col overflow-hidden ${
+        className={`relative w-full bg-[#0A0A0B] border border-white/10 shadow-2xl flex flex-col overflow-hidden ${
           isAppShell
             ? "max-h-[92dvh] rounded-t-3xl"
             : "max-w-5xl max-h-[95vh] rounded-2xl"
         }`}
       >
         {/* Header */}
-        <div className="flex items-center justify-between p-4 sm:p-5 border-b border-white/10 shrink-0">
-          <div>
-            <h2 className="text-lg font-black text-white">Publish a Course</h2>
-            <p className="text-xs text-slate-500">
+        <div className="flex items-center justify-between p-4 sm:p-5 border-b border-white/5 shrink-0 bg-[#0A0A0B]/80 backdrop-blur-md">
+          <div className="flex-1" />
+          <div className="text-center">
+            <h2 className="text-lg font-black text-white tracking-tight">Publish a Course</h2>
+            <p className="text-[10px] text-slate-500 uppercase tracking-widest font-bold">
               Step {step + 1} of {STEPS.length} · {STEPS[step]}
             </p>
           </div>
-          <button
-            onClick={onClose}
-            className="p-2 rounded-[10px] hover:bg-white/5 text-slate-400 hover:text-white"
-          >
-            <X className="w-5 h-5" />
-          </button>
+          <div className="flex-1 flex justify-end">
+            <button
+              onClick={onClose}
+              className="p-2 rounded-full hover:bg-white/5 text-slate-400 hover:text-white transition-all"
+            >
+              <X className="w-5 h-5" />
+            </button>
+          </div>
         </div>
 
         {/* Progress bar */}
@@ -265,29 +268,29 @@ export function CoursePublishWizard({
                   <button
                     onClick={() => i <= step && setStep(i as Step)}
                     disabled={upcoming}
-                    className={`relative flex flex-col items-center justify-center gap-1.5 w-full transition-all duration-200 ${
-                      upcoming ? "cursor-default" : "cursor-pointer"
+                    className={`relative flex flex-col items-center justify-center gap-1.5 w-full transition-all duration-300 ${
+                      upcoming ? "cursor-default opacity-50" : "cursor-pointer"
                     }`}
                   >
                     <div
-                      className={`relative z-10 w-8 h-8 sm:w-9 sm:h-9 rounded-full grid place-items-center text-xs font-bold transition-all duration-200 ${
+                      className={`relative z-10 w-8 h-8 sm:w-9 sm:h-9 rounded-full grid place-items-center text-xs font-bold transition-all duration-300 ${
                         active
-                          ? "bg-emerald-500 text-black scale-105"
+                          ? "bg-[#E5484D] text-white shadow-[0_0_15px_rgba(229,72,77,0.4)] scale-110"
                           : done
-                            ? "bg-emerald-500 text-black"
-                            : "bg-[#16161A] text-slate-500 border border-white/10"
+                            ? "bg-[#E5484D] text-white"
+                            : "bg-[#141416] text-slate-500 border border-white/5"
                       }`}
                     >
                       {done ? (
                         <CheckCircle2 className="w-4 h-4" />
                       ) : (
-                        <span className={active ? "text-black" : "text-slate-500"}>{i + 1}</span>
+                        <span className={active ? "text-white" : "text-slate-500"}>{i + 1}</span>
                       )}
                     </div>
                     {!isAppShell && (
                       <span
-                        className={`text-[10px] sm:text-[11px] font-medium transition-colors duration-200 ${
-                          active ? "text-emerald-300" : done ? "text-emerald-400/80" : "text-slate-500"
+                        className={`text-[10px] sm:text-[11px] font-bold uppercase tracking-tighter transition-colors duration-300 ${
+                          active ? "text-[#E5484D]" : done ? "text-white/60" : "text-slate-500"
                         }`}
                       >
                         {s}
@@ -296,9 +299,9 @@ export function CoursePublishWizard({
                   </button>
 
                   {!isLast && (
-                    <div className="flex-1 h-[2px] mx-1 sm:mx-2 rounded-full bg-white/10 overflow-hidden">
+                    <div className="flex-1 h-[2px] mx-1 sm:mx-2 rounded-full bg-white/5 overflow-hidden">
                       <div
-                        className="h-full bg-emerald-500 transition-[width] duration-300 ease-out"
+                        className="h-full bg-[#E5484D] transition-[width] duration-500 ease-out"
                         style={{ width: done ? "100%" : "0%" }}
                       />
                     </div>
@@ -370,44 +373,44 @@ export function CoursePublishWizard({
         <div
           className={`flex items-center justify-between gap-2 border-t border-white/10 shrink-0 ${
             isAppShell
-              ? "fixed bottom-0 left-0 right-0 p-4 bg-[#16161A] z-10 rounded-t-2xl"
-              : "p-4 bg-[#121214]/70"
+              ? "fixed bottom-0 left-0 right-0 p-4 bg-[#0A0A0B]/90 backdrop-blur-xl z-20 rounded-t-3xl border-t border-white/5"
+              : "p-4 bg-[#0A0A0B]/50 backdrop-blur-sm"
           }`}
         >
           <button
             onClick={() => setStep((s) => (s > 0 ? ((s - 1) as Step) : s))}
             disabled={step === 0 || saving !== null}
-            className={`inline-flex items-center gap-1 rounded-[10px] text-sm text-slate-300 disabled:opacity-40 ${
+            className={`inline-flex items-center gap-1 rounded-[10px] text-sm text-slate-300 disabled:opacity-40 transition-all ${
               isAppShell
-                ? "px-4 py-3 bg-white/5 hover:bg-white/10 border border-white/10 font-semibold"
-                : "px-3 py-3 bg-white/5 hover:bg-white/10 border border-white/10"
+                ? "px-5 py-3.5 bg-white/5 hover:bg-white/10 border border-white/5 font-bold"
+                : "px-4 py-2.5 bg-white/5 hover:bg-white/10 border border-white/5"
             }`}
           >
             <ChevronLeft className="w-4 h-4" /> Back
           </button>
 
-          <div className="flex items-center gap-2">
+          <div className="flex items-center gap-3">
             {step === 4 ? (
               <>
-                <button
-                  onClick={() => handleSave(false)}
-                  disabled={saving !== null}
-                  className={`inline-flex items-center gap-1 rounded-[10px] bg-white/5 hover:bg-white/10 border border-white/10 text-sm text-white disabled:opacity-40 ${
-                    isAppShell ? "px-4 py-3 font-semibold" : "px-3 py-2"
-                  }`}
-                >
-                  {saving === "draft" ? (
-                    <Loader2 className="w-4 h-4 animate-spin" />
-                  ) : (
-                    <Save className="w-4 h-4" />
-                  )}
-                  Save as Draft
-                </button>
+                {!isAppShell && (
+                  <button
+                    onClick={() => handleSave(false)}
+                    disabled={saving !== null}
+                    className="inline-flex items-center gap-2 rounded-[10px] bg-white/5 hover:bg-white/10 border border-white/5 text-sm text-white px-4 py-2.5 transition-all disabled:opacity-40"
+                  >
+                    {saving === "draft" ? (
+                      <Loader2 className="w-4 h-4 animate-spin" />
+                    ) : (
+                      <Save className="w-4 h-4" />
+                    )}
+                    Save as Draft
+                  </button>
+                )}
                 <button
                   onClick={() => handleSave(true)}
                   disabled={saving !== null || totalLessons === 0 || !title.trim()}
-                  className={`inline-flex items-center gap-1 rounded-[10px] bg-emerald-500 hover:bg-emerald-400 text-black text-sm font-bold disabled:opacity-40 ${
-                    isAppShell ? "px-5 py-3" : "px-4 py-2"
+                  className={`inline-flex items-center gap-2 rounded-[10px] bg-[#E5484D] hover:bg-[#E5484D]/90 text-white text-sm font-black shadow-[0_4px_15px_rgba(229,72,77,0.3)] transition-all disabled:opacity-40 ${
+                    isAppShell ? "px-6 py-3.5" : "px-5 py-2.5"
                   }`}
                 >
                   {saving === "publish" ? (
@@ -422,8 +425,8 @@ export function CoursePublishWizard({
               <button
                 onClick={() => canGoNext() && setStep((s) => Math.min(4, s + 1) as Step)}
                 disabled={!canGoNext()}
-                className={`inline-flex items-center gap-1 rounded-[10px] bg-emerald-500 hover:bg-emerald-400 text-black text-sm font-bold disabled:opacity-40 ${
-                  isAppShell ? "px-5 py-3" : "px-4 py-2"
+                className={`inline-flex items-center gap-2 rounded-[10px] bg-[#E5484D] hover:bg-[#E5484D]/90 text-white text-sm font-black shadow-[0_4px_15px_rgba(229,72,77,0.3)] transition-all disabled:opacity-40 ${
+                  isAppShell ? "px-6 py-3.5" : "px-5 py-2.5"
                 }`}
               >
                 Save & Next <ChevronRight className="w-4 h-4" />
@@ -451,7 +454,7 @@ function Label({ children }: { children: React.ReactNode }) {
   );
 }
 const inputCls =
-  "w-full px-3 py-3 rounded-[10px] bg-[#121214] border border-white/10 text-white text-sm placeholder:text-slate-600 outline-none focus:border-emerald-500/50";
+  "w-full px-4 py-3.5 rounded-[10px] bg-[#141416] border border-white/5 text-white text-sm placeholder:text-slate-600 outline-none focus:border-[#E5484D]/50 transition-all";
 
 function BasicsStep(props: {
   isAppShell: boolean;
@@ -522,20 +525,23 @@ function BasicsStep(props: {
       <div>
         <Label>Course Thumbnail (up to 5MB)</Label>
         {isAppShell ? (
-          <label className="cursor-pointer block relative w-full aspect-[16/10] rounded-xl bg-[#121214] border border-dashed border-white/15 overflow-hidden">
+          <label className="cursor-pointer block relative w-full aspect-[16/9] rounded-2xl bg-[#141416] border border-dashed border-white/10 overflow-hidden group transition-all hover:border-[#E5484D]/30">
             {coverPreview ? (
-              <img loading="lazy" decoding="async" src={coverPreview} alt="cover" className="w-full h-full object-cover" />
+              <img loading="lazy" decoding="async" src={coverPreview} alt="cover" className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-105" />
             ) : (
-              <div className="absolute inset-0 flex flex-col items-center justify-center gap-2 text-slate-500">
-                <div className="w-14 h-14 rounded-full bg-white/5 grid place-items-center">
-                  <ImageIcon className="w-6 h-6" />
+              <div className="absolute inset-0 flex flex-col items-center justify-center gap-3 text-slate-500">
+                <div className="w-16 h-16 rounded-full bg-white/5 grid place-items-center transition-colors group-hover:bg-[#E5484D]/10 group-hover:text-[#E5484D]">
+                  <ImageIcon className="w-7 h-7" />
                 </div>
-                <span className="text-sm font-semibold">{uploading ? "Uploading…" : "Tap to upload thumbnail"}</span>
+                <div className="text-center">
+                  <span className="block text-sm font-bold text-white mb-1">{uploading ? "Uploading…" : "Upload Course Thumbnail"}</span>
+                  <span className="text-[10px] uppercase tracking-widest text-slate-500">Recommended: 16:9 ratio</span>
+                </div>
               </div>
             )}
             {coverPreview && (
-              <div className="absolute bottom-3 right-3 px-3 py-1.5 rounded-[10px] bg-black/70 text-white text-xs font-semibold backdrop-blur-sm">
-                {uploading ? "Uploading…" : "Change"}
+              <div className="absolute top-4 right-4 px-4 py-2 rounded-full bg-black/60 text-white text-[11px] font-black uppercase tracking-widest backdrop-blur-md border border-white/10 opacity-0 group-hover:opacity-100 transition-opacity">
+                {uploading ? "Uploading…" : "Change Cover"}
               </div>
             )}
             <input
@@ -547,17 +553,17 @@ function BasicsStep(props: {
             />
           </label>
         ) : (
-          <div className="flex items-center gap-3">
-            <div className="w-32 h-20 rounded-[10px] bg-[#121214] border border-white/10 grid place-items-center overflow-hidden">
+          <div className="flex items-center gap-4">
+            <div className="w-40 h-24 rounded-xl bg-[#141416] border border-white/5 grid place-items-center overflow-hidden">
               {coverPreview ? (
                 <img loading="lazy" decoding="async" src={coverPreview} alt="cover" className="w-full h-full object-cover" />
               ) : (
-                <FileType2 className="w-6 h-6 text-slate-600" />
+                <FileType2 className="w-8 h-8 text-slate-600" />
               )}
             </div>
-            <label className="cursor-pointer inline-flex items-center gap-2 px-3 py-3 rounded-[10px] bg-white/5 hover:bg-white/10 border border-white/10 text-sm text-white">
+            <label className="cursor-pointer inline-flex items-center gap-2 px-5 py-3 rounded-[10px] bg-white/5 hover:bg-white/10 border border-white/5 text-sm font-bold text-white transition-all">
               <Upload className="w-4 h-4" />
-              {uploading ? "Uploading…" : coverPath ? "Replace" : "Upload"}
+              {uploading ? "Uploading…" : coverPath ? "Replace Thumbnail" : "Upload Thumbnail"}
               <input
                 type="file"
                 accept="image/*"
@@ -569,7 +575,7 @@ function BasicsStep(props: {
           </div>
         )}
       </div>
-      <div className="grid sm:grid-cols-2 gap-4">
+      <div className="grid sm:grid-cols-2 gap-6">
         <div>
           <Label>Category</Label>
           <select
@@ -586,13 +592,15 @@ function BasicsStep(props: {
         </div>
         <div>
           <Label>Difficulty Level</Label>
-          <div className="flex gap-1 p-1 rounded-[10px] bg-[#121214] border border-white/10">
+          <div className="flex gap-2 p-1 rounded-[12px] bg-[#141416] border border-white/5">
             {LEVELS.map((l) => (
               <button
                 key={l.key}
                 onClick={() => setLevel(l.key)}
-                className={`flex-1 px-3 py-1.5 rounded-[10px] text-xs font-semibold transition-colors ${
-                  level === l.key ? "bg-emerald-500 text-black" : "text-slate-300 hover:bg-white/5"
+                className={`flex-1 px-3 py-2.5 rounded-[10px] text-xs font-bold uppercase tracking-tight transition-all ${
+                  level === l.key 
+                    ? "bg-[#E5484D] text-white shadow-[0_4px_10px_rgba(229,72,77,0.25)]" 
+                    : "text-slate-500 hover:text-slate-300 hover:bg-white/5"
                 }`}
               >
                 {l.label}
@@ -662,8 +670,8 @@ function CurriculumStep({
         </p>
         <button
           onClick={addSection}
-          className={`inline-flex items-center gap-1 rounded-[10px] bg-emerald-500 hover:bg-emerald-400 text-black font-bold shrink-0 ${
-            isAppShell ? "px-4 py-2.5 text-sm" : "px-3 py-1.5 text-xs"
+          className={`inline-flex items-center gap-2 rounded-[10px] bg-[#E5484D] hover:bg-[#E5484D]/90 text-white font-black shrink-0 transition-all ${
+            isAppShell ? "px-5 py-3 text-sm" : "px-4 py-2 text-xs"
           }`}
         >
           <Plus className="w-4 h-4" /> Add Section
@@ -671,7 +679,7 @@ function CurriculumStep({
       </div>
 
       {sections.length === 0 && (
-        <div className="text-center py-10 border border-dashed border-white/10 rounded-xl text-slate-500 text-sm">
+        <div className="text-center py-16 border border-dashed border-white/5 rounded-2xl bg-[#0A0A0B] text-slate-500 text-sm">
           No sections yet. Add your first module to get started.
         </div>
       )}
@@ -679,19 +687,21 @@ function CurriculumStep({
       {sections.map((section, sIdx) => (
         <div
           key={section.id}
-          className="rounded-xl bg-[#121214] border border-white/10 p-4 space-y-3"
+          className="rounded-2xl bg-[#141416] border border-white/5 p-5 space-y-4 shadow-sm"
         >
-          <div className="flex items-center gap-2">
-            <GripVertical className="w-4 h-4 text-slate-600" />
-            <span className="text-xs font-bold text-slate-500">Section {sIdx + 1}</span>
+          <div className="flex items-center gap-3">
+            <div className="p-2 bg-white/5 rounded-lg cursor-grab active:cursor-grabbing">
+              <GripVertical className="w-4 h-4 text-slate-500" />
+            </div>
+            <span className="text-[10px] font-black text-slate-500 uppercase tracking-widest">M{sIdx + 1}</span>
             <input
               value={section.title}
               onChange={(e) => updateSection(section.id, { title: e.target.value })}
-              className="flex-1 bg-transparent border-b border-white/10 focus:border-emerald-500/50 outline-none text-white font-semibold text-sm px-1 py-1"
+              className="flex-1 bg-transparent border-b border-white/5 focus:border-[#E5484D]/50 outline-none text-white font-bold text-sm px-1 py-1.5 transition-all"
             />
             <button
               onClick={() => removeSection(section.id)}
-              className="p-1.5 rounded hover:bg-red-500/10 text-red-400"
+              className="p-2 rounded-lg hover:bg-red-500/10 text-red-500/60 hover:text-red-500 transition-all"
             >
               <Trash2 className="w-4 h-4" />
             </button>
@@ -708,7 +718,7 @@ function CurriculumStep({
             ))}
             <button
               onClick={() => addLesson(section.id)}
-              className="w-full inline-flex items-center justify-center gap-1 px-3 py-3 rounded-[10px] bg-white/5 hover:bg-white/10 border border-dashed border-white/10 text-slate-300 text-xs font-semibold"
+              className="w-full inline-flex items-center justify-center gap-2 px-4 py-3.5 rounded-[12px] bg-white/5 hover:bg-white/10 border border-dashed border-white/10 text-slate-400 text-xs font-bold uppercase tracking-wider transition-all"
             >
               <Plus className="w-4 h-4" /> Add Lesson
             </button>
@@ -731,30 +741,32 @@ function LessonRow({
   const [open, setOpen] = useState(false);
   const Icon = lesson.type === "text" ? FileText : lesson.type === "pdf" ? FileType2 : Video;
   return (
-    <div className="rounded-[10px] bg-[#1E1E24] border border-white/10">
-      <div className="flex items-center gap-2 p-2">
-        <Icon className="w-4 h-4 text-emerald-400 shrink-0" />
+    <div className="rounded-[12px] bg-[#0A0A0B] border border-white/5 overflow-hidden transition-all hover:border-white/10 shadow-sm">
+      <div className="flex items-center gap-3 p-3">
+        <div className="p-2 rounded-lg bg-white/5">
+          <Icon className="w-4 h-4 text-[#E5484D] shrink-0" />
+        </div>
         <input
           value={lesson.title}
           onChange={(e) => onChange({ title: e.target.value })}
-          className="flex-1 bg-transparent outline-none text-white text-sm px-1"
+          className="flex-1 bg-transparent outline-none text-white text-sm font-bold px-1"
           placeholder="Lesson title"
         />
         <button
           onClick={() => setOpen((v) => !v)}
-          className="text-xs text-emerald-400 hover:text-emerald-300 px-2 py-1"
+          className="text-[10px] font-black uppercase tracking-widest text-[#E5484D] hover:text-[#E5484D]/80 px-3 py-1.5 rounded-lg hover:bg-[#E5484D]/5 transition-all"
         >
-          {open ? "Hide" : "Edit"}
+          {open ? "Close" : "Edit"}
         </button>
-        <button onClick={onRemove} className="p-1.5 rounded hover:bg-red-500/10 text-red-400">
-          <Trash2 className="w-3.5 h-3.5" />
+        <button onClick={onRemove} className="p-2 rounded-lg hover:bg-red-500/10 text-red-500/60 hover:text-red-500 transition-all">
+          <Trash2 className="w-4 h-4" />
         </button>
       </div>
       {open && (
-        <div className="p-3 pt-1 space-y-3 border-t border-white/10">
-          <div className="grid sm:grid-cols-3 gap-2">
+        <div className="p-4 pt-2 space-y-4 border-t border-white/5 bg-[#0A0A0B]/50">
+          <div className="grid sm:grid-cols-3 gap-4">
             <div>
-              <Label>Type</Label>
+              <Label>Lesson Type</Label>
               <select
                 value={lesson.type}
                 onChange={(e) => {
@@ -782,14 +794,14 @@ function LessonRow({
                 className={inputCls}
               />
             </div>
-            <label className="flex items-end gap-2 pb-2">
+            <label className="flex items-end gap-3 pb-2 cursor-pointer group">
               <input
                 type="checkbox"
                 checked={Boolean(lesson.isPreview)}
                 onChange={(e) => onChange({ isPreview: e.target.checked })}
-                className="accent-emerald-500"
+                className="w-5 h-5 rounded-[6px] border-white/10 bg-[#141416] checked:bg-[#E5484D] accent-[#E5484D] transition-all"
               />
-              <span className="text-sm text-white">Free preview lesson</span>
+              <span className="text-sm font-bold text-slate-300 group-hover:text-white transition-colors">Free preview lesson</span>
             </label>
           </div>
           {lesson.type === "video" && <VideoLessonEditor lesson={lesson} onChange={onChange} />}
@@ -868,10 +880,10 @@ function VideoLessonEditor({
       </div>
       <div>
         <Label>Or upload a video file (≤ 500 MB)</Label>
-        <div className="flex items-center gap-2">
-          <label className="inline-flex items-center gap-2 px-3 py-3 rounded-[10px] bg-white/5 hover:bg-white/10 border border-white/10 text-sm text-slate-200 cursor-pointer">
+        <div className="flex items-center gap-4">
+          <label className="inline-flex items-center gap-2 px-4 py-3 rounded-[10px] bg-white/5 hover:bg-white/10 border border-white/5 text-sm font-bold text-white cursor-pointer transition-all">
             <Upload className="w-4 h-4" />
-            {uploading ? "Uploading…" : videoPath ? "Replace video" : "Choose video"}
+            {uploading ? "Uploading…" : videoPath ? "Replace Video" : "Choose Video"}
             <input
               type="file"
               accept="video/*"
@@ -886,9 +898,9 @@ function VideoLessonEditor({
             <button
               type="button"
               onClick={() => onChange({ content: { ...lesson.content, video_path: null } })}
-              className="text-xs text-red-300 hover:text-red-200"
+              className="text-[10px] font-black uppercase tracking-widest text-red-500/60 hover:text-red-500 transition-all"
             >
-              Remove upload
+              Remove Upload
             </button>
           )}
         </div>
@@ -966,8 +978,8 @@ function QuizzesStep({
         </p>
         <button
           onClick={addQuiz}
-          className={`inline-flex items-center gap-1 rounded-[10px] bg-emerald-500 hover:bg-emerald-400 text-black font-bold shrink-0 ${
-            isAppShell ? "px-4 py-2.5 text-sm" : "px-3 py-1.5 text-xs"
+          className={`inline-flex items-center gap-2 rounded-[10px] bg-[#E5484D] hover:bg-[#E5484D]/90 text-white font-black shrink-0 transition-all ${
+            isAppShell ? "px-5 py-3 text-sm" : "px-4 py-2 text-xs"
           }`}
         >
           <Plus className="w-4 h-4" /> Add Quiz
@@ -975,22 +987,22 @@ function QuizzesStep({
       </div>
 
       {quizzes.length === 0 && (
-        <div className="text-center py-10 border border-dashed border-white/10 rounded-xl text-slate-500 text-sm">
+        <div className="text-center py-16 border border-dashed border-white/5 rounded-2xl bg-[#0A0A0B] text-slate-500 text-sm">
           No quizzes added. You can skip this step or add one to test learners.
         </div>
       )}
 
       {quizzes.map((quiz) => (
-        <div key={quiz.id} className="rounded-xl bg-[#121214] border border-white/10 p-4 space-y-3">
-          <div className="flex items-center gap-2">
+        <div key={quiz.id} className="rounded-2xl bg-[#141416] border border-white/5 p-5 space-y-4 shadow-sm">
+          <div className="flex items-center gap-3">
             <input
               value={quiz.title}
               onChange={(e) => updateQuiz(quiz.id, { title: e.target.value })}
-              className="flex-1 bg-transparent border-b border-white/10 focus:border-emerald-500/50 outline-none text-white font-semibold text-sm px-1 py-1"
+              className="flex-1 bg-transparent border-b border-white/5 focus:border-[#E5484D]/50 outline-none text-white font-bold text-sm px-1 py-1.5 transition-all"
             />
             <button
               onClick={() => removeQuiz(quiz.id)}
-              className="p-1.5 rounded hover:bg-red-500/10 text-red-400"
+              className="p-2 rounded-lg hover:bg-red-500/10 text-red-500/60 hover:text-red-500 transition-all"
             >
               <Trash2 className="w-4 h-4" />
             </button>
@@ -1004,10 +1016,10 @@ function QuizzesStep({
               step={5}
               value={quiz.passingGrade}
               onChange={(e) => updateQuiz(quiz.id, { passingGrade: Number(e.target.value) })}
-              className="w-full accent-emerald-500"
+              className="w-full accent-[#E5484D] cursor-pointer"
             />
           </div>
-          <div className="space-y-2">
+          <div className="space-y-3">
             {quiz.questions.map((q, qIdx) => (
               <QuestionCard
                 key={qIdx}
@@ -1018,7 +1030,7 @@ function QuizzesStep({
             ))}
             <button
               onClick={() => addQuestion(quiz.id)}
-              className="w-full inline-flex items-center justify-center gap-1 px-3 py-3 rounded-[10px] bg-white/5 hover:bg-white/10 border border-dashed border-white/10 text-slate-300 text-xs font-semibold"
+              className="w-full inline-flex items-center justify-center gap-2 px-4 py-3.5 rounded-[12px] bg-white/5 hover:bg-white/10 border border-dashed border-white/10 text-slate-400 text-xs font-bold uppercase tracking-wider transition-all"
             >
               <Plus className="w-4 h-4" /> Add Question
             </button>
@@ -1062,24 +1074,24 @@ function QuestionCard({
     }
   };
   return (
-    <div className="rounded-[10px] bg-[#1E1E24] border border-white/10 p-3 space-y-2">
-      <div className="flex items-center gap-2">
+    <div className="rounded-[12px] bg-[#0A0A0B] border border-white/5 p-4 space-y-4 shadow-sm">
+      <div className="flex items-center gap-3">
         <input
           value={question.text}
           onChange={(e) => onChange({ text: e.target.value })}
-          className="flex-1 bg-transparent border-b border-white/10 focus:border-emerald-500/50 outline-none text-white text-sm px-1 py-1"
+          className="flex-1 bg-transparent border-b border-white/5 focus:border-[#E5484D]/50 outline-none text-white font-bold text-sm px-1 py-1.5 transition-all"
           placeholder="Question text"
         />
         <select
           value={question.type}
           onChange={(e) => setType(e.target.value as "multiple" | "boolean")}
-          className={inputCls + " max-w-[140px]"}
+          className={inputCls + " max-w-[150px] !py-2.5 !px-3"}
         >
-          <option value="multiple">Multiple choice</option>
+          <option value="multiple">Multiple Choice</option>
           <option value="boolean">True / False</option>
         </select>
-        <button onClick={onRemove} className="p-1.5 rounded hover:bg-red-500/10 text-red-400">
-          <Trash2 className="w-3.5 h-3.5" />
+        <button onClick={onRemove} className="p-2 rounded-lg hover:bg-red-500/10 text-red-500/60 hover:text-red-500 transition-all">
+          <Trash2 className="w-4 h-4" />
         </button>
       </div>
       <div className="space-y-1.5">
@@ -1089,7 +1101,7 @@ function QuestionCard({
               type="radio"
               checked={o.correct}
               onChange={() => setCorrect(i)}
-              className="accent-emerald-500"
+              className="w-4 h-4 accent-[#E5484D] cursor-pointer"
             />
             <input
               value={o.text}
@@ -1100,7 +1112,7 @@ function QuestionCard({
                   ),
                 )
               }
-              className="flex-1 bg-[#121214] border border-white/10 rounded px-2 py-1 text-sm text-white outline-none"
+              className="flex-1 bg-[#141416] border border-white/5 rounded-lg px-3 py-2 text-sm text-white outline-none focus:border-[#E5484D]/30 transition-all"
             />
             {question.type === "multiple" && question.options.length > 2 && (
               <button
@@ -1123,9 +1135,9 @@ function QuestionCard({
                 },
               ])
             }
-            className="text-[11px] text-emerald-400 hover:text-emerald-300"
+            className="text-[10px] font-black uppercase tracking-widest text-[#E5484D] hover:text-[#E5484D]/80 px-2 py-1 transition-all"
           >
-            + Add option
+            + Add Option
           </button>
         )}
       </div>
@@ -1162,23 +1174,27 @@ function SettingsStep(props: {
     setCertificateTemplate,
   } = props;
   return (
-    <div className={`space-y-5 max-w-3xl ${isAppShell ? "pb-4" : ""}`}>
-      <section className="rounded-xl bg-[#121214] border border-white/10 p-4 space-y-3">
-        <div className="text-sm font-bold text-white">Access Control</div>
-        <div className="flex gap-2">
+    <div className={`space-y-6 max-w-3xl ${isAppShell ? "pb-4" : ""}`}>
+      <section className="rounded-2xl bg-[#141416] border border-white/5 p-5 space-y-4 shadow-sm">
+        <div className="text-[11px] font-black uppercase tracking-widest text-slate-500">Access Control</div>
+        <div className="flex gap-3">
           <button
             onClick={() => setIsFree(true)}
-            className={`flex-1 rounded-[10px] border font-semibold ${
-              isAppShell ? "px-4 py-3 text-base" : "px-3 py-3 text-sm"
-            } ${isFree ? "bg-emerald-500/15 border-emerald-500/50 text-emerald-300" : "bg-white/5 border-white/10 text-slate-300"}`}
+            className={`flex-1 rounded-[12px] border font-black uppercase tracking-tight transition-all ${
+              isAppShell ? "px-5 py-3.5 text-base" : "px-4 py-3 text-sm"
+            } ${isFree 
+              ? "bg-[#E5484D]/10 border-[#E5484D]/50 text-[#E5484D] shadow-[0_4px_12px_rgba(229,72,77,0.15)]" 
+              : "bg-white/5 border-white/5 text-slate-500 hover:text-slate-300 hover:bg-white/10"}`}
           >
             Free
           </button>
           <button
             onClick={() => setIsFree(false)}
-            className={`flex-1 rounded-[10px] border font-semibold ${
-              isAppShell ? "px-4 py-3 text-base" : "px-3 py-3 text-sm"
-            } ${!isFree ? "bg-emerald-500/15 border-emerald-500/50 text-emerald-300" : "bg-white/5 border-white/10 text-slate-300"}`}
+            className={`flex-1 rounded-[12px] border font-black uppercase tracking-tight transition-all ${
+              isAppShell ? "px-5 py-3.5 text-base" : "px-4 py-3 text-sm"
+            } ${!isFree 
+              ? "bg-[#E5484D]/10 border-[#E5484D]/50 text-[#E5484D] shadow-[0_4px_12px_rgba(229,72,77,0.15)]" 
+              : "bg-white/5 border-white/5 text-slate-500 hover:text-slate-300 hover:bg-white/10"}`}
           >
             Paid
           </button>
@@ -1203,36 +1219,36 @@ function SettingsStep(props: {
         )}
       </section>
 
-      <section className="rounded-xl bg-[#121214] border border-white/10 p-4 space-y-3">
-        <div className="text-sm font-bold text-white">Completion Rules</div>
-        <label className="flex items-center gap-2 cursor-pointer">
+      <section className="rounded-2xl bg-[#141416] border border-white/5 p-5 space-y-4 shadow-sm">
+        <div className="text-[11px] font-black uppercase tracking-widest text-slate-500">Completion Rules</div>
+        <label className="flex items-center gap-3 cursor-pointer group">
           <input
             type="checkbox"
             checked={requireLinear}
             onChange={(e) => setRequireLinear(e.target.checked)}
-            className="accent-emerald-500"
+            className="w-5 h-5 rounded-[6px] border-white/10 bg-[#0A0A0B] checked:bg-[#E5484D] accent-[#E5484D] transition-all"
           />
-          <span className="text-sm text-white">
+          <span className="text-sm font-bold text-slate-300 group-hover:text-white transition-colors">
             Require linear progression{" "}
-            <span className="text-slate-500">
+            <span className="text-slate-500 font-normal">
               (learners must finish lesson 1 before seeing lesson 2)
             </span>
           </span>
         </label>
       </section>
 
-      <section className="rounded-xl bg-[#121214] border border-white/10 p-4 space-y-3">
-        <div className="text-sm font-bold text-white flex items-center gap-2">
-          <Award className="w-4 h-4 text-emerald-400" /> Certificate
+      <section className="rounded-2xl bg-[#141416] border border-white/5 p-5 space-y-4 shadow-sm">
+        <div className="text-[11px] font-black uppercase tracking-widest text-slate-500 flex items-center gap-2">
+          <Award className="w-4 h-4 text-[#E5484D]" /> Certificate
         </div>
-        <label className="flex items-center gap-2 cursor-pointer">
+        <label className="flex items-center gap-3 cursor-pointer group">
           <input
             type="checkbox"
             checked={issueCertificate}
             onChange={(e) => setIssueCertificate(e.target.checked)}
-            className="accent-emerald-500"
+            className="w-5 h-5 rounded-[6px] border-white/10 bg-[#0A0A0B] checked:bg-[#E5484D] accent-[#E5484D] transition-all"
           />
-          <span className="text-sm text-white">Issue certificate on completion</span>
+          <span className="text-sm font-bold text-slate-300 group-hover:text-white transition-colors">Issue certificate on completion</span>
         </label>
         {issueCertificate && (
           <div>
@@ -1293,10 +1309,10 @@ function ReviewStep(props: {
           Fix before publishing: {missing.join(", ")}.
         </div>
       )}
-      <div className="rounded-xl bg-[#121214] border border-white/10 p-5">
-        <div className="text-2xl font-black text-white">{title || "Untitled Course"}</div>
-        {subtitle && <div className="text-sm text-slate-400 mt-1">{subtitle}</div>}
-        <div className="mt-4 grid grid-cols-2 sm:grid-cols-4 gap-3 text-center">
+      <div className="rounded-2xl bg-[#141416] border border-white/5 p-6 shadow-sm">
+        <div className="text-2xl font-black text-white tracking-tight">{title || "Untitled Course"}</div>
+        {subtitle && <div className="text-sm text-slate-400 mt-2 leading-relaxed">{subtitle}</div>}
+        <div className="mt-6 grid grid-cols-2 sm:grid-cols-4 gap-4 text-center">
           <Stat label="Sections" value={sections.length} />
           <Stat label="Lessons" value={totalLessons} />
           <Stat label="Quizzes" value={quizzes.length} />
@@ -1305,38 +1321,48 @@ function ReviewStep(props: {
             value={isFree ? "Free" : `${currencySymbol(baseCurrency)}${priceLocal}`}
           />
         </div>
-        <div className="mt-4 text-xs text-slate-400 space-y-1">
-          <div>· Linear progression: {requireLinear ? "on" : "off"}</div>
-          <div>
-            · Certificate on completion: {issueCertificate ? `on (${certificateTemplate})` : "off"}
+        <div className="mt-6 p-4 rounded-xl bg-[#0A0A0B]/50 border border-white/5 space-y-2">
+          <div className="text-[10px] font-black uppercase tracking-widest text-slate-500 mb-1">Configuration</div>
+          <div className="text-xs text-slate-300 flex items-center gap-2">
+            <div className={`w-1.5 h-1.5 rounded-full ${requireLinear ? "bg-[#E5484D]" : "bg-slate-600"}`} />
+            Linear progression: <span className="text-white font-bold">{requireLinear ? "Active" : "Disabled"}</span>
+          </div>
+          <div className="text-xs text-slate-300 flex items-center gap-2">
+            <div className={`w-1.5 h-1.5 rounded-full ${issueCertificate ? "bg-[#E5484D]" : "bg-slate-600"}`} />
+            Certificate: <span className="text-white font-bold">{issueCertificate ? `Active (${certificateTemplate})` : "Disabled"}</span>
           </div>
         </div>
       </div>
-      <div className="rounded-xl bg-[#121214] border border-white/10 p-4">
-        <div className="text-xs font-bold uppercase tracking-wider text-slate-400 mb-2">
-          Curriculum preview
+      <div className="rounded-2xl bg-[#141416] border border-white/5 p-6 shadow-sm">
+        <div className="text-[11px] font-black uppercase tracking-widest text-slate-500 mb-4 flex items-center justify-between">
+          Curriculum Preview
+          <span className="text-slate-600 font-normal">{totalLessons} total lessons</span>
         </div>
-        {sections.map((s, i) => (
-          <div key={s.id} className="mb-3">
-            <div className="text-sm font-semibold text-white">
-              {i + 1}. {s.title || "Untitled section"}
+        <div className="space-y-4">
+          {sections.map((s, i) => (
+            <div key={s.id} className="p-4 rounded-xl bg-[#0A0A0B]/30 border border-white/5">
+              <div className="text-sm font-black text-white flex items-center gap-2">
+                <span className="text-[#E5484D] opacity-60">M{i + 1}</span>
+                {s.title || "Untitled Section"}
+              </div>
+              <ul className="mt-3 space-y-2 ml-2 border-l border-white/5 pl-4">
+                {s.lessons.map((l, j) => (
+                  <li key={j} className="text-xs text-slate-400 flex items-center gap-2 group">
+                    <span className="text-slate-700 font-bold w-6">
+                      {i + 1}.{j + 1}
+                    </span>{" "}
+                    <span className="group-hover:text-white transition-colors flex-1">{l.title || "Untitled Lesson"}</span>
+                    <span className="text-[10px] font-black uppercase tracking-widest bg-white/5 px-2 py-0.5 rounded text-slate-500">{l.type}</span>{" "}
+                    {l.isPreview && <span className="text-[#E5484D] text-[10px] font-black uppercase tracking-widest border border-[#E5484D]/20 px-2 py-0.5 rounded bg-[#E5484D]/5">Preview</span>}
+                  </li>
+                ))}
+                {s.lessons.length === 0 && (
+                  <li className="text-xs text-slate-600 italic">No lessons in this section.</li>
+                )}
+              </ul>
             </div>
-            <ul className="mt-1 ml-4 space-y-0.5">
-              {s.lessons.map((l, j) => (
-                <li key={j} className="text-xs text-slate-400 flex items-center gap-2">
-                  <span className="text-slate-600">
-                    {i + 1}.{j + 1}
-                  </span>{" "}
-                  {l.title || "Untitled lesson"} <span className="text-slate-600">· {l.type}</span>{" "}
-                  {l.isPreview && <span className="text-emerald-400">· preview</span>}
-                </li>
-              ))}
-              {s.lessons.length === 0 && (
-                <li className="text-xs text-slate-600">No lessons in this section.</li>
-              )}
-            </ul>
-          </div>
-        ))}
+          ))}
+        </div>
       </div>
     </div>
   );
@@ -1344,9 +1370,9 @@ function ReviewStep(props: {
 
 function Stat({ label, value }: { label: string; value: string | number }) {
   return (
-    <div className="rounded-[10px] bg-[#1E1E24] border border-white/10 py-3">
-      <div className="text-lg font-black text-white">{value}</div>
-      <div className="text-[10px] uppercase tracking-wider text-slate-500">{label}</div>
+    <div className="rounded-xl bg-[#0A0A0B] border border-white/5 py-4 px-2 shadow-sm">
+      <div className="text-xl font-black text-white tracking-tight">{value}</div>
+      <div className="text-[9px] font-black uppercase tracking-widest text-slate-600 mt-1">{label}</div>
     </div>
   );
 }

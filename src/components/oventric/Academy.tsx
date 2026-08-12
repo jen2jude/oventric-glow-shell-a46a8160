@@ -103,6 +103,7 @@ export const Academy = ({ hubMode = false }: { hubMode?: boolean }) => {
   const [refreshKey, setRefreshKey] = useState(0);
   const [editorOpen, setEditorOpen] = useState(false);
   const [editingId, setEditingId] = useState<string | undefined>();
+  const [useWizard, setUseWizard] = useState(true);
   const [userId, setUserId] = useState<string | null>(null);
   const [searchQuery, setSearchQuery] = useState("");
 
@@ -206,11 +207,12 @@ export const Academy = ({ hubMode = false }: { hubMode?: boolean }) => {
                 <button
                   onClick={() => {
                     setEditingId(undefined);
+                    setUseWizard(true);
                     setEditorOpen(true);
                   }}
-                  className="inline-flex items-center gap-2 text-xs text-black bg-emerald-500 hover:bg-emerald-400 rounded-[10px] px-3 py-1.5 font-bold"
+                  className="inline-flex items-center gap-2 text-[10px] text-white bg-[#E5484D] hover:bg-[#E5484D]/90 rounded-[8px] px-3 py-1.5 font-black uppercase tracking-widest shadow-[0_4px_10px_rgba(229,72,77,0.3)] transition-all active:scale-95"
                 >
-                  <GraduationCap className="w-4 h-4" /> Publish
+                  <GraduationCap className="w-3.5 h-3.5" /> Publish
                 </button>
               )}
             </div>
@@ -257,9 +259,10 @@ export const Academy = ({ hubMode = false }: { hubMode?: boolean }) => {
                 <button
                   onClick={() => {
                     setEditingId(undefined);
+                    setUseWizard(true);
                     setEditorOpen(true);
                   }}
-                  className="ml-auto inline-flex items-center gap-2 text-sm text-black bg-emerald-500 hover:bg-emerald-400 rounded-[10px] px-3 py-1.5 font-bold"
+                  className="ml-auto inline-flex items-center gap-2 text-sm text-white bg-[#E5484D] hover:bg-[#E5484D]/90 rounded-[10px] px-4 py-2 font-black uppercase tracking-widest shadow-[0_4px_10px_rgba(229,72,77,0.3)] transition-all"
                 >
                   <GraduationCap className="w-4 h-4" /> Publish a Course
                 </button>
@@ -381,7 +384,7 @@ export const Academy = ({ hubMode = false }: { hubMode?: boolean }) => {
                                 stroke="currentColor" 
                                 strokeWidth="3" 
                                 fill="transparent" 
-                                className={isFinished ? "text-emerald-500" : "text-pink-500"} 
+                                className={isFinished ? "text-emerald-500" : "text-[#E5484D]"} 
                                 strokeDasharray={113} 
                                 strokeDashoffset={113 * (1 - (isFinished ? 1 : 0.05))} 
                                 strokeLinecap="round" 
@@ -393,7 +396,7 @@ export const Academy = ({ hubMode = false }: { hubMode?: boolean }) => {
 
                         <button 
                           onClick={() => { setSelectedId(course.id); setView("course"); }}
-                          className={`w-full py-3 rounded-[10px] text-xs font-bold transition-colors ${isFinished ? "bg-emerald-500 text-black hover:bg-emerald-400" : "bg-pink-500 text-white hover:bg-pink-600"}`}
+                          className={`w-full py-3 rounded-[10px] text-xs font-black uppercase tracking-widest transition-all ${isFinished ? "bg-emerald-500 text-black hover:bg-emerald-400" : "bg-[#E5484D] text-white hover:bg-[#E5484D]/90 shadow-[0_4px_10px_rgba(229,72,77,0.2)]"}`}
                         >
                           {isFinished ? "Finished" : "Resume Learning"}
                         </button>
@@ -531,7 +534,7 @@ export const Academy = ({ hubMode = false }: { hubMode?: boolean }) => {
         />
       ) : (
         <CoursePublishWizard
-          open={editorOpen}
+          open={editorOpen && useWizard}
           onClose={() => setEditorOpen(false)}
           onSaved={() => {
             setEditorOpen(false);
@@ -1244,13 +1247,13 @@ function ValueCard({
   body: string;
 }) {
   return (
-    <div className={`p-4 rounded-xl border transition-all ${!isAppShell ? "bg-white border-slate-200 shadow-sm hover:shadow-md" : "bg-white/5 border-white/10 md:bg-white md:border-slate-200 md:shadow-sm md:hover:shadow-md"} flex gap-4`}>
-      <div className={`w-11 h-11 shrink-0 rounded-[10px] border flex items-center justify-center ${!isAppShell ? "bg-emerald-50 border-emerald-100" : "bg-white/5 border-white/10 md:bg-emerald-50 md:border-emerald-100"}`}>
-        <Icon className={`w-5 h-5 ${!isAppShell ? "text-emerald-600" : "text-white md:text-emerald-600"}`} />
+    <div className={`p-5 rounded-xl border transition-all ${!isAppShell ? "bg-white border-slate-200 shadow-sm hover:shadow-md" : "bg-[#141416] border-white/5 md:bg-white md:border-slate-200 md:shadow-sm md:hover:shadow-md"} flex gap-4`}>
+      <div className={`w-12 h-12 shrink-0 rounded-[10px] border flex items-center justify-center ${!isAppShell ? "bg-[#E5484D]/5 border-[#E5484D]/10" : "bg-[#E5484D]/10 border-[#E5484D]/20 md:bg-[#E5484D]/5 md:border-[#E5484D]/10"}`}>
+        <Icon className={`w-5 h-5 ${!isAppShell ? "text-[#E5484D]" : "text-[#E5484D] md:text-[#E5484D]"}`} />
       </div>
       <div className="min-w-0">
-        <h3 className={`font-bold text-base mb-1 ${!isAppShell ? "text-slate-900" : "text-white md:text-slate-900"}`}>{title}</h3>
-        <p className={`text-sm leading-relaxed ${!isAppShell ? "text-slate-600" : "text-slate-400 md:text-slate-600"}`}>{body}</p>
+        <h3 className={`font-black uppercase tracking-tight text-sm mb-1 ${!isAppShell ? "text-slate-900" : "text-white md:text-slate-900"}`}>{title}</h3>
+        <p className={`text-xs leading-relaxed ${!isAppShell ? "text-slate-600" : "text-slate-400 md:text-slate-600"}`}>{body}</p>
       </div>
     </div>
   );
