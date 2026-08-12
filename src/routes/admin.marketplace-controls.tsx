@@ -14,7 +14,7 @@ import {
 import { toast } from "sonner";
 import { updatePromotionalPlacement, listAllProducts } from "@/lib/admin.functions";
 
-export const Route = createFileRoute("/admin/marketplace-controls" as any)({
+export const Route = createFileRoute("/admin/marketplace-controls")({
   head: () => ({
     meta: [{ title: "Marketplace Controls · Admin" }, { name: "robots", content: "noindex, nofollow" }],
   }),
