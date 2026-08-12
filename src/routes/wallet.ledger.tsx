@@ -1,260 +1,257 @@
-import { createFileRoute, Link } from "@tanstack/react-router";
-import { useEffect, useState } from "react";
+import { createFileRoute, useRouter } from "@tanstack/react-router";
+import { useEffect, useMemo, useState } from "react";
 import { useServerFn } from "@tanstack/react-start";
 import { useQuery } from "@tanstack/react-query";
-import { ArrowLeft, Download, Printer, Send, ArrowDownToLine, ArrowUpFromLine } from "lucide-react";
+import {
+  ArrowLeft,
+  SlidersHorizontal,
+  Download,
+  Printer,
+  ShoppingCart,
+  Award,
+  ArrowLeftRight,
+  ArrowDown,
+  ArrowUp,
+  Lock,
+} from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
 import {
   listWalletTransactions,
   type WalletTxType,
-  type WalletTxStatus,
+  type WalletTxDTO,
 } from "@/lib/wallet.functions";
 import { useOnboarding } from "@/lib/onboarding/OnboardingContext";
-import { StatusBadge } from "@/components/oventric/wallet/shared";
 import { downloadWalletCsv, printWalletPdf } from "@/components/oventric/wallet/export";
-import { TransferModal } from "@/components/oventric/wallet/TransferModal";
-import { AddCapitalModal, PayoutModal } from "@/components/oventric/Wallet";
 import { formatMoney } from "@/lib/fx-display";
-import { CURRENCY_CODES } from "@/lib/currency/africa";
 
 export const Route = createFileRoute("/wallet/ledger")({
   ssr: false,
   head: () => ({
-    meta: [{ title: "Wallet Ledger — Oventric" }],
+    meta: [
+      { title: "Transaction Ledger — Oventric Wallet" },
+      {
+        name: "description",
+        content:
+          "Review every Oventric wallet movement: cashback, bounty rewards, escrow releases and payouts, grouped month by month.",
+      },
+      { property: "og:title", content: "Transaction Ledger — Oventric Wallet" },
+      {
+        property: "og:description",
+        content: "Every wallet movement, grouped month by month.",
+      },
+      { property: "og:type", content: "website" },
+      { name: "twitter:card", content: "summary" },
+    ],
   }),
   component: WalletLedgerPage,
 });
 
-const TYPES: ("ALL" | WalletTxType)[] = [
-  "ALL",
-  "Marketplace Purchase",
-  "Marketplace Sale",
-  "Gig Bounty Escrowed",
-  "Ad Injection Charge",
-  "Affiliate Cashback Payout",
-  "Wallet Top-Up",
-  "Payout Withdrawal",
-  "Cashback Earned",
-  "Wallet Transfer Sent",
-  "Wallet Transfer Received",
-];
-const STATUSES: ("ALL" | WalletTxStatus)[] = ["ALL", "success", "pending", "failed"];
-const PAGE_SIZE = 15;
+const TABS = ["All", "Cashback", "Bounty", "Escrow", "Payouts"] as const;
+type Tab = (typeof TABS)[number];
+
+const TAB_TYPES: Record<Exclude<Tab, "All">, WalletTxType[]> = {
+  Cashback: ["Cashback Earned", "Affiliate Cashback Payout"],
+  Bounty: ["Gig Bounty Escrowed"],
+  Escrow: ["Marketplace Sale", "Marketplace Purchase"],
+  Payouts: ["Payout Withdrawal", "Wallet Top-Up", "Wallet Transfer Sent", "Wallet Transfer Received"],
+};
+
+function txStyle(type: WalletTxType, inflow: boolean) {
+  if (type === "Marketplace Purchase" || type === "Ad Injection Charge")
+    return { icon: ShoppingCart, tone: "bg-[#3B1030] text-[#F472B6]" };
+  if (type === "Cashback Earned" || type === "Affiliate Cashback Payout")
+    return { icon: ArrowDown, tone: "bg-[#0F2E23] text-[#34D399]" };
+  if (type === "Gig Bounty Escrowed") return { icon: Award, tone: "bg-[#3A2A12] text-[#FBBF24]" };
+  if (type === "Marketplace Sale") return { icon: Lock, tone: "bg-[#12283A] text-[#60A5FA]" };
+  if (type === "Wallet Transfer Sent" || type === "Wallet Transfer Received")
+    return { icon: ArrowLeftRight, tone: "bg-[#12283A] text-[#60A5FA]" };
+  return inflow
+    ? { icon: ArrowDown, tone: "bg-[#0F2E23] text-[#34D399]" }
+    : { icon: ArrowUp, tone: "bg-[#2A1B3D] text-[#C084FC]" };
+}
 
 function WalletLedgerPage() {
+  const router = useRouter();
   const { baseCurrency } = useOnboarding();
   const [userId, setUserId] = useState<string | null>(null);
-  const [type, setType] = useState<"ALL" | WalletTxType>("ALL");
-  const [status, setStatus] = useState<"ALL" | WalletTxStatus>("ALL");
+  const [tab, setTab] = useState<Tab>("All");
+  const [filtersOpen, setFiltersOpen] = useState(false);
   const [from, setFrom] = useState("");
   const [to, setTo] = useState("");
-  const [page, setPage] = useState(1);
-  const [transferOpen, setTransferOpen] = useState(false);
-  const [addOpen, setAddOpen] = useState(false);
-  const [payoutOpen, setPayoutOpen] = useState(false);
 
   useEffect(() => {
     supabase.auth.getSession().then(({ data }) => setUserId(data.session?.user?.id ?? null));
   }, []);
 
-  useEffect(() => setPage(1), [type, status, from, to]);
-
   const fetchList = useServerFn(listWalletTransactions);
   const query = useQuery({
-    queryKey: ["wallet-ledger", userId, type, status, from, to, page],
+    queryKey: ["wallet-ledger", userId, from, to],
     enabled: !!userId,
+    retry: false,
     queryFn: () =>
       fetchList({
         data: {
-          type,
-          status,
           from: from ? new Date(from).toISOString() : null,
           to: to ? new Date(new Date(to).getTime() + 86_400_000).toISOString() : null,
-          page,
-          pageSize: PAGE_SIZE,
+          page: 1,
+          pageSize: 200,
         },
       }),
   });
 
-  const items = query.data?.items ?? [];
-  const total = query.data?.total ?? 0;
-  const totalPages = Math.max(1, Math.ceil(total / PAGE_SIZE));
+  const items = useMemo(() => {
+    const all = query.data?.items ?? [];
+    if (tab === "All") return all;
+    const allowed = TAB_TYPES[tab];
+    return all.filter((t) => allowed.includes(t.type));
+  }, [query.data, tab]);
 
-  const exportAll = async (kind: "csv" | "pdf") => {
-    const all = await fetchList({
-      data: {
-        type,
-        status,
-        from: from ? new Date(from).toISOString() : null,
-        to: to ? new Date(new Date(to).getTime() + 86_400_000).toISOString() : null,
-        page: 1,
-        pageSize: 1000,
-      },
-    });
-    if (kind === "csv") downloadWalletCsv(all.items);
-    else printWalletPdf(all.items, baseCurrency);
+  const groups = useMemo(() => {
+    const map = new Map<string, { label: string; items: WalletTxDTO[] }>();
+    for (const t of items) {
+      const d = new Date(t.occurredAt);
+      const key = `${d.getFullYear()}-${d.getMonth()}`;
+      const label = d.toLocaleDateString(undefined, { month: "long", year: "numeric" });
+      if (!map.has(key)) map.set(key, { label, items: [] });
+      map.get(key)!.items.push(t);
+    }
+    return Array.from(map.values());
+  }, [items]);
+
+  const exportAll = (kind: "csv" | "pdf") => {
+    if (kind === "csv") downloadWalletCsv(items);
+    else printWalletPdf(items, baseCurrency);
   };
 
   return (
-    <div className="page-light min-h-screen bg-[#0b0b0e] md:bg-slate-50 text-white md:text-slate-900">
-      <div className="max-w-5xl mx-auto px-4 py-6 space-y-4">
-        <div className="flex items-center gap-2">
-          <Link
-            to="/dashboard"
-            className="p-2 rounded-[10px] hover:bg-white/10 md:hover:bg-slate-100 text-white/70 md:text-slate-600"
+    <div className="min-h-screen bg-[#0A0A0B] text-white pb-24">
+      <header className="sticky top-0 z-30 bg-[#0A0A0B]/95 backdrop-blur border-b border-white/5">
+        <div className="max-w-2xl mx-auto px-4 h-14 flex items-center gap-3">
+          <button
+            onClick={() => router.history.back()}
+            aria-label="Go back"
+            className="p-1.5 -ml-1.5 rounded-full text-white/80 hover:bg-white/10"
           >
             <ArrowLeft className="w-5 h-5" />
-          </Link>
-          <h1 className="text-xl font-semibold">Wallet Ledger</h1>
-        </div>
-
-        <div className="flex flex-wrap gap-2">
-          <button
-            onClick={() => setTransferOpen(true)}
-            className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-[10px] border border-fuchsia-500/40 bg-fuchsia-500/10 text-fuchsia-300 text-xs font-semibold"
-          >
-            <Send className="w-3.5 h-3.5" /> Send to user
           </button>
+          <h1 className="flex-1 text-center text-[16px] font-semibold">Transaction Ledger</h1>
           <button
-            onClick={() => setAddOpen(true)}
-            className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-[10px] border border-emerald-500/40 bg-emerald-500/10 text-emerald-300 text-xs font-semibold"
+            onClick={() => setFiltersOpen((v) => !v)}
+            aria-label="Filter transactions"
+            className={`p-1.5 -mr-1.5 rounded-full hover:bg-white/10 ${filtersOpen ? "text-[#E5484D]" : "text-white/80"}`}
           >
-            <ArrowDownToLine className="w-3.5 h-3.5" /> Fund wallet
-          </button>
-          <button
-            onClick={() => setPayoutOpen(true)}
-            className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-[10px] border border-sky-500/40 bg-sky-500/10 text-sky-300 text-xs font-semibold"
-          >
-            <ArrowUpFromLine className="w-3.5 h-3.5" /> Request payout
-          </button>
-          <div className="flex-1" />
-          <button
-            onClick={() => exportAll("csv")}
-            className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-[10px] border border-white/15 md:border-slate-200 text-xs"
-          >
-            <Download className="w-3.5 h-3.5" /> CSV
-          </button>
-          <button
-            onClick={() => exportAll("pdf")}
-            className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-[10px] border border-white/15 md:border-slate-200 text-xs"
-          >
-            <Printer className="w-3.5 h-3.5" /> PDF
+            <SlidersHorizontal className="w-5 h-5" />
           </button>
         </div>
 
-        <div className="flex flex-wrap gap-2 items-center rounded-xl border border-white/10 md:border-slate-200 bg-white/[0.03] md:bg-white p-3">
-          <select
-            value={type}
-            onChange={(e) => setType(e.target.value as "ALL" | WalletTxType)}
-            className="px-2.5 py-1.5 rounded-[10px] border border-white/15 md:border-slate-200 bg-transparent text-xs"
-          >
-            {TYPES.map((t) => (
-              <option key={t} value={t} className="text-black">
-                {t}
-              </option>
-            ))}
-          </select>
-          <select
-            value={status}
-            onChange={(e) => setStatus(e.target.value as "ALL" | WalletTxStatus)}
-            className="px-2.5 py-1.5 rounded-[10px] border border-white/15 md:border-slate-200 bg-transparent text-xs"
-          >
-            {STATUSES.map((s) => (
-              <option key={s} value={s} className="text-black">
-                {s}
-              </option>
-            ))}
-          </select>
-          <input
-            type="date"
-            value={from}
-            onChange={(e) => setFrom(e.target.value)}
-            className="px-2.5 py-1.5 rounded-[10px] border border-white/15 md:border-slate-200 bg-transparent text-xs"
-          />
-          <span className="text-xs text-white/40">to</span>
-          <input
-            type="date"
-            value={to}
-            onChange={(e) => setTo(e.target.value)}
-            className="px-2.5 py-1.5 rounded-[10px] border border-white/15 md:border-slate-200 bg-transparent text-xs"
-          />
+        <div className="max-w-2xl mx-auto px-4 pb-3 flex gap-2 overflow-x-auto no-scrollbar">
+          {TABS.map((t) => (
+            <button
+              key={t}
+              onClick={() => setTab(t)}
+              className={`shrink-0 px-4 py-1.5 rounded-full text-[13px] font-semibold transition ${
+                tab === t
+                  ? "bg-[#4C1D95] text-white"
+                  : "text-slate-400 hover:text-white"
+              }`}
+            >
+              {t}
+            </button>
+          ))}
         </div>
+      </header>
 
-        <div className="rounded-xl border border-white/10 md:border-slate-200 bg-white/[0.03] md:bg-white overflow-hidden">
-          <div className="overflow-x-auto">
-            <table className="w-full text-sm min-w-[720px]">
-              <thead>
-                <tr className="text-left text-[11px] uppercase tracking-wider text-white/40 md:text-slate-500 bg-white/[0.02] md:bg-slate-50">
-                  <th className="px-4 py-2.5">Tx ID</th>
-                  <th className="px-4 py-2.5">Type</th>
-                  <th className="px-4 py-2.5 text-right">Impact</th>
-                  <th className="px-4 py-2.5">Timestamp</th>
-                  <th className="px-4 py-2.5">Status</th>
-                </tr>
-              </thead>
-              <tbody>
-                {items.map((t) => (
-                  <tr key={t.id} className="border-t border-white/5 md:border-slate-200">
-                    <td className="px-4 py-3 font-mono text-[11px] text-white/50 md:text-slate-500 whitespace-nowrap">
-                      {t.txHash}
-                    </td>
-                    <td className="px-4 py-3 whitespace-nowrap">{t.type}</td>
-                    <td
-                      className={`px-4 py-3 text-right tabular-nums font-semibold whitespace-nowrap ${t.inflow ? "text-emerald-400" : ""}`}
-                    >
-                      {t.inflow ? "+" : "-"}
-                      {formatMoney(t.amount, t.currency)}
-                    </td>
-                    <td className="px-4 py-3 text-xs text-white/50 md:text-slate-500 whitespace-nowrap">
-                      {new Date(t.occurredAt).toLocaleString()}
-                    </td>
-                    <td className="px-4 py-3">
-                      <StatusBadge status={t.status} />
-                    </td>
-                  </tr>
-                ))}
-                {items.length === 0 && (
-                  <tr>
-                    <td
-                      colSpan={5}
-                      className="px-4 py-10 text-center text-sm text-white/40 md:text-slate-500"
-                    >
-                      {query.isLoading ? "Loading…" : "No transactions match your filters."}
-                    </td>
-                  </tr>
-                )}
-              </tbody>
-            </table>
-          </div>
-          <div className="flex items-center justify-between p-3 border-t border-white/10 md:border-slate-200 text-xs text-white/50 md:text-slate-500">
-            <div>
-              Page {page} of {totalPages} · {total} entries
-            </div>
-            <div className="flex gap-2">
-              <button
-                onClick={() => setPage((p) => Math.max(1, p - 1))}
-                disabled={page === 1}
-                className="px-3 py-1.5 rounded-[10px] border border-white/15 md:border-slate-200 disabled:opacity-40"
-              >
-                Prev
-              </button>
-              <button
-                onClick={() => setPage((p) => Math.min(totalPages, p + 1))}
-                disabled={page === totalPages}
-                className="px-3 py-1.5 rounded-[10px] border border-white/15 md:border-slate-200 disabled:opacity-40"
-              >
-                Next
-              </button>
-            </div>
+      {filtersOpen && (
+        <div className="max-w-2xl mx-auto px-4 pt-3">
+          <div className="rounded-[10px] border border-white/10 bg-[#111114] p-3 flex flex-wrap items-center gap-2">
+            <input
+              type="date"
+              value={from}
+              onChange={(e) => setFrom(e.target.value)}
+              className="px-2.5 py-1.5 rounded-[10px] border border-white/15 bg-transparent text-xs"
+            />
+            <span className="text-xs text-white/40">to</span>
+            <input
+              type="date"
+              value={to}
+              onChange={(e) => setTo(e.target.value)}
+              className="px-2.5 py-1.5 rounded-[10px] border border-white/15 bg-transparent text-xs"
+            />
+            <div className="flex-1" />
+            <button
+              onClick={() => exportAll("csv")}
+              className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-[10px] border border-white/15 text-xs"
+            >
+              <Download className="w-3.5 h-3.5" /> CSV
+            </button>
+            <button
+              onClick={() => exportAll("pdf")}
+              className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-[10px] border border-white/15 text-xs"
+            >
+              <Printer className="w-3.5 h-3.5" /> PDF
+            </button>
           </div>
         </div>
-      </div>
-
-      {transferOpen && (
-        <TransferModal onClose={() => setTransferOpen(false)} onDone={() => query.refetch()} />
       )}
-      {addOpen && <AddCapitalModal onClose={() => setAddOpen(false)} />}
-      {payoutOpen && <PayoutModal onClose={() => setPayoutOpen(false)} />}
+
+      <main className="max-w-2xl mx-auto px-4 pt-4 space-y-5">
+        {!userId ? (
+          <div className="py-16 text-center text-sm text-slate-500">
+            Wallet is Locked, Sign in to view
+          </div>
+        ) : query.isLoading ? (
+          <div className="py-16 text-center text-sm text-slate-500">Loading…</div>
+        ) : groups.length === 0 ? (
+          <div className="py-16 text-center text-sm text-slate-500">
+            No transactions in this category.
+          </div>
+        ) : (
+          groups.map((g) => (
+            <section key={g.label}>
+              <div className="mb-2 text-[13px] font-semibold text-slate-400">{g.label}</div>
+              <div className="rounded-[10px] bg-[#111114] border border-white/5 divide-y divide-white/5 overflow-hidden">
+                {g.items.map((t) => {
+                  const style = txStyle(t.type, t.inflow);
+                  return (
+                    <div key={t.id} className="p-3.5 flex items-center gap-3">
+                      <span
+                        className={`w-10 h-10 rounded-full shrink-0 flex items-center justify-center ${style.tone}`}
+                      >
+                        <style.icon className="w-5 h-5" />
+                      </span>
+                      <div className="min-w-0 flex-1">
+                        <div className="text-[14px] font-semibold text-white truncate">
+                          {t.type}
+                        </div>
+                        <div className="text-[12px] text-slate-500 truncate font-mono">
+                          {t.txHash}
+                        </div>
+                      </div>
+                      <div className="text-right shrink-0">
+                        <div
+                          className={`text-[14px] font-bold tabular-nums ${
+                            t.inflow ? "text-emerald-400" : "text-white"
+                          }`}
+                        >
+                          {t.inflow ? "+ " : "- "}
+                          {formatMoney(t.amount, t.currency)}
+                        </div>
+                        <div className="text-[12px] text-slate-500">
+                          {new Date(t.occurredAt).toLocaleDateString(undefined, {
+                            month: "short",
+                            day: "numeric",
+                            year: "numeric",
+                          })}
+                        </div>
+                      </div>
+                    </div>
+                  );
+                })}
+              </div>
+            </section>
+          ))
+        )}
+      </main>
     </div>
   );
 }
