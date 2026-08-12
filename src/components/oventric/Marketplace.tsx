@@ -288,7 +288,7 @@ export function Marketplace() {
                           key={item.id}
                           type="button"
                           onClick={() => openProduct(item)}
-                          className="relative flex h-[360px] w-[80%] min-w-[80%] shrink-0 snap-center flex-col overflow-hidden rounded-[10px] bg-[#141416] text-left ring-1 ring-white/5"
+                          className="relative flex h-[360px] w-[68%] min-w-[68%] shrink-0 snap-center flex-col overflow-hidden rounded-[10px] bg-[#141416] text-left ring-1 ring-white/5"
                         >
                           <div className="absolute inset-0">
                             {item.coverUrl ? (
