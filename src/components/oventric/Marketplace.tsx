@@ -1,7 +1,7 @@
 import { useEffect, useMemo, useRef, useState } from "react";
 import { useNavigate } from "@tanstack/react-router";
 import { useServerFn } from "@tanstack/react-start";
-import { ChevronLeft, ChevronRight, LayoutGrid, Search, SlidersHorizontal } from "lucide-react";
+import { ChevronLeft, ChevronRight, LayoutGrid, Search, SlidersHorizontal, ShoppingBag } from "lucide-react";
 import { useOnboarding } from "@/lib/onboarding/OnboardingContext";
 import {
   listProducts,
@@ -283,43 +283,60 @@ export function Marketplace() {
                       }}
                       className="no-scrollbar flex snap-x snap-mandatory gap-4 overflow-x-auto snap-x snap-mandatory scroll-smooth no-scrollbar pb-2"
                     >
-                      {discovery.featured.slice(0, 8).map((item) => (
-                        <button
-                          key={item.id}
-                          type="button"
-                          onClick={() => openProduct(item)}
-                          className="relative flex h-[360px] w-full min-w-full shrink-0 snap-center flex-col overflow-hidden rounded-[10px] bg-[#141416] text-left ring-1 ring-white/5"
-                        >
-                          <div className="absolute inset-0">
-                            {item.coverUrl ? (
-                              <img
-                                src={item.coverUrl}
-                                alt={item.name}
-                                loading="lazy"
-                                className="h-full w-full object-cover opacity-80"
-                              />
-                            ) : (
-                              <div className="h-full w-full bg-gradient-to-br from-[#1d1d22] to-[#101014]" />
+                      {discovery.featured.slice(0, 8).map((item, idx) => {
+                        const gradients = [
+                          "from-[#8B5CF6] via-[#A78BFA] to-[#C4B5FD]",
+                          "from-[#F87171] via-[#FB7185] to-[#FCA5A5]",
+                          "from-[#3B82F6] via-[#60A5FA] to-[#93C5FD]",
+                          "from-[#F59E0B] via-[#FBBF24] to-[#FCD34D]",
+                        ];
+                        const gradient = gradients[idx % gradients.length];
+                        return (
+                          <div
+                            key={item.id}
+                            className={`relative flex h-[320px] w-full min-w-full shrink-0 snap-center overflow-hidden rounded-[10px] bg-gradient-to-br ${gradient} ring-1 ring-white/5`}
+                          >
+                            <div className="absolute inset-0 flex">
+                              <div className="z-10 flex flex-1 flex-col justify-center p-6 text-white md:p-8">
+                                <span className="mb-2 w-fit rounded-full bg-white/25 px-2.5 py-1 text-[10px] font-bold uppercase tracking-wider text-white">
+                                  {item.kind === "digital" ? "Digital Asset" : "Physical Product"}
+                                </span>
+                                <h2 className="mb-3 line-clamp-2 text-2xl font-black leading-tight tracking-tighter drop-shadow-sm md:text-3xl">
+                                  {item.name}
+                                </h2>
+                                <button
+                                  type="button"
+                                  onClick={() => openProduct(item)}
+                                  className="self-start rounded-full bg-[#E5484D] px-6 py-2.5 text-xs font-bold text-white shadow-lg transition-transform active:scale-95 hover:bg-[#F35E62]"
+                                >
+                                  Shop Now
+                                </button>
+                              </div>
+                              <div className="relative flex-1 min-w-0">
+                                {item.coverUrl ? (
+                                  <img
+                                    src={item.coverUrl}
+                                    alt={item.name}
+                                    loading="lazy"
+                                    className="absolute right-0 bottom-0 h-full w-full object-cover object-center"
+                                  />
+                                ) : (
+                                  <div className="h-full w-full bg-white/10 flex items-center justify-center">
+                                    <ShoppingBag className="w-16 h-16 text-white/20" />
+                                  </div>
+                                )}
+                                <div className="absolute inset-0 bg-gradient-to-r from-black/20 via-transparent to-transparent" />
+                              </div>
+                            </div>
+                            
+                            {item.rating > 4.5 && (
+                              <div className="absolute top-3 right-3 rounded-full bg-white/25 px-2.5 py-1 text-[10px] font-bold uppercase tracking-wider text-white">
+                                Top Rated
+                              </div>
                             )}
-                            <div className="absolute inset-0 bg-gradient-to-t from-black via-black/20 to-transparent" />
                           </div>
-                          <div className="relative mt-auto p-6 flex flex-col gap-2.5">
-                            <span className="w-fit rounded-[10px] bg-[#E5484D] px-2.5 py-1 text-[10px] font-black uppercase tracking-widest text-white shadow-lg">
-                              {item.kind === "digital"
-                                ? "Digital Asset"
-                                : item.kind === "physical"
-                                  ? "Physical Product"
-                                  : "Featured"}
-                            </span>
-                            <span className="line-clamp-2 text-[28px] font-black leading-[1.05] tracking-tighter text-white drop-shadow-md">
-                              {item.name}
-                            </span>
-                            <span className="text-[14px] font-bold text-[#E5484D] flex items-center gap-1.5">
-                              Shop now <ChevronRight className="w-4 h-4" />
-                            </span>
-                          </div>
-                        </button>
-                      ))}
+                        );
+                      })}
                     </div>
                     {/* Dots indicator */}
                     <div className="mt-3 flex justify-center gap-2">
