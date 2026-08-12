@@ -222,36 +222,49 @@ export function Marketplace() {
                       {SORTS.map((s) => (
                         <button
                           key={s.key}
-                          type="button"
-                          onClick={() => setSort(s.key)}
-                          className={`shrink-0 whitespace-nowrap pb-2 text-[14px] font-semibold transition-colors ${
-                            sort === s.key
-                              ? "border-b-2 border-[#E5484D] text-white"
-                              : "border-b-2 border-transparent text-white/40"
-                          }`}
-                        >
-                          {s.label}
-                        </button>
-                      ))}
-                    </div>
-                    <div className="grid grid-cols-2 gap-x-3 gap-y-5">
-                      {sortedCatalog.slice(0, catalogLimit).map((p) => (
-                        <GridCard key={p.id} product={p} onClick={() => openProduct(p)} />
-                      ))}
-                    </div>
-                    {sortedCatalog.length > catalogLimit && (
-                      <button
-                        type="button"
-                        onClick={() => setCatalogLimit((n) => n + 8)}
-                        className="mt-5 w-full rounded-[10px] bg-[#141416] py-3 text-[13px] font-semibold text-white/70 ring-1 ring-white/5"
-                      >
-                        Show more
-                      </button>
-                    )}
-                  </section>
-                )}
+            {/* Filter pills */}
+            <div className="no-scrollbar mt-4 flex gap-2.5 overflow-x-auto px-4 pb-1">
+              <Pill active={mode === "all"} onClick={() => setMode("all")} label="All" />
+              <Pill active={mode === "digital"} onClick={() => setMode("digital")} label="Digital" />
+              <Pill active={mode === "physical"} onClick={() => setMode("physical")} label="Physical" />
+              <Pill
+                active={false}
+                onClick={() => setShowCategories(true)}
+                label="Categories"
+                icon={<LayoutGrid className="h-3.5 w-3.5" />}
+              />
+            </div>
 
+            {query.trim() ? (
+              <section className="px-4 pt-6">
+                <h2 className="mb-3 text-[19px] font-bold text-white">
+                  {searched.length} result{searched.length === 1 ? "" : "s"}
+                </h2>
+                <div className="grid grid-cols-2 gap-x-3 gap-y-5">
+                  {searched.map((p) => (
+                    <GridCard key={p.id} product={p} onClick={() => openProduct(p)} />
+                  ))}
+                </div>
+              </section>
+            ) : (
+              <div className="space-y-8 pt-6">
+                {/* Horizontal Category Shortcuts */}
+                <div className="no-scrollbar flex gap-4 overflow-x-auto px-4">
+                  {cats.slice(0, 10).map((cat) => (
+                    <button
+                      key={cat.id}
+                      onClick={() => setActiveCategory(cat)}
+                      className="flex flex-col items-center gap-2 shrink-0 group"
+                    >
+                      <div className="w-16 h-16 rounded-full bg-[#141416] ring-1 ring-white/5 flex items-center justify-center group-active:scale-90 transition-transform">
+                        <LayoutGrid className="w-6 h-6 text-white/40 group-hover:text-[#E5484D] transition-colors" />
+                      </div>
+                      <span className="text-[11px] font-bold text-white/60 group-hover:text-white transition-colors">{cat.name}</span>
+                    </button>
+                  ))}
+                </div>
 
+                {/* Larger Featured Hero */}
                 {discovery && discovery.featured.length > 0 && (
                   <div className="px-4">
                     <div
@@ -266,41 +279,36 @@ export function Marketplace() {
                           key={item.id}
                           type="button"
                           onClick={() => openProduct(item)}
-                          className="grid h-[200px] w-full min-w-full shrink-0 snap-center grid-cols-[1.05fr_1fr] overflow-hidden rounded-[10px] bg-[#141416] text-left ring-1 ring-white/5"
+                          className="relative flex h-[360px] w-full min-w-full shrink-0 snap-center flex-col overflow-hidden rounded-[10px] bg-[#141416] text-left ring-1 ring-white/5"
                         >
-                          {/* Left caption panel */}
-                          <span className="relative z-10 flex h-full flex-col justify-center gap-2 bg-gradient-to-br from-[#E5484D] to-[#B5333A] p-6">
-                            <span className="w-fit rounded-[10px] bg-black/25 px-2.5 py-1 text-[10px] font-black uppercase tracking-widest text-white">
+                          <div className="absolute inset-0">
+                            {item.coverUrl ? (
+                              <img
+                                src={item.coverUrl}
+                                alt={item.name}
+                                loading="lazy"
+                                className="h-full w-full object-cover opacity-80"
+                              />
+                            ) : (
+                              <div className="h-full w-full bg-gradient-to-br from-[#1d1d22] to-[#101014]" />
+                            )}
+                            <div className="absolute inset-0 bg-gradient-to-t from-black via-black/20 to-transparent" />
+                          </div>
+                          <div className="relative mt-auto p-6 flex flex-col gap-2.5">
+                            <span className="w-fit rounded-[10px] bg-[#E5484D] px-2.5 py-1 text-[10px] font-black uppercase tracking-widest text-white shadow-lg">
                               {item.kind === "digital"
                                 ? "Digital Asset"
                                 : item.kind === "physical"
                                   ? "Physical Product"
                                   : "Featured"}
                             </span>
-                            <span className="line-clamp-3 text-[21px] font-bold leading-[1.1] tracking-tight text-white">
+                            <span className="line-clamp-2 text-[28px] font-black leading-[1.05] tracking-tighter text-white drop-shadow-md">
                               {item.name}
                             </span>
-                            <span className="text-[13px] font-black text-white/85">Shop now →</span>
-                          </span>
-
-                          {/* Right image panel — fills the full right shape */}
-                          <span className="relative h-full w-full overflow-hidden bg-[#1A1A1E]">
-                            {item.coverUrl ? (
-                              <img
-                                src={item.coverUrl}
-                                alt={item.name}
-                                loading="lazy"
-                                className="h-full w-full object-cover"
-                              />
-                            ) : (
-                              <div className="h-full w-full bg-gradient-to-br from-[#1d1d22] to-[#101014]" />
-                            )}
-                            {/* Feathered left edge so the image melts into the crimson panel */}
-                            <span
-                              className="pointer-events-none absolute inset-y-0 left-0 z-10 w-[40%] bg-gradient-to-r from-[#E5484D]/70 via-[#E5484D]/20 to-transparent"
-                              aria-hidden="true"
-                            />
-                          </span>
+                            <span className="text-[14px] font-bold text-[#E5484D] flex items-center gap-1.5">
+                              Shop now <ChevronRight className="w-4 h-4" />
+                            </span>
+                          </div>
                         </button>
                       ))}
                     </div>
