@@ -41,6 +41,19 @@ function fmt(n: number, c: Currency) {
   return formatMoney(n, c);
 }
 
+function txStyle(type: WalletTxType, inflow: boolean) {
+  if (type === "Marketplace Purchase" || type === "Ad Injection Charge")
+    return { icon: ShoppingCart, tone: "bg-[#3B1030] text-[#F472B6]" };
+  if (type === "Cashback Earned" || type === "Affiliate Cashback Payout")
+    return { icon: Download, tone: "bg-[#0F2E23] text-[#34D399]" };
+  if (type === "Gig Bounty Escrowed") return { icon: Award, tone: "bg-[#3A2A12] text-[#FBBF24]" };
+  if (type === "Wallet Transfer Sent" || type === "Wallet Transfer Received")
+    return { icon: ArrowLeftRight, tone: "bg-[#12283A] text-[#60A5FA]" };
+  return inflow
+    ? { icon: ArrowDown, tone: "bg-[#0F2E23] text-[#34D399]" }
+    : { icon: ArrowUp, tone: "bg-[#2A1B3D] text-[#C084FC]" };
+}
+
 export function Wallet() {
   const { balances: localBalances, balancesHidden: hide, toggleBalancesHidden, baseCurrency } = useOnboarding();
   const [transferOpen, setTransferOpen] = useState(false);
@@ -55,6 +68,14 @@ export function Wallet() {
     retry: false,
   });
 
+  const fetchTx = useServerFn(listWalletTransactions);
+  const { data: txData, isLoading: txLoading } = useQuery({
+    queryKey: ["wallet-recent-tx"],
+    queryFn: () => fetchTx({ data: { page: 1, pageSize: 5 } }),
+    retry: false,
+  });
+  const recentTx = txData?.items ?? [];
+
   const cur = baseCurrency;
   const available = data?.balances?.[cur] ?? localBalances[cur] ?? 0;
   const locked = data?.escrow?.[cur] ?? 0;
@@ -63,7 +84,22 @@ export function Wallet() {
   const bountyUSD = data?.bountyBalance ?? 0;
   const usdEquiv = main / (usdRate(cur) || 1);
 
+  // Cashback estimator (tiers defined in USD, displayed in the user's currency)
+  const rate = usdRate(cur) || 1;
+  const tierMid = 1000 * rate;
+  const tierTop = 5000 * rate;
+  const [spend, setSpend] = useState(() => Math.round(tierMid * 2.5));
+  const tiers = [
+    { key: "base", label: "Baseline", range: `< ${fmt(tierMid, cur)}`, pct: 2 },
+    { key: "elite", label: "Elite Tier", range: `${fmt(tierMid, cur)} – ${fmt(tierTop, cur)}`, pct: 3.5 },
+    { key: "apex", label: "Apex Tier", range: `> ${fmt(tierTop, cur)}`, pct: 5 },
+  ];
+  const tier = spend < tierMid ? tiers[0] : spend <= tierTop ? tiers[1] : tiers[2];
+  const annual = spend * 12 * (tier.pct / 100);
+  const sliderPct = Math.min(100, (spend / (tierMid * 10)) * 100);
+
   const mask = (v: string) => (hide ? "••••••" : v);
+
 
   const actions = [
     {
