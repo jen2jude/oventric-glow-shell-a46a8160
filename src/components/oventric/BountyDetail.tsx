@@ -834,7 +834,7 @@ export function BountyDetail({ bountyId, onBack }: Props) {
           onClick={() => setConfirmSolved(false)}
         >
           <div
-            className="w-full max-w-md rounded-2xl bg-[#1E1E24] md:bg-white border border-white/10 md:border-slate-200 md:shadow-sm shadow-2xl p-5"
+            className="w-full max-w-md rounded-[10px] bg-[#0A0A0B] md:bg-white border border-white/10 md:border-slate-200 md:shadow-sm shadow-2xl p-5"
             onClick={(e) => e.stopPropagation()}
           >
             <div className="flex items-center gap-2 mb-2">
