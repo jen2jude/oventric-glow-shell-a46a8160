@@ -46,6 +46,7 @@ import { Route as AdminSellersRouteImport } from './routes/admin.sellers'
 import { Route as AdminReportsRouteImport } from './routes/admin.reports'
 import { Route as AdminProductsRouteImport } from './routes/admin.products'
 import { Route as AdminPayoutsRouteImport } from './routes/admin.payouts'
+import { Route as AdminMarketplaceControlsRouteImport } from './routes/admin.marketplace-controls'
 import { Route as AdminManualPaymentsRouteImport } from './routes/admin.manual-payments'
 import { Route as AdminManagementUsersRouteImport } from './routes/admin.management-users'
 import { Route as AdminFeaturesRouteImport } from './routes/admin.features'
@@ -262,6 +263,12 @@ const AdminPayoutsRoute = AdminPayoutsRouteImport.update({
   path: '/payouts',
   getParentRoute: () => AdminRoute,
 } as any)
+const AdminMarketplaceControlsRoute =
+  AdminMarketplaceControlsRouteImport.update({
+    id: '/marketplace-controls',
+    path: '/marketplace-controls',
+    getParentRoute: () => AdminRoute,
+  } as any)
 const AdminManualPaymentsRoute = AdminManualPaymentsRouteImport.update({
   id: '/manual-payments',
   path: '/manual-payments',
@@ -454,6 +461,7 @@ export interface FileRoutesByFullPath {
   '/admin/features': typeof AdminFeaturesRoute
   '/admin/management-users': typeof AdminManagementUsersRoute
   '/admin/manual-payments': typeof AdminManualPaymentsRoute
+  '/admin/marketplace-controls': typeof AdminMarketplaceControlsRoute
   '/admin/payouts': typeof AdminPayoutsRoute
   '/admin/products': typeof AdminProductsRoute
   '/admin/reports': typeof AdminReportsRoute
@@ -521,6 +529,7 @@ export interface FileRoutesByTo {
   '/admin/features': typeof AdminFeaturesRoute
   '/admin/management-users': typeof AdminManagementUsersRoute
   '/admin/manual-payments': typeof AdminManualPaymentsRoute
+  '/admin/marketplace-controls': typeof AdminMarketplaceControlsRoute
   '/admin/payouts': typeof AdminPayoutsRoute
   '/admin/products': typeof AdminProductsRoute
   '/admin/reports': typeof AdminReportsRoute
@@ -591,6 +600,7 @@ export interface FileRoutesById {
   '/admin/features': typeof AdminFeaturesRoute
   '/admin/management-users': typeof AdminManagementUsersRoute
   '/admin/manual-payments': typeof AdminManualPaymentsRoute
+  '/admin/marketplace-controls': typeof AdminMarketplaceControlsRoute
   '/admin/payouts': typeof AdminPayoutsRoute
   '/admin/products': typeof AdminProductsRoute
   '/admin/reports': typeof AdminReportsRoute
@@ -662,6 +672,7 @@ export interface FileRouteTypes {
     | '/admin/features'
     | '/admin/management-users'
     | '/admin/manual-payments'
+    | '/admin/marketplace-controls'
     | '/admin/payouts'
     | '/admin/products'
     | '/admin/reports'
@@ -729,6 +740,7 @@ export interface FileRouteTypes {
     | '/admin/features'
     | '/admin/management-users'
     | '/admin/manual-payments'
+    | '/admin/marketplace-controls'
     | '/admin/payouts'
     | '/admin/products'
     | '/admin/reports'
@@ -798,6 +810,7 @@ export interface FileRouteTypes {
     | '/admin/features'
     | '/admin/management-users'
     | '/admin/manual-payments'
+    | '/admin/marketplace-controls'
     | '/admin/payouts'
     | '/admin/products'
     | '/admin/reports'
@@ -1137,6 +1150,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AdminPayoutsRouteImport
       parentRoute: typeof AdminRoute
     }
+    '/admin/marketplace-controls': {
+      id: '/admin/marketplace-controls'
+      path: '/marketplace-controls'
+      fullPath: '/admin/marketplace-controls'
+      preLoaderRoute: typeof AdminMarketplaceControlsRouteImport
+      parentRoute: typeof AdminRoute
+    }
     '/admin/manual-payments': {
       id: '/admin/manual-payments'
       path: '/manual-payments'
@@ -1380,6 +1400,7 @@ interface AdminRouteChildren {
   AdminFeaturesRoute: typeof AdminFeaturesRoute
   AdminManagementUsersRoute: typeof AdminManagementUsersRoute
   AdminManualPaymentsRoute: typeof AdminManualPaymentsRoute
+  AdminMarketplaceControlsRoute: typeof AdminMarketplaceControlsRoute
   AdminPayoutsRoute: typeof AdminPayoutsRoute
   AdminProductsRoute: typeof AdminProductsRoute
   AdminReportsRoute: typeof AdminReportsRoute
@@ -1408,6 +1429,7 @@ const AdminRouteChildren: AdminRouteChildren = {
   AdminFeaturesRoute: AdminFeaturesRoute,
   AdminManagementUsersRoute: AdminManagementUsersRoute,
   AdminManualPaymentsRoute: AdminManualPaymentsRoute,
+  AdminMarketplaceControlsRoute: AdminMarketplaceControlsRoute,
   AdminPayoutsRoute: AdminPayoutsRoute,
   AdminProductsRoute: AdminProductsRoute,
   AdminReportsRoute: AdminReportsRoute,
