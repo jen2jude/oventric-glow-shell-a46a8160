@@ -1,6 +1,7 @@
 import { useEffect, useState, useMemo, useRef, useCallback } from "react";
 import { useServerFn } from "@tanstack/react-start";
 import { Link } from "@tanstack/react-router";
+import { useDominantColor } from "@/hooks/use-dominant-color";
 import {
   ArrowLeft,
   ArrowRight,
