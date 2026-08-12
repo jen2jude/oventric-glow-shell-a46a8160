@@ -90,6 +90,8 @@ import { NotificationsPanel } from "@/components/oventric/dashboard/Notification
 import { NotificationSettingsPanel } from "@/components/oventric/dashboard/NotificationSettingsPanel";
 import { SalesFulfilmentList } from "@/components/oventric/SalesFulfilmentList";
 import { Truck } from "lucide-react";
+import { SellerDashboard } from "@/components/oventric/dashboard/SellerDashboard";
+
 
 function formatHomeCurrency(n: number, c: string): string {
   return formatMoney(Number.isFinite(n) ? n : 0, c);
@@ -105,8 +107,10 @@ const TAB_VALUES = [
   "sales",
   "physical",
   "listings",
+  "creator",
 ] as const;
 type Tab = (typeof TAB_VALUES)[number];
+
 
 export const Route = createFileRoute("/dashboard")({
   ssr: false,
@@ -516,7 +520,11 @@ function DashboardPage() {
           <TabButton active={tab === "social"} onClick={() => setTab("social")}>
             <Users className="w-5 h-5 shrink-0" /> <span className="truncate">Social</span>
           </TabButton>
+          <TabButton active={tab === "creator"} onClick={() => setTab("creator")}>
+            <TrendingUp className="w-5 h-5 shrink-0" /> <span className="truncate">Creator Hub</span>
+          </TabButton>
         </div>
+
 
         {tab === "overview" && <OverviewPane overview={overview} onGoto={setTab} />}
         {tab === "bounties" && <BountiesPane data={bounties} />}
@@ -569,6 +577,8 @@ function DashboardPage() {
           />
         )}
         {tab === "social" && <SocialPane data={social} />}
+        {tab === "creator" && <SellerDashboard />}
+
       </div>
 
       {editing && (

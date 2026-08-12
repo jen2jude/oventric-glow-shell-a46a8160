@@ -4,11 +4,11 @@ import { Rss, Target, Store, BookOpen } from "lucide-react";
 const ACTIONS = [
   { to: "/", search: { section: "Feed" }, label: "Posts", icon: Rss, hint: "Jump to your feed" },
   {
-    to: "/",
-    search: { section: "Bounties" },
-    label: "Bounties",
-    icon: Target,
-    hint: "Browse & post bounties",
+    to: "/dashboard",
+    search: { tab: "creator" },
+    label: "Seller Hub",
+    icon: Store,
+    hint: "Manage your business",
   },
   {
     to: "/",
@@ -25,6 +25,7 @@ const ACTIONS = [
     hint: "Read & publish articles",
   },
 ] as const;
+
 
 export function QuickActions() {
   return (
