@@ -140,7 +140,7 @@ export function FeedDiscoverExplore({
               ))}
             </div>
           )}
-          {activeTab === "Topics" && (
+          {(activeTab as any) === "Topics" && (
             <div className="grid grid-cols-1 gap-3 p-4">
               {circles.filter(c => 
                 !searchQuery || 
