@@ -548,6 +548,59 @@ function CategoryResults({
   );
 }
 
+function FeaturedHeroCard({ item, onClick }: { item: ProductDTO; onClick: () => void }) {
+  const dominantColor = useDominantColor(item.coverUrl);
+  
+  return (
+    <div
+      className="relative flex aspect-[16/9] w-full min-w-full shrink-0 snap-center overflow-hidden rounded-3xl ring-1 ring-white/5"
+      style={{ 
+        backgroundColor: dominantColor,
+        background: `linear-gradient(135deg, ${dominantColor}, rgba(0,0,0,0.8))`
+      }}
+    >
+      <div className="absolute inset-0 flex">
+        <div className="z-10 flex flex-1 flex-col justify-center p-6 text-white md:p-8">
+          <span className="mb-2 w-fit rounded-full bg-white/25 px-2.5 py-1 text-[10px] font-bold uppercase tracking-wider text-white">
+            {item.kind === "digital" ? "Digital Asset" : "Physical Product"}
+          </span>
+          <h2 className="mb-3 line-clamp-2 text-2xl font-black leading-tight tracking-tighter drop-shadow-sm md:text-3xl">
+            {item.name}
+          </h2>
+          <button
+            type="button"
+            onClick={onClick}
+            className="self-start rounded-full bg-[#E5484D] px-6 py-2.5 text-xs font-bold text-white shadow-lg transition-transform active:scale-95 hover:bg-[#F35E62]"
+          >
+            Shop Now
+          </button>
+        </div>
+        <div className="relative flex-1 min-w-0">
+          {item.coverUrl ? (
+            <img
+              src={item.coverUrl}
+              alt={item.name}
+              loading="lazy"
+              className="absolute right-0 bottom-0 h-full w-full object-contain object-right"
+            />
+          ) : (
+            <div className="h-full w-full bg-white/10 flex items-center justify-center">
+              <ShoppingBag className="w-16 h-16 text-white/20" />
+            </div>
+          )}
+          <div className="absolute inset-0 bg-gradient-to-r from-black/20 via-transparent to-transparent" />
+        </div>
+      </div>
+      
+      {item.rating > 4.5 && (
+        <div className="absolute top-3 right-3 rounded-full bg-white/25 px-2.5 py-1 text-[10px] font-bold uppercase tracking-wider text-white">
+          Top Rated
+        </div>
+      )}
+    </div>
+  );
+}
+
 function MarketplaceSkeleton() {
   return (
     <div className="min-h-full animate-pulse space-y-5 bg-[#0A0A0B] px-4 pt-12">
