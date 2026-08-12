@@ -314,13 +314,13 @@ export const Academy = ({ hubMode = false }: { hubMode?: boolean }) => {
                               stroke="currentColor" 
                               strokeWidth="3" 
                               fill="transparent" 
-                              className={isFinished ? "text-emerald-500" : "text-pink-500"} 
+                              className={isFinished ? "text-emerald-500" : "text-[#E5484D]"} 
                               strokeDasharray={282.7} 
                               strokeDashoffset={282.7 * (1 - (isFinished ? 1 : 0.05))} 
                               strokeLinecap="round" 
                             />
                           </svg>
-                          <div className="absolute inset-[5px] rounded-full overflow-hidden border border-white/5 bg-[#121214]">
+                          <div className="absolute inset-[5px] rounded-full overflow-hidden border border-white/5 bg-[#0A0A0B]">
                             {course.coverUrl ? (
                               <img loading="lazy" decoding="async" 
                                 src={course.coverUrl} 
@@ -436,7 +436,7 @@ export const Academy = ({ hubMode = false }: { hubMode?: boolean }) => {
             <section className="relative">
               <div className="flex items-center justify-between mb-4">
                 <h3 className={`font-bold text-lg ${!isAppShell ? "text-slate-900" : "text-white"}`}>Trending</h3>
-                <button className={`text-xs font-bold ${!isAppShell ? "text-red-500" : "text-red-400"}`}>View All</button>
+                <button className={`text-xs font-bold ${!isAppShell ? "text-[#E5484D]" : "text-[#E5484D]"}`}>View All</button>
               </div>
               <div className="overflow-hidden relative w-full">
                 <div ref={scrollRef} className="flex w-full overflow-x-auto scrollbar-none snap-x snap-mandatory gap-4 pb-2">
@@ -465,7 +465,7 @@ export const Academy = ({ hubMode = false }: { hubMode?: boolean }) => {
               <h3 className={`font-bold text-lg ${!isAppShell ? "text-slate-900" : "text-white"}`}>
                 {searchQuery ? `Search Results (${filtered.length})` : "New"}
               </h3>
-              {!searchQuery && <button className="text-pink-500 text-xs font-bold">View All</button>}
+              {!searchQuery && <button className="text-[#E5484D] text-xs font-bold">View All</button>}
             </div>
             <div className={`grid ${isAppShell ? "grid-cols-2" : "grid-cols-1 md:grid-cols-2 lg:grid-cols-3"} gap-4`}>
               {filtered.map((course) => (
@@ -487,7 +487,7 @@ export const Academy = ({ hubMode = false }: { hubMode?: boolean }) => {
             <section>
               <div className="flex items-center justify-between mb-4">
                 <h3 className={`font-bold text-lg ${!isAppShell ? "text-slate-900" : "text-white"}`}>Free Courses</h3>
-                <button className="text-pink-500 text-xs font-bold">View All</button>
+                <button className="text-[#E5484D] text-xs font-bold">View All</button>
               </div>
               <div className={`grid ${isAppShell ? "grid-cols-2" : "grid-cols-2 md:grid-cols-3 lg:grid-cols-4"} gap-4`}>
                 {courses?.filter(c => c.isFree).slice(0, isAppShell ? 4 : 8).map((course) => (
@@ -558,14 +558,14 @@ function AcademyTrendingCard({ course, onClick }: { course: CourseDTO; onClick: 
       <div className="absolute inset-0 flex">
         <div className="flex-1 p-5 md:p-8 flex flex-col justify-center text-white z-10">
           <h4 className="text-xl md:text-2xl lg:text-3xl font-black mb-2 leading-tight line-clamp-3">
-            {course.title}
+            {course.title.length > 50 ? course.title.slice(0, 50) + "..." : course.title}
           </h4>
           <p className="text-xs md:text-sm text-white/80 mb-4 line-clamp-2">
             {course.instructorName || "Learn from industry experts"}
           </p>
           <button
             onClick={onClick}
-            className="self-start bg-red-500 hover:bg-red-600 text-white px-5 md:px-6 py-3 md:py-2.5 rounded-full text-xs md:text-sm font-bold active:scale-95 transition-transform shadow-lg"
+            className="self-start bg-[#E5484D] hover:bg-[#F35E62] text-white px-5 md:px-6 py-3 md:py-2.5 rounded-full text-xs md:text-sm font-bold active:scale-95 transition-transform shadow-lg"
           >
             Start Now
           </button>
@@ -605,8 +605,8 @@ function CourseCard({
 }) {
   if (isAppShell) {
     return (
-      <div className="bg-[#1A1A1C] rounded-xl border border-white/5 shadow-lg overflow-hidden flex flex-col">
-        <button onClick={onOpen} className="block w-full text-left relative aspect-video bg-[#121214]">
+      <div className="bg-[#141416] rounded-xl border border-white/5 shadow-lg overflow-hidden flex flex-col">
+        <button onClick={onOpen} className="block w-full text-left relative aspect-video bg-[#0A0A0B]">
           {course.coverUrl ? (
             <ResponsiveImage
               src={course.coverUrl}
@@ -620,7 +620,7 @@ function CourseCard({
             </div>
           )}
           <div className="absolute top-2 left-2 flex gap-1 items-center">
-            <div className="bg-pink-500 text-white text-[8px] font-bold px-1.5 py-0.5 rounded uppercase">
+            <div className="bg-[#E5484D] text-white text-[8px] font-bold px-1.5 py-0.5 rounded uppercase">
               {course.category}
             </div>
             {new Date(course.createdAt).getTime() > Date.now() - 1000 * 60 * 60 * 24 * 7 && (
