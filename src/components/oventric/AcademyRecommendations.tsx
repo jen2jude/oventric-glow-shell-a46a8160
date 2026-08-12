@@ -340,7 +340,7 @@ function BlogTile({ b, isAppShell }: { b: RecoBlog; isAppShell: boolean }) {
 function PromotedStrip({ ads, isAppShell }: { ads: DiscoveryAd[]; isAppShell: boolean }) {
   if (!ads.length) return null;
   return (
-    <div className={`my-6 rounded-xl border p-4 ${!isAppShell ? "border-emerald-100 bg-emerald-50/50" : "border-emerald-500/20 bg-gradient-to-r from-emerald-500/5 via-transparent to-indigo-500/5"}`}>
+    <div className={`my-6 rounded-xl border p-4 ${!isAppShell ? "border-[#E5484D]/10 bg-[#E5484D]/5" : "border-[#E5484D]/20 bg-gradient-to-r from-[#E5484D]/5 via-transparent to-crimson-500/5"}`}>
       <div className="flex items-center gap-2 mb-3">
         <Sparkles className={`w-4 h-4 ${!isAppShell ? "text-emerald-600" : "text-emerald-400"}`} />
         <span className={`text-[11px] uppercase tracking-wider font-bold ${!isAppShell ? "text-emerald-700" : "text-emerald-300"}`}>
