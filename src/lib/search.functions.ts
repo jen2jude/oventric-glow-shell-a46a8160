@@ -12,6 +12,8 @@ export interface SearchResultPeer {
   avatarUrl: string | null;
   stars: number;
   description?: string;
+  hasShop: boolean;
+  hasServices: boolean;
 }
 
 export interface SearchResultBounty {
@@ -31,15 +33,37 @@ export interface SearchResultProduct {
   priceUsd: number;
   vendor: string;
   coverUrl: string | null;
+  sellerSlug: string;
 }
 
-export interface SearchResultCircle {
-  kind: "circle";
+export interface SearchResultShop {
+  kind: "shop";
   id: string;
   slug: string;
   name: string;
-  emoji: string;
-  memberCount: number;
+  avatarUrl: string | null;
+  productCount: number;
+  salesCount: number;
+  stars: number;
+}
+
+export interface SearchResultService {
+  kind: "service";
+  id: string;
+  title: string;
+  providerName: string;
+  providerSlug: string;
+  priceUsd: number;
+  coverUrl: string | null;
+}
+
+export interface SearchResultCourse {
+  kind: "course";
+  id: string;
+  title: string;
+  creatorName: string;
+  creatorSlug: string;
+  coverUrl: string | null;
 }
 
 export interface SearchResultPost {
@@ -56,14 +80,18 @@ export type SearchResult =
   | SearchResultPeer
   | SearchResultBounty
   | SearchResultProduct
-  | SearchResultCircle
+  | SearchResultShop
+  | SearchResultService
+  | SearchResultCourse
   | SearchResultPost;
 
 export interface SearchResults {
   peers: SearchResultPeer[];
   bounties: SearchResultBounty[];
   products: SearchResultProduct[];
-  circles: SearchResultCircle[];
+  shops: SearchResultShop[];
+  services: SearchResultService[];
+  courses: SearchResultCourse[];
   posts: SearchResultPost[];
 }
 
@@ -105,31 +133,23 @@ export const searchGlobal = createServerFn({ method: "GET" })
     const raw = data.q;
     const like = `%${escapeLike(raw)}%`;
 
-    const [peersRes, bountiesRes, productsRes, circlesRes, postsRes] = await Promise.all([
+    const [peersRes, bountiesRes, productsRes, postsRes, shopsRes, servicesRes, coursesRes] = await Promise.all([
       sb
         .from("profiles")
         .select("user_id, slug, display_name, username, avatar_path, reputation_stars, bio")
-        .or(
-          `display_name.ilike.${like},username.ilike.${like},slug.ilike.${like}`,
-        )
+        .or(`display_name.ilike.${like},username.ilike.${like},slug.ilike.${like}`)
         .limit(8),
       sb
         .from("bounties")
-        .select("id, title, price_usd, cover_path, category, status")
+        .select("id, title, price_usd, cover_path, category")
         .eq("status", "active")
         .or(`title.ilike.${like},category.ilike.${like}`)
-        .order("price_usd", { ascending: false })
         .limit(8),
       sb
         .from("products")
-        .select("id, name, category, price_usd, cover_path, vendor")
+        .select("id, name, category, price_usd, cover_path, vendor, seller_id, kind")
+        .eq("status", "active")
         .or(`name.ilike.${like},category.ilike.${like},vendor.ilike.${like}`)
-        .order("reviews", { ascending: false, nullsFirst: false })
-        .limit(8),
-      sb
-        .from("circles")
-        .select("id, slug, name, emoji")
-        .or(`name.ilike.${like},slug.ilike.${like},description.ilike.${like}`)
         .limit(8),
       sb
         .from("posts")
@@ -137,12 +157,40 @@ export const searchGlobal = createServerFn({ method: "GET" })
         .ilike("text", like)
         .order("created_at", { ascending: false })
         .limit(8),
+        sb
+        .from("profiles")
+        .select("user_id, slug, display_name, avatar_path")
+        .or(`display_name.ilike.${like},slug.ilike.${like}`)
+        .limit(8),
+        sb
+        .from("products")
+        .select("id, name, price_usd, cover_path, seller_id")
+        .eq("kind", "service")
+        .or(`name.ilike.${like},description.ilike.${like}`)
+        .limit(8),
+        sb
+        .from("products")
+        .select("id, name, cover_path, seller_id")
+        .eq("kind", "course")
+        .or(`name.ilike.${like},description.ilike.${like}`)
+        .limit(8),
     ]);
 
     const peerRows = (peersRes.data ?? []).filter(
       (p) => !!p.display_name && p.slug && !/^user-[a-f0-9]+$/i.test(p.slug as string),
     );
     const peerAvatars = await signBucket(sb, "avatars", peerRows.map((p) => p.avatar_path));
+    
+    // Check if peers have shop/services
+    const pIds = peerRows.map(p => p.user_id);
+    const { data: pChecks } = await sb.from("products").select("seller_id, kind").in("seller_id", pIds);
+    const peerHasShop = new Set<string>();
+    const peerHasServices = new Set<string>();
+    (pChecks ?? []).forEach(p => {
+        if (p.kind !== 'service') peerHasShop.add(p.seller_id);
+        else peerHasServices.add(p.seller_id);
+    });
+
     const peers: SearchResultPeer[] = peerRows.map((p, i) => ({
       kind: "peer",
       id: p.user_id as string,
@@ -152,21 +200,18 @@ export const searchGlobal = createServerFn({ method: "GET" })
       avatarUrl: peerAvatars[i],
       stars: Number(p.reputation_stars ?? 0),
       description: (p.bio as string) ?? undefined,
-    }));
-
-    const bRows = bountiesRes.data ?? [];
-    const bCovers = await signBucket(sb, "bounty-covers", bRows.map((b) => b.cover_path));
-    const bounties: SearchResultBounty[] = bRows.map((b, i) => ({
-      kind: "bounty",
-      id: b.id as string,
-      title: b.title as string,
-      amountUsd: Number(b.price_usd ?? 0),
-      category: (b.category as string) ?? null,
-      coverUrl: bCovers[i],
+      hasShop: peerHasShop.has(p.user_id as string),
+      hasServices: peerHasServices.has(p.user_id as string),
     }));
 
     const pRows = productsRes.data ?? [];
     const pCovers = await signBucket(sb, "product-covers", pRows.map((p) => p.cover_path));
+    
+    // Need seller slugs for product cards to link to shops
+    const sellerIds = Array.from(new Set(pRows.map(p => p.seller_id)));
+    const { data: sellerProfiles } = await sb.from("profiles").select("user_id, slug").in("user_id", sellerIds);
+    const sellerSlugMap = new Map((sellerProfiles ?? []).map(s => [s.user_id, s.slug]));
+
     const products: SearchResultProduct[] = pRows.map((p, i) => ({
       kind: "product",
       id: p.id as string,
@@ -175,62 +220,8 @@ export const searchGlobal = createServerFn({ method: "GET" })
       priceUsd: Number(p.price_usd ?? 0),
       vendor: (p.vendor as string) ?? "",
       coverUrl: pCovers[i],
+      sellerSlug: sellerSlugMap.get(p.seller_id as string) ?? "unknown",
     }));
 
-    // Fetch member counts for circles
-    const cRows = circlesRes.data ?? [];
-    const cIds = cRows.map((c) => c.id);
-    let countsMap = new Map<string, number>();
-    if (cIds.length > 0) {
-      const { data: mCounts } = await sb
-        .from("circle_members")
-        .select("circle_id");
-      (mCounts ?? []).forEach((m) => {
-        countsMap.set(m.circle_id, (countsMap.get(m.circle_id) ?? 0) + 1);
-      });
-    }
-    const circles: SearchResultCircle[] = cRows.map((c) => ({
-      kind: "circle",
-      id: c.id as string,
-      slug: c.slug as string,
-      name: c.name as string,
-      emoji: (c.emoji as string) ?? "🌐",
-      memberCount: countsMap.get(c.id) ?? 0,
-    }));
-
-    // Fetch authors for posts
-    const postRows = postsRes.data ?? [];
-    const postAuthorIds = Array.from(new Set(postRows.map((p) => p.author_id)));
-    let authorMap = new Map<string, { name: string; slug: string; avatarUrl: string | null }>();
-    if (postAuthorIds.length > 0) {
-      const { data: authorProfiles } = await sb
-        .from("profiles")
-        .select("user_id, display_name, username, slug, avatar_path")
-        .in("user_id", postAuthorIds);
-      
-      const authorAvatars = await signBucket(sb, "avatars", (authorProfiles ?? []).map(p => p.avatar_path));
-      
-      (authorProfiles ?? []).forEach((p, i) => {
-        authorMap.set(p.user_id, {
-          name: (p.display_name || p.username || p.slug) as string,
-          slug: p.slug as string,
-          avatarUrl: authorAvatars[i],
-        });
-      });
-    }
-
-    const posts: SearchResultPost[] = postRows.map((p) => {
-      const author = authorMap.get(p.author_id);
-      return {
-        kind: "post",
-        id: p.id as string,
-        text: p.text as string,
-        authorName: author?.name ?? "Member",
-        authorSlug: author?.slug ?? "",
-        authorAvatarUrl: author?.avatarUrl ?? null,
-        createdAt: p.created_at,
-      };
-    });
-
-    return { peers, bounties, products, circles, posts };
+    return { peers, bounties: [], products, shops: [], services: [], courses: [], posts: [] };
   });
