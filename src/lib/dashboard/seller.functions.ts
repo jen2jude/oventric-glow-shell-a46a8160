@@ -20,8 +20,6 @@ export const getSellerMetrics = createServerFn({ method: "GET" })
     const sb = context.supabase;
     const me = context.userId;
 
-    // In a real app, these would be aggregated from orders, products, analytics, and follows tables.
-    // For now, we fetch the core counts.
     const [ordersRes, productsRes, followersRes] = await Promise.all([
       sb.from("orders").select("id, total_usd, status").eq("seller_id", me),
       sb.from("products").select("id", { count: "exact", head: true }).eq("seller_id", me),
@@ -39,7 +37,7 @@ export const getSellerMetrics = createServerFn({ method: "GET" })
       totalRevenueUSD: Number(totalRevenueUSD.toFixed(2)),
       totalProducts: productsRes.count ?? 0,
       totalFollowers: followersRes.count ?? 0,
-      totalViews: 0, // Placeholder for analytics
+      totalViews: 0,
       engagementRate: 0,
       shopVisits: 0,
       conversionRate: 0
@@ -48,7 +46,10 @@ export const getSellerMetrics = createServerFn({ method: "GET" })
 
 export const toggleProductStatus = createServerFn({ method: "POST" })
   .middleware([requireSupabaseAuth])
-  .inputValidator(z.object({ productId: z.string().uuid(), status: z.enum(["active", "pending", "rejected"]) }))
+  .inputValidator(z.object({ 
+    productId: z.string().uuid(), 
+    status: z.enum(["active", "pending", "rejected"]) 
+  }))
   .handler(async ({ data, context }) => {
     const sb = context.supabase;
     const me = context.userId;
@@ -70,11 +71,9 @@ export const deleteProduct = createServerFn({ method: "POST" })
     const sb = context.supabase;
     const me = context.userId;
 
-    // Check if there are orders for this product first
     const { count } = await sb.from("orders").select("id", { count: "exact", head: true }).eq("product_id", data.productId);
     
     if (count && count > 0) {
-      // Archive instead of delete if there are orders
       const { error } = await sb
         .from("products")
         .update({ status: "rejected", reject_reason: "Archived by seller" })
@@ -100,22 +99,19 @@ export const updateShopSettings = createServerFn({ method: "POST" })
     logoPath: z.string().optional(),
     coverPath: z.string().optional(),
     description: z.string().optional(),
-    category: z.string().optional(),
     about: z.string().optional()
   }))
   .handler(async ({ data, context }) => {
     const sb = context.supabase;
     const me = context.userId;
 
-    // These would typically be stored in the profiles table or a dedicated shops table.
-    // Given the current schema, we update the profile.
     const { error } = await sb
       .from("profiles")
       .update({
-        avatar_path: data.logoPath,
-        cover_path: data.coverPath,
-        bio: data.description,
-        about_me: data.about
+        avatar_path: data.logoPath ?? null,
+        cover_path: data.coverPath ?? null,
+        bio: data.description ?? null,
+        about_me: data.about ?? null
       })
       .eq("user_id", me);
 
