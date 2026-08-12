@@ -24,6 +24,12 @@ import {
 } from "lucide-react";
 import { toast } from "sonner";
 import { Header } from "@/components/oventric/Header";
+import {
+  Accordion,
+  AccordionContent,
+  AccordionItem,
+  AccordionTrigger,
+} from "@/components/ui/accordion";
 import { MarketplaceHeader } from "@/components/oventric/desktop/MarketplaceHeader";
 import { MobileNav } from "@/components/oventric/MobileNav";
 import { useOnboarding, type Currency } from "@/lib/onboarding/OnboardingContext";
@@ -513,34 +519,73 @@ function ProductPage() {
                 />
               </div>
 
-              {(() => {
-                const raw = (product.description || "").split("\n").map((l) => l.trim()).filter(Boolean);
-                const bullets = raw.filter((l) => /^([-•*✓·])\s+/.test(l)).map((l) => l.replace(/^([-•*✓·])\s+/, ""));
-                const body = raw.filter((l) => !/^([-•*✓·])\s+/.test(l)).join("\n");
-                return (
-                  <>
-                    <p className={`text-sm ${isAppShell ? "text-slate-400" : "text-slate-600"} md:text-slate-600 leading-relaxed whitespace-pre-wrap ${bullets.length > 0 ? "mb-4" : "mb-6"}`}>
-                      {body || (bullets.length === 0 ? "No description provided." : "")}
-                    </p>
-                    {bullets.length > 0 && (
-                      <ul className="mb-6 space-y-2.5">
-                        {bullets.map((b) => (
-                          <li
-                            key={b}
-                            className={`flex items-start gap-2.5 text-sm ${isAppShell ? "text-slate-300" : "text-slate-700"}`}
-                          >
-                            <Check
-                              className={`mt-0.5 h-4 w-4 shrink-0 ${isAppShell ? "text-slate-400" : "text-emerald-600"}`}
-                              strokeWidth={2.5}
-                            />
-                            <span>{b}</span>
-                          </li>
-                        ))}
-                      </ul>
-                    )}
-                  </>
-                );
-              })()}
+              <div className="mb-6">
+                <Accordion type="single" collapsible className="w-full">
+                  <AccordionItem value="about" className={`${isAppShell ? "border-white/5" : "border-slate-200"}`}>
+                    <AccordionTrigger className={`${isAppShell ? "text-white" : "text-slate-900"} font-bold py-3 hover:no-underline`}>
+                      About Item
+                    </AccordionTrigger>
+                    <AccordionContent className={`${isAppShell ? "text-slate-400" : "text-slate-600"} text-sm leading-relaxed`}>
+                      {(() => {
+                        const raw = (product.description || "").split("\n").map((l) => l.trim()).filter(Boolean);
+                        const bullets = raw.filter((l) => /^([-•*✓·])\s+/.test(l)).map((l) => l.replace(/^([-•*✓·])\s+/, ""));
+                        const body = raw.filter((l) => !/^([-•*✓·])\s+/.test(l)).join("\n");
+                        return (
+                          <>
+                            <p className="whitespace-pre-wrap mb-3">
+                              {body || (bullets.length === 0 ? "No description provided." : "")}
+                            </p>
+                            {bullets.length > 0 && (
+                              <ul className="space-y-2">
+                                {bullets.map((b) => (
+                                  <li key={b} className="flex items-start gap-2">
+                                    <Check className={`mt-0.5 h-3.5 w-3.5 shrink-0 ${isAppShell ? "text-slate-500" : "text-emerald-600"}`} />
+                                    <span>{b}</span>
+                                  </li>
+                                ))}
+                              </ul>
+                            )}
+                          </>
+                        );
+                      })()}
+                    </AccordionContent>
+                  </AccordionItem>
+
+                  <AccordionItem value="basic" className={`${isAppShell ? "border-white/5" : "border-slate-200"}`}>
+                    <AccordionTrigger className={`${isAppShell ? "text-white" : "text-slate-900"} font-bold py-3 hover:no-underline`}>
+                      Basic Info
+                    </AccordionTrigger>
+                    <AccordionContent className={`${isAppShell ? "text-slate-400" : "text-slate-600"} text-sm leading-relaxed`}>
+                      {product.basicInfo || "No additional information provided."}
+                      {product.kind === "physical" && (
+                        <div className="mt-3 grid grid-cols-2 gap-2 text-xs">
+                          {product.location && <div><span className="opacity-60">Location:</span> {product.location}</div>}
+                          {product.condition && <div><span className="opacity-60">Condition:</span> {product.condition}</div>}
+                          {product.brand && <div><span className="opacity-60">Brand:</span> {product.brand}</div>}
+                        </div>
+                      )}
+                    </AccordionContent>
+                  </AccordionItem>
+
+                  <AccordionItem value="description" className={`${isAppShell ? "border-white/5" : "border-slate-200"}`}>
+                    <AccordionTrigger className={`${isAppShell ? "text-white" : "text-slate-900"} font-bold py-3 hover:no-underline`}>
+                      Description
+                    </AccordionTrigger>
+                    <AccordionContent className={`${isAppShell ? "text-slate-400" : "text-slate-600"} text-sm leading-relaxed whitespace-pre-wrap`}>
+                      {product.description || "No description provided."}
+                    </AccordionContent>
+                  </AccordionItem>
+
+                  <AccordionItem value="activation" className={`${isAppShell ? "border-white/5" : "border-slate-200"}`}>
+                    <AccordionTrigger className={`${isAppShell ? "text-white" : "text-slate-900"} font-bold py-3 hover:no-underline`}>
+                      Activation Guide
+                    </AccordionTrigger>
+                    <AccordionContent className={`${isAppShell ? "text-slate-400" : "text-slate-600"} text-sm leading-relaxed whitespace-pre-wrap`}>
+                      {product.activationGuide || "No activation guide provided."}
+                    </AccordionContent>
+                  </AccordionItem>
+                </Accordion>
+              </div>
 
               <div className={`${isAppShell ? "bg-transparent border-transparent p-0 mb-5" : "bg-white border-slate-200 shadow-sm md:shadow-sm md:bg-white border rounded-[10px] p-5 mb-4"}`}>
 

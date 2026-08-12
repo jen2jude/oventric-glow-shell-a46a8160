@@ -2832,6 +2832,8 @@ export type Database = {
       }
       products: {
         Row: {
+          activation_guide: string | null
+          basic_info: string | null
           brand: string | null
           category: string
           condition: string | null
@@ -2867,6 +2869,8 @@ export type Database = {
           whatsapp_number: string | null
         }
         Insert: {
+          activation_guide?: string | null
+          basic_info?: string | null
           brand?: string | null
           category: string
           condition?: string | null
@@ -2902,6 +2906,8 @@ export type Database = {
           whatsapp_number?: string | null
         }
         Update: {
+          activation_guide?: string | null
+          basic_info?: string | null
           brand?: string | null
           category?: string
           condition?: string | null
