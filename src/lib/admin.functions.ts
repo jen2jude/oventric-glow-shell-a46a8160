@@ -150,6 +150,49 @@ export const listAdminUsers = createServerFn({ method: "GET" })
       roles: rmap.get(p.user_id as string) ?? [],
     }));
   });
+64: 
+65: /** Verify a seller (admin only). Sets verification_tier and records verification_at. */
+66: export const verifySeller = createServerFn({ method: "POST" })
+67:   .middleware([requireSupabaseAuth])
+68:   .inputValidator((i: { userId: string; tier: string }) => i)
+69:   .handler(async ({ data, context }) => {
+70:     await assertAdmin(context);
+71:     const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
+72:     const sb = supabaseAdmin as any;
+73:     const { error } = await sb.from("profiles")
+74:       .update({ 
+75:         verification_tier: data.tier, 
+76:         kyc_completed_at: new Date().toISOString() 
+77:       })
+78:       .eq("user_id", data.userId);
+79:     if (error) throw new Error(error.message);
+80:     await writeAudit(sb, context.userId, "seller.verify", "user", data.userId, { tier: data.tier });
+81:     return { ok: true };
+82:   });
+83: 
+84: /** Suspend a seller (admin only). Revokes staff roles and sets banned_at. */
+85: export const suspendSeller = createServerFn({ method: "POST" })
+86:   .middleware([requireSupabaseAuth])
+87:   .inputValidator((i: { userId: string; reason: string }) => i)
+88:   .handler(async ({ data, context }) => {
+89:     await assertAdmin(context);
+90:     const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
+91:     const sb = supabaseAdmin as any;
+92:     // Revoke all roles first
+93:     await sb.from("user_roles").delete().eq("user_id", data.userId);
+94:     // Set banned status
+95:     const { error } = await sb.from("profiles")
+96:       .update({ 
+97:         banned_at: new Date().toISOString(), 
+98:         flagged: true, 
+99:         flag_reason: data.reason 
+100:       })
+101:       .eq("user_id", data.userId);
+102:     if (error) throw new Error(error.message);
+103:     await writeAudit(sb, context.userId, "seller.suspend", "user", data.userId, { reason: data.reason });
+104:     return { ok: true };
+105:   });
+
 
 
 export const setUserRole = createServerFn({ method: "POST" })
