@@ -296,7 +296,7 @@ export function Bounties() {
         <div className="px-4 pt-4 pb-6">
           {/* Premium hero */}
           <div className="rounded-3xl bg-[#0F0F10] border border-white/[0.06] p-5">
-            <div className="inline-flex items-center gap-1.5 rounded-full bg-emerald-500/10 px-2.5 py-1 text-[10px] font-bold uppercase tracking-[0.16em] text-emerald-400">
+            <div className="inline-flex items-center gap-1.5 rounded-full bg-[#E5484D]/10 px-2.5 py-1 text-[10px] font-bold uppercase tracking-[0.16em] text-[#E5484D]">
               <ShieldAlert className="w-3 h-3" /> Escrow protected
             </div>
             <h1 className="mt-3 text-white text-[26px] leading-[1.1] font-black tracking-tight">
@@ -310,7 +310,7 @@ export function Bounties() {
 
             <div className="mt-4 grid grid-cols-2 gap-2.5">
               <div className="rounded-2xl bg-[#141416] border border-white/[0.06] p-3">
-                <div className="inline-flex items-center gap-1 text-[9px] font-bold uppercase tracking-[0.12em] text-emerald-400">
+                <div className="inline-flex items-center gap-1 text-[9px] font-bold uppercase tracking-[0.12em] text-[#E5484D]">
                   <WalletIcon className="w-3 h-3" /> Locked
                 </div>
                 <div className="mt-1 text-white text-lg font-black leading-none truncate">
@@ -331,7 +331,7 @@ export function Bounties() {
 
             <button
               onClick={() => require(1, () => setPostOpen(true), "issuer")}
-              className="mt-4 w-full h-11 rounded-2xl bg-emerald-500 text-black text-sm font-bold inline-flex items-center justify-center gap-2 transition-transform active:scale-[0.98]"
+              className="mt-4 w-full h-11 rounded-[10px] bg-[#E5484D] text-white text-sm font-bold inline-flex items-center justify-center gap-2 transition-transform active:scale-[0.98]"
             >
               <Plus className="w-4 h-4" /> Post a bounty
             </button>
@@ -347,7 +347,7 @@ export function Bounties() {
                   onClick={() => setFilter(f.key)}
                   className={`shrink-0 h-9 px-4 rounded-full text-[13px] font-semibold whitespace-nowrap transition-colors ${
                     active
-                      ? "bg-emerald-500 text-black"
+                      ? "bg-[#E5484D] text-white"
                       : "bg-[#141416] text-slate-300 border border-white/[0.06]"
                   }`}
                 >
@@ -372,7 +372,7 @@ export function Bounties() {
             ) : filtered.length === 0 ? (
               <div className="rounded-3xl border border-dashed border-white/[0.06] bg-[#141416] p-8 text-center">
                 <div className="w-14 h-14 mx-auto rounded-full bg-[#1A1A1C] flex items-center justify-center mb-4">
-                  <Target className="w-7 h-7 text-emerald-400" />
+                  <Target className="w-7 h-7 text-[#E5484D]" />
                 </div>
                 <h3 className="text-white text-base font-bold mb-1.5">Nothing here yet</h3>
                 <p className="text-slate-400 text-[13px] mb-5">
@@ -380,7 +380,7 @@ export function Bounties() {
                 </p>
                 <button
                   onClick={() => require(1, () => setPostOpen(true), "issuer")}
-                  className="inline-flex items-center gap-2 h-10 px-5 rounded-xl bg-emerald-500 text-black text-sm font-bold"
+                  className="inline-flex items-center gap-2 h-10 px-5 rounded-[10px] bg-[#E5484D] text-white text-sm font-bold"
                 >
                   <Plus className="w-4 h-4" /> Post a bounty
                 </button>
@@ -432,7 +432,7 @@ export function Bounties() {
         <div className="flex items-end justify-between mb-5 gap-3 flex-wrap">
           <div>
             <h1 className="text-white md:text-slate-900 text-2xl md:text-3xl font-black inline-flex items-center gap-2">
-              <Target className="w-6 h-6 text-emerald-400 md:text-emerald-600" /> Bounty & Escrow
+              <Target className="w-6 h-6 text-[#E5484D] md:text-[#E5484D]" /> Bounty & Escrow
               Board
             </h1>
             <p className="text-sm text-slate-400 md:text-slate-600 mt-1">
@@ -441,7 +441,7 @@ export function Bounties() {
           </div>
           <button
             onClick={() => require(1, () => setPostOpen(true), "issuer")}
-            className="inline-flex items-center gap-2 px-4 py-3 rounded-[10px] bg-emerald-500 hover:bg-emerald-400 text-black md:bg-emerald-600 md:hover:bg-emerald-700 md:text-white text-sm font-bold shadow-sm md:shadow-sm"
+            className="inline-flex items-center gap-2 px-4 py-3 rounded-[10px] bg-[#E5484D] hover:bg-[#E5484D]/90 text-white md:bg-[#E5484D] md:hover:bg-[#E5484D]/90 md:text-white text-sm font-bold shadow-sm md:shadow-sm"
           >
             <Plus className="w-4 h-4" /> Post a bounty
           </button>
@@ -449,8 +449,8 @@ export function Bounties() {
 
         {/* Metric grid */}
         <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 mb-6">
-          <div className="bg-[#1E1E24] border border-emerald-500/30 rounded-xl p-4 shadow-sm md:bg-emerald-50 md:border-emerald-200 md:shadow-sm">
-            <div className="text-[10px] font-bold uppercase tracking-wider text-emerald-300 md:text-emerald-700 inline-flex items-center gap-1.5">
+          <div className="bg-[#141416] border border-[#E5484D]/30 rounded-[10px] p-4 shadow-sm md:bg-[#E5484D]/5 md:border-[#E5484D]/20 md:shadow-sm">
+            <div className="text-[10px] font-bold uppercase tracking-wider text-[#E5484D]/80 md:text-[#E5484D] inline-flex items-center gap-1.5">
               <WalletIcon className="w-3 h-3" /> Total Locked in Escrow
             </div>
             <div className="mt-2 text-white md:text-slate-900 text-2xl md:text-3xl font-black">
@@ -460,7 +460,7 @@ export function Bounties() {
               Across {activeCount} live contracts in {baseCurrency}
             </div>
           </div>
-          <div className="bg-[#1E1E24] border border-white/10 rounded-xl p-4 md:bg-white md:border-slate-200 md:shadow-sm">
+          <div className="bg-[#141416] border border-white/10 rounded-[10px] p-4 md:bg-white md:border-slate-200 md:shadow-sm">
             <div className="text-[10px] font-bold uppercase tracking-wider text-slate-400 md:text-slate-500 inline-flex items-center gap-1.5">
               <Target className="w-3 h-3" /> Active Tasks Seeking Solvers
             </div>
