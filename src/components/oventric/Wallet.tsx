@@ -113,17 +113,63 @@ export function Wallet() {
         </div>
       </main>
 
-      {/* Re-exporting missing components for route handlers */}
-      <AddCapitalModalHost />
-      <PayoutModalHost />
+      {/* Transactions & Cashflow */}
+      <section className="max-w-2xl mx-auto px-4 mt-6">
+        <div className="flex items-center justify-between mb-4">
+            <h3 className="text-sm font-bold text-white uppercase tracking-widest">Recent Activity</h3>
+            <button 
+              onClick={() => setLedgerOpen(true)}
+              className="text-xs text-[#E5484D] font-bold hover:underline"
+            >
+                View Ledger
+            </button>
+        </div>
+        
+        <div className="space-y-2">
+            {[
+                { type: "Purchase", amount: "-₦4,500", date: "Today, 2:15 PM", color: "bg-pink-500/10 text-pink-500" },
+                { type: "Cashback", amount: "+₦120", date: "Yesterday", color: "bg-emerald-500/10 text-emerald-500" },
+                { type: "Bounty", amount: "+₦15,000", date: "Oct 24", color: "bg-amber-500/10 text-amber-500" },
+            ].map((tx, i) => (
+                <div key={i} className="flex items-center gap-3 p-3 rounded-[10px] bg-[#121214] border border-white/5">
+                    <div className={`w-10 h-10 rounded-full flex items-center justify-center font-bold text-[10px] ${tx.color}`}>
+                        {tx.type[0]}
+                    </div>
+                    <div className="flex-1">
+                        <div className="text-sm font-bold text-white">{tx.type}</div>
+                        <div className="text-[10px] text-slate-500">{tx.date}</div>
+                    </div>
+                    <div className={`text-sm font-black tabular-nums ${tx.amount.startsWith('+') ? 'text-emerald-400' : 'text-white'}`}>
+                        {tx.amount}
+                    </div>
+                </div>
+            ))}
+        </div>
+      </section>
+
+      {/* Modals */}
+      {transferOpen && (
+        <TransferModal 
+          onClose={() => setTransferOpen(false)} 
+          onDone={() => {
+            setTransferOpen(false);
+            toast.success("Transfer completed");
+          }} 
+        />
+      )}
+      {addFundsOpen && (
+        <AddCapitalModal onClose={() => setAddFundsOpen(false)} />
+      )}
+      {payoutOpen && (
+        <PayoutModal onClose={() => setPayoutOpen(false)} />
+      )}
     </div>
   );
 }
 
-export function AddCapitalModal(props: any) { return null; }
-export function PayoutModal(props: any) { return null; }
+// Re-exporting from separate files to maintain clean imports in route tree
+export { AddCapitalModal } from "./wallet/AddCapitalModal";
+export { PayoutModal } from "./wallet/PayoutModal";
 
-function AddCapitalModalHost() { return null; }
-function PayoutModalHost() { return null; }
 
 
