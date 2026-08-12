@@ -35,7 +35,7 @@ import { TransferModal } from "@/components/oventric/wallet/TransferModal";
 import { AddCapitalModal } from "@/components/oventric/wallet/AddCapitalModal";
 import { PayoutModal } from "@/components/oventric/wallet/PayoutModal";
 import logoFull from "@/assets/oventric-full-transparent.png";
-import wallet3d from "@/assets/wallet-3d.webp.asset.json";
+import wallet3d from "@/assets/wallet-hero-3d.png.asset.json";
 
 function fmt(n: number, c: Currency) {
   return formatMoney(n, c);
