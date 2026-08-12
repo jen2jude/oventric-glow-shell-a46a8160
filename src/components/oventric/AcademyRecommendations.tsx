@@ -40,7 +40,7 @@ function SectionHeader({ icon: Icon, title, hint, isAppShell }: { icon: any; tit
     return (
       <div className="flex items-center justify-between mb-4">
         <h3 className="font-bold text-white text-lg">{title}</h3>
-        <button className="text-pink-500 text-xs font-bold">View All</button>
+        <button className="text-[#E5484D] text-xs font-bold">View All</button>
       </div>
     );
   }
@@ -86,7 +86,7 @@ function CourseTile({
               <GraduationCap className="w-8 h-8 text-white/10" />
             </div>
           )}
-          <div className="absolute top-2 left-2 bg-pink-500 text-white text-[8px] font-bold px-1.5 py-0.5 rounded uppercase">
+          <div className="absolute top-2 left-2 bg-[#E5484D] text-white text-[8px] font-bold px-1.5 py-0.5 rounded uppercase">
             {c.category}
           </div>
         </button>
@@ -171,7 +171,7 @@ function ProductTile({ p, currency, isAppShell }: { p: DiscoveryProduct; currenc
         </div>
         <div className="p-3 flex-1 flex flex-col justify-between">
           <h4 className="font-bold text-white text-[13px] line-clamp-2 leading-tight mb-2">{p.title}</h4>
-          <div className="text-[12px] font-black text-pink-500">{fmtPrice(p.priceUsd, currency)}</div>
+          <div className="text-[12px] font-black text-[#E5484D]">{fmtPrice(p.priceUsd, currency)}</div>
         </div>
       </Link>
     );
