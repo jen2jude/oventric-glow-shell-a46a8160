@@ -1572,8 +1572,6 @@ function OverviewPane({
 
       <NotificationsPanel />
 
-      <NotificationSettingsPanel />
-
       {/* Mobile: simplified flat rows, monochrome icons, no gradients / shadows / glow */}
 
       <div
