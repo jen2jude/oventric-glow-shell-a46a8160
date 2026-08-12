@@ -100,7 +100,7 @@ export function CategoryDiscoverySheet({ open, onClose, categories, counts, onSe
         <div className="min-h-0 flex-1 overflow-y-auto px-4 pb-10">
           <div className="space-y-2.5">
             {list.map((cat) => {
-              const { Icon, hue } = visualFor(cat.slug, cat.name);
+              const { Icon, hue } = visualForCategory(cat.slug, cat.name);
               const n = countFor(cat);
               return (
                 <button
