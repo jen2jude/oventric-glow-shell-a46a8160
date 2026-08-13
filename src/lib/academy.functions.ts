@@ -793,12 +793,9 @@ export const enrollPaid = createServerFn({ method: "POST" })
     if (course.is_free) throw new Error("Course is free — use enrollFree");
     if ((course.owner_id as string) === userId) throw new Error("You already own this course");
 
-    // Currency isolation: buyer's home currency must match the course's
-    // original currency (NG-only for NGN, GH-only for GHS, OTHER-only for USD).
-    const courseCurrency = String((course as { original_currency?: string | null }).original_currency ?? "USD").toUpperCase();
-    if (courseCurrency !== String(data.displayCurrency).toUpperCase()) {
-      throw new Error(`This course is priced in ${courseCurrency}. Your account transacts in ${data.displayCurrency} and cannot enroll.`);
-    }
+    // Global catalogue: any learner can enroll. The charge is always created in
+    // the buyer's own home currency, converted from the USD base price.
+
 
 
     // Already enrolled?
