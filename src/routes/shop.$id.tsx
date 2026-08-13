@@ -172,6 +172,7 @@ function ShopPage() {
 
   const { productId } = Route.useSearch();
   const [focalProduct, setFocalProduct] = useState<ProfileListing | null>(null);
+  const focalRef = useRef<HTMLDivElement | null>(null);
 
   useEffect(() => {
     if (productId && products.length > 0) {
@@ -179,11 +180,18 @@ function ShopPage() {
       if (found) {
         setFocalProduct(found);
         setTab("shop");
-        // Scroll to top or focal product
-        window.scrollTo({ top: 0, behavior: 'smooth' });
       }
     }
   }, [productId, products]);
+
+  useEffect(() => {
+    if (!focalProduct) return;
+    const t = window.setTimeout(() => {
+      focalRef.current?.scrollIntoView({ behavior: "smooth", block: "center" });
+    }, 250);
+    return () => window.clearTimeout(t);
+  }, [focalProduct]);
+
 
   useEffect(() => {
 
@@ -445,18 +453,19 @@ function ShopPage() {
             <>
               {/* Featured Product (Visual Emphasis) */}
               {focalProduct && (
-                <div className="mt-8">
-                  <SectionHead title="Featured" />
+                <div className="mt-8 scroll-mt-24" ref={focalRef}>
+                  <SectionHead title="Selected item" />
                   <Link
                     to="/product/$id"
                     params={{ id: focalProduct.id }}
-                    className="group mt-4 block overflow-hidden rounded-[2rem] border border-white/10 bg-[#141417] transition-all hover:border-[#E5484D]/30"
+                    className="group mt-4 block overflow-hidden rounded-[2rem] border border-[#E5484D]/50 bg-[#141417] ring-2 ring-[#E5484D]/25 transition-all hover:border-[#E5484D]"
                   >
                     <div className="relative aspect-[16/9] w-full overflow-hidden bg-neutral-900">
                       <Cover url={focalProduct.coverUrl} className="h-full w-full transition-transform duration-700 group-hover:scale-105" />
                       <div className="absolute top-5 left-5 rounded-full bg-[#E5484D] px-4 py-1.5 text-[10px] font-black uppercase tracking-widest text-white shadow-lg">
-                        Featured
+                        From the post
                       </div>
+
                     </div>
                     <div className="p-6">
                       <div className="flex items-start justify-between gap-6">
