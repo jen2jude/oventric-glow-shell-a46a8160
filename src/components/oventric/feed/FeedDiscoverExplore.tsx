@@ -74,6 +74,7 @@ export function FeedDiscoverExplore({
   renderPost: (p: FeedPost) => React.ReactNode;
 }) {
   const { peers, products, bounties, courses, circles, loading } = useFeedDiscovery(true);
+  const { baseCurrency } = useOnboarding();
   const { groups: storyGroups, refresh: refreshStories } = useStoryRail(true);
   const [reelAt, setReelAt] = useState<number | null>(null);
   const [activeTab, setActiveTab] = useState<ExploreTab | "Discovery">("Discovery");
