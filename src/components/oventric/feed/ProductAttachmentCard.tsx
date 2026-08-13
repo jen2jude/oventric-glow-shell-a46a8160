@@ -1,6 +1,8 @@
 import { Link } from "@tanstack/react-router";
 import { ShoppingBag, Star, CheckCircle2 } from "lucide-react";
 import type { ProductAttachment } from "@/lib/posts.functions";
+import { useOnboarding } from "@/lib/onboarding/OnboardingContext";
+import { computeDisplayPrice } from "@/lib/fx-display";
 
 export function ProductAttachmentCard({ 
   product, 
@@ -9,6 +11,11 @@ export function ProductAttachmentCard({
   product: ProductAttachment; 
   isAppShell?: boolean 
 }) {
+  const { baseCurrency } = useOnboarding();
+  const priceLabel = computeDisplayPrice(
+    { price_usd: product.priceUsd, original_currency: "USD", original_amount: product.priceUsd, fx_snapshot: null },
+    baseCurrency,
+  ).formatted;
   return (
     <div className={`mt-3 ${isAppShell ? 'mx-4 md:mx-0' : ''}`}>
       <Link
@@ -37,7 +44,7 @@ export function ProductAttachmentCard({
             <div className="flex items-start justify-between gap-2">
               <h4 className="text-sm font-bold text-white line-clamp-1">{product.name}</h4>
               <div className="text-sm font-black text-[#E5484D] shrink-0">
-                ${product.priceUsd.toLocaleString()}
+                {priceLabel}
               </div>
             </div>
             
