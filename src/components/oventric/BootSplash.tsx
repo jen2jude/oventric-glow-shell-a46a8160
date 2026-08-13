@@ -153,7 +153,6 @@ export function BootSplash() {
                   {
                     color,
                     "--ic": color,
-                    "--idx": i,
                     animationDelay: `${i * 0.12}s`,
                     opacity: 0.15,
                   } as any
