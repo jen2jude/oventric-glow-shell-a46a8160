@@ -1,43 +1,62 @@
 import { useEffect, useState } from "react";
-import { X, PenSquare, Target, ShoppingBag, GraduationCap } from "lucide-react";
+import { X, PenSquare, Target, ShoppingBag, GraduationCap, ArrowRight, Sparkles } from "lucide-react";
 import { useOnboarding, type Tier } from "@/lib/onboarding/OnboardingContext";
 import { SellSwitcherModal } from "./SellSwitcherModal";
 import { CoursePublishWizard } from "./CoursePublishWizard";
 import { BountyEditorModal } from "./BountyEditorModal";
 
 export type ChoiceKey = "post" | "bounty" | "sell" | "course";
-type Choice = { key: ChoiceKey; icon: typeof PenSquare; title: string; desc: string; tier: Tier };
+type Choice = {
+  key: ChoiceKey;
+  icon: typeof PenSquare;
+  title: string;
+  desc: string;
+  tier: Tier;
+  accent: string;
+  tint: string;
+  badge?: string;
+};
 
 const choices: Choice[] = [
   {
     key: "post",
     icon: PenSquare,
     title: "Drop a Post",
-    desc: "Share updates with the community",
+    desc: "Share updates, ideas, or moments with the community.",
     tier: 1,
+    accent: "#A78BFA",
+    tint: "rgba(167,139,250,0.10)",
+    badge: "NEW",
   },
   {
     key: "bounty",
     icon: Target,
     title: "Post a Bounty ($)",
-    desc: "Get expert help, pay on delivery",
+    desc: "Get expert help from the community and pay on delivery.",
     tier: 2,
+    accent: "#4CC2FF",
+    tint: "rgba(76,194,255,0.09)",
   },
   {
     key: "sell",
     icon: ShoppingBag,
     title: "Sell",
-    desc: "List digital assets or physical goods",
+    desc: "List digital assets or physical products.",
     tier: 2,
+    accent: "#2BD07A",
+    tint: "rgba(43,208,122,0.09)",
   },
   {
     key: "course",
     icon: GraduationCap,
     title: "Publish a Course",
-    desc: "Teach with video modules, free or paid",
+    desc: "Teach with video modules, free or paid.",
     tier: 2,
+    accent: "#F7A50A",
+    tint: "rgba(247,165,10,0.09)",
   },
 ];
+
 
 export function CreatePanel({
   open,
