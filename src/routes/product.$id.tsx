@@ -887,10 +887,8 @@ function ContactSellerModal({
     ""
   ).replace(/\D/g, "");
   const dp = productDisplay(product, baseCurrency);
-  const priceLine =
-    product.originalAmount && product.originalCurrency
-      ? `${product.originalCurrency} ${product.originalAmount}`
-      : `$${product.priceUSD}`;
+  // Always quote in the viewer's own home currency — never the seller's.
+  const priceLine = dp.formatted;
   // Use the public share endpoint so link previews (WhatsApp, iMessage, etc.)
   // scrape product-specific OG tags including the product cover image.
   const productUrl =
