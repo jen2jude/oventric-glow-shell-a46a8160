@@ -203,15 +203,8 @@ export function Bounties() {
           setBountiesError(error.message || "Bounties could not be loaded right now.");
         }
         const rows: Bounty[] = (data ?? [])
-          // Currency isolation: signed-in users only see bounties published in
-          // their home currency. Anon viewers still see everything (USD preview).
-          .filter((b) => {
-            if (!isAuthenticated) return true;
-            const oc = String(
-              (b as { original_currency?: string | null }).original_currency ?? "USD",
-            ).toUpperCase();
-            return oc === baseCurrency;
-          })
+          // Global board: everyone sees every bounty. Amounts are always shown
+          // in the viewer's own home currency via the FX model.
           .map((b) => {
             const cat = b.category as string as Exclude<Category, "all">;
             const expiresAt = b.deadline_at

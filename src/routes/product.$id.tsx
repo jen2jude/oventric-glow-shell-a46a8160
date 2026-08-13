@@ -600,11 +600,6 @@ function ProductPage() {
                           <div className={`${isAppShell ? "text-white" : "text-slate-900"} md:text-slate-900 font-black text-3xl`}>
                             {dp.formatted}
                           </div>
-                          {dp.originalFormatted && (
-                            <div className="text-xs text-slate-500 md:text-slate-500 mt-1">
-                              Locked at {dp.originalFormatted} {dp.originalCurrency}
-                            </div>
-                          )}
                         </>
                       );
                     })()}
@@ -892,10 +887,8 @@ function ContactSellerModal({
     ""
   ).replace(/\D/g, "");
   const dp = productDisplay(product, baseCurrency);
-  const priceLine =
-    product.originalAmount && product.originalCurrency
-      ? `${product.originalCurrency} ${product.originalAmount}`
-      : `$${product.priceUSD}`;
+  // Always quote in the viewer's own home currency — never the seller's.
+  const priceLine = dp.formatted;
   // Use the public share endpoint so link previews (WhatsApp, iMessage, etc.)
   // scrape product-specific OG tags including the product cover image.
   const productUrl =

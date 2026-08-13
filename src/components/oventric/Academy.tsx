@@ -134,8 +134,8 @@ export const Academy = ({ hubMode = false }: { hubMode?: boolean }) => {
       });
   }, [fetchList, refreshKey]);
 
-  // Currency isolation: signed-in users only see courses priced in their home
-  // currency (or free). Anon viewers see everything (USD preview).
+  // Global catalogue: every learner sees every course. Prices are always
+  // rendered in the viewer's own home currency via the FX model.
   const filtered = useMemo(() => {
     if (!courses) return [];
     return courses.filter((c) => {
@@ -143,18 +143,9 @@ export const Academy = ({ hubMode = false }: { hubMode?: boolean }) => {
       const matchesSearch =
         c.title.toLowerCase().includes(searchQuery.toLowerCase()) ||
         c.instructorName?.toLowerCase().includes(searchQuery.toLowerCase());
-      
-      if (!matchesCategory || !matchesSearch) return false;
-      
-      // For web, if we're in "all" category and no search, we show everything in the grid
-      // but the specialized sections above will also show items.
-      
-      if (!userId) return true;
-      if (c.isFree) return true;
-      const oc = String(c.originalCurrency ?? "USD").toUpperCase();
-      return oc === baseCurrency;
+      return matchesCategory && matchesSearch;
     });
-  }, [courses, category, searchQuery, userId, baseCurrency]);
+  }, [courses, category, searchQuery]);
 
   const hideHeader = hubMode && isAppShell && searchQuery === "" && category === "all";
 

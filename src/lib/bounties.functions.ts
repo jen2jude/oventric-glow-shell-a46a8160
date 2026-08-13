@@ -398,19 +398,9 @@ export const applyToBounty = createServerFn({ method: "POST" })
       throw new Error("This bounty is no longer accepting applications");
     }
 
-    // Currency isolation: solver's home currency must match the bounty payout
-    // currency — earnings are settled in the poster's original currency.
-    const { data: profile } = await sb
-      .from("profiles")
-      .select("country")
-      .eq("user_id", context.userId)
-      .maybeSingle();
-    const country = String((profile?.country ?? "")).toUpperCase();
-    const solverCurrency = country === "NG" ? "NGN" : country === "GH" ? "GHS" : "USD";
-    const bountyCurrency = String((b as { original_currency?: string | null }).original_currency ?? "USD").toUpperCase();
-    if (bountyCurrency !== solverCurrency) {
-      throw new Error(`This bounty pays in ${bountyCurrency}. Your account earns in ${solverCurrency} and cannot apply.`);
-    }
+    // Global board: any solver can apply. Payout is converted and settled into
+    // the solver's own home currency via the FX model.
+
 
 
     const { error } = await sb.from("bounty_applications").insert({
