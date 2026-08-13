@@ -105,7 +105,7 @@ export function Wallet() {
       if (!map.has(key)) map.set(key, { label, items: [] });
       map.get(key)!.items.push(t);
     }
-    return Array.from(map.values()).slice(0, 2);
+    return Array.from(map.values());
   })();
 
   const cur = baseCurrency;
