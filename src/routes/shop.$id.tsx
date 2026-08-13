@@ -172,6 +172,7 @@ function ShopPage() {
 
   const { productId } = Route.useSearch();
   const [focalProduct, setFocalProduct] = useState<ProfileListing | null>(null);
+  const focalRef = useRef<HTMLDivElement | null>(null);
 
   useEffect(() => {
     if (productId && products.length > 0) {
@@ -179,11 +180,18 @@ function ShopPage() {
       if (found) {
         setFocalProduct(found);
         setTab("shop");
-        // Scroll to top or focal product
-        window.scrollTo({ top: 0, behavior: 'smooth' });
       }
     }
   }, [productId, products]);
+
+  useEffect(() => {
+    if (!focalProduct) return;
+    const t = window.setTimeout(() => {
+      focalRef.current?.scrollIntoView({ behavior: "smooth", block: "center" });
+    }, 250);
+    return () => window.clearTimeout(t);
+  }, [focalProduct]);
+
 
   useEffect(() => {
 
