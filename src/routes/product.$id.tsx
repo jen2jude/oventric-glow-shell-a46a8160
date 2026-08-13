@@ -600,11 +600,6 @@ function ProductPage() {
                           <div className={`${isAppShell ? "text-white" : "text-slate-900"} md:text-slate-900 font-black text-3xl`}>
                             {dp.formatted}
                           </div>
-                          {dp.originalFormatted && (
-                            <div className="text-xs text-slate-500 md:text-slate-500 mt-1">
-                              Locked at {dp.originalFormatted} {dp.originalCurrency}
-                            </div>
-                          )}
                         </>
                       );
                     })()}
