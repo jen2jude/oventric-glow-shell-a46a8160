@@ -114,10 +114,10 @@ export function HubPromoCarousel({ onSelect }: { onSelect: (section: string) => 
             <button
               type="button"
               onClick={() => onSelect(s.section)}
-              className="relative w-full overflow-hidden rounded-2xl text-left active:scale-[0.99] transition-transform"
+              className="relative w-full overflow-hidden rounded-2xl text-left active:scale-[0.99] transition-transform aspect-[16/10]"
               style={{ backgroundImage: s.bg }}
             >
-              <div className="relative z-10 max-w-[62%] p-4">
+              <div className="relative z-10 flex h-full flex-col justify-center max-w-[62%] p-4">
                 <div className={`text-[17px] font-extrabold leading-tight ${s.text}`}>
                   {s.title}
                 </div>
