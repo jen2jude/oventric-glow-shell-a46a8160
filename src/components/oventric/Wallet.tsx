@@ -87,9 +87,15 @@ export function Wallet() {
     enabled: isAuthenticated,
     retry: false,
   });
-  const recentTx = txData?.items ?? [];
+  const allTx = txData?.items ?? [];
 
-  // Group transactions by month, keeping only the two most recent months
+  const PAGE_SIZE = 5;
+  const [txPage, setTxPage] = useState(0);
+  const totalTxPages = Math.max(1, Math.ceil(allTx.length / PAGE_SIZE));
+  const currentPage = Math.min(txPage, totalTxPages - 1);
+  const recentTx = allTx.slice(currentPage * PAGE_SIZE, currentPage * PAGE_SIZE + PAGE_SIZE);
+
+  // Group the current page's transactions by month
   const monthGroups = (() => {
     const map = new Map<string, { label: string; items: typeof recentTx }>();
     for (const t of recentTx) {
