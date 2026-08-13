@@ -147,13 +147,13 @@ export function BootSplash() {
             return (
               <Icon
                 key={i}
-                className="h-8 w-8 transition-none sm:h-10 sm:w-10 splash-icon-sweep"
+                className="h-6 w-6 transition-none sm:h-7 sm:w-7 splash-icon-sweep"
                 strokeWidth={1.8}
                 style={
                   {
                     color,
                     "--ic": color,
-                    animationDelay: `${i * 0.15}s`,
+                    animationDelay: `${i * 0.12}s`,
                     opacity: 0.15,
                   } as any
                 }
@@ -166,19 +166,19 @@ export function BootSplash() {
         dangerouslySetInnerHTML={{
           __html: `
           .splash-icon-sweep {
-            animation: splash-icon-fade 3.2s infinite ease-in-out;
+            animation: splash-icon-fade 2.8s infinite ease-in-out;
             will-change: transform, opacity, filter;
           }
           @keyframes splash-icon-fade {
-            0%, 20%, 80%, 100% {
-              opacity: 0.15;
-              transform: translateY(0) scale(0.92);
-              filter: grayscale(0.4) blur(0.5px);
+            0%, 100% {
+              opacity: 0.12;
+              transform: translateX(-10px) translateY(0) scale(0.85);
+              filter: grayscale(0.5) blur(0.5px);
             }
             50% {
               opacity: 1;
-              transform: translateY(-8px) scale(1.2);
-              filter: drop-shadow(0 0 16px var(--ic)) drop-shadow(0 0 8px var(--ic));
+              transform: translateX(10px) translateY(-5px) scale(1.12);
+              filter: drop-shadow(0 0 14px var(--ic)) drop-shadow(0 0 7px var(--ic));
             }
           }
         `,
