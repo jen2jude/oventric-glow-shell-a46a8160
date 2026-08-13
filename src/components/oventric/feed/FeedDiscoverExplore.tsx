@@ -9,6 +9,15 @@ import { StoryViewerModal } from "@/components/oventric/feed/StoryViewerModal";
 import type { FeedPost } from "@/lib/posts.functions";
 import { ExploreHeader, type ExploreTab } from "./ExploreHeader";
 import { PeopleExploreList } from "./PeopleExploreList";
+import { useOnboarding, type Currency } from "@/lib/onboarding/OnboardingContext";
+import { computeDisplayPrice } from "@/lib/fx-display";
+
+function fmtUsd(usd: number, viewer: Currency): string {
+  return computeDisplayPrice(
+    { price_usd: usd, original_currency: "USD", original_amount: usd, fx_snapshot: null },
+    viewer,
+  ).formatted;
+}
 
 
 
@@ -133,7 +142,7 @@ export function FeedDiscoverExplore({
                   <div className="p-2.5">
                     <p className="line-clamp-2 text-[12.5px] font-medium text-white">{p.title}</p>
                     <p className="mt-1 text-[12.5px] font-bold text-[#E5484D]">
-                      ${p.priceUsd.toLocaleString()}
+                      {fmtUsd(p.priceUsd, baseCurrency)}
                     </p>
                   </div>
                 </Link>
@@ -298,7 +307,7 @@ export function FeedDiscoverExplore({
                 <div className="p-3">
                   <p className="line-clamp-2 text-[13px] font-semibold text-white">{b.title}</p>
                   <p className="mt-1 text-[12px] font-bold text-[#E5484D]">
-                    ${b.amountUsd.toLocaleString()}
+                    {fmtUsd(b.amountUsd, baseCurrency)}
                   </p>
                 </div>
               </button>
@@ -330,7 +339,7 @@ export function FeedDiscoverExplore({
                 <div className="p-2.5">
                   <p className="line-clamp-2 text-[12.5px] font-medium text-white">{p.title}</p>
                   <p className="mt-1 text-[12.5px] font-bold text-[#E5484D]">
-                    ${p.priceUsd.toLocaleString()}
+                    {fmtUsd(p.priceUsd, baseCurrency)}
                   </p>
                 </div>
               </Link>
@@ -362,7 +371,7 @@ export function FeedDiscoverExplore({
                 <div className="p-3">
                   <p className="line-clamp-2 text-[13px] font-semibold text-white">{c.title}</p>
                   <p className="mt-1 text-[11.5px] text-white/45">
-                    {c.isFree ? "Free" : `$${c.priceUsd.toLocaleString()}`}
+                    {c.isFree ? "Free" : fmtUsd(c.priceUsd, baseCurrency)}
                     {c.instructor ? ` · ${c.instructor}` : ""}
                   </p>
                 </div>
