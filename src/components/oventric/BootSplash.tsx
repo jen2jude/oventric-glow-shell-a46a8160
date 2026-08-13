@@ -147,13 +147,14 @@ export function BootSplash() {
             return (
               <Icon
                 key={i}
-                className="h-8 w-8 transition-none sm:h-10 sm:w-10 splash-icon-sweep"
+                className="h-6 w-6 transition-none sm:h-7 sm:w-7 splash-icon-sweep"
                 strokeWidth={1.8}
                 style={
                   {
                     color,
                     "--ic": color,
-                    animationDelay: `${i * 0.15}s`,
+                    "--idx": i,
+                    animationDelay: `${i * 0.12}s`,
                     opacity: 0.15,
                   } as any
                 }
