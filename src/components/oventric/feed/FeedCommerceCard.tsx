@@ -2,6 +2,15 @@ import { Link } from "@tanstack/react-router";
 import { ShoppingBag, Trophy, GraduationCap } from "lucide-react";
 import { navigateSection } from "@/components/oventric/DiscoveryPanel";
 import { useFeedDiscovery } from "@/components/oventric/feed/useFeedDiscovery";
+import { useOnboarding, type Currency } from "@/lib/onboarding/OnboardingContext";
+import { computeDisplayPrice } from "@/lib/fx-display";
+
+function fmtUsd(usd: number, viewer: Currency): string {
+  return computeDisplayPrice(
+    { price_usd: usd, original_currency: "USD", original_amount: usd, fx_snapshot: null },
+    viewer,
+  ).formatted;
+}
 
 type CommerceItem =
   | { kind: "product"; id: string; title: string; sub: string; priceLabel: string; coverUrl: string | null; hue: string }
@@ -20,6 +29,7 @@ const META = {
  */
 export function useFeedCommerceCards(enabled: boolean): CommerceItem[] {
   const { products, bounties, courses } = useFeedDiscovery(enabled);
+  const { baseCurrency } = useOnboarding();
   const out: CommerceItem[] = [];
   const max = Math.max(products.length, bounties.length, courses.length);
   for (let i = 0; i < max; i++) {
@@ -30,7 +40,7 @@ export function useFeedCommerceCards(enabled: boolean): CommerceItem[] {
         id: p.id,
         title: p.title,
         sub: `${p.category} · ${p.vendor}`,
-        priceLabel: `$${p.priceUsd.toLocaleString()}`,
+        priceLabel: fmtUsd(p.priceUsd, baseCurrency),
         coverUrl: p.coverUrl,
         hue: p.hue,
       });
@@ -41,7 +51,7 @@ export function useFeedCommerceCards(enabled: boolean): CommerceItem[] {
         id: b.id,
         title: b.title,
         sub: b.category ?? "Open bounty",
-        priceLabel: `$${b.amountUsd.toLocaleString()}`,
+        priceLabel: fmtUsd(b.amountUsd, baseCurrency),
         coverUrl: b.coverUrl,
       });
     const c = courses[i];
@@ -51,7 +61,7 @@ export function useFeedCommerceCards(enabled: boolean): CommerceItem[] {
         id: c.id,
         title: c.title,
         sub: c.instructor ? `By ${c.instructor}` : c.category,
-        priceLabel: c.isFree ? "Free" : `$${c.priceUsd.toLocaleString()}`,
+        priceLabel: c.isFree ? "Free" : fmtUsd(c.priceUsd, baseCurrency),
         coverUrl: c.coverUrl,
       });
   }
