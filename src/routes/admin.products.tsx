@@ -28,7 +28,7 @@ import {
   rejectProduct,
 } from "@/lib/admin.functions";
 import { SellSwitcherModal } from "@/components/oventric/SellSwitcherModal";
-import { computeDisplayPrice } from "@/lib/fx-display";
+import { computeDisplayPrice, formatMoney, usdRate } from "@/lib/fx-display";
 import type { Currency } from "@/lib/onboarding/OnboardingContext";
 
 import { ResponsiveImage } from "@/components/ui/responsive-image";
