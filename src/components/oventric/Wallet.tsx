@@ -551,6 +551,28 @@ export function Wallet() {
                   </div>
                 </div>
               ))}
+
+              {totalTxPages > 1 && (
+                <div className="flex items-center justify-between gap-3 pt-1">
+                  <button
+                    onClick={() => setTxPage((p) => Math.max(0, p - 1))}
+                    disabled={currentPage === 0}
+                    className="px-4 py-2 rounded-[10px] bg-[#141418] border border-white/10 text-[13px] font-semibold text-white disabled:opacity-40"
+                  >
+                    Previous
+                  </button>
+                  <span className="text-[12px] text-slate-500 tabular-nums">
+                    {currentPage + 1} / {totalTxPages}
+                  </span>
+                  <button
+                    onClick={() => setTxPage((p) => Math.min(totalTxPages - 1, p + 1))}
+                    disabled={currentPage >= totalTxPages - 1}
+                    className="px-4 py-2 rounded-[10px] bg-[#141418] border border-white/10 text-[13px] font-semibold text-white disabled:opacity-40"
+                  >
+                    Next
+                  </button>
+                </div>
+              )}
             </div>
           )}
         </section>
