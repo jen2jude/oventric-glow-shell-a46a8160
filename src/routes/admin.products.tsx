@@ -1159,9 +1159,16 @@ function ProductPreviewModal({ product, onClose }: { product: Row; onClose: () =
             </div>
             {product.original_amount && product.original_currency ? (
               <div className="text-slate-500 text-[11px] mt-0.5">
-                Locked at {String(product.original_currency)} {String(product.original_amount)}
+                Seller published {String(product.original_currency)}{" "}
+                {String(product.original_amount)}
               </div>
             ) : null}
+            <div className="text-slate-400 text-[11px] mt-1">
+              Live equivalent ·{" "}
+              {(["NGN", "GHS"] as const)
+                .map((c) => formatMoney(Number(product.price_usd) * usdRate(c), c))
+                .join(" · ")}
+            </div>
           </div>
           {product.location ? (
             <div className="bg-black/30 border border-white/10 rounded-[10px] p-3">
