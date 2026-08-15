@@ -1,7 +1,7 @@
 import { useEffect, useMemo, useRef, useState } from "react";
 import { useNavigate } from "@tanstack/react-router";
 import { useServerFn } from "@tanstack/react-start";
-import { ChevronLeft, ChevronRight, LayoutGrid, Search, SlidersHorizontal, ShoppingBag, GraduationCap } from "lucide-react";
+import { ChevronLeft, ChevronRight, LayoutGrid, Search, SlidersHorizontal, ShoppingBag, GraduationCap, ArrowLeft } from "lucide-react";
 import { useDominantColor } from "@/hooks/use-dominant-color";
 import { useOnboarding } from "@/lib/onboarding/OnboardingContext";
 import {
@@ -15,6 +15,8 @@ import { TopSellersPanel } from "./marketplace-discovery/TopSellersPanel";
 import { CategoryDiscoverySheet } from "./marketplace-discovery/CategoryDiscoverySheet";
 import { GridCard, Rail, RowCard, ShopCard, TileCard, type SellerLite } from "./marketplace-discovery/cards";
 import { visualForCategory } from "./marketplace-discovery/utils";
+import { ExploreCategories } from "./hub/ExploreCategories";
+
 
 type Mode = "all" | "digital" | "physical";
 type SortKey = "popular" | "newest" | "best_selling" | "top_rated";
@@ -253,26 +255,14 @@ export function Marketplace() {
                   </section>
                 )}
 
-                {/* Horizontal Category Shortcuts */}
-                <div className="no-scrollbar flex gap-4 overflow-x-auto snap-x snap-mandatory scroll-smooth no-scrollbar px-4">
-                  {cats.map((cat) => {
-                    const { Icon, hue } = visualForCategory(cat.slug, cat.name);
-                    return (
-                      <button
-                        key={cat.id}
-                        onClick={() => setActiveCategory(cat)}
-                        className="group flex snap-start shrink-0 w-[64px] flex-col items-center gap-1.5"
-                      >
-                        <div className={`flex h-[52px] w-[52px] items-center justify-center rounded-full bg-gradient-to-br transition-transform group-active:scale-90 ring-1 ring-white/5 ${hue}`}>
-                          <Icon className="h-6 w-6 text-white opacity-90 transition-all group-hover:scale-110 group-hover:opacity-100" />
-                        </div>
-                        <span className="text-[10px] font-bold text-white/50 transition-colors group-hover:text-white text-center line-clamp-1 w-full">
-                          {cat.name}
-                        </span>
-                      </button>
-                    );
-                  })}
+                {/* Horizontal Category Shortcuts - Mirroring Hub Style */}
+                <div className="px-4">
+                  <ExploreCategories onSelect={(catName) => {
+                    const found = cats.find(c => c.name === catName);
+                    if (found) setActiveCategory(found);
+                  }} />
                 </div>
+
 
                 {/* Larger Featured Hero */}
                 {discovery && discovery.featured.length > 0 && (
