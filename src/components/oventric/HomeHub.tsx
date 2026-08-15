@@ -2,8 +2,6 @@ import { useEffect, useState } from "react";
 import { Link } from "@tanstack/react-router";
 import { useServerFn } from "@tanstack/react-start";
 import {
-  Eye,
-  EyeOff,
   Store,
   Target,
   GraduationCap,
@@ -12,7 +10,6 @@ import {
   KeyRound,
   Star,
   Plus,
-  ArrowUp,
   Send,
   PenSquare,
   MoreHorizontal,
@@ -23,14 +20,12 @@ import {
   MessageCircle,
   Bell,
 } from "lucide-react";
-import { supabase } from "@/integrations/supabase/client";
 import { useAuthGate } from "@/lib/auth-gate/AuthGateProvider";
 import { useOnboarding, type Currency } from "@/lib/onboarding/OnboardingContext";
-import { getWalletBalances } from "@/lib/wallet.functions";
 import { getMyFullProfile } from "@/lib/profiles.functions";
 import { getDiscoveryFeed } from "@/lib/discovery.functions";
 import { listCourses } from "@/lib/academy.functions";
-import { formatMoney, usdRate, safeFormatDisplayPrice } from "@/lib/fx-display";
+import { safeFormatDisplayPrice } from "@/lib/fx-display";
 import { AvatarImage } from "@/components/oventric/AvatarImage";
 import { SellSwitcherModal } from "@/components/oventric/SellSwitcherModal";
 import { CoursePublishWizard } from "@/components/oventric/CoursePublishWizard";
@@ -79,17 +74,11 @@ function greeting(): string {
   return "Good evening";
 }
 
-function fromUSD(usd: number, target: Currency): number {
-  return target === "USD" ? usd : usd * usdRate(target);
-}
-
 export function HomeHub({ onSelect, onCreate, onOpenMessages, returnedToHub }: HubProps) {
   const { isAuthenticated, openGate } = useAuthGate();
   const {
     baseCurrency,
     country,
-    balancesHidden,
-    toggleBalancesHidden,
     fullName,
     storeName,
     require: requireTier,
@@ -104,16 +93,11 @@ export function HomeHub({ onSelect, onCreate, onOpenMessages, returnedToHub }: H
   const goSection = (section: string) =>
     section === "Messages" ? onOpenMessages() : onSelect(section);
 
-  const loadBalances = useServerFn(getWalletBalances);
   const loadProfile = useServerFn(getMyFullProfile);
   const loadDiscovery = useServerFn(getDiscoveryFeed);
   const loadCourses = useServerFn(listCourses);
   const loadTopUsers = useServerFn(getTopUsers);
 
-  const [main, setMain] = useState(0);
-  const [cashback, setCashback] = useState(0);
-  const [bounty, setBounty] = useState(0);
-  const [escrow, setEscrow] = useState(0);
   const [avatarUrl, setAvatarUrl] = useState<string | null>(null);
   const [mySlug, setMySlug] = useState<string | null>(null);
   const [topUsers, setTopUsers] = useState<TopUser[]>([]);
@@ -131,26 +115,10 @@ export function HomeHub({ onSelect, onCreate, onOpenMessages, returnedToHub }: H
 
   useEffect(() => {
     if (!isAuthenticated) {
-      setMain(0);
-      setCashback(0);
-      setBounty(0);
-      setEscrow(0);
       setAvatarUrl(null);
       return;
     }
     let cancelled = false;
-    const load = () => {
-      loadBalances()
-        .then((r) => {
-          if (cancelled) return;
-          setMain(r.balances[baseCurrency] ?? 0);
-          setEscrow(r.escrow[baseCurrency] ?? 0);
-          setCashback(r.cashback ?? 0);
-          setBounty(r.bountyBalance ?? 0);
-        })
-        .catch(() => {});
-    };
-    load();
     loadProfile()
       .then((r) => {
         if (cancelled || !r?.profile) return;
@@ -160,26 +128,10 @@ export function HomeHub({ onSelect, onCreate, onOpenMessages, returnedToHub }: H
       })
       .catch(() => {});
 
-    let ch: ReturnType<typeof supabase.channel> | null = null;
-    (async () => {
-      const { data } = await supabase.auth.getUser();
-      const uid = data.user?.id;
-      if (!uid || cancelled) return;
-      ch = supabase
-        .channel(`hub-wallet-${uid}`)
-        .on(
-          "postgres_changes",
-          { event: "*", schema: "public", table: "wallets", filter: `user_id=eq.${uid}` },
-          () => load(),
-        )
-        .subscribe();
-    })();
-
     return () => {
       cancelled = true;
-      if (ch) supabase.removeChannel(ch);
     };
-  }, [isAuthenticated, baseCurrency, loadBalances, loadProfile]);
+  }, [isAuthenticated, baseCurrency, loadProfile]);
 
   useEffect(() => {
     let cancelled = false;
@@ -221,8 +173,6 @@ export function HomeHub({ onSelect, onCreate, onOpenMessages, returnedToHub }: H
       cancelled = true;
     };
   }, [loadDiscovery, loadCourses]);
-
-  const hide = (v: number) => (balancesHidden ? "••••" : formatMoney(v, currency));
 
   return (
     <div className="hub-enter mx-auto w-full max-w-5xl px-3 md:px-6 py-4 md:py-8 space-y-7 pb-24 bg-[#0A0A0B] min-h-screen">
@@ -344,62 +294,6 @@ export function HomeHub({ onSelect, onCreate, onOpenMessages, returnedToHub }: H
           </div>
         </section>
       )}
-
-      {/* Financial hub card - Mirroring discovery_ref style */}
-      <section className="rounded-[10px] border border-white/[0.08] bg-[#141416] p-6 shadow-2xl relative overflow-hidden">
-        <div className="absolute top-0 right-0 w-32 h-32 bg-[#E5484D]/5 blur-[60px] rounded-full pointer-events-none" />
-        
-        <div className="flex items-start justify-between mb-8">
-          <div className="space-y-2">
-            <div className="flex items-center gap-2">
-              <span className="text-[11px] font-black uppercase tracking-[0.15em] text-white/30">Available Balance</span>
-              <button
-                type="button"
-                onClick={toggleBalancesHidden}
-                className="text-white/20 hover:text-white/60 transition-colors"
-              >
-                {balancesHidden ? <EyeOff className="h-3.5 w-3.5" /> : <Eye className="h-3.5 w-3.5" />}
-              </button>
-            </div>
-            <div className="text-[42px] font-black tracking-tighter text-white tabular-nums leading-none">
-              {isAuthenticated ? hide(main) : formatMoney(0, currency)}
-            </div>
-          </div>
-          <Link to="/wallet/ledger" className="mt-1 h-9 w-9 flex items-center justify-center rounded-full bg-white/5 text-white/40 border border-white/5 active:scale-95 transition-transform">
-            <ChevronRight className="w-5 h-5" />
-          </Link>
-        </div>
-
-        <div className="grid grid-cols-2 gap-3 mb-8">
-           <button 
-             onClick={() => onSelect("Wallet")}
-             className="h-12 flex items-center justify-center gap-2 rounded-[10px] bg-[#E5484D] text-white text-[14px] font-black uppercase active:scale-[0.97] transition-all shadow-[0_8px_20px_rgba(229,72,77,0.25)]"
-           >
-             <Plus className="w-4 h-4" strokeWidth={4} /> Add Funds
-           </button>
-           <button 
-             onClick={() => onSelect("Wallet")}
-             className="h-12 flex items-center justify-center gap-2 rounded-[10px] bg-white/[0.04] border border-white/10 text-white/90 text-[14px] font-black uppercase active:scale-[0.97] transition-all"
-           >
-             <ArrowUp className="w-4 h-4" strokeWidth={3} /> Withdraw
-           </button>
-        </div>
-
-        <div className="grid grid-cols-3 gap-4 pt-6 border-t border-white/[0.05]">
-          <div className="space-y-1">
-             <div className="text-[9px] font-black uppercase tracking-widest text-white/20">Cashback</div>
-             <div className="text-[15px] font-black text-emerald-400">{isAuthenticated ? (balancesHidden ? "••••" : formatMoney(fromUSD(cashback, currency), currency)) : formatMoney(0, currency)}</div>
-          </div>
-          <div className="space-y-1">
-             <div className="text-[9px] font-black uppercase tracking-widest text-white/20">Bounty</div>
-             <div className="text-[15px] font-black text-blue-400">{isAuthenticated ? (balancesHidden ? "••••" : formatMoney(fromUSD(bounty, currency), currency)) : formatMoney(0, currency)}</div>
-          </div>
-          <div className="space-y-1">
-             <div className="text-[9px] font-black uppercase tracking-widest text-white/20">Escrow</div>
-             <div className="text-[15px] font-black text-rose-400">{isAuthenticated ? (balancesHidden ? "••••" : formatMoney(escrow, currency)) : formatMoney(0, currency)}</div>
-          </div>
-        </div>
-      </section>
 
       {/* Trending / What's Moving rail */}
       <MiniRail
