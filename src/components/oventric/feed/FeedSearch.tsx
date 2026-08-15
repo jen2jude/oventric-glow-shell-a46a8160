@@ -63,7 +63,7 @@ export function FeedSearchBar({
       }
     >
       <div className="relative group">
-        <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-500 group-focus-within:text-[#E5484D] md:group-focus-within:text-[#E5484D] transition-colors" />
+        <Search className="absolute left-3.5 top-1/2 -translate-y-1/2 w-[18px] h-[18px] text-white/30 group-focus-within:text-[#E5484D] transition-colors" />
         <input
           type="search"
           role="searchbox"
@@ -73,13 +73,14 @@ export function FeedSearchBar({
           onKeyDown={(e) => {
             if (e.key === "Escape") onQueryChange("");
           }}
-          placeholder={appShell ? "Search feed" : "Search posts, bounties, assets…"}
-          className={`w-full h-10 pl-10 pr-9 text-sm focus:outline-none transition-all ${
+          placeholder={appShell ? "Search Oventric..." : "Search posts, bounties, assets…"}
+          className={`w-full h-[52px] pl-11 pr-9 text-[15px] focus:outline-none transition-all ${
             appShell
-              ? "rounded-full bg-[#141416] border border-white/[0.06] text-white placeholder:text-white/30 focus:border-[#E5484D]/50"
+              ? "rounded-[10px] bg-[#141416] border border-white/5 text-white placeholder:text-white/20 focus:border-[#E5484D]/40"
               : "rounded-[10px] bg-[#141418] md:bg-slate-100 border border-white/10 md:border-slate-200 text-slate-200 md:text-slate-900 placeholder:text-slate-500 focus:border-[#E5484D]/60 focus:ring-2 focus:ring-[#E5484D]/20"
           }`}
         />
+
         {q && (
           <button
             type="button"
