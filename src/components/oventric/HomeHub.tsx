@@ -447,24 +447,12 @@ export function HomeHub({ onSelect, onCreate, onOpenMessages, returnedToHub }: H
         onClose={() => setMoreOpen(false)}
         onSelect={goSection}
         onSell={() => requireTier(2, () => setSellOpen(true))}
+      />
       <SellSwitcherModal open={sellOpen} onClose={() => setSellOpen(false)} />
-      <CoursePublishWizard
-        open={courseOpen}
-        onClose={() => setCourseOpen(false)}
-        onSaved={() => {
-          setCourseOpen(false);
-          onSelect("Academy");
-        }}
-      />
-      <AllFeaturesSheet
-        open={moreOpen}
-        onClose={() => setMoreOpen(false)}
-        onSelect={goSection}
-        onSell={() => requireTier(2, () => setSellOpen(true))}
-      />
     </div>
   );
 }
+
 
 
 type MiniRailItem = {
