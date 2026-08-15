@@ -17,7 +17,7 @@ export function FeaturedProductCard({ product }: { product: ProductDTO }) {
   ).formatted;
 
   // Safe checks using ProductDTO fields
-  const isDigital = product.isDigital || product.name.toLowerCase().includes("pro");
+  const isDigital = product.kind === "digital" || product.name.toLowerCase().includes("pro");
   const badgeText = isDigital ? "Digital" : product.rating >= 4.8 ? "Best Seller" : "Trending";
   const badgeColor = isDigital ? "bg-[#30A46C]" : product.rating >= 4.8 ? "bg-[#E5484D]" : "bg-[#F5A524]";
 
