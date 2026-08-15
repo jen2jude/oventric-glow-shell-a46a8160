@@ -276,17 +276,17 @@ export function HomeHub({ onSelect, onCreate, onOpenMessages, returnedToHub }: H
           <input 
             type="text"
             placeholder="Search products, shops, people..."
-            className="w-full h-[52px] pl-11 pr-4 rounded-[10px] bg-[#141416] border border-white/5 text-[15px] text-white placeholder:text-white/20 focus:outline-none focus:border-[#E5484D]/40 transition-all"
+            className="w-full h-[52px] pl-11 pr-4 rounded-[14px] bg-[#141416] border border-white/5 text-[15px] text-white placeholder:text-white/20 focus:outline-none focus:border-[#E5484D]/40 transition-all"
           />
         </div>
-        <button className="h-[52px] w-[52px] flex items-center justify-center rounded-[10px] bg-[#141416] border border-white/5 text-white/40 active:scale-95 transition-transform">
+        <button className="h-[52px] w-[52px] flex items-center justify-center rounded-[14px] bg-[#141416] border border-white/5 text-white/40 active:scale-95 transition-transform">
           <Filter className="w-5 h-5" />
         </button>
       </section>
 
       {/* Hero Section */}
       <section>
-        <div className="relative overflow-hidden rounded-[10px]">
+        <div className="relative overflow-hidden rounded-[16px]">
            <HubPromoCarousel onSelect={goSection} />
         </div>
       </section>
@@ -376,12 +376,12 @@ export function HomeHub({ onSelect, onCreate, onOpenMessages, returnedToHub }: H
       {topUsers.length > 0 && (
         <section className="space-y-4">
           <div className="flex items-center justify-between px-1">
-            <h2 className="text-[14px] font-black text-white/40 uppercase tracking-[0.2em]">Top Creators</h2>
+            <h2 className="text-[16px] font-bold text-white">Top Creators</h2>
             <button
               onClick={() => onSelect("Feed")}
-              className="text-[11px] font-black text-[#E5484D] uppercase tracking-widest"
+              className="text-[13px] font-medium text-white/40 flex items-center gap-1"
             >
-              See all
+              See all <ChevronRight className="w-3.5 h-3.5" />
             </button>
           </div>
 
@@ -417,11 +417,13 @@ export function HomeHub({ onSelect, onCreate, onOpenMessages, returnedToHub }: H
       {/* From Our Community - Mirroring the social snippet in reference */}
       <section className="space-y-4">
         <div className="flex items-center justify-between px-1">
-          <h2 className="text-[13px] font-black text-white/40 uppercase tracking-[0.2em]">👥 From Our Community</h2>
-          <button onClick={() => onSelect("Feed")} className="text-[11px] font-black text-[#E5484D] uppercase tracking-widest">See all →</button>
+          <h2 className="text-[16px] font-bold text-white flex items-center gap-1.5">👥 From Our Community</h2>
+          <button onClick={() => onSelect("Feed")} className="text-[13px] font-medium text-white/40 flex items-center gap-1">
+            See all <ChevronRight className="w-3.5 h-3.5" />
+          </button>
         </div>
         
-        <div className="rounded-[10px] border border-white/[0.06] bg-[#141416] p-4 space-y-3.5">
+        <div className="rounded-[16px] border border-white/[0.06] bg-[#141416] p-4 space-y-3.5">
           <div className="flex items-center justify-between">
             <div className="flex items-center gap-2.5">
               <div className="w-10 h-10 rounded-full overflow-hidden border border-white/10">
@@ -446,7 +448,7 @@ export function HomeHub({ onSelect, onCreate, onOpenMessages, returnedToHub }: H
             <p className="text-[13px] leading-relaxed text-white/80">
               Just got my new MacBook Air from Oventric and I'm loving it! Super fast delivery and great price. 🙌
             </p>
-            <div className="aspect-[16/9] w-full rounded-[10px] overflow-hidden bg-[#1A1A1F] border border-white/5">
+            <div className="aspect-[16/9] w-full rounded-[14px] overflow-hidden bg-[#1A1A1F] border border-white/5">
               <img src="https://images.unsplash.com/photo-1517336714731-489689fd1ca8?auto=format&fit=crop&q=80&w=800" alt="MacBook" className="w-full h-full object-cover opacity-80" />
             </div>
           </div>
@@ -481,7 +483,7 @@ export function HomeHub({ onSelect, onCreate, onOpenMessages, returnedToHub }: H
         <button
           type="button"
           onClick={() => openGate("generic")}
-          className="w-full inline-flex items-center justify-center gap-2 h-14 rounded-[10px] bg-[#141416] border border-white/10 text-white text-[13px] font-black uppercase tracking-widest active:scale-95 transition-transform"
+          className="w-full inline-flex items-center justify-center gap-2 h-14 rounded-[14px] bg-[#141416] border border-white/10 text-white text-[13px] font-black uppercase tracking-widest active:scale-95 transition-transform"
         >
           <KeyRound className="w-4 h-4" strokeWidth={3} /> Connect Account
         </button>
@@ -548,13 +550,13 @@ function MiniRail({
   return (
     <section>
       <div className="flex items-center justify-between mb-3 px-1">
-        <h2 className="text-[13px] font-black text-white/40 uppercase tracking-[0.2em]">{title}</h2>
+        <h2 className="text-[16px] font-bold text-white">{title}</h2>
         <button
           type="button"
           onClick={onSeeAll}
-          className="text-[11px] font-black text-[#E5484D] uppercase tracking-widest"
+          className="text-[13px] font-medium text-white/40 flex items-center gap-1"
         >
-          See all →
+          See all <ChevronRight className="w-3.5 h-3.5" />
         </button>
       </div>
       <div className="flex gap-3 overflow-x-auto pb-1 [scrollbar-width:none]">
@@ -565,7 +567,7 @@ function MiniRail({
             onClick={it.onClick}
             className="shrink-0 w-28 text-left active:scale-95 transition-transform group"
           >
-            <span className="block w-28 h-28 rounded-[10px] overflow-hidden bg-[#141416] border border-white/5 relative">
+            <span className="block w-28 h-28 rounded-[14px] overflow-hidden bg-[#141416] border border-white/5 relative">
 
               {it.coverUrl ? (
                 <img loading="lazy" decoding="async"
@@ -584,7 +586,7 @@ function MiniRail({
             </span>
             <div className="flex items-center gap-1.5 mt-0.5">
               {(it as any).icon && <span className="text-[10px]">{(it as any).icon}</span>}
-              <span className="block text-[10px] text-white/40 font-bold uppercase tracking-wide">{(it as any).meta}</span>
+              <span className="block text-[10.5px] text-white/40 font-medium">{(it as any).meta}</span>
             </div>
           </button>
         ))}
