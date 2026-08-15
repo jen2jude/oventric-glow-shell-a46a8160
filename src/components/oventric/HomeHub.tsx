@@ -213,7 +213,7 @@ export function HomeHub({ onSelect, onCreate, onOpenMessages, returnedToHub }: H
   const hide = (v: number) => (balancesHidden ? "••••" : formatMoney(v, currency));
 
   return (
-    <div className="hub-enter mx-auto w-full max-w-5xl px-3 md:px-6 py-4 md:py-8 space-y-7 pb-24">
+    <div className="hub-enter mx-auto w-full max-w-5xl px-3 md:px-6 py-4 md:py-8 space-y-7 pb-24 bg-[#0A0A0B]">
       {/* Search Header */}
       <section className="flex items-center gap-3">
         <div className="relative flex-1 group">
@@ -233,30 +233,29 @@ export function HomeHub({ onSelect, onCreate, onOpenMessages, returnedToHub }: H
       <section className="space-y-4">
         <div className="flex items-end justify-between px-1">
           <div className="space-y-1">
-            <h1 className="text-[32px] font-black leading-[0.95] tracking-tight text-white uppercase italic">
+            <h1 className="text-[38px] font-black leading-[0.88] tracking-tighter text-white uppercase italic">
               Discover<br/>Amazing<br/>Things
             </h1>
           </div>
-          <div className="flex items-center gap-1.5 rounded-full border border-white/10 bg-[#121216] px-3 py-1.5 text-[11px] font-bold text-white/60">
+          <div className="flex items-center gap-1.5 rounded-full border border-white/10 bg-[#121216] px-3 py-1.5 text-[11px] font-bold text-white/60 mb-1">
             <span aria-hidden>{flagEmoji(country)}</span>
             {currency}
           </div>
         </div>
         
-        {/* Main Featured Promo (reusing carousel but adapted style if needed) */}
         <div className="relative overflow-hidden rounded-[10px]">
            <HubPromoCarousel onSelect={goSection} />
         </div>
       </section>
 
-      {/* Financial hub card - Simplified & Bold */}
-      <section className="rounded-[10px] border border-white/[0.08] bg-gradient-to-br from-[#131316] to-[#0A0A0B] p-5 shadow-2xl relative overflow-hidden group">
-        <div className="absolute -top-12 -right-12 w-32 h-32 bg-[#E5484D]/5 blur-[60px] rounded-full group-hover:bg-[#E5484D]/10 transition-colors" />
+      {/* Financial hub card - Mirroring discovery_ref style */}
+      <section className="rounded-[10px] border border-white/[0.08] bg-[#141416] p-6 shadow-2xl relative overflow-hidden">
+        <div className="absolute top-0 right-0 w-32 h-32 bg-[#E5484D]/5 blur-[60px] rounded-full pointer-events-none" />
         
-        <div className="flex items-start justify-between">
-          <div className="space-y-1.5">
+        <div className="flex items-start justify-between mb-8">
+          <div className="space-y-2">
             <div className="flex items-center gap-2">
-              <span className="text-[11px] font-black uppercase tracking-widest text-white/30">Total Balance</span>
+              <span className="text-[11px] font-black uppercase tracking-[0.15em] text-white/30">Available Balance</span>
               <button
                 type="button"
                 onClick={toggleBalancesHidden}
@@ -265,43 +264,43 @@ export function HomeHub({ onSelect, onCreate, onOpenMessages, returnedToHub }: H
                 {balancesHidden ? <EyeOff className="h-3.5 w-3.5" /> : <Eye className="h-3.5 w-3.5" />}
               </button>
             </div>
-            <div className="text-[34px] font-black tracking-tight text-white tabular-nums leading-none">
+            <div className="text-[42px] font-black tracking-tighter text-white tabular-nums leading-none">
               {isAuthenticated ? hide(main) : formatMoney(0, currency)}
             </div>
           </div>
-          <Link to="/wallet/ledger" className="h-10 w-10 flex items-center justify-center rounded-full bg-white/5 text-white/40 border border-white/5 active:scale-95 transition-transform">
+          <Link to="/wallet/ledger" className="mt-1 h-9 w-9 flex items-center justify-center rounded-full bg-white/5 text-white/40 border border-white/5 active:scale-95 transition-transform">
             <ChevronRight className="w-5 h-5" />
           </Link>
         </div>
 
-        <div className="mt-6 grid grid-cols-3 gap-3">
+        <div className="grid grid-cols-2 gap-3 mb-8">
+           <button 
+             onClick={() => onSelect("Wallet")}
+             className="h-12 flex items-center justify-center gap-2 rounded-[10px] bg-[#E5484D] text-white text-[14px] font-black uppercase active:scale-[0.97] transition-all shadow-[0_8px_20px_rgba(229,72,77,0.25)]"
+           >
+             <Plus className="w-4 h-4" strokeWidth={4} /> Add Funds
+           </button>
+           <button 
+             onClick={() => onSelect("Wallet")}
+             className="h-12 flex items-center justify-center gap-2 rounded-[10px] bg-white/[0.04] border border-white/10 text-white/90 text-[14px] font-black uppercase active:scale-[0.97] transition-all"
+           >
+             <ArrowUp className="w-4 h-4" strokeWidth={3} /> Withdraw
+           </button>
+        </div>
+
+        <div className="grid grid-cols-3 gap-4 pt-6 border-t border-white/[0.05]">
           <div className="space-y-1">
              <div className="text-[9px] font-black uppercase tracking-widest text-white/20">Cashback</div>
-             <div className="text-sm font-bold text-emerald-400">{isAuthenticated ? (balancesHidden ? "••••" : formatMoney(fromUSD(cashback, currency), currency)) : formatMoney(0, currency)}</div>
+             <div className="text-[15px] font-black text-emerald-400">{isAuthenticated ? (balancesHidden ? "••••" : formatMoney(fromUSD(cashback, currency), currency)) : formatMoney(0, currency)}</div>
           </div>
           <div className="space-y-1">
              <div className="text-[9px] font-black uppercase tracking-widest text-white/20">Bounty</div>
-             <div className="text-sm font-bold text-blue-400">{isAuthenticated ? (balancesHidden ? "••••" : formatMoney(fromUSD(bounty, currency), currency)) : formatMoney(0, currency)}</div>
+             <div className="text-[15px] font-black text-blue-400">{isAuthenticated ? (balancesHidden ? "••••" : formatMoney(fromUSD(bounty, currency), currency)) : formatMoney(0, currency)}</div>
           </div>
           <div className="space-y-1">
              <div className="text-[9px] font-black uppercase tracking-widest text-white/20">Escrow</div>
-             <div className="text-sm font-bold text-rose-400">{isAuthenticated ? (balancesHidden ? "••••" : formatMoney(escrow, currency)) : formatMoney(0, currency)}</div>
+             <div className="text-[15px] font-black text-rose-400">{isAuthenticated ? (balancesHidden ? "••••" : formatMoney(escrow, currency)) : formatMoney(0, currency)}</div>
           </div>
-        </div>
-
-        <div className="mt-6 flex items-center gap-3">
-           <button 
-             onClick={() => onSelect("Wallet")}
-             className="flex-1 h-11 flex items-center justify-center gap-2 rounded-[10px] bg-[#E5484D] text-white text-[13px] font-bold active:scale-[0.97] transition-all shadow-[0_0_20px_rgba(229,72,77,0.25)]"
-           >
-             <Plus className="w-4 h-4" strokeWidth={3} /> Add Funds
-           </button>
-           <button 
-             onClick={() => onSelect("Wallet")}
-             className="flex-1 h-11 flex items-center justify-center gap-2 rounded-[10px] bg-white/5 border border-white/5 text-white/80 text-[13px] font-bold active:scale-[0.97] transition-all"
-           >
-             <ArrowUp className="w-4 h-4" strokeWidth={2.5} /> Withdraw
-           </button>
         </div>
       </section>
 
