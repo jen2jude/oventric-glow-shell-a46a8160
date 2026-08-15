@@ -110,22 +110,22 @@ export function HubPromoCarousel({ onSelect }: { onSelect: (section: string) => 
         className="flex snap-x snap-mandatory overflow-x-auto [scrollbar-width:none] [-ms-overflow-style:none] [&::-webkit-scrollbar]:hidden"
       >
         {SLIDES.map((s) => (
-          <div key={s.id} className="w-full shrink-0 snap-center px-0.5">
+          <div key={s.id} className="w-full shrink-0 snap-center">
             <button
               type="button"
               onClick={() => onSelect(s.section)}
-              className="relative w-full overflow-hidden rounded-2xl text-left active:scale-[0.99] transition-transform aspect-[16/10]"
+              className="relative w-full overflow-hidden rounded-[10px] text-left active:scale-[0.99] transition-transform aspect-[16/10] border border-white/[0.06]"
               style={{ backgroundImage: s.bg }}
             >
-              <div className="relative z-10 flex h-full flex-col justify-center max-w-[62%] p-4">
-                <div className={`text-[17px] font-extrabold leading-tight ${s.text}`}>
+              <div className="relative z-10 flex h-full flex-col justify-center max-w-[65%] p-6">
+                <div className={`text-[20px] font-black uppercase tracking-tighter leading-[1.1] ${s.text}`}>
                   {s.title}
                 </div>
-                <div className={`mt-1 text-[12px] leading-snug ${s.sub}`}>{s.subtitle}</div>
+                <div className={`mt-2 text-[12px] font-bold uppercase tracking-wide opacity-70 ${s.text}`}>{s.subtitle}</div>
                 <span
-                  className={`mt-3 inline-flex items-center gap-1 rounded-full px-3.5 py-3 text-[12px] font-bold ${s.pill}`}
+                  className={`mt-5 inline-flex items-center gap-1.5 rounded-[8px] px-4 py-2.5 text-[11px] font-black uppercase tracking-widest ${s.pill}`}
                 >
-                  {s.cta} <ChevronRight className="h-3.5 w-3.5" />
+                  {s.cta} <ChevronRight className="h-3.5 w-3.5" strokeWidth={3} />
                 </span>
               </div>
               <img loading="lazy" decoding="async"
@@ -134,7 +134,7 @@ export function HubPromoCarousel({ onSelect }: { onSelect: (section: string) => 
                 aria-hidden
                 width={768}
                 height={768}
-                className="pointer-events-none absolute right-1 bottom-0 h-[112%] w-auto max-w-[46%] object-contain"
+                className="pointer-events-none absolute right-[-5%] bottom-[-5%] h-[115%] w-auto max-w-[50%] object-contain"
               />
             </button>
           </div>

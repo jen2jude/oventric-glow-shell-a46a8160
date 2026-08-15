@@ -213,7 +213,7 @@ export function HomeHub({ onSelect, onCreate, onOpenMessages, returnedToHub }: H
   const hide = (v: number) => (balancesHidden ? "••••" : formatMoney(v, currency));
 
   return (
-    <div className="hub-enter mx-auto w-full max-w-5xl px-3 md:px-6 py-4 md:py-8 space-y-7 pb-24">
+    <div className="hub-enter mx-auto w-full max-w-5xl px-3 md:px-6 py-4 md:py-8 space-y-7 pb-24 bg-[#0A0A0B] min-h-screen">
       {/* Search Header */}
       <section className="flex items-center gap-3">
         <div className="relative flex-1 group">
@@ -233,30 +233,29 @@ export function HomeHub({ onSelect, onCreate, onOpenMessages, returnedToHub }: H
       <section className="space-y-4">
         <div className="flex items-end justify-between px-1">
           <div className="space-y-1">
-            <h1 className="text-[32px] font-black leading-[0.95] tracking-tight text-white uppercase italic">
+            <h1 className="text-[38px] font-black leading-[0.88] tracking-tighter text-white uppercase italic">
               Discover<br/>Amazing<br/>Things
             </h1>
           </div>
-          <div className="flex items-center gap-1.5 rounded-full border border-white/10 bg-[#121216] px-3 py-1.5 text-[11px] font-bold text-white/60">
+          <div className="flex items-center gap-1.5 rounded-full border border-white/10 bg-[#121216] px-3 py-1.5 text-[11px] font-bold text-white/60 mb-1">
             <span aria-hidden>{flagEmoji(country)}</span>
             {currency}
           </div>
         </div>
         
-        {/* Main Featured Promo (reusing carousel but adapted style if needed) */}
         <div className="relative overflow-hidden rounded-[10px]">
            <HubPromoCarousel onSelect={goSection} />
         </div>
       </section>
 
-      {/* Financial hub card - Simplified & Bold */}
-      <section className="rounded-[10px] border border-white/[0.08] bg-gradient-to-br from-[#131316] to-[#0A0A0B] p-5 shadow-2xl relative overflow-hidden group">
-        <div className="absolute -top-12 -right-12 w-32 h-32 bg-[#E5484D]/5 blur-[60px] rounded-full group-hover:bg-[#E5484D]/10 transition-colors" />
+      {/* Financial hub card - Mirroring discovery_ref style */}
+      <section className="rounded-[10px] border border-white/[0.08] bg-[#141416] p-6 shadow-2xl relative overflow-hidden">
+        <div className="absolute top-0 right-0 w-32 h-32 bg-[#E5484D]/5 blur-[60px] rounded-full pointer-events-none" />
         
-        <div className="flex items-start justify-between">
-          <div className="space-y-1.5">
+        <div className="flex items-start justify-between mb-8">
+          <div className="space-y-2">
             <div className="flex items-center gap-2">
-              <span className="text-[11px] font-black uppercase tracking-widest text-white/30">Total Balance</span>
+              <span className="text-[11px] font-black uppercase tracking-[0.15em] text-white/30">Available Balance</span>
               <button
                 type="button"
                 onClick={toggleBalancesHidden}
@@ -265,51 +264,51 @@ export function HomeHub({ onSelect, onCreate, onOpenMessages, returnedToHub }: H
                 {balancesHidden ? <EyeOff className="h-3.5 w-3.5" /> : <Eye className="h-3.5 w-3.5" />}
               </button>
             </div>
-            <div className="text-[34px] font-black tracking-tight text-white tabular-nums leading-none">
+            <div className="text-[42px] font-black tracking-tighter text-white tabular-nums leading-none">
               {isAuthenticated ? hide(main) : formatMoney(0, currency)}
             </div>
           </div>
-          <Link to="/wallet/ledger" className="h-10 w-10 flex items-center justify-center rounded-full bg-white/5 text-white/40 border border-white/5 active:scale-95 transition-transform">
+          <Link to="/wallet/ledger" className="mt-1 h-9 w-9 flex items-center justify-center rounded-full bg-white/5 text-white/40 border border-white/5 active:scale-95 transition-transform">
             <ChevronRight className="w-5 h-5" />
           </Link>
         </div>
 
-        <div className="mt-6 grid grid-cols-3 gap-3">
+        <div className="grid grid-cols-2 gap-3 mb-8">
+           <button 
+             onClick={() => onSelect("Wallet")}
+             className="h-12 flex items-center justify-center gap-2 rounded-[10px] bg-[#E5484D] text-white text-[14px] font-black uppercase active:scale-[0.97] transition-all shadow-[0_8px_20px_rgba(229,72,77,0.25)]"
+           >
+             <Plus className="w-4 h-4" strokeWidth={4} /> Add Funds
+           </button>
+           <button 
+             onClick={() => onSelect("Wallet")}
+             className="h-12 flex items-center justify-center gap-2 rounded-[10px] bg-white/[0.04] border border-white/10 text-white/90 text-[14px] font-black uppercase active:scale-[0.97] transition-all"
+           >
+             <ArrowUp className="w-4 h-4" strokeWidth={3} /> Withdraw
+           </button>
+        </div>
+
+        <div className="grid grid-cols-3 gap-4 pt-6 border-t border-white/[0.05]">
           <div className="space-y-1">
              <div className="text-[9px] font-black uppercase tracking-widest text-white/20">Cashback</div>
-             <div className="text-sm font-bold text-emerald-400">{isAuthenticated ? (balancesHidden ? "••••" : formatMoney(fromUSD(cashback, currency), currency)) : formatMoney(0, currency)}</div>
+             <div className="text-[15px] font-black text-emerald-400">{isAuthenticated ? (balancesHidden ? "••••" : formatMoney(fromUSD(cashback, currency), currency)) : formatMoney(0, currency)}</div>
           </div>
           <div className="space-y-1">
              <div className="text-[9px] font-black uppercase tracking-widest text-white/20">Bounty</div>
-             <div className="text-sm font-bold text-blue-400">{isAuthenticated ? (balancesHidden ? "••••" : formatMoney(fromUSD(bounty, currency), currency)) : formatMoney(0, currency)}</div>
+             <div className="text-[15px] font-black text-blue-400">{isAuthenticated ? (balancesHidden ? "••••" : formatMoney(fromUSD(bounty, currency), currency)) : formatMoney(0, currency)}</div>
           </div>
           <div className="space-y-1">
              <div className="text-[9px] font-black uppercase tracking-widest text-white/20">Escrow</div>
-             <div className="text-sm font-bold text-rose-400">{isAuthenticated ? (balancesHidden ? "••••" : formatMoney(escrow, currency)) : formatMoney(0, currency)}</div>
+             <div className="text-[15px] font-black text-rose-400">{isAuthenticated ? (balancesHidden ? "••••" : formatMoney(escrow, currency)) : formatMoney(0, currency)}</div>
           </div>
-        </div>
-
-        <div className="mt-6 flex items-center gap-3">
-           <button 
-             onClick={() => onSelect("Wallet")}
-             className="flex-1 h-11 flex items-center justify-center gap-2 rounded-[10px] bg-[#E5484D] text-white text-[13px] font-bold active:scale-[0.97] transition-all shadow-[0_0_20px_rgba(229,72,77,0.25)]"
-           >
-             <Plus className="w-4 h-4" strokeWidth={3} /> Add Funds
-           </button>
-           <button 
-             onClick={() => onSelect("Wallet")}
-             className="flex-1 h-11 flex items-center justify-center gap-2 rounded-[10px] bg-white/5 border border-white/5 text-white/80 text-[13px] font-bold active:scale-[0.97] transition-all"
-           >
-             <ArrowUp className="w-4 h-4" strokeWidth={2.5} /> Withdraw
-           </button>
         </div>
       </section>
 
       {/* Explore Categories - Mirroring square glowing grid */}
       <section className="space-y-4">
         <div className="flex items-center justify-between px-1">
-          <h2 className="text-[17px] font-black text-white uppercase tracking-tight">Explore Categories</h2>
-          <Link to="/" onClick={(e) => { e.preventDefault(); onSelect("Marketplace"); }} className="text-[12px] font-bold text-[#E5484D] uppercase">View All</Link>
+          <h2 className="text-[14px] font-black text-white/40 uppercase tracking-[0.2em]">Explore Categories</h2>
+          <Link to="/" onClick={(e) => { e.preventDefault(); onSelect("Marketplace"); }} className="text-[11px] font-black text-[#E5484D] uppercase tracking-widest">View All</Link>
         </div>
         <ExploreCategories onSelect={(cat) => {
           if (cat === "Academy") onSelect("Academy");
@@ -321,7 +320,7 @@ export function HomeHub({ onSelect, onCreate, onOpenMessages, returnedToHub }: H
       {products.length > 0 && (
         <section className="space-y-4">
           <div className="flex items-center justify-between px-1">
-            <h2 className="text-[17px] font-black text-white uppercase tracking-tight">Featured This Week</h2>
+            <h2 className="text-[14px] font-black text-white/40 uppercase tracking-[0.2em]">Featured This Week</h2>
             <div className="flex gap-1.5">
                <div className="w-1.5 h-1.5 rounded-full bg-[#E5484D]" />
                <div className="w-1.5 h-1.5 rounded-full bg-white/10" />
@@ -375,10 +374,10 @@ export function HomeHub({ onSelect, onCreate, onOpenMessages, returnedToHub }: H
       {topUsers.length > 0 && (
         <section className="space-y-4">
           <div className="flex items-center justify-between px-1">
-            <h2 className="text-[17px] font-black text-white uppercase tracking-tight">Top Creators</h2>
+            <h2 className="text-[14px] font-black text-white/40 uppercase tracking-[0.2em]">Top Creators</h2>
             <button
               onClick={() => onSelect("Feed")}
-              className="text-[12px] font-bold text-[#E5484D] uppercase"
+              className="text-[11px] font-black text-[#E5484D] uppercase tracking-widest"
             >
               See all
             </button>
@@ -393,18 +392,18 @@ export function HomeHub({ onSelect, onCreate, onOpenMessages, returnedToHub }: H
                 className="flex flex-col items-center gap-2 shrink-0 group snap-start"
               >
                 <div className="relative">
-                  <div className="w-[72px] h-[72px] rounded-full p-[2px] bg-gradient-to-tr from-[#E5484D] to-purple-600 transition-transform duration-300 group-active:scale-90 shadow-[0_0_15px_rgba(229,72,77,0.15)]">
-                    <div className="w-full h-full rounded-full border-[3px] border-[#0A0A0B] overflow-hidden bg-[#1A1A1F]">
+                  <div className="w-[72px] h-[72px] rounded-full p-[2px] bg-[#141416] border border-white/10 transition-transform duration-300 group-active:scale-90">
+                    <div className="w-full h-full rounded-full overflow-hidden bg-[#1A1A1F]">
                       <AvatarImage src={u.avatarUrl} alt={u.displayName} />
                     </div>
                   </div>
                   {u.reputationStars >= 4.5 && (
-                    <div className="absolute bottom-0 right-0 h-5 w-5 rounded-full bg-blue-500 border-2 border-[#0A0A0B] flex items-center justify-center shadow-lg">
+                    <div className="absolute bottom-0 right-0 h-5 w-5 rounded-full bg-[#E5484D] border-2 border-[#0A0A0B] flex items-center justify-center shadow-lg shadow-[#E5484D]/20">
                       <Star className="w-2.5 h-2.5 fill-white text-white" />
                     </div>
                   )}
                 </div>
-                <span className="text-[11px] font-bold text-white/70 truncate w-[72px] text-center group-hover:text-white transition-colors">
+                <span className="text-[10px] font-black uppercase tracking-widest text-white/40 truncate w-[72px] text-center group-hover:text-white transition-colors">
                   {u.displayName.split(" ")[0]}
                 </span>
               </Link>
@@ -427,9 +426,9 @@ export function HomeHub({ onSelect, onCreate, onOpenMessages, returnedToHub }: H
         <button
           type="button"
           onClick={() => openGate("generic")}
-          className="w-full inline-flex items-center justify-center gap-2 h-14 rounded-[10px] bg-white/5 border border-white/10 text-white font-bold text-sm active:scale-95 transition-transform"
+          className="w-full inline-flex items-center justify-center gap-2 h-14 rounded-[10px] bg-[#141416] border border-white/10 text-white text-[13px] font-black uppercase tracking-widest active:scale-95 transition-transform"
         >
-          <KeyRound className="w-4 h-4" strokeWidth={2.5} /> Connect Account
+          <KeyRound className="w-4 h-4" strokeWidth={3} /> Connect Account
         </button>
       )}
 
@@ -475,25 +474,25 @@ function MiniRail({
   if (items.length === 0) return null;
   return (
     <section>
-      <div className="flex items-center justify-between mb-2">
-        <h2 className="text-sm font-bold text-white">{title}</h2>
+      <div className="flex items-center justify-between mb-3 px-1">
+        <h2 className="text-[14px] font-black text-white/40 uppercase tracking-[0.2em]">{title}</h2>
         <button
           type="button"
           onClick={onSeeAll}
-          className="text-xs font-semibold text-[#E5484D] hover:text-[#F2686C] inline-flex items-center gap-1"
+          className="text-[11px] font-black text-[#E5484D] uppercase tracking-widest"
         >
-          See all <ChevronRight className="w-3.5 h-3.5" />
+          View All
         </button>
       </div>
-      <div className="flex gap-3 overflow-x-auto pb-1 -mx-3 px-3 md:mx-0 md:px-0 [scrollbar-width:none]">
+      <div className="flex gap-3 overflow-x-auto pb-1 [scrollbar-width:none]">
         {items.map((it) => (
           <button
             key={it.id}
             type="button"
             onClick={it.onClick}
-            className="shrink-0 w-32 text-left active:scale-95 transition-transform"
+            className="shrink-0 w-36 text-left active:scale-95 transition-transform"
           >
-            <span className="block w-32 h-24 rounded-none overflow-hidden bg-[#1E1E24] border border-white/10">
+            <span className="block w-36 h-28 rounded-[10px] overflow-hidden bg-[#141416] border border-white/5">
               {it.coverUrl ? (
                 <img loading="lazy" decoding="async"
                   src={it.coverUrl}
@@ -501,15 +500,15 @@ function MiniRail({
                   className="w-full h-full object-cover"
                 />
               ) : (
-                <span className="w-full h-full flex items-center justify-center text-slate-600">
-                  <Newspaper className="w-6 h-6" />
+                <span className="w-full h-full flex items-center justify-center text-white/20">
+                  <Newspaper className="w-7 h-7" />
                 </span>
               )}
             </span>
-            <span className="mt-1.5 block h-[28px] text-[11px] font-semibold text-white line-clamp-2 leading-[14px] overflow-hidden">
+            <span className="mt-2 block text-[13px] font-black uppercase tracking-tight text-white line-clamp-1 truncate">
               {it.title}
             </span>
-            <span className="block text-[11px] text-[#E5484D] font-bold truncate">{it.meta}</span>
+            <span className="block text-[12px] text-[#E5484D] font-black tracking-tighter">{it.meta}</span>
           </button>
         ))}
       </div>
