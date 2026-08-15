@@ -1,74 +1,68 @@
 import { useEffect, useRef, useState } from "react";
 import { ChevronRight } from "lucide-react";
 
-import digitalImg from "@/assets/promo-digital.png";
-import shoppingImg from "@/assets/promo-shopping.png";
-import assetsImg from "@/assets/promo-assets.png";
-import referImg from "@/assets/promo-refer.png";
-
 type Slide = {
   id: string;
+  badge: string;
   title: string;
   subtitle: string;
+  description: string;
   cta: string;
   img: string;
-  /** Card background gradient. */
   bg: string;
-  /** Title / body text colour class. */
-  text: string;
-  sub: string;
-  /** CTA pill classes. */
-  pill: string;
+  glow: string;
+  sideText?: string[];
   section: string;
 };
 
 const SLIDES: Slide[] = [
   {
+    id: "main",
+    badge: "MORE THAN A MARKETPLACE",
+    title: "Discover Amazing Things",
+    subtitle: "",
+    description: "Products, digital assets, courses, jobs and a community that grows together.",
+    cta: "Explore Now",
+    img: "https://images.unsplash.com/photo-1505740420928-5e560c06d30e?auto=format&fit=crop&q=80&w=800",
+    bg: "bg-gradient-to-br from-[#0A0A0B] to-[#1A1A1E]",
+    glow: "shadow-[inset_0_0_100px_rgba(139,92,246,0.15)]",
+    sideText: ["Better Choices", "Bigger Opportunities"],
+    section: "Marketplace",
+  },
+  {
     id: "digital",
-    title: "Shop & download millions of free digital assets",
-    subtitle: "Get premium themes, plugins, AI tools & more.",
+    badge: "PREMIUM ASSETS",
+    title: "Shop & Download Digital Assets",
+    subtitle: "",
+    description: "Get premium themes, plugins, AI tools & more for your next big project.",
     cta: "Explore Assets",
-    img: digitalImg,
-    bg: "linear-gradient(110deg, #4C1D95 0%, #6D28D9 55%, #2E1065 100%)",
-    text: "text-white",
-    sub: "text-white/70",
-    pill: "bg-black/70 text-white",
+    img: "https://images.unsplash.com/photo-1633356122544-f134324a6cee?auto=format&fit=crop&q=80&w=800",
+    bg: "bg-gradient-to-br from-[#0A0A0B] to-[#1E1B4B]",
+    glow: "shadow-[inset_0_0_100px_rgba(59,130,246,0.15)]",
     section: "Marketplace",
   },
   {
     id: "shopping",
-    title: "Save big on all your shopping",
-    subtitle: "Buy from real sellers",
+    badge: "SAVE BIG",
+    title: "Save Big On All Your Shopping",
+    subtitle: "",
+    description: "Buy from real sellers with verified reviews and secure escrow payments.",
     cta: "Shop Now",
-    img: shoppingImg,
-    bg: "linear-gradient(110deg, #5B0F14 0%, #3A0A12 55%, #1B0A14 100%)",
-    text: "text-white",
-    sub: "text-white/70",
-    pill: "bg-black/70 text-white",
-    section: "Marketplace",
-  },
-  {
-    id: "assets",
-    title: "Earn 2% cashback on every purchase",
-    subtitle: "Money back into your cashback wallet.",
-    cta: "Shop Now",
-    img: assetsImg,
-    bg: "linear-gradient(110deg, #F7B500 0%, #F59E0B 60%, #E8890B 100%)",
-    text: "text-black",
-    sub: "text-black/70",
-    pill: "bg-black text-white",
+    img: "https://images.unsplash.com/photo-1607082348824-0a96f2a4b9da?auto=format&fit=crop&q=80&w=800",
+    bg: "bg-gradient-to-br from-[#0A0A0B] to-[#450A0A]",
+    glow: "shadow-[inset_0_0_100px_rgba(229,72,77,0.15)]",
     section: "Marketplace",
   },
   {
     id: "refer",
-    title: "Refer a friend & earn",
-    subtitle: "Get up to $0.010 for every builder you invite.",
+    badge: "EARN REWARDS",
+    title: "Refer A Friend & Earn Cashback",
+    subtitle: "",
+    description: "Invite your friends to Oventric and earn rewards on every successful purchase they make.",
     cta: "Invite Friends",
-    img: referImg,
-    bg: "linear-gradient(110deg, #2BD07A 0%, #21C36F 55%, #14A45C 100%)",
-    text: "text-black",
-    sub: "text-black/70",
-    pill: "bg-black text-white",
+    img: "https://images.unsplash.com/photo-1556742044-3c52d6e88c62?auto=format&fit=crop&q=80&w=800",
+    bg: "bg-gradient-to-br from-[#0A0A0B] to-[#064E3B]",
+    glow: "shadow-[inset_0_0_100px_rgba(16,185,129,0.15)]",
     section: "Affiliate",
   },
 ];
@@ -90,7 +84,7 @@ export function HubPromoCarousel({ onSelect }: { onSelect: (section: string) => 
       if (!el || paused.current) return;
       const next = (Math.round(el.scrollLeft / Math.max(1, el.clientWidth)) + 1) % SLIDES.length;
       el.scrollTo({ left: next * el.clientWidth, behavior: "smooth" });
-    }, 4500);
+    }, 5000);
     return () => clearInterval(t);
   }, []);
 
@@ -101,7 +95,7 @@ export function HubPromoCarousel({ onSelect }: { onSelect: (section: string) => 
   };
 
   return (
-    <section aria-label="Offers">
+    <section aria-label="Offers" className="relative">
       <div
         ref={trackRef}
         onScroll={onScroll}
@@ -114,34 +108,58 @@ export function HubPromoCarousel({ onSelect }: { onSelect: (section: string) => 
             <button
               type="button"
               onClick={() => onSelect(s.section)}
-              className="relative w-full overflow-hidden rounded-[10px] text-left active:scale-[0.99] transition-transform aspect-[16/10] border border-white/[0.06]"
-              style={{ backgroundImage: s.bg }}
+              className={`relative w-full overflow-hidden rounded-[10px] text-left active:scale-[0.99] transition-transform aspect-[16/8.5] border border-white/[0.06] ${s.bg} ${s.glow}`}
             >
-              <div className="relative z-10 flex h-full flex-col justify-center max-w-[65%] p-6">
-                <div className={`text-[20px] font-black uppercase tracking-tighter leading-[1.1] ${s.text}`}>
-                  {s.title}
+              {/* Left Content */}
+              <div className="relative z-10 flex h-full flex-col justify-center max-w-[55%] p-7 md:p-10">
+                <div className="text-[10px] font-black uppercase tracking-[0.2em] text-white/40 mb-3">
+                  {s.badge}
                 </div>
-                <div className={`mt-2 text-[12px] font-bold uppercase tracking-wide opacity-70 ${s.text}`}>{s.subtitle}</div>
-                <span
-                  className={`mt-5 inline-flex items-center gap-1.5 rounded-[8px] px-4 py-2.5 text-[11px] font-black uppercase tracking-widest ${s.pill}`}
-                >
-                  {s.cta} <ChevronRight className="h-3.5 w-3.5" strokeWidth={3} />
-                </span>
+                <h2 className="text-[28px] md:text-[34px] font-black leading-[1.05] tracking-tight text-white mb-4">
+                  {s.title}
+                </h2>
+                <p className="text-[13px] md:text-[14px] font-medium text-white/50 leading-relaxed mb-8 max-w-[90%]">
+                  {s.description}
+                </p>
+                <div>
+                  <span className="inline-flex items-center gap-2 rounded-full bg-white px-5 py-2.5 text-[12px] font-black text-black transition-all hover:bg-white/90">
+                    {s.cta} <ChevronRight className="h-4 w-4" strokeWidth={3} />
+                  </span>
+                </div>
               </div>
-              <img loading="lazy" decoding="async"
-                src={s.img}
-                alt=""
-                aria-hidden
-                width={768}
-                height={768}
-                className="pointer-events-none absolute right-[-5%] bottom-[-5%] h-[115%] w-auto max-w-[50%] object-contain"
-              />
+
+              {/* Product Image and Effects */}
+              <div className="absolute right-0 top-0 h-full w-[50%] flex items-center justify-center p-6">
+                <div className="relative h-full w-full flex items-center justify-center">
+                  {/* Purple Circle Glow */}
+                  <div className="absolute h-[85%] aspect-square rounded-full border-2 border-purple-500/30 shadow-[0_0_60px_rgba(168,85,247,0.4)] animate-pulse" />
+                  
+                  {/* Product Image */}
+                  <img 
+                    src={s.img} 
+                    alt="" 
+                    className="relative z-20 h-[80%] w-auto object-contain drop-shadow-[0_20px_50px_rgba(0,0,0,0.5)]" 
+                  />
+
+                  {/* Script Text on Right (only for main slide) */}
+                  {s.sideText && (
+                    <div className="absolute right-0 bottom-10 z-30 flex flex-col items-end pointer-events-none pr-2">
+                      {s.sideText.map((text, i) => (
+                        <span key={i} className="text-[16px] md:text-[20px] font-serif italic text-white/80 leading-tight">
+                          {text}
+                        </span>
+                      ))}
+                    </div>
+                  )}
+                </div>
+              </div>
             </button>
           </div>
         ))}
       </div>
 
-      <div className="mt-2.5 flex items-center justify-center gap-1.5">
+      {/* Indicators */}
+      <div className="absolute bottom-4 left-1/2 -translate-x-1/2 flex items-center justify-center gap-2">
         {SLIDES.map((s, i) => (
           <button
             key={s.id}
@@ -155,8 +173,8 @@ export function HubPromoCarousel({ onSelect }: { onSelect: (section: string) => 
             }
             className={
               i === active
-                ? "h-1.5 w-5 rounded-full bg-[#E5484D] transition-all"
-                : "h-1.5 w-1.5 rounded-full bg-white/25 transition-all"
+                ? "h-2 w-2 rounded-full bg-white transition-all scale-110"
+                : "h-2 w-2 rounded-full bg-white/20 transition-all"
             }
           />
         ))}

@@ -233,19 +233,7 @@ export function HomeHub({ onSelect, onCreate, onOpenMessages, returnedToHub }: H
       </section>
 
       {/* Hero Section */}
-      <section className="space-y-4">
-        <div className="flex items-end justify-between px-1">
-          <div className="space-y-1">
-            <h1 className="text-[38px] font-black leading-[0.88] tracking-tighter text-white uppercase italic">
-              Discover<br/>Amazing<br/>Things
-            </h1>
-          </div>
-          <div className="flex items-center gap-1.5 rounded-full border border-white/10 bg-[#121216] px-3 py-1.5 text-[11px] font-bold text-white/60 mb-1">
-            <span aria-hidden>{flagEmoji(country)}</span>
-            {currency}
-          </div>
-        </div>
-        
+      <section>
         <div className="relative overflow-hidden rounded-[10px]">
            <HubPromoCarousel onSelect={goSection} />
         </div>
