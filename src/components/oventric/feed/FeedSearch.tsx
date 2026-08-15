@@ -1,4 +1,4 @@
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { Link } from "@tanstack/react-router";
 import { useServerFn } from "@tanstack/react-start";
 import { Search, X, Loader2, Coins, Store, User, Star, Users, MessageSquare } from "lucide-react";
@@ -140,7 +140,9 @@ export function FeedGlobalResults({ q, category }: { q: string; category: FeedCa
   const search = useServerFn(searchGlobal);
   const [results, setResults] = useState<SearchResults>(EMPTY);
   const [loading, setLoading] = useState(false);
-  const [activeExploreTab, setActiveExploreTab] = useState<ExploreTab>("People");
+  const [activeExploreTab, setActiveExploreTab] = useState<ExploreTab>("All");
+  const scrollContainerRef = useRef<HTMLDivElement>(null);
+
 
   const term = q.trim();
   const enabled = term.length >= 2;
@@ -169,6 +171,13 @@ export function FeedGlobalResults({ q, category }: { q: string; category: FeedCa
     };
   }, [term, enabled, search]);
 
+  useEffect(() => {
+    if (enabled && scrollContainerRef.current) {
+      scrollContainerRef.current.scrollTop = 0;
+    }
+  }, [activeExploreTab, enabled]);
+
+
   if (!enabled) {
     return null;
   }
@@ -191,7 +200,11 @@ export function FeedGlobalResults({ q, category }: { q: string; category: FeedCa
         />
       </div>
 
-      <div className="flex-1 pt-[110px] pb-32">
+      <div 
+        ref={scrollContainerRef}
+        className="flex-1 pt-[110px] pb-32 overflow-y-auto scroll-smooth"
+      >
+
 
         {activeExploreTab === "All" && (
            <div className="flex flex-col gap-8 p-4">
