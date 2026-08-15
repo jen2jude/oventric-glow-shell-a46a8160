@@ -426,9 +426,9 @@ export function HomeHub({ onSelect, onCreate, onOpenMessages, returnedToHub }: H
         <button
           type="button"
           onClick={() => openGate("generic")}
-          className="w-full inline-flex items-center justify-center gap-2 h-14 rounded-[10px] bg-white/5 border border-white/10 text-white font-bold text-sm active:scale-95 transition-transform"
+          className="w-full inline-flex items-center justify-center gap-2 h-14 rounded-[10px] bg-[#141416] border border-white/10 text-white text-[13px] font-black uppercase tracking-widest active:scale-95 transition-transform"
         >
-          <KeyRound className="w-4 h-4" strokeWidth={2.5} /> Connect Account
+          <KeyRound className="w-4 h-4" strokeWidth={3} /> Connect Account
         </button>
       )}
 
