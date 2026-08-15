@@ -331,11 +331,12 @@ export function FeedDiscoverExplore({
                 onClick={() => navigateSection("Bounties")}
                 className="w-[200px] shrink-0 snap-start overflow-hidden rounded-[10px] border border-white/[0.06] bg-[#141416] text-left active:scale-[0.98]"
               >
-
+                {b.coverUrl ? (
                   <img loading="lazy" decoding="async" src={b.coverUrl} alt="" className="h-24 w-full object-cover" />
                 ) : (
                   <div className="h-24 w-full bg-gradient-to-br from-[#E5484D]/30 to-[#7C6CF6]/25" />
                 )}
+
                 <div className="p-3">
                   <p className="line-clamp-2 text-[13px] font-semibold text-white">{b.title}</p>
                   <p className="mt-1 text-[12px] font-bold text-[#E5484D]">
