@@ -398,7 +398,7 @@ export function HomeHub({ onSelect, onCreate, onOpenMessages, returnedToHub }: H
                       <AvatarImage src={u.avatarUrl} alt={u.displayName} />
                     </div>
                   </div>
-                  {u.verified && (
+                  {u.reputationStars >= 4.5 && (
                     <div className="absolute bottom-0 right-0 h-5 w-5 rounded-full bg-blue-500 border-2 border-[#0A0A0B] flex items-center justify-center shadow-lg">
                       <Star className="w-2.5 h-2.5 fill-white text-white" />
                     </div>
