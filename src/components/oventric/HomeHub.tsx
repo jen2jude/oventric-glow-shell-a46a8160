@@ -19,13 +19,14 @@ import {
   Heart,
   MessageCircle,
   Bell,
+  Wallet as WalletIcon,
 } from "lucide-react";
 import { useAuthGate } from "@/lib/auth-gate/AuthGateProvider";
 import { useOnboarding, type Currency } from "@/lib/onboarding/OnboardingContext";
 import { getMyFullProfile } from "@/lib/profiles.functions";
 import { getDiscoveryFeed } from "@/lib/discovery.functions";
 import { listCourses } from "@/lib/academy.functions";
-import { safeFormatDisplayPrice } from "@/lib/fx-display";
+import { safeFormatDisplayPrice, formatMoney, usdRate } from "@/lib/fx-display";
 import { AvatarImage } from "@/components/oventric/AvatarImage";
 import { SellSwitcherModal } from "@/components/oventric/SellSwitcherModal";
 import { CoursePublishWizard } from "@/components/oventric/CoursePublishWizard";
@@ -43,7 +44,10 @@ import { HubPromoCarousel } from "@/components/oventric/hub/HubPromoCarousel";
 import { AllFeaturesSheet } from "@/components/oventric/hub/AllFeaturesSheet";
 import { ExploreCategories } from "@/components/oventric/hub/ExploreCategories";
 import { FeaturedProductCard } from "@/components/oventric/hub/FeaturedProductCard";
-import logoFull from "@/assets/oventric-full-transparent.png";
+import { WalletDetailModal } from "@/components/oventric/hub/WalletDetailModal";
+import { MegaMenu } from "@/components/oventric/MegaMenu";
+import { getWalletBalances } from "@/lib/wallet.functions";
+import logoMark from "@/assets/oventric-favicon-new.png.asset.json";
 
 
 type Counts = Partial<Record<string, number>>;
@@ -74,6 +78,10 @@ function greeting(): string {
   return "Good evening";
 }
 
+function fromUSD(usd: number, target: Currency): number {
+  return target === "USD" ? usd : usd * usdRate(target);
+}
+
 export function HomeHub({ onSelect, onCreate, onOpenMessages, returnedToHub }: HubProps) {
   const { isAuthenticated, openGate } = useAuthGate();
   const {
@@ -87,19 +95,25 @@ export function HomeHub({ onSelect, onCreate, onOpenMessages, returnedToHub }: H
   const [courseOpen, setCourseOpen] = useState(false);
   const [moreOpen, setMoreOpen] = useState(false);
   const [notifOpen, setNotifOpen] = useState(false);
+  const [megaOpen, setMegaOpen] = useState(false);
+  const [walletOpen, setWalletOpen] = useState(false);
   const unreadNotifs = useUnreadNotificationsCount();
   const currency: Currency = country ? baseCurrency : "USD";
 
   const goSection = (section: string) =>
     section === "Messages" ? onOpenMessages() : onSelect(section);
 
+  const loadBalances = useServerFn(getWalletBalances);
   const loadProfile = useServerFn(getMyFullProfile);
   const loadDiscovery = useServerFn(getDiscoveryFeed);
   const loadCourses = useServerFn(listCourses);
   const loadTopUsers = useServerFn(getTopUsers);
 
+  const [main, setMain] = useState(0);
+  const [cashback, setCashback] = useState(0);
+  const [bounty, setBounty] = useState(0);
+  const [escrow, setEscrow] = useState(0);
   const [avatarUrl, setAvatarUrl] = useState<string | null>(null);
-  const [mySlug, setMySlug] = useState<string | null>(null);
   const [topUsers, setTopUsers] = useState<TopUser[]>([]);
 
   const [name, setName] = useState<string>(fullName || storeName || "");
@@ -116,6 +130,10 @@ export function HomeHub({ onSelect, onCreate, onOpenMessages, returnedToHub }: H
   useEffect(() => {
     if (!isAuthenticated) {
       setAvatarUrl(null);
+      setMain(0);
+      setCashback(0);
+      setBounty(0);
+      setEscrow(0);
       return;
     }
     let cancelled = false;
@@ -123,15 +141,23 @@ export function HomeHub({ onSelect, onCreate, onOpenMessages, returnedToHub }: H
       .then((r) => {
         if (cancelled || !r?.profile) return;
         setAvatarUrl(r.profile.avatarUrl ?? null);
-        setMySlug(r.profile.slug ?? null);
         if (r.profile.displayName) setName(r.profile.displayName);
+      })
+      .catch(() => {});
+    loadBalances()
+      .then((r) => {
+        if (cancelled) return;
+        setMain(r.balances[baseCurrency] ?? 0);
+        setEscrow(r.escrow[baseCurrency] ?? 0);
+        setCashback(r.cashback ?? 0);
+        setBounty(r.bountyBalance ?? 0);
       })
       .catch(() => {});
 
     return () => {
       cancelled = true;
     };
-  }, [isAuthenticated, baseCurrency, loadProfile]);
+  }, [isAuthenticated, baseCurrency, loadProfile, loadBalances]);
 
   useEffect(() => {
     let cancelled = false;
@@ -176,20 +202,15 @@ export function HomeHub({ onSelect, onCreate, onOpenMessages, returnedToHub }: H
 
   return (
     <div className="hub-enter mx-auto w-full max-w-5xl px-3 md:px-6 py-4 md:py-8 space-y-7 pb-24 bg-[#0A0A0B] min-h-screen">
-      {/* Brand Header — logo, tagline, notifications, avatar */}
+      {/* Top bar — small mark, notifications, profile */}
       <section className="flex items-center gap-3">
-        <div className="flex flex-col min-w-0">
-          <img
-            loading="lazy"
-            decoding="async"
-            src={logoFull}
-            alt="Oventric"
-            className="h-6 w-auto shrink-0"
-          />
-          <span className="mt-0.5 text-[10px] font-bold uppercase tracking-[0.18em] text-white/35">
-            Shop &bull; Connect &bull; Grow
-          </span>
-        </div>
+        <img
+          loading="lazy"
+          decoding="async"
+          src={logoMark.url}
+          alt="Oventric"
+          className="h-7 w-7 rounded-full shrink-0"
+        />
 
         <div className="ml-auto flex items-center gap-2 shrink-0">
           <button
@@ -202,21 +223,50 @@ export function HomeHub({ onSelect, onCreate, onOpenMessages, returnedToHub }: H
             <CountBadge count={unreadNotifs} ariaLabel={`${unreadNotifs} new notifications`} />
           </button>
 
-          <Link
-            to={mySlug ? "/profile/$id" : "/"}
-            params={mySlug ? { id: mySlug } : undefined}
-            onClick={(e) => {
-              if (!isAuthenticated) {
-                e.preventDefault();
-                openGate("generic");
-              }
-            }}
-            aria-label="Your profile"
+          <button
+            type="button"
+            onClick={() => (isAuthenticated ? setMegaOpen(true) : openGate("generic"))}
+            aria-label="Your profile menu"
             className="h-11 w-11 rounded-full overflow-hidden border border-white/10 shrink-0 active:scale-95 transition-transform bg-[#141416]"
           >
             <AvatarImage src={avatarUrl} alt={name || "You"} />
-          </Link>
+          </button>
         </div>
+      </section>
+
+      {/* Greeting + wallet snippet */}
+      <section className="flex items-start justify-between gap-3">
+        <div className="min-w-0 space-y-1.5">
+          <p className="text-[13px] font-medium text-white/45">
+            {greeting()}, <span className="text-white/80 font-semibold">{name || "there"}</span> 👋
+          </p>
+          <h1 className="text-[26px] font-black leading-none text-white tracking-tight">Discover more.</h1>
+          <p className="text-[13px] font-medium text-white/40">Shop. Connect. Grow.</p>
+        </div>
+
+        <button
+          type="button"
+          onClick={() => (isAuthenticated ? setWalletOpen(true) : openGate("generic"))}
+          className="shrink-0 w-[150px] rounded-[14px] bg-[#141416] border border-white/[0.08] p-3 text-left active:scale-[0.97] transition-transform"
+        >
+          <div className="flex items-start justify-between gap-2">
+            <div className="min-w-0 space-y-1">
+              <div className="text-[8.5px] font-bold uppercase tracking-[0.12em] text-white/35 truncate">
+                Oventric Wallet
+              </div>
+              <div className="text-[15px] font-black text-white tracking-tight truncate">
+                {isAuthenticated ? formatMoney(main, currency) : formatMoney(0, currency)}
+              </div>
+            </div>
+            <div className="relative shrink-0 h-8 w-8 rounded-full bg-emerald-500/10 border border-emerald-500/30 flex items-center justify-center">
+              <span className="pointer-events-none absolute inset-0 rounded-full bg-emerald-400/20 blur-md" />
+              <WalletIcon className="relative w-4 h-4 text-emerald-400" strokeWidth={2} />
+            </div>
+          </div>
+          <div className="mt-2 text-[11px] font-bold text-emerald-400 flex items-center gap-1">
+            View wallet <ChevronRight className="w-3 h-3" />
+          </div>
+        </button>
       </section>
 
       {/* Search Header */}
@@ -454,6 +504,23 @@ export function HomeHub({ onSelect, onCreate, onOpenMessages, returnedToHub }: H
       />
       <SellSwitcherModal open={sellOpen} onClose={() => setSellOpen(false)} />
       <NotificationsDrawer open={notifOpen} onClose={() => setNotifOpen(false)} />
+      <MegaMenu open={megaOpen} onClose={() => setMegaOpen(false)} />
+      <WalletDetailModal
+        open={walletOpen}
+        onClose={() => setWalletOpen(false)}
+        balanceLabel={formatMoney(main, currency)}
+        cashbackLabel={formatMoney(fromUSD(cashback, currency), currency)}
+        bountyLabel={formatMoney(fromUSD(bounty, currency), currency)}
+        escrowLabel={formatMoney(escrow, currency)}
+        onAddFunds={() => {
+          setWalletOpen(false);
+          onSelect("Wallet");
+        }}
+        onWithdraw={() => {
+          setWalletOpen(false);
+          onSelect("Wallet");
+        }}
+      />
     </div>
   );
 }
