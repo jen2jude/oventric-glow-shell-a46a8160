@@ -183,7 +183,7 @@ export function FeedGlobalResults({ q, category }: { q: string; category: FeedCa
   }
 
   return (
-    <div className="flex flex-col min-h-screen bg-[#0A0A0B] relative z-[42]">
+    <div className="flex flex-col min-h-screen bg-[#0A0A0B] relative z-[100]">
       <ExploreHeader 
         activeTab={activeExploreTab} 
         onTabChange={setActiveExploreTab} 
