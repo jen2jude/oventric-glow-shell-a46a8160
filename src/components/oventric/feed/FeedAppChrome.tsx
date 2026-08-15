@@ -147,27 +147,26 @@ export function FeedAppChrome({
 
 
       {/* Tabs */}
-      <div className="grid grid-cols-3 px-2">
+      <div className="flex border-b border-white/[0.06] overflow-x-auto no-scrollbar scroll-smooth bg-[#0A0A0B]">
         {TABS.map((t) => {
           const active = t.key === tab;
           return (
             <button
               key={t.key}
-              type="button"
               onClick={() => onTabChange(t.key)}
-              className="relative py-2.5 text-[13.5px] font-semibold transition-colors"
+              className="relative shrink-0 px-6 py-3 text-[14px] font-bold transition-colors"
             >
-              <span className={active ? "text-white" : "text-white/45"}>{t.label}</span>
-              <span
-                className={`absolute bottom-0 left-1/2 h-[2.5px] -translate-x-1/2 rounded-full bg-[#E5484D] transition-all duration-300 ${
-                  active ? "w-10 opacity-100" : "w-0 opacity-0"
-                }`}
-              />
+              <span className={active ? "text-white" : "text-white/40"}>
+                {t.label}
+              </span>
+              {active && (
+                <div className="absolute bottom-0 left-0 w-full h-[3.5px] bg-[#E5484D] rounded-t-full" />
+              )}
             </button>
           );
         })}
       </div>
-      <div className="h-px w-full bg-white/[0.07]" />
+
 
       {/* Stories rail */}
       <div className="flex gap-4 overflow-x-auto px-4 py-3 [scrollbar-width:none] [&::-webkit-scrollbar]:hidden">
