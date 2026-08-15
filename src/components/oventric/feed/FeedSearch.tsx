@@ -184,12 +184,15 @@ export function FeedGlobalResults({ q, category }: { q: string; category: FeedCa
 
   return (
     <div className="flex flex-col min-h-screen bg-[#0A0A0B] relative z-[100]">
-      <ExploreHeader 
-        activeTab={activeExploreTab} 
-        onTabChange={setActiveExploreTab} 
-      />
+      <div className="fixed inset-x-0 top-0 z-[101]">
+        <ExploreHeader 
+          activeTab={activeExploreTab} 
+          onTabChange={setActiveExploreTab} 
+        />
+      </div>
 
-      <div className="flex-1 pb-32">
+      <div className="flex-1 pt-[110px] pb-32">
+
         {activeExploreTab === "All" && (
            <div className="flex flex-col gap-8 p-4">
               {results.peers.length > 0 && (
