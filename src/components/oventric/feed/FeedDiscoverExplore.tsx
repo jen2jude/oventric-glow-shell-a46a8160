@@ -58,7 +58,8 @@ function Section({
 
 function Rail({ children }: { children: React.ReactNode }) {
   return (
-    <div className="-mx-4 flex snap-x snap-mandatory gap-3 overflow-x-auto px-4 pb-1 [scrollbar-width:none] [&::-webkit-scrollbar]:hidden">
+    <div className="-mx-4 flex snap-x snap-mandatory gap-3 overflow-x-auto px-4 pb-1 [scrollbar-width:none] [&::-webkit-scrollbar]:hidden scroll-smooth">
+
       {children}
     </div>
   );
@@ -278,20 +279,31 @@ export function FeedDiscoverExplore({
 
       {peers.length > 0 && (
 
-        <Section icon={Sparkles} title="Creators to follow">
+        <Section icon={Sparkles} title="Top Creators">
           <Rail>
             {peers.slice(0, 12).map((p) => (
               <Link
                 key={p.id}
                 to="/profile/$id"
                 params={{ id: p.slug }}
-                className="w-[122px] shrink-0 snap-start rounded-2xl border border-white/[0.06] bg-[#141416] p-3 text-center active:scale-[0.98]"
+                className="flex flex-col items-center gap-2 shrink-0 group snap-start"
               >
-                <span className="mx-auto block h-14 w-14 overflow-hidden rounded-full bg-[#1A1A1F]">
-                  <AvatarImage src={p.avatarUrl} alt={p.name} initials={p.initials} />
+                <div className="relative">
+                  <div className="w-[72px] h-[72px] rounded-full p-[2px] bg-gradient-to-tr from-[#E5484D] to-purple-600 transition-transform duration-300 group-active:scale-90 shadow-[0_0_15px_rgba(229,72,77,0.15)]">
+                    <div className="w-full h-full rounded-full border-[3px] border-[#0A0A0B] overflow-hidden bg-[#1A1A1F]">
+                      <AvatarImage src={p.avatarUrl} alt={p.name} initials={p.initials} />
+                    </div>
+                  </div>
+                  {p.stars >= 4.5 && (
+                    <div className="absolute bottom-0 right-0 h-5 w-5 rounded-full bg-blue-500 border-2 border-[#0A0A0B] flex items-center justify-center shadow-lg">
+                      <Star className="w-2.5 h-2.5 fill-white text-white" />
+                    </div>
+                  )}
+                </div>
+                <span className="text-[11px] font-bold text-white/70 truncate w-[72px] text-center group-hover:text-white transition-colors">
+                  {p.name.split(" ")[0]}
                 </span>
-                <p className="mt-2 truncate text-[12.5px] font-semibold text-white">{p.name}</p>
-                <p className="text-[11px] text-white/40">★ {p.stars.toFixed(1)}</p>
+
               </Link>
             ))}
           </Rail>
@@ -339,7 +351,7 @@ export function FeedDiscoverExplore({
       {products.length > 0 && (
         <Section
           icon={ShoppingBag}
-          title="Shop picks"
+          title="What's Moving 🔥"
           action="Marketplace"
           onAction={() => navigateSection("Marketplace")}
         >
@@ -371,7 +383,7 @@ export function FeedDiscoverExplore({
       {courses.length > 0 && (
         <Section
           icon={GraduationCap}
-          title="Popular courses"
+          title="Academy Trending"
           action="Academy"
           onAction={() => navigateSection("Academy")}
         >
