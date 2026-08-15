@@ -307,8 +307,8 @@ export function HomeHub({ onSelect, onCreate, onOpenMessages, returnedToHub }: H
       {/* Explore Categories - Mirroring square glowing grid */}
       <section className="space-y-4">
         <div className="flex items-center justify-between px-1">
-          <h2 className="text-[17px] font-black text-white uppercase tracking-tight">Explore Categories</h2>
-          <Link to="/" onClick={(e) => { e.preventDefault(); onSelect("Marketplace"); }} className="text-[12px] font-bold text-[#E5484D] uppercase">View All</Link>
+          <h2 className="text-[14px] font-black text-white/40 uppercase tracking-[0.2em]">Explore Categories</h2>
+          <Link to="/" onClick={(e) => { e.preventDefault(); onSelect("Marketplace"); }} className="text-[11px] font-black text-[#E5484D] uppercase tracking-widest">View All</Link>
         </div>
         <ExploreCategories onSelect={(cat) => {
           if (cat === "Academy") onSelect("Academy");
@@ -320,7 +320,7 @@ export function HomeHub({ onSelect, onCreate, onOpenMessages, returnedToHub }: H
       {products.length > 0 && (
         <section className="space-y-4">
           <div className="flex items-center justify-between px-1">
-            <h2 className="text-[17px] font-black text-white uppercase tracking-tight">Featured This Week</h2>
+            <h2 className="text-[14px] font-black text-white/40 uppercase tracking-[0.2em]">Featured This Week</h2>
             <div className="flex gap-1.5">
                <div className="w-1.5 h-1.5 rounded-full bg-[#E5484D]" />
                <div className="w-1.5 h-1.5 rounded-full bg-white/10" />
