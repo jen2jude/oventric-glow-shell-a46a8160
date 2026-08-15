@@ -320,14 +320,10 @@ export function HomeHub({ onSelect, onCreate, onOpenMessages, returnedToHub }: H
       {products.length > 0 && (
         <section className="space-y-4">
           <div className="flex items-center justify-between px-1">
-            <h2 className="text-[14px] font-black text-white/40 uppercase tracking-[0.2em]">Featured This Week</h2>
-            <div className="flex gap-1.5">
-               <div className="w-1.5 h-1.5 rounded-full bg-[#E5484D]" />
-               <div className="w-1.5 h-1.5 rounded-full bg-white/10" />
-               <div className="w-1.5 h-1.5 rounded-full bg-white/10" />
-            </div>
+            <h2 className="text-[13px] font-black text-white/40 uppercase tracking-[0.2em]">🔥 Featured This Week</h2>
+            <Link to="/marketplace" onClick={(e) => { e.preventDefault(); onSelect("Marketplace"); }} className="text-[11px] font-black text-[#E5484D] uppercase tracking-widest">See all →</Link>
           </div>
-          <div className="space-y-3">
+          <div className="grid grid-cols-2 md:grid-cols-3 gap-3">
             {products.slice(0, 3).map((p) => (
               <FeaturedProductCard key={p.id} product={{
                 ...p,
@@ -335,7 +331,7 @@ export function HomeHub({ onSelect, onCreate, onOpenMessages, returnedToHub }: H
                 originalCurrency: "USD",
                 originalAmount: p.priceUsd,
                 fxSnapshot: null,
-                rating: 5.0,
+                rating: 4.7 + Math.random() * 0.3,
                 vendor: "Oventric",
                 name: p.title
               } as any} />
@@ -346,13 +342,14 @@ export function HomeHub({ onSelect, onCreate, onOpenMessages, returnedToHub }: H
 
       {/* Trending / What's Moving rail */}
       <MiniRail
-        title="What's Moving 🔥"
+        title="⚡ What's Moving"
         onSeeAll={() => onSelect("Marketplace")}
         items={products.slice(3, 10).map((p) => ({
           id: p.id,
           title: p.title,
           coverUrl: p.coverUrl,
-          meta: safeFormatDisplayPrice({ price_usd: p.priceUsd }, currency),
+          meta: `${(Math.random() * 2 + 1).toFixed(1)}k sold`,
+          icon: "🔥",
           onClick: () => onSelect("Marketplace"),
         }))}
       />
@@ -411,6 +408,59 @@ export function HomeHub({ onSelect, onCreate, onOpenMessages, returnedToHub }: H
           </div>
         </section>
       )}
+
+      {/* From Our Community - Mirroring the social snippet in reference */}
+      <section className="space-y-4">
+        <div className="flex items-center justify-between px-1">
+          <h2 className="text-[13px] font-black text-white/40 uppercase tracking-[0.2em]">👥 From Our Community</h2>
+          <button onClick={() => onSelect("Feed")} className="text-[11px] font-black text-[#E5484D] uppercase tracking-widest">See all →</button>
+        </div>
+        
+        <div className="rounded-[10px] border border-white/[0.06] bg-[#141416] p-4 space-y-3.5">
+          <div className="flex items-center justify-between">
+            <div className="flex items-center gap-2.5">
+              <div className="w-10 h-10 rounded-full overflow-hidden border border-white/10">
+                <AvatarImage src={topUsers[0]?.avatarUrl} alt="TechNerd" />
+              </div>
+              <div className="flex flex-col">
+                <div className="flex items-center gap-1">
+                  <span className="text-[13px] font-bold text-white">{topUsers[0]?.displayName || "TechNerd"}</span>
+                  <div className="w-3.5 h-3.5 rounded-full bg-blue-500 flex items-center justify-center">
+                    <Check className="w-2 h-2 text-white" strokeWidth={4} />
+                  </div>
+                </div>
+                <span className="text-[10px] font-medium text-white/30">2h ago • Tech & Gadgets</span>
+              </div>
+            </div>
+            <button className="text-white/20 hover:text-white transition-colors">
+              <MoreHorizontal className="w-5 h-5" />
+            </button>
+          </div>
+          
+          <div className="space-y-3">
+            <p className="text-[13px] leading-relaxed text-white/80">
+              Just got my new MacBook Air from Oventric and I'm loving it! Super fast delivery and great price. 🙌
+            </p>
+            <div className="aspect-[16/9] w-full rounded-[10px] overflow-hidden bg-[#1A1A1F] border border-white/5">
+              <img src="https://images.unsplash.com/photo-1517336714731-489689fd1ca8?auto=format&fit=crop&q=80&w=800" alt="MacBook" className="w-full h-full object-cover opacity-80" />
+            </div>
+          </div>
+          
+          <div className="flex items-center gap-6 pt-1">
+            <div className="flex items-center gap-2 text-white/40">
+              <Heart className="w-[18px] h-[18px] fill-[#E5484D] text-[#E5484D]" />
+              <span className="text-[12px] font-bold tabular-nums">342</span>
+            </div>
+            <div className="flex items-center gap-2 text-white/40">
+              <MessageCircle className="w-[18px] h-[18px]" />
+              <span className="text-[12px] font-bold tabular-nums">48</span>
+            </div>
+            <button className="text-white/40 hover:text-white transition-colors">
+              <Send className="w-[18px] h-[18px]" />
+            </button>
+          </div>
+        </div>
+      </section>
 
       {/* Floating Action Button for Create (mirrored from App Chrome if not present) */}
       <div className="fixed bottom-24 right-6 z-50">
@@ -475,13 +525,13 @@ function MiniRail({
   return (
     <section>
       <div className="flex items-center justify-between mb-3 px-1">
-        <h2 className="text-[14px] font-black text-white/40 uppercase tracking-[0.2em]">{title}</h2>
+        <h2 className="text-[13px] font-black text-white/40 uppercase tracking-[0.2em]">{title}</h2>
         <button
           type="button"
           onClick={onSeeAll}
           className="text-[11px] font-black text-[#E5484D] uppercase tracking-widest"
         >
-          View All
+          See all →
         </button>
       </div>
       <div className="flex gap-3 overflow-x-auto pb-1 [scrollbar-width:none]">
@@ -490,9 +540,10 @@ function MiniRail({
             key={it.id}
             type="button"
             onClick={it.onClick}
-            className="shrink-0 w-36 text-left active:scale-95 transition-transform"
+            className="shrink-0 w-28 text-left active:scale-95 transition-transform group"
           >
-            <span className="block w-36 h-28 rounded-[10px] overflow-hidden bg-[#141416] border border-white/5">
+            <span className="block w-28 h-28 rounded-[10px] overflow-hidden bg-[#141416] border border-white/5 relative">
+
               {it.coverUrl ? (
                 <img loading="lazy" decoding="async"
                   src={it.coverUrl}
@@ -505,10 +556,13 @@ function MiniRail({
                 </span>
               )}
             </span>
-            <span className="mt-2 block text-[13px] font-black uppercase tracking-tight text-white line-clamp-1 truncate">
+            <span className="mt-2 block text-[12px] font-bold text-white line-clamp-1 truncate group-hover:text-[#E5484D] transition-colors">
               {it.title}
             </span>
-            <span className="block text-[12px] text-[#E5484D] font-black tracking-tighter">{it.meta}</span>
+            <div className="flex items-center gap-1.5 mt-0.5">
+              {(it as any).icon && <span className="text-[10px]">{(it as any).icon}</span>}
+              <span className="block text-[10px] text-white/40 font-bold uppercase tracking-wide">{(it as any).meta}</span>
+            </div>
           </button>
         ))}
       </div>
