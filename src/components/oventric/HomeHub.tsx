@@ -18,6 +18,9 @@ import {
   MoreHorizontal,
   Search,
   Filter,
+  Check,
+  Heart,
+  MessageCircle,
 } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
 import { useAuthGate } from "@/lib/auth-gate/AuthGateProvider";
@@ -321,7 +324,7 @@ export function HomeHub({ onSelect, onCreate, onOpenMessages, returnedToHub }: H
         <section className="space-y-4">
           <div className="flex items-center justify-between px-1">
             <h2 className="text-[13px] font-black text-white/40 uppercase tracking-[0.2em]">🔥 Featured This Week</h2>
-            <Link to="/marketplace" onClick={(e) => { e.preventDefault(); onSelect("Marketplace"); }} className="text-[11px] font-black text-[#E5484D] uppercase tracking-widest">See all →</Link>
+            <Link to="/" onClick={(e) => { e.preventDefault(); onSelect("Marketplace"); }} className="text-[11px] font-black text-[#E5484D] uppercase tracking-widest">See all →</Link>
           </div>
           <div className="grid grid-cols-2 md:grid-cols-3 gap-3">
             {products.slice(0, 3).map((p) => (
