@@ -392,18 +392,18 @@ export function HomeHub({ onSelect, onCreate, onOpenMessages, returnedToHub }: H
                 className="flex flex-col items-center gap-2 shrink-0 group snap-start"
               >
                 <div className="relative">
-                  <div className="w-[72px] h-[72px] rounded-full p-[2px] bg-gradient-to-tr from-[#E5484D] to-purple-600 transition-transform duration-300 group-active:scale-90 shadow-[0_0_15px_rgba(229,72,77,0.15)]">
-                    <div className="w-full h-full rounded-full border-[3px] border-[#0A0A0B] overflow-hidden bg-[#1A1A1F]">
+                  <div className="w-[72px] h-[72px] rounded-full p-[2px] bg-[#141416] border border-white/10 transition-transform duration-300 group-active:scale-90">
+                    <div className="w-full h-full rounded-full overflow-hidden bg-[#1A1A1F]">
                       <AvatarImage src={u.avatarUrl} alt={u.displayName} />
                     </div>
                   </div>
                   {u.reputationStars >= 4.5 && (
-                    <div className="absolute bottom-0 right-0 h-5 w-5 rounded-full bg-blue-500 border-2 border-[#0A0A0B] flex items-center justify-center shadow-lg">
+                    <div className="absolute bottom-0 right-0 h-5 w-5 rounded-full bg-[#E5484D] border-2 border-[#0A0A0B] flex items-center justify-center shadow-lg shadow-[#E5484D]/20">
                       <Star className="w-2.5 h-2.5 fill-white text-white" />
                     </div>
                   )}
                 </div>
-                <span className="text-[11px] font-bold text-white/70 truncate w-[72px] text-center group-hover:text-white transition-colors">
+                <span className="text-[10px] font-black uppercase tracking-widest text-white/40 truncate w-[72px] text-center group-hover:text-white transition-colors">
                   {u.displayName.split(" ")[0]}
                 </span>
               </Link>
