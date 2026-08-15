@@ -291,6 +291,60 @@ export function HomeHub({ onSelect, onCreate, onOpenMessages, returnedToHub }: H
         </div>
       </section>
 
+      {/* Explore Categories - mirrors reference: white sentence-case heading, compact glowing icon cards */}
+      <section className="space-y-3">
+        <div className="flex items-center justify-between px-1">
+          <h2 className="text-[16px] font-bold text-white">Explore Categories</h2>
+          <Link
+            to="/"
+            onClick={(e) => {
+              e.preventDefault();
+              onSelect("Marketplace");
+            }}
+            className="text-[13px] font-medium text-white/40 flex items-center gap-1"
+          >
+            See all <ChevronRight className="w-3.5 h-3.5" />
+          </Link>
+        </div>
+        <ExploreCategories onSelect={(cat) => {
+          if (cat === "Academy") onSelect("Academy");
+          else onSelect("Marketplace");
+        }} />
+      </section>
+
+      {/* Featured This Week - compact 3-up cards, mirrors reference */}
+      {products.length > 0 && (
+        <section className="space-y-3">
+          <div className="flex items-center justify-between px-1">
+            <h2 className="text-[16px] font-bold text-white flex items-center gap-1.5">🔥 Featured This Week</h2>
+            <Link
+              to="/"
+              onClick={(e) => {
+                e.preventDefault();
+                onSelect("Marketplace");
+              }}
+              className="text-[13px] font-medium text-white/40 flex items-center gap-1"
+            >
+              See all <ChevronRight className="w-3.5 h-3.5" />
+            </Link>
+          </div>
+          <div className="grid grid-cols-3 gap-2">
+            {products.slice(0, 3).map((p) => (
+              <FeaturedProductCard key={p.id} product={{
+                ...p,
+                priceUSD: p.priceUsd,
+                originalCurrency: "USD",
+                originalAmount: p.priceUsd,
+                fxSnapshot: null,
+                rating: 4.7 + Math.random() * 0.3,
+                vendor: "Oventric",
+                name: p.title
+              } as any} />
+            ))}
+          </div>
+        </section>
+      )}
+
       {/* Financial hub card - Mirroring discovery_ref style */}
       <section className="rounded-[10px] border border-white/[0.08] bg-[#141416] p-6 shadow-2xl relative overflow-hidden">
         <div className="absolute top-0 right-0 w-32 h-32 bg-[#E5484D]/5 blur-[60px] rounded-full pointer-events-none" />
@@ -346,42 +400,6 @@ export function HomeHub({ onSelect, onCreate, onOpenMessages, returnedToHub }: H
           </div>
         </div>
       </section>
-
-      {/* Explore Categories - Mirroring square glowing grid */}
-      <section className="space-y-4">
-        <div className="flex items-center justify-between px-1">
-          <h2 className="text-[14px] font-black text-white/40 uppercase tracking-[0.2em]">Explore Categories</h2>
-          <Link to="/" onClick={(e) => { e.preventDefault(); onSelect("Marketplace"); }} className="text-[11px] font-black text-[#E5484D] uppercase tracking-widest">View All</Link>
-        </div>
-        <ExploreCategories onSelect={(cat) => {
-          if (cat === "Academy") onSelect("Academy");
-          else onSelect("Marketplace");
-        }} />
-      </section>
-
-      {/* Featured This Week - 3-up style cards */}
-      {products.length > 0 && (
-        <section className="space-y-4">
-          <div className="flex items-center justify-between px-1">
-            <h2 className="text-[13px] font-black text-white/40 uppercase tracking-[0.2em]">🔥 Featured This Week</h2>
-            <Link to="/" onClick={(e) => { e.preventDefault(); onSelect("Marketplace"); }} className="text-[11px] font-black text-[#E5484D] uppercase tracking-widest">See all →</Link>
-          </div>
-          <div className="grid grid-cols-2 md:grid-cols-3 gap-3">
-            {products.slice(0, 3).map((p) => (
-              <FeaturedProductCard key={p.id} product={{
-                ...p,
-                priceUSD: p.priceUsd,
-                originalCurrency: "USD",
-                originalAmount: p.priceUsd,
-                fxSnapshot: null,
-                rating: 4.7 + Math.random() * 0.3,
-                vendor: "Oventric",
-                name: p.title
-              } as any} />
-            ))}
-          </div>
-        </section>
-      )}
 
       {/* Trending / What's Moving rail */}
       <MiniRail

@@ -32,7 +32,7 @@ export function FeaturedProductCard({ product }: { product: ProductDTO }) {
       : "bg-[#F59E0B]";
 
   return (
-    <div className="group relative w-full overflow-hidden rounded-[14px] bg-[#121215] border border-white/[0.06] transition-all active:scale-[0.98] flex flex-col">
+    <div className="group relative w-full overflow-hidden rounded-[12px] bg-[#121215] border border-white/[0.06] transition-all active:scale-[0.98] flex flex-col">
       <Link
         to="/product/$id"
         params={{ id: product.id }}
@@ -47,39 +47,39 @@ export function FeaturedProductCard({ product }: { product: ProductDTO }) {
           />
         ) : null}
         <span
-          className={`absolute top-2 left-2 z-10 rounded-full px-2.5 py-[3px] text-[9px] font-bold text-white shadow-lg ${badgeColor}`}
+          className={`absolute top-1.5 left-1.5 z-10 rounded-full px-1.5 py-[2px] text-[7.5px] font-bold text-white shadow-lg ${badgeColor}`}
         >
           {badgeText}
         </span>
       </Link>
 
-      <div className="p-3 space-y-2">
+      <div className="p-2 space-y-1.5">
         <div className="space-y-0.5">
           <Link to="/product/$id" params={{ id: product.id }}>
-            <h3 className="text-[13px] font-bold text-white line-clamp-1 hover:text-[#E5484D] transition-colors">
+            <h3 className="text-[11px] font-bold text-white line-clamp-1 hover:text-[#E5484D] transition-colors">
               {product.name}
             </h3>
           </Link>
-          <p className="text-[10.5px] text-white/35 line-clamp-1 font-medium">
+          <p className="text-[9px] text-white/35 line-clamp-1 font-medium">
             {product.description || "Premium quality, delivered fast."}
           </p>
         </div>
 
-        <div className="flex items-end justify-between gap-2">
-          <div className="space-y-1 min-w-0">
-            <p className="text-[14px] font-bold text-white tracking-tight truncate">{price}</p>
-            <div className="flex items-center gap-1 text-[10px] font-semibold text-[#F5A524]">
-              <Star className="h-2.5 w-2.5 fill-current" />
+        <div className="flex items-end justify-between gap-1">
+          <div className="space-y-0.5 min-w-0">
+            <p className="text-[11.5px] font-bold text-white tracking-tight truncate">{price}</p>
+            <div className="flex items-center gap-1 text-[9px] font-semibold text-[#F5A524]">
+              <Star className="h-2 w-2 fill-current" />
               <span>{product.rating.toFixed(1)}</span>
               <span className="text-white/25 font-medium">({reviewCount(product.id)})</span>
             </div>
           </div>
 
           <button
-            className="h-8 w-8 shrink-0 flex items-center justify-center rounded-[10px] bg-white/[0.04] border border-white/[0.06] text-white/60 hover:bg-[#E5484D] hover:text-white hover:border-[#E5484D] transition-all active:scale-90"
+            className="h-6 w-6 shrink-0 flex items-center justify-center rounded-[8px] bg-white/[0.04] border border-white/[0.06] text-white/60 hover:bg-[#E5484D] hover:text-white hover:border-[#E5484D] transition-all active:scale-90"
             aria-label="Add to cart"
           >
-            <ShoppingCart className="w-[15px] h-[15px]" />
+            <ShoppingCart className="w-[12px] h-[12px]" />
           </button>
         </div>
       </div>
