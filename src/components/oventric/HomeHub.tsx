@@ -309,7 +309,7 @@ export function HomeHub({ onSelect, onCreate, onOpenMessages, returnedToHub }: H
       <section className="space-y-4">
         <div className="flex items-center justify-between px-1">
           <h2 className="text-[17px] font-black text-white uppercase tracking-tight">Explore Categories</h2>
-          <Link to="/marketplace" className="text-[12px] font-bold text-[#E5484D] uppercase">View All</Link>
+          <Link to="/" onClick={(e) => { e.preventDefault(); onSelect("Marketplace"); }} className="text-[12px] font-bold text-[#E5484D] uppercase">View All</Link>
         </div>
         <ExploreCategories onSelect={(cat) => {
           if (cat === "Academy") onSelect("Academy");
