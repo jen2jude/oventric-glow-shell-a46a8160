@@ -24,14 +24,14 @@ export function ExploreHeader({
         <h1 className="text-[22px] font-black text-white tracking-tight">Explore</h1>
       </div>
       
-      <div className="flex border-b border-white/[0.06]">
+      <div className="flex border-b border-white/[0.06] overflow-x-auto no-scrollbar scroll-smooth">
         {TABS.map((tab) => {
           const active = tab === activeTab;
           return (
             <button
               key={tab}
               onClick={() => onTabChange(tab)}
-              className="relative flex-1 py-3 text-[14px] font-bold transition-colors"
+              className="relative shrink-0 px-5 py-3 text-[14px] font-bold transition-colors"
             >
               <span className={active ? "text-white" : "text-white/40"}>
                 {tab}
@@ -43,6 +43,7 @@ export function ExploreHeader({
           );
         })}
       </div>
+
     </div>
 
   );
