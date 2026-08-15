@@ -10,14 +10,9 @@ import {
   KeyRound,
   Star,
   Plus,
-  Send,
   PenSquare,
-  MoreHorizontal,
   Search,
   Filter,
-  Check,
-  Heart,
-  MessageCircle,
   Bell,
   Wallet as WalletIcon,
 } from "lucide-react";
@@ -45,9 +40,10 @@ import { AllFeaturesSheet } from "@/components/oventric/hub/AllFeaturesSheet";
 import { ExploreCategories } from "@/components/oventric/hub/ExploreCategories";
 import { FeaturedProductCard } from "@/components/oventric/hub/FeaturedProductCard";
 import { WalletDetailModal } from "@/components/oventric/hub/WalletDetailModal";
+import { CommunityRail } from "@/components/oventric/hub/CommunityRail";
 import { MegaMenu } from "@/components/oventric/MegaMenu";
 import { getWalletBalances } from "@/lib/wallet.functions";
-import logoMark from "@/assets/oventric-favicon-new.png.asset.json";
+import logoFull from "@/assets/oventric-full-transparent.png";
 
 
 type Counts = Partial<Record<string, number>>;
@@ -207,9 +203,9 @@ export function HomeHub({ onSelect, onCreate, onOpenMessages, returnedToHub }: H
         <img
           loading="lazy"
           decoding="async"
-          src={logoMark.url}
+          src={logoFull}
           alt="Oventric"
-          className="h-7 w-7 rounded-full shrink-0"
+          className="h-7 w-auto shrink-0"
         />
 
         <div className="ml-auto flex items-center gap-2 shrink-0">
@@ -276,10 +272,10 @@ export function HomeHub({ onSelect, onCreate, onOpenMessages, returnedToHub }: H
           <input 
             type="text"
             placeholder="Search products, shops, people..."
-            className="w-full h-[52px] pl-11 pr-4 rounded-[14px] bg-[#141416] border border-white/5 text-[15px] text-white placeholder:text-white/20 focus:outline-none focus:border-[#E5484D]/40 transition-all"
+            className="w-full h-[52px] pl-11 pr-4 rounded-full bg-[#141416] border border-white/5 text-[15px] text-white placeholder:text-white/20 focus:outline-none focus:border-[#E5484D]/40 transition-all"
           />
         </div>
-        <button className="h-[52px] w-[52px] flex items-center justify-center rounded-[14px] bg-[#141416] border border-white/5 text-white/40 active:scale-95 transition-transform">
+        <button className="h-[52px] w-[52px] flex items-center justify-center rounded-full bg-[#141416] border border-white/5 text-white/40 active:scale-95 transition-transform">
           <Filter className="w-5 h-5" />
         </button>
       </section>
@@ -414,7 +410,7 @@ export function HomeHub({ onSelect, onCreate, onOpenMessages, returnedToHub }: H
         </section>
       )}
 
-      {/* From Our Community - Mirroring the social snippet in reference */}
+      {/* From Our Community - real posts pulled from the news feed, horizontally scrollable */}
       <section className="space-y-4">
         <div className="flex items-center justify-between px-1">
           <h2 className="text-[16px] font-bold text-white flex items-center gap-1.5">👥 From Our Community</h2>
@@ -422,51 +418,8 @@ export function HomeHub({ onSelect, onCreate, onOpenMessages, returnedToHub }: H
             See all <ChevronRight className="w-3.5 h-3.5" />
           </button>
         </div>
-        
-        <div className="rounded-[16px] border border-white/[0.06] bg-[#141416] p-4 space-y-3.5">
-          <div className="flex items-center justify-between">
-            <div className="flex items-center gap-2.5">
-              <div className="w-10 h-10 rounded-full overflow-hidden border border-white/10">
-                <AvatarImage src={topUsers[0]?.avatarUrl} alt="TechNerd" />
-              </div>
-              <div className="flex flex-col">
-                <div className="flex items-center gap-1">
-                  <span className="text-[13px] font-bold text-white">{topUsers[0]?.displayName || "TechNerd"}</span>
-                  <div className="w-3.5 h-3.5 rounded-full bg-blue-500 flex items-center justify-center">
-                    <Check className="w-2 h-2 text-white" strokeWidth={4} />
-                  </div>
-                </div>
-                <span className="text-[10px] font-medium text-white/30">2h ago • Tech & Gadgets</span>
-              </div>
-            </div>
-            <button className="text-white/20 hover:text-white transition-colors">
-              <MoreHorizontal className="w-5 h-5" />
-            </button>
-          </div>
-          
-          <div className="space-y-3">
-            <p className="text-[13px] leading-relaxed text-white/80">
-              Just got my new MacBook Air from Oventric and I'm loving it! Super fast delivery and great price. 🙌
-            </p>
-            <div className="aspect-[16/9] w-full rounded-[14px] overflow-hidden bg-[#1A1A1F] border border-white/5">
-              <img src="https://images.unsplash.com/photo-1517336714731-489689fd1ca8?auto=format&fit=crop&q=80&w=800" alt="MacBook" className="w-full h-full object-cover opacity-80" />
-            </div>
-          </div>
-          
-          <div className="flex items-center gap-6 pt-1">
-            <div className="flex items-center gap-2 text-white/40">
-              <Heart className="w-[18px] h-[18px] fill-[#E5484D] text-[#E5484D]" />
-              <span className="text-[12px] font-bold tabular-nums">342</span>
-            </div>
-            <div className="flex items-center gap-2 text-white/40">
-              <MessageCircle className="w-[18px] h-[18px]" />
-              <span className="text-[12px] font-bold tabular-nums">48</span>
-            </div>
-            <button className="text-white/40 hover:text-white transition-colors">
-              <Send className="w-[18px] h-[18px]" />
-            </button>
-          </div>
-        </div>
+
+        <CommunityRail onOpenFeed={() => onSelect("Feed")} />
       </section>
 
       {/* Floating Action Button for Create (mirrored from App Chrome if not present) */}
