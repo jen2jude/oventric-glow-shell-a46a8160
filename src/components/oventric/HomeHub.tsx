@@ -474,25 +474,25 @@ function MiniRail({
   if (items.length === 0) return null;
   return (
     <section>
-      <div className="flex items-center justify-between mb-2">
-        <h2 className="text-sm font-bold text-white">{title}</h2>
+      <div className="flex items-center justify-between mb-3 px-1">
+        <h2 className="text-[14px] font-black text-white/40 uppercase tracking-[0.2em]">{title}</h2>
         <button
           type="button"
           onClick={onSeeAll}
-          className="text-xs font-semibold text-[#E5484D] hover:text-[#F2686C] inline-flex items-center gap-1"
+          className="text-[11px] font-black text-[#E5484D] uppercase tracking-widest"
         >
-          See all <ChevronRight className="w-3.5 h-3.5" />
+          View All
         </button>
       </div>
-      <div className="flex gap-3 overflow-x-auto pb-1 -mx-3 px-3 md:mx-0 md:px-0 [scrollbar-width:none]">
+      <div className="flex gap-3 overflow-x-auto pb-1 [scrollbar-width:none]">
         {items.map((it) => (
           <button
             key={it.id}
             type="button"
             onClick={it.onClick}
-            className="shrink-0 w-32 text-left active:scale-95 transition-transform"
+            className="shrink-0 w-36 text-left active:scale-95 transition-transform"
           >
-            <span className="block w-32 h-24 rounded-none overflow-hidden bg-[#1E1E24] border border-white/10">
+            <span className="block w-36 h-28 rounded-[10px] overflow-hidden bg-[#141416] border border-white/5">
               {it.coverUrl ? (
                 <img loading="lazy" decoding="async"
                   src={it.coverUrl}
@@ -500,15 +500,15 @@ function MiniRail({
                   className="w-full h-full object-cover"
                 />
               ) : (
-                <span className="w-full h-full flex items-center justify-center text-slate-600">
-                  <Newspaper className="w-6 h-6" />
+                <span className="w-full h-full flex items-center justify-center text-white/20">
+                  <Newspaper className="w-7 h-7" />
                 </span>
               )}
             </span>
-            <span className="mt-1.5 block h-[28px] text-[11px] font-semibold text-white line-clamp-2 leading-[14px] overflow-hidden">
+            <span className="mt-2 block text-[13px] font-black uppercase tracking-tight text-white line-clamp-1 truncate">
               {it.title}
             </span>
-            <span className="block text-[11px] text-[#E5484D] font-bold truncate">{it.meta}</span>
+            <span className="block text-[12px] text-[#E5484D] font-black tracking-tighter">{it.meta}</span>
           </button>
         ))}
       </div>
