@@ -213,7 +213,7 @@ export function HomeHub({ onSelect, onCreate, onOpenMessages, returnedToHub }: H
   const hide = (v: number) => (balancesHidden ? "••••" : formatMoney(v, currency));
 
   return (
-    <div className="hub-enter mx-auto w-full max-w-5xl px-3 md:px-6 py-4 md:py-8 space-y-7 pb-24 bg-[#0A0A0B]">
+    <div className="hub-enter mx-auto w-full max-w-5xl px-3 md:px-6 py-4 md:py-8 space-y-7 pb-24 bg-[#0A0A0B] min-h-screen">
       {/* Search Header */}
       <section className="flex items-center gap-3">
         <div className="relative flex-1 group">
