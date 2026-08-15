@@ -1,68 +1,68 @@
 import { useEffect, useRef, useState } from "react";
-import { ChevronRight } from "lucide-react";
+import { ArrowRight } from "lucide-react";
+
+import headphonesImg from "@/assets/promo-headphones.png";
+import digitalImg from "@/assets/promo-digital.png";
+import shoppingImg from "@/assets/promo-shopping.png";
+import referImg from "@/assets/promo-refer.png";
 
 type Slide = {
   id: string;
   badge: string;
-  title: string;
-  subtitle: string;
+  title: string[];
   description: string;
   cta: string;
   img: string;
+  ring: string;
   bg: string;
-  glow: string;
-  sideText?: string[];
+  script?: string[];
   section: string;
 };
 
 const SLIDES: Slide[] = [
   {
     id: "main",
-    badge: "MORE THAN A MARKETPLACE",
-    title: "Discover Amazing Things",
-    subtitle: "",
+    badge: "More than a marketplace",
+    title: ["Discover", "Amazing Things"],
     description: "Products, digital assets, courses, jobs and a community that grows together.",
     cta: "Explore Now",
-    img: "https://images.unsplash.com/photo-1505740420928-5e560c06d30e?auto=format&fit=crop&q=80&w=800",
-    bg: "bg-gradient-to-br from-[#0A0A0B] to-[#1A1A1E]",
-    glow: "shadow-[inset_0_0_100px_rgba(139,92,246,0.15)]",
-    sideText: ["Better Choices", "Bigger Opportunities"],
+    img: headphonesImg,
+    ring: "shadow-[0_0_60px_18px_rgba(139,92,246,0.55)] border-[#A855F7]/70",
+    bg: "linear-gradient(115deg, #14101F 0%, #1B1533 45%, #241A3F 100%)",
+    script: ["Better", "Choices", "Bigger", "Opportunities"],
     section: "Marketplace",
   },
   {
     id: "digital",
-    badge: "PREMIUM ASSETS",
-    title: "Shop & Download Digital Assets",
-    subtitle: "",
-    description: "Get premium themes, plugins, AI tools & more for your next big project.",
+    badge: "Premium assets",
+    title: ["Shop & Download", "Digital Assets"],
+    description: "Premium themes, plugins and AI tools from verified creators.",
     cta: "Explore Assets",
-    img: "https://images.unsplash.com/photo-1633356122544-f134324a6cee?auto=format&fit=crop&q=80&w=800",
-    bg: "bg-gradient-to-br from-[#0A0A0B] to-[#1E1B4B]",
-    glow: "shadow-[inset_0_0_100px_rgba(59,130,246,0.15)]",
+    img: digitalImg,
+    ring: "shadow-[0_0_60px_18px_rgba(59,130,246,0.45)] border-[#3B82F6]/60",
+    bg: "linear-gradient(115deg, #0E1424 0%, #131C36 50%, #16234A 100%)",
     section: "Marketplace",
   },
   {
     id: "shopping",
-    badge: "SAVE BIG",
-    title: "Save Big On All Your Shopping",
-    subtitle: "",
-    description: "Buy from real sellers with verified reviews and secure escrow payments.",
+    badge: "Save big",
+    title: ["Save Big On All", "Your Shopping"],
+    description: "Buy from real sellers with secure escrow on every order.",
     cta: "Shop Now",
-    img: "https://images.unsplash.com/photo-1607082348824-0a96f2a4b9da?auto=format&fit=crop&q=80&w=800",
-    bg: "bg-gradient-to-br from-[#0A0A0B] to-[#450A0A]",
-    glow: "shadow-[inset_0_0_100px_rgba(229,72,77,0.15)]",
+    img: shoppingImg,
+    ring: "shadow-[0_0_60px_18px_rgba(229,72,77,0.45)] border-[#E5484D]/60",
+    bg: "linear-gradient(115deg, #180C0E 0%, #261014 50%, #33131A 100%)",
     section: "Marketplace",
   },
   {
     id: "refer",
-    badge: "EARN REWARDS",
-    title: "Refer A Friend & Earn Cashback",
-    subtitle: "",
-    description: "Invite your friends to Oventric and earn rewards on every successful purchase they make.",
+    badge: "Earn rewards",
+    title: ["Refer A Friend", "& Earn"],
+    description: "Invite builders you trust and earn on every purchase they make.",
     cta: "Invite Friends",
-    img: "https://images.unsplash.com/photo-1556742044-3c52d6e88c62?auto=format&fit=crop&q=80&w=800",
-    bg: "bg-gradient-to-br from-[#0A0A0B] to-[#064E3B]",
-    glow: "shadow-[inset_0_0_100px_rgba(16,185,129,0.15)]",
+    img: referImg,
+    ring: "shadow-[0_0_60px_18px_rgba(16,185,129,0.45)] border-[#10B981]/60",
+    bg: "linear-gradient(115deg, #08161112 0%, #0C2119 50%, #0F2E22 100%)",
     section: "Affiliate",
   },
 ];
@@ -108,75 +108,69 @@ export function HubPromoCarousel({ onSelect }: { onSelect: (section: string) => 
             <button
               type="button"
               onClick={() => onSelect(s.section)}
-              className={`relative w-full overflow-hidden rounded-[10px] text-left active:scale-[0.99] transition-transform aspect-[16/8.5] border border-white/[0.06] ${s.bg} ${s.glow}`}
+              className="relative w-full overflow-hidden rounded-[14px] text-left aspect-[16/9] md:aspect-[16/7] border border-white/[0.07] active:scale-[0.995] transition-transform"
+              style={{ backgroundImage: s.bg }}
             >
-              {/* Left Content */}
-              <div className="relative z-10 flex h-full flex-col justify-center max-w-[55%] p-7 md:p-10">
-                <div className="text-[10px] font-black uppercase tracking-[0.2em] text-white/40 mb-3">
+              {/* Copy block */}
+              <div className="relative z-20 flex h-full max-w-[62%] flex-col justify-center px-5 py-5 md:px-7">
+                <span className="text-[9px] md:text-[10px] font-semibold uppercase tracking-[0.18em] text-white/45">
                   {s.badge}
-                </div>
-                <h2 className="text-[28px] md:text-[34px] font-black leading-[1.05] tracking-tight text-white mb-4">
-                  {s.title}
+                </span>
+                <h2 className="mt-2 text-[19px] md:text-[24px] font-bold leading-[1.14] tracking-[-0.01em] text-white">
+                  {s.title[0]}
+                  <br />
+                  {s.title[1]}
                 </h2>
-                <p className="text-[13px] md:text-[14px] font-medium text-white/50 leading-relaxed mb-8 max-w-[90%]">
+                <p className="mt-2 max-w-[19rem] text-[10.5px] md:text-[12px] leading-[1.45] text-white/55">
                   {s.description}
                 </p>
-                <div>
-                  <span className="inline-flex items-center gap-2 rounded-full bg-white px-5 py-2.5 text-[12px] font-black text-black transition-all hover:bg-white/90">
-                    {s.cta} <ChevronRight className="h-4 w-4" strokeWidth={3} />
-                  </span>
-                </div>
+                <span className="mt-3.5 inline-flex w-fit items-center gap-1.5 rounded-full bg-white px-3.5 py-1.5 text-[11px] font-semibold text-black md:px-4 md:py-2 md:text-[12px]">
+                  {s.cta}
+                  <ArrowRight className="h-3.5 w-3.5" strokeWidth={2.5} />
+                </span>
               </div>
 
-              {/* Product Image and Effects */}
-              <div className="absolute right-0 top-0 h-full w-[50%] flex items-center justify-center p-6">
-                <div className="relative h-full w-full flex items-center justify-center">
-                  {/* Purple Circle Glow */}
-                  <div className="absolute h-[85%] aspect-square rounded-full border-2 border-purple-500/30 shadow-[0_0_60px_rgba(168,85,247,0.4)] animate-pulse" />
-                  
-                  {/* Product Image */}
-                  <img 
-                    src={s.img} 
-                    alt="" 
-                    className="relative z-20 h-[80%] w-auto object-contain drop-shadow-[0_20px_50px_rgba(0,0,0,0.5)]" 
+              {/* Product + ring */}
+              <div className="pointer-events-none absolute inset-y-0 right-0 z-10 w-[52%]">
+                <div className="relative flex h-full items-center justify-center">
+                  <span
+                    className={`absolute aspect-square h-[76%] rounded-full border-2 ${s.ring} opacity-80`}
                   />
-
-                  {/* Script Text on Right (only for main slide) */}
-                  {s.sideText && (
-                    <div className="absolute right-0 bottom-10 z-30 flex flex-col items-end pointer-events-none pr-2">
-                      {s.sideText.map((text, i) => (
-                        <span key={i} className="text-[16px] md:text-[20px] font-serif italic text-white/80 leading-tight">
-                          {text}
-                        </span>
+                  <img
+                    loading="lazy"
+                    decoding="async"
+                    src={s.img}
+                    alt=""
+                    aria-hidden
+                    width={1024}
+                    height={1024}
+                    className="relative z-10 h-[92%] w-auto max-w-[86%] object-contain drop-shadow-[0_18px_40px_rgba(0,0,0,0.55)]"
+                  />
+                  {s.script && (
+                    <span className="absolute right-2 bottom-4 z-20 flex flex-col items-end leading-[1.05] font-serif italic text-white/85 text-[11px] md:text-[13px]">
+                      {s.script.map((line) => (
+                        <span key={line}>{line}</span>
                       ))}
-                    </div>
+                    </span>
                   )}
                 </div>
               </div>
+
+              {/* Dots */}
+              <div className="absolute bottom-3 left-1/2 z-30 flex -translate-x-1/2 items-center gap-1.5">
+                {SLIDES.map((d, i) => (
+                  <span
+                    key={d.id}
+                    className={
+                      i === active
+                        ? "h-1.5 w-1.5 rounded-full bg-white"
+                        : "h-1.5 w-1.5 rounded-full bg-white/25"
+                    }
+                  />
+                ))}
+              </div>
             </button>
           </div>
-        ))}
-      </div>
-
-      {/* Indicators */}
-      <div className="absolute bottom-4 left-1/2 -translate-x-1/2 flex items-center justify-center gap-2">
-        {SLIDES.map((s, i) => (
-          <button
-            key={s.id}
-            type="button"
-            aria-label={`Go to offer ${i + 1}`}
-            onClick={() =>
-              trackRef.current?.scrollTo({
-                left: i * trackRef.current.clientWidth,
-                behavior: "smooth",
-              })
-            }
-            className={
-              i === active
-                ? "h-2 w-2 rounded-full bg-white transition-all scale-110"
-                : "h-2 w-2 rounded-full bg-white/20 transition-all"
-            }
-          />
         ))}
       </div>
     </section>
