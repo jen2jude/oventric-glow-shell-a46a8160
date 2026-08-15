@@ -1,6 +1,6 @@
 import { useState } from "react";
 import { Link } from "@tanstack/react-router";
-import { Flame, Sparkles, Trophy, GraduationCap, Users, ShoppingBag, PlayCircle, Search, X } from "lucide-react";
+import { Flame, Sparkles, Trophy, GraduationCap, Users, ShoppingBag, PlayCircle, Search, X, Filter, Star } from "lucide-react";
 import { AvatarImage } from "@/components/oventric/AvatarImage";
 import { navigateSection } from "@/components/oventric/DiscoveryPanel";
 import { useFeedDiscovery } from "@/components/oventric/feed/useFeedDiscovery";
@@ -11,6 +11,8 @@ import { ExploreHeader, type ExploreTab } from "./ExploreHeader";
 import { PeopleExploreList } from "./PeopleExploreList";
 import { useOnboarding, type Currency } from "@/lib/onboarding/OnboardingContext";
 import { computeDisplayPrice } from "@/lib/fx-display";
+import { ExploreCategories } from "@/components/oventric/hub/ExploreCategories";
+
 
 function fmtUsd(usd: number, viewer: Currency): string {
   return computeDisplayPrice(
@@ -56,7 +58,8 @@ function Section({
 
 function Rail({ children }: { children: React.ReactNode }) {
   return (
-    <div className="-mx-4 flex snap-x snap-mandatory gap-3 overflow-x-auto px-4 pb-1 [scrollbar-width:none] [&::-webkit-scrollbar]:hidden">
+    <div className="-mx-4 flex snap-x snap-mandatory gap-3 overflow-x-auto px-4 pb-1 [scrollbar-width:none] [&::-webkit-scrollbar]:hidden scroll-smooth">
+
       {children}
     </div>
   );
@@ -180,18 +183,35 @@ export function FeedDiscoverExplore({
 
   return (
     <div className="space-y-6">
-      {/* Search Bar - Mirrored from App Chrome for "Discovery" mode */}
+      {/* Search Header - Hub Style */}
       <div className="-mx-1 px-1">
-        <div 
-          onClick={() => setActiveTab("People")}
-          className="relative group cursor-pointer"
-        >
-          <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-white/20" />
-          <div className="w-full h-11 pl-10 pr-4 flex items-center text-sm rounded-2xl bg-[#141416] border border-white/[0.06] text-white/30">
-            Search Oventric...
+        <div className="flex items-center gap-3">
+          <div 
+            onClick={() => setActiveTab("People")}
+            className="relative flex-1 group cursor-pointer"
+          >
+            <Search className="absolute left-3.5 top-1/2 -translate-y-1/2 w-[18px] h-[18px] text-white/30 group-focus-within:text-[#E5484D] transition-colors" />
+            <div className="w-full h-[52px] pl-11 pr-4 flex items-center text-[15px] rounded-[10px] bg-[#141416] border border-white/5 text-white/20">
+              Search Oventric...
+            </div>
           </div>
+          <button className="h-[52px] w-[52px] flex items-center justify-center rounded-[10px] bg-[#141416] border border-white/5 text-white/40 active:scale-95 transition-transform">
+            <Filter className="w-5 h-5" />
+          </button>
         </div>
       </div>
+
+      {/* Explore Categories - Hub Style */}
+      <section className="space-y-4">
+        <div className="flex items-center justify-between px-1">
+          <h2 className="text-[17px] font-black text-white uppercase tracking-tight">Explore Categories</h2>
+        </div>
+        <ExploreCategories onSelect={(cat) => {
+          if (cat === "Academy") navigateSection("Academy");
+          else navigateSection("Marketplace");
+        }} />
+      </section>
+
 
       {storyGroups.length > 0 && (
 
@@ -259,20 +279,31 @@ export function FeedDiscoverExplore({
 
       {peers.length > 0 && (
 
-        <Section icon={Sparkles} title="Creators to follow">
+        <Section icon={Sparkles} title="Top Creators">
           <Rail>
             {peers.slice(0, 12).map((p) => (
               <Link
                 key={p.id}
                 to="/profile/$id"
                 params={{ id: p.slug }}
-                className="w-[122px] shrink-0 snap-start rounded-2xl border border-white/[0.06] bg-[#141416] p-3 text-center active:scale-[0.98]"
+                className="flex flex-col items-center gap-2 shrink-0 group snap-start"
               >
-                <span className="mx-auto block h-14 w-14 overflow-hidden rounded-full bg-[#1A1A1F]">
-                  <AvatarImage src={p.avatarUrl} alt={p.name} initials={p.initials} />
+                <div className="relative">
+                  <div className="w-[72px] h-[72px] rounded-full p-[2px] bg-gradient-to-tr from-[#E5484D] to-purple-600 transition-transform duration-300 group-active:scale-90 shadow-[0_0_15px_rgba(229,72,77,0.15)]">
+                    <div className="w-full h-full rounded-full border-[3px] border-[#0A0A0B] overflow-hidden bg-[#1A1A1F]">
+                      <AvatarImage src={p.avatarUrl} alt={p.name} initials={p.initials} />
+                    </div>
+                  </div>
+                  {p.stars >= 4.5 && (
+                    <div className="absolute bottom-0 right-0 h-5 w-5 rounded-full bg-blue-500 border-2 border-[#0A0A0B] flex items-center justify-center shadow-lg">
+                      <Star className="w-2.5 h-2.5 fill-white text-white" />
+                    </div>
+                  )}
+                </div>
+                <span className="text-[11px] font-bold text-white/70 truncate w-[72px] text-center group-hover:text-white transition-colors">
+                  {p.name.split(" ")[0]}
                 </span>
-                <p className="mt-2 truncate text-[12.5px] font-semibold text-white">{p.name}</p>
-                <p className="text-[11px] text-white/40">★ {p.stars.toFixed(1)}</p>
+
               </Link>
             ))}
           </Rail>
@@ -298,13 +329,14 @@ export function FeedDiscoverExplore({
                 key={b.id}
                 type="button"
                 onClick={() => navigateSection("Bounties")}
-                className="w-[200px] shrink-0 snap-start overflow-hidden rounded-2xl border border-white/[0.06] bg-[#141416] text-left active:scale-[0.98]"
+                className="w-[200px] shrink-0 snap-start overflow-hidden rounded-[10px] border border-white/[0.06] bg-[#141416] text-left active:scale-[0.98]"
               >
                 {b.coverUrl ? (
                   <img loading="lazy" decoding="async" src={b.coverUrl} alt="" className="h-24 w-full object-cover" />
                 ) : (
                   <div className="h-24 w-full bg-gradient-to-br from-[#E5484D]/30 to-[#7C6CF6]/25" />
                 )}
+
                 <div className="p-3">
                   <p className="line-clamp-2 text-[13px] font-semibold text-white">{b.title}</p>
                   <p className="mt-1 text-[12px] font-bold text-[#E5484D]">
@@ -320,7 +352,7 @@ export function FeedDiscoverExplore({
       {products.length > 0 && (
         <Section
           icon={ShoppingBag}
-          title="Shop picks"
+          title="What's Moving 🔥"
           action="Marketplace"
           onAction={() => navigateSection("Marketplace")}
         >
@@ -330,7 +362,8 @@ export function FeedDiscoverExplore({
                 key={p.id}
                 to="/product/$id"
                 params={{ id: p.id }}
-                className="w-[152px] shrink-0 snap-start overflow-hidden rounded-2xl border border-white/[0.06] bg-[#141416] active:scale-[0.98]"
+                className="w-[152px] shrink-0 snap-start overflow-hidden rounded-[10px] border border-white/[0.06] bg-[#141416] active:scale-[0.98]"
+
               >
                 {p.coverUrl ? (
                   <img loading="lazy" decoding="async" src={p.coverUrl} alt="" className="h-28 w-full object-cover" />
@@ -352,7 +385,7 @@ export function FeedDiscoverExplore({
       {courses.length > 0 && (
         <Section
           icon={GraduationCap}
-          title="Popular courses"
+          title="Academy Trending"
           action="Academy"
           onAction={() => navigateSection("Academy")}
         >
@@ -362,7 +395,8 @@ export function FeedDiscoverExplore({
                 key={c.id}
                 type="button"
                 onClick={() => navigateSection("Academy")}
-                className="w-[200px] shrink-0 snap-start overflow-hidden rounded-2xl border border-white/[0.06] bg-[#141416] text-left active:scale-[0.98]"
+                className="w-[200px] shrink-0 snap-start overflow-hidden rounded-[10px] border border-white/[0.06] bg-[#141416] text-left active:scale-[0.98]"
+
               >
                 {c.coverUrl ? (
                   <img loading="lazy" decoding="async" src={c.coverUrl} alt="" className="h-24 w-full object-cover" />

@@ -1,5 +1,6 @@
-import { useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { ArrowLeft } from "lucide-react";
+
 
 export type ExploreTab = "All" | "People" | "Products" | "Shops" | "Services" | "Posts" | "Courses" | "Jobs";
 
@@ -12,7 +13,17 @@ export function ExploreHeader({
   activeTab: ExploreTab;
   onTabChange: (tab: ExploreTab) => void;
 }) {
+  const scrollRef = useRef<HTMLDivElement>(null);
+
+  useEffect(() => {
+    const activeEl = scrollRef.current?.querySelector(`[data-active="true"]`);
+    if (activeEl) {
+      activeEl.scrollIntoView({ behavior: "smooth", block: "nearest", inline: "center" });
+    }
+  }, [activeTab]);
+
   return (
+
     <div className="bg-[#0A0A0B] pt-3">
       <div className="px-4 mb-3 flex items-center gap-4">
         <button 
@@ -24,14 +35,20 @@ export function ExploreHeader({
         <h1 className="text-[22px] font-black text-white tracking-tight">Explore</h1>
       </div>
       
-      <div className="flex border-b border-white/[0.06]">
+      <div 
+        ref={scrollRef}
+        className="flex border-b border-white/[0.06] overflow-x-auto no-scrollbar scroll-smooth"
+      >
+
         {TABS.map((tab) => {
           const active = tab === activeTab;
           return (
             <button
               key={tab}
+              data-active={active}
               onClick={() => onTabChange(tab)}
-              className="relative flex-1 py-3 text-[14px] font-bold transition-colors"
+
+              className="relative shrink-0 px-5 py-3 text-[14px] font-bold transition-colors"
             >
               <span className={active ? "text-white" : "text-white/40"}>
                 {tab}
@@ -43,6 +60,7 @@ export function ExploreHeader({
           );
         })}
       </div>
+
     </div>
 
   );

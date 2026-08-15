@@ -1,4 +1,4 @@
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { Link } from "@tanstack/react-router";
 import { useServerFn } from "@tanstack/react-start";
 import { Search, X, Loader2, Coins, Store, User, Star, Users, MessageSquare } from "lucide-react";
@@ -63,7 +63,7 @@ export function FeedSearchBar({
       }
     >
       <div className="relative group">
-        <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-500 group-focus-within:text-[#E5484D] md:group-focus-within:text-[#E5484D] transition-colors" />
+        <Search className="absolute left-3.5 top-1/2 -translate-y-1/2 w-[18px] h-[18px] text-white/30 group-focus-within:text-[#E5484D] transition-colors" />
         <input
           type="search"
           role="searchbox"
@@ -73,13 +73,14 @@ export function FeedSearchBar({
           onKeyDown={(e) => {
             if (e.key === "Escape") onQueryChange("");
           }}
-          placeholder={appShell ? "Search feed" : "Search posts, bounties, assets…"}
-          className={`w-full h-10 pl-10 pr-9 text-sm focus:outline-none transition-all ${
+          placeholder={appShell ? "Search Oventric..." : "Search posts, bounties, assets…"}
+          className={`w-full h-[52px] pl-11 pr-9 text-[15px] focus:outline-none transition-all ${
             appShell
-              ? "rounded-full bg-[#141416] border border-white/[0.06] text-white placeholder:text-white/30 focus:border-[#E5484D]/50"
+              ? "rounded-[10px] bg-[#141416] border border-white/5 text-white placeholder:text-white/20 focus:border-[#E5484D]/40"
               : "rounded-[10px] bg-[#141418] md:bg-slate-100 border border-white/10 md:border-slate-200 text-slate-200 md:text-slate-900 placeholder:text-slate-500 focus:border-[#E5484D]/60 focus:ring-2 focus:ring-[#E5484D]/20"
           }`}
         />
+
         {q && (
           <button
             type="button"
@@ -139,7 +140,9 @@ export function FeedGlobalResults({ q, category }: { q: string; category: FeedCa
   const search = useServerFn(searchGlobal);
   const [results, setResults] = useState<SearchResults>(EMPTY);
   const [loading, setLoading] = useState(false);
-  const [activeExploreTab, setActiveExploreTab] = useState<ExploreTab>("People");
+  const [activeExploreTab, setActiveExploreTab] = useState<ExploreTab>("All");
+  const scrollContainerRef = useRef<HTMLDivElement>(null);
+
 
   const term = q.trim();
   const enabled = term.length >= 2;
@@ -168,6 +171,13 @@ export function FeedGlobalResults({ q, category }: { q: string; category: FeedCa
     };
   }, [term, enabled, search]);
 
+  useEffect(() => {
+    if (enabled && scrollContainerRef.current) {
+      scrollContainerRef.current.scrollTop = 0;
+    }
+  }, [activeExploreTab, enabled]);
+
+
   if (!enabled) {
     return null;
   }
@@ -182,13 +192,20 @@ export function FeedGlobalResults({ q, category }: { q: string; category: FeedCa
   }
 
   return (
-    <div className="flex flex-col min-h-screen bg-[#0A0A0B] relative z-[42]">
-      <ExploreHeader 
-        activeTab={activeExploreTab} 
-        onTabChange={setActiveExploreTab} 
-      />
+    <div className="flex flex-col min-h-screen bg-[#0A0A0B] relative z-[100]">
+      <div className="fixed inset-x-0 top-0 z-[101]">
+        <ExploreHeader 
+          activeTab={activeExploreTab} 
+          onTabChange={setActiveExploreTab} 
+        />
+      </div>
 
-      <div className="flex-1 pb-32">
+      <div 
+        ref={scrollContainerRef}
+        className="flex-1 pt-[110px] pb-32 overflow-y-auto scroll-smooth"
+      >
+
+
         {activeExploreTab === "All" && (
            <div className="flex flex-col gap-8 p-4">
               {results.peers.length > 0 && (
