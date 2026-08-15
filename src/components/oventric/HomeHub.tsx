@@ -213,218 +213,143 @@ export function HomeHub({ onSelect, onCreate, onOpenMessages, returnedToHub }: H
   const hide = (v: number) => (balancesHidden ? "••••" : formatMoney(v, currency));
 
   return (
-    <div className="hub-enter mx-auto w-full max-w-5xl px-3 md:px-6 py-3 md:py-6 space-y-4">
-      {/* Greeting + currency */}
-      <section className="grid grid-cols-[minmax(0,1fr)_auto] items-center gap-3">
-        {mySlug ? (
-          <Link
-            to="/profile/$id"
-            params={{ id: mySlug }}
-            className="flex min-w-0 items-center gap-3 active:scale-[0.98] transition-transform"
-          >
-            <span className="h-11 w-11 shrink-0 overflow-hidden rounded-full bg-[#1A1A1F]">
-              <AvatarImage src={avatarUrl} alt={name || "You"} />
-            </span>
-            <div className="min-w-0">
-              <div className="text-[12px] text-slate-400">{greeting()} 👋</div>
-              <div className="truncate text-[19px] font-extrabold text-white">
-                {name || "Welcome"}
-              </div>
-            </div>
-          </Link>
-        ) : (
-          <button
-            type="button"
-            onClick={() => !isAuthenticated && openGate("generic")}
-            className="flex min-w-0 items-center gap-3 text-left"
-          >
-            <span className="h-11 w-11 shrink-0 overflow-hidden rounded-full bg-[#1A1A1F]">
-              <AvatarImage src={avatarUrl} alt={name || "You"} />
-            </span>
-            <div className="min-w-0">
-              <div className="text-[12px] text-slate-400">{greeting()} 👋</div>
-              <div className="truncate text-[19px] font-extrabold text-white">
-                {name || "Welcome"}
-              </div>
-            </div>
-          </button>
-        )}
-        <span className="inline-flex shrink-0 items-center gap-1.5 rounded-full border border-white/10 bg-[#121216] px-3 py-3 text-[12px] font-bold text-white">
-          <span aria-hidden>{flagEmoji(country)}</span>
-          {currency}
-        </span>
+    <div className="hub-enter mx-auto w-full max-w-5xl px-3 md:px-6 py-4 md:py-8 space-y-7 pb-24">
+      {/* Search Header */}
+      <section className="flex items-center gap-3">
+        <div className="relative flex-1 group">
+          <Search className="absolute left-3.5 top-1/2 -translate-y-1/2 w-[18px] h-[18px] text-white/30 group-focus-within:text-[#E5484D] transition-colors" />
+          <input 
+            type="text"
+            placeholder="Search products, shops, people..."
+            className="w-full h-[52px] pl-11 pr-4 rounded-[10px] bg-[#141416] border border-white/5 text-[15px] text-white placeholder:text-white/20 focus:outline-none focus:border-[#E5484D]/40 transition-all"
+          />
+        </div>
+        <button className="h-[52px] w-[52px] flex items-center justify-center rounded-[10px] bg-[#141416] border border-white/5 text-white/40 active:scale-95 transition-transform">
+          <Filter className="w-5 h-5" />
+        </button>
       </section>
 
-      {/* Financial hub card */}
-      <section className="rounded-2xl border border-white/[0.08] bg-[#0F0F13] p-4">
-        <div className="flex items-start justify-between gap-3">
-          <div className="min-w-0">
-            <div className="text-[12px] text-slate-400">Main Balance</div>
-            <div className="mt-1 flex items-center gap-2">
-              <span className="truncate text-[30px] font-extrabold leading-none text-white tabular-nums">
-                {isAuthenticated ? hide(main) : formatMoney(0, currency)}
-              </span>
-              {isAuthenticated && (
-                <button
-                  type="button"
-                  onClick={toggleBalancesHidden}
-                  aria-label={balancesHidden ? "Show balance" : "Hide balance"}
-                  className="p-1 text-slate-500 transition-colors hover:text-white"
-                >
-                  {balancesHidden ? <EyeOff className="h-4 w-4" /> : <Eye className="h-4 w-4" />}
-                </button>
-              )}
-            </div>
+      {/* Hero Section */}
+      <section className="space-y-4">
+        <div className="flex items-end justify-between px-1">
+          <div className="space-y-1">
+            <h1 className="text-[32px] font-black leading-[0.95] tracking-tight text-white uppercase italic">
+              Discover<br/>Amazing<br/>Things
+            </h1>
           </div>
-          <button
-            type="button"
-            onClick={() => onSelect("Wallet")}
-            className="inline-flex shrink-0 items-center gap-1 rounded-full border border-white/10 bg-[#17171D] px-3.5 py-3 text-[12px] font-bold text-white"
-          >
-            Wallet <ChevronRight className="h-3.5 w-3.5" />
-          </button>
-        </div>
-
-        <div className="mt-4 grid grid-cols-3 gap-2">
-          <SubChip
-            label="Cashback"
-            value={
-              isAuthenticated
-                ? balancesHidden
-                  ? "••••"
-                  : formatMoney(fromUSD(cashback, currency), currency)
-                : formatMoney(0, currency)
-            }
-          />
-          <SubChip
-            label="Bounty"
-            value={
-              isAuthenticated
-                ? balancesHidden
-                  ? "••••"
-                  : formatMoney(fromUSD(bounty, currency), currency)
-                : formatMoney(0, currency)
-            }
-          />
-          <SubChip
-            label="Escrow"
-            value={
-              isAuthenticated
-                ? balancesHidden
-                  ? "••••"
-                  : formatMoney(escrow, currency)
-                : formatMoney(0, currency)
-            }
-          />
-        </div>
-
-        <div className="mt-3 grid grid-cols-3 gap-2">
-          {[
-            { label: "Add Money", icon: Plus, color: "#E5484D" },
-            { label: "Withdraw", icon: ArrowUp, color: "#E7E7EA" },
-            { label: "Send Money", icon: Send, color: "#E7E7EA" },
-          ].map((a) => (
-            <button
-              key={a.label}
-              type="button"
-              onClick={() => (isAuthenticated ? onSelect("Wallet") : openGate("generic"))}
-              className="inline-flex items-center justify-center gap-1.5 rounded-xl border border-white/[0.08] bg-[#15151A] py-2.5 text-[12px] font-semibold text-white active:scale-95 transition-transform"
-            >
-              <a.icon className="h-4 w-4" style={{ color: a.color }} strokeWidth={2.2} />
-              {a.label}
-            </button>
-          ))}
-        </div>
-      </section>
-
-      {/* Quick actions */}
-      <section className="grid grid-cols-5 gap-2">
-        {[
-          {
-            label: "Sell",
-            icon: Store,
-            color: "#E5484D",
-            onClick: () => requireTier(2, () => setSellOpen(true)),
-          },
-          { label: "Post", icon: PenSquare, color: "#7C6CF6", onClick: () => onCreate("post") },
-          {
-            label: "Course",
-            icon: GraduationCap,
-            color: "#A78BFA",
-            onClick: () => requireTier(2, () => setCourseOpen(true)),
-          },
-          { label: "Bounty", icon: Target, color: "#E5484D", onClick: () => onCreate("bounty") },
-          {
-            label: "More",
-            icon: MoreHorizontal,
-            color: "#E7E7EA",
-            onClick: () => setMoreOpen(true),
-          },
-        ].map((q) => (
-          <button
-            key={q.label}
-            type="button"
-            onClick={q.onClick}
-            className="flex flex-col items-center gap-2 rounded-2xl border border-white/[0.08] bg-[#0F0F13] py-3.5 active:scale-95 transition-transform"
-          >
-            <q.icon className="h-6 w-6" style={{ color: q.color }} strokeWidth={1.8} />
-            <span className="text-[11.5px] font-semibold text-white">{q.label}</span>
-          </button>
-        ))}
-      </section>
-
-      {/* Offer carousel */}
-      <HubPromoCarousel onSelect={goSection} />
-
-      {/* Top Users Section */}
-      {topUsers.length > 0 && (
-        <section className="mt-6 mb-2">
-          <div className="flex items-center justify-between mb-4 px-1">
-            <h2 className="text-[11px] font-bold uppercase tracking-wider text-slate-500">
-              Top Users
-            </h2>
-            <button
-              onClick={() => onSelect("Feed")}
-              className="text-[11px] font-bold text-[#E5484D] hover:text-[#F2686C] transition-colors"
-            >
-              View all
-            </button>
+          <div className="flex items-center gap-1.5 rounded-full border border-white/10 bg-[#121216] px-3 py-1.5 text-[11px] font-bold text-white/60">
+            <span aria-hidden>{flagEmoji(country)}</span>
+            {currency}
           </div>
+        </div>
+        
+        {/* Main Featured Promo (reusing carousel but adapted style if needed) */}
+        <div className="relative overflow-hidden rounded-[10px]">
+           <HubPromoCarousel onSelect={goSection} />
+        </div>
+      </section>
 
-          <div className="flex gap-5 overflow-x-auto pb-4 scrollbar-hide px-1 snap-x snap-mandatory">
-            {topUsers.map((u) => (
-              <Link
-                key={u.userId}
-                to="/profile/$id"
-                params={{ id: u.slug }}
-                className="flex flex-col items-center gap-2.5 shrink-0 group snap-start"
+      {/* Financial hub card - Simplified & Bold */}
+      <section className="rounded-[10px] border border-white/[0.08] bg-gradient-to-br from-[#131316] to-[#0A0A0B] p-5 shadow-2xl relative overflow-hidden group">
+        <div className="absolute -top-12 -right-12 w-32 h-32 bg-[#E5484D]/5 blur-[60px] rounded-full group-hover:bg-[#E5484D]/10 transition-colors" />
+        
+        <div className="flex items-start justify-between">
+          <div className="space-y-1.5">
+            <div className="flex items-center gap-2">
+              <span className="text-[11px] font-black uppercase tracking-widest text-white/30">Total Balance</span>
+              <button
+                type="button"
+                onClick={toggleBalancesHidden}
+                className="text-white/20 hover:text-white/60 transition-colors"
               >
-                <div className="relative">
-                  <div className="w-16 h-16 rounded-full group-active:scale-95 transition-transform duration-200 overflow-hidden bg-[#222]">
-                    <AvatarImage src={u.avatarUrl} alt={u.displayName} />
-                  </div>
-                  <div className="absolute -bottom-1 -right-1 bg-black text-[10px] font-black text-red-600 px-2 py-0.5 rounded-full border-2 border-[#1a1a1a] shadow-lg flex items-center justify-center min-w-[24px] gap-0.5">
-                    <Star className="w-2.5 h-2.5 fill-amber-400 text-amber-400" />
-                    {u.reputationStars}
-                  </div>
-                </div>
-                <div className="flex flex-col items-center gap-0.5">
-                  <span className="text-[11px] font-bold text-slate-100 truncate w-16 text-center group-hover:text-[#E5484D] transition-colors">
-                    {u.displayName.split(" ")[0]}
-                  </span>
-                  <div className="w-1 h-1 rounded-full bg-[#E5484D]/60 opacity-0 group-hover:opacity-100 transition-opacity" />
-                </div>
-              </Link>
+                {balancesHidden ? <EyeOff className="h-3.5 w-3.5" /> : <Eye className="h-3.5 w-3.5" />}
+              </button>
+            </div>
+            <div className="text-[34px] font-black tracking-tight text-white tabular-nums leading-none">
+              {isAuthenticated ? hide(main) : formatMoney(0, currency)}
+            </div>
+          </div>
+          <Link to="/wallet/ledger" className="h-10 w-10 flex items-center justify-center rounded-full bg-white/5 text-white/40 border border-white/5 active:scale-95 transition-transform">
+            <ChevronRight className="w-5 h-5" />
+          </Link>
+        </div>
+
+        <div className="mt-6 grid grid-cols-3 gap-3">
+          <div className="space-y-1">
+             <div className="text-[9px] font-black uppercase tracking-widest text-white/20">Cashback</div>
+             <div className="text-sm font-bold text-emerald-400">{isAuthenticated ? (balancesHidden ? "••••" : formatMoney(fromUSD(cashback, currency), currency)) : formatMoney(0, currency)}</div>
+          </div>
+          <div className="space-y-1">
+             <div className="text-[9px] font-black uppercase tracking-widest text-white/20">Bounty</div>
+             <div className="text-sm font-bold text-blue-400">{isAuthenticated ? (balancesHidden ? "••••" : formatMoney(fromUSD(bounty, currency), currency)) : formatMoney(0, currency)}</div>
+          </div>
+          <div className="space-y-1">
+             <div className="text-[9px] font-black uppercase tracking-widest text-white/20">Escrow</div>
+             <div className="text-sm font-bold text-rose-400">{isAuthenticated ? (balancesHidden ? "••••" : formatMoney(escrow, currency)) : formatMoney(0, currency)}</div>
+          </div>
+        </div>
+
+        <div className="mt-6 flex items-center gap-3">
+           <button 
+             onClick={() => onSelect("Wallet")}
+             className="flex-1 h-11 flex items-center justify-center gap-2 rounded-[10px] bg-[#E5484D] text-white text-[13px] font-bold active:scale-[0.97] transition-all shadow-[0_0_20px_rgba(229,72,77,0.25)]"
+           >
+             <Plus className="w-4 h-4" strokeWidth={3} /> Add Funds
+           </button>
+           <button 
+             onClick={() => onSelect("Wallet")}
+             className="flex-1 h-11 flex items-center justify-center gap-2 rounded-[10px] bg-white/5 border border-white/5 text-white/80 text-[13px] font-bold active:scale-[0.97] transition-all"
+           >
+             <ArrowUp className="w-4 h-4" strokeWidth={2.5} /> Withdraw
+           </button>
+        </div>
+      </section>
+
+      {/* Explore Categories - Mirroring square glowing grid */}
+      <section className="space-y-4">
+        <div className="flex items-center justify-between px-1">
+          <h2 className="text-[17px] font-black text-white uppercase tracking-tight">Explore Categories</h2>
+          <Link to="/marketplace" className="text-[12px] font-bold text-[#E5484D] uppercase">View All</Link>
+        </div>
+        <ExploreCategories onSelect={(cat) => {
+          if (cat === "Academy") onSelect("Academy");
+          else onSelect("Marketplace");
+        }} />
+      </section>
+
+      {/* Featured This Week - 3-up style cards */}
+      {products.length > 0 && (
+        <section className="space-y-4">
+          <div className="flex items-center justify-between px-1">
+            <h2 className="text-[17px] font-black text-white uppercase tracking-tight">Featured This Week</h2>
+            <div className="flex gap-1.5">
+               <div className="w-1.5 h-1.5 rounded-full bg-[#E5484D]" />
+               <div className="w-1.5 h-1.5 rounded-full bg-white/10" />
+               <div className="w-1.5 h-1.5 rounded-full bg-white/10" />
+            </div>
+          </div>
+          <div className="space-y-3">
+            {products.slice(0, 3).map((p) => (
+              <FeaturedProductCard key={p.id} product={{
+                ...p,
+                priceUSD: p.priceUsd,
+                originalCurrency: "USD",
+                originalAmount: p.priceUsd,
+                fxSnapshot: null,
+                rating: 5.0,
+                vendor: "Oventric",
+                name: p.title
+              } as any} />
             ))}
           </div>
         </section>
       )}
 
-      {/* Live strips */}
+      {/* Trending / What's Moving rail */}
       <MiniRail
-        title="Fresh in the market"
+        title="What's Moving 🔥"
         onSeeAll={() => onSelect("Marketplace")}
-        items={products.map((p) => ({
+        items={products.slice(3, 10).map((p) => ({
           id: p.id,
           title: p.title,
           coverUrl: p.coverUrl,
@@ -433,8 +358,9 @@ export function HomeHub({ onSelect, onCreate, onOpenMessages, returnedToHub }: H
         }))}
       />
 
+      {/* Academy & Bounties in same UI style */}
       <MiniRail
-        title="Learn on Academy"
+        title="Academy Trending"
         onSeeAll={() => onSelect("Academy")}
         items={courses.map((c) => ({
           id: c.id,
@@ -445,31 +371,67 @@ export function HomeHub({ onSelect, onCreate, onOpenMessages, returnedToHub }: H
         }))}
       />
 
-      <MiniRail
-        title="Open bounties"
-        onSeeAll={() => onSelect("Bounties")}
-        items={bounties.map((b) => ({
-          id: b.id,
-          title: b.title,
-          coverUrl: b.coverUrl,
-          meta: safeFormatDisplayPrice({ price_usd: b.amountUsd }, currency),
-          onClick: () => onSelect("Bounties"),
-        }))}
-      />
+      {/* Top Creators - Refined circle rail */}
+      {topUsers.length > 0 && (
+        <section className="space-y-4">
+          <div className="flex items-center justify-between px-1">
+            <h2 className="text-[17px] font-black text-white uppercase tracking-tight">Top Creators</h2>
+            <button
+              onClick={() => onSelect("Feed")}
+              className="text-[12px] font-bold text-[#E5484D] uppercase"
+            >
+              See all
+            </button>
+          </div>
+
+          <div className="flex gap-4 overflow-x-auto pb-4 scrollbar-hide px-1 snap-x snap-mandatory">
+            {topUsers.map((u) => (
+              <Link
+                key={u.userId}
+                to="/profile/$id"
+                params={{ id: u.slug }}
+                className="flex flex-col items-center gap-2 shrink-0 group snap-start"
+              >
+                <div className="relative">
+                  <div className="w-[72px] h-[72px] rounded-full p-[2px] bg-gradient-to-tr from-[#E5484D] to-purple-600 transition-transform duration-300 group-active:scale-90 shadow-[0_0_15px_rgba(229,72,77,0.15)]">
+                    <div className="w-full h-full rounded-full border-[3px] border-[#0A0A0B] overflow-hidden bg-[#1A1A1F]">
+                      <AvatarImage src={u.avatarUrl} alt={u.displayName} />
+                    </div>
+                  </div>
+                  {u.verified && (
+                    <div className="absolute bottom-0 right-0 h-5 w-5 rounded-full bg-blue-500 border-2 border-[#0A0A0B] flex items-center justify-center shadow-lg">
+                      <Star className="w-2.5 h-2.5 fill-white text-white" />
+                    </div>
+                  )}
+                </div>
+                <span className="text-[11px] font-bold text-white/70 truncate w-[72px] text-center group-hover:text-white transition-colors">
+                  {u.displayName.split(" ")[0]}
+                </span>
+              </Link>
+            ))}
+          </div>
+        </section>
+      )}
+
+      {/* Floating Action Button for Create (mirrored from App Chrome if not present) */}
+      <div className="fixed bottom-24 right-6 z-50">
+        <button 
+          onClick={() => onCreate()}
+          className="h-14 w-14 flex items-center justify-center rounded-full bg-[#E5484D] text-white shadow-[0_8px_25px_rgba(229,72,77,0.4)] active:scale-90 transition-all border border-white/10"
+        >
+          <Plus className="w-7 h-7" strokeWidth={3} />
+        </button>
+      </div>
 
       {!isAuthenticated && (
         <button
           type="button"
           onClick={() => openGate("generic")}
-          className="w-full inline-flex items-center justify-center gap-2 h-12 rounded-2xl rgb-static-border p-[2px]"
+          className="w-full inline-flex items-center justify-center gap-2 h-14 rounded-[10px] bg-white/5 border border-white/10 text-white font-bold text-sm active:scale-95 transition-transform"
         >
-          <span className="w-full h-full rounded-2xl bg-[#1E1E24] flex items-center justify-center gap-2 text-white font-bold text-sm">
-            <KeyRound className="w-4 h-4" strokeWidth={2.5} /> Connect your account
-          </span>
+          <KeyRound className="w-4 h-4" strokeWidth={2.5} /> Connect Account
         </button>
       )}
-
-      <PromoInterstitial onSelect={onSelect} returnedToHub={returnedToHub} />
 
       <SellSwitcherModal open={sellOpen} onClose={() => setSellOpen(false)} />
       <CoursePublishWizard
@@ -484,6 +446,11 @@ export function HomeHub({ onSelect, onCreate, onOpenMessages, returnedToHub }: H
         open={moreOpen}
         onClose={() => setMoreOpen(false)}
         onSelect={goSection}
+        onSell={() => requireTier(2, () => setSellOpen(true))}
+      />
+    </div>
+  );
+
         onSell={() => requireTier(2, () => setSellOpen(true))}
       />
     </div>
