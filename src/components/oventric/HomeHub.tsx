@@ -16,6 +16,8 @@ import {
   Send,
   PenSquare,
   MoreHorizontal,
+  Search,
+  Filter,
 } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
 import { useAuthGate } from "@/lib/auth-gate/AuthGateProvider";
@@ -35,6 +37,9 @@ import { PromoInterstitial } from "@/components/oventric/PromoInterstitial";
 
 import { HubPromoCarousel } from "@/components/oventric/hub/HubPromoCarousel";
 import { AllFeaturesSheet } from "@/components/oventric/hub/AllFeaturesSheet";
+import { ExploreCategories } from "@/components/oventric/hub/ExploreCategories";
+import { FeaturedProductCard } from "@/components/oventric/hub/FeaturedProductCard";
+
 
 type Counts = Partial<Record<string, number>>;
 
