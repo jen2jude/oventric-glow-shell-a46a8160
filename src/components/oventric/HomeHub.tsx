@@ -21,6 +21,7 @@ import {
   Check,
   Heart,
   MessageCircle,
+  Bell,
 } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
 import { useAuthGate } from "@/lib/auth-gate/AuthGateProvider";
@@ -35,6 +36,11 @@ import { SellSwitcherModal } from "@/components/oventric/SellSwitcherModal";
 import { CoursePublishWizard } from "@/components/oventric/CoursePublishWizard";
 import type { ChoiceKey } from "@/components/oventric/CreatePanel";
 import { getTopUsers, type TopUser } from "@/lib/top-users.functions";
+import {
+  NotificationsDrawer,
+  useUnreadNotificationsCount,
+} from "@/components/oventric/NotificationsDrawer";
+import { CountBadge } from "@/components/oventric/CountBadge";
 
 import { PromoInterstitial } from "@/components/oventric/PromoInterstitial";
 
@@ -42,6 +48,7 @@ import { HubPromoCarousel } from "@/components/oventric/hub/HubPromoCarousel";
 import { AllFeaturesSheet } from "@/components/oventric/hub/AllFeaturesSheet";
 import { ExploreCategories } from "@/components/oventric/hub/ExploreCategories";
 import { FeaturedProductCard } from "@/components/oventric/hub/FeaturedProductCard";
+import logoFull from "@/assets/oventric-full-transparent.png";
 
 
 type Counts = Partial<Record<string, number>>;
@@ -90,6 +97,8 @@ export function HomeHub({ onSelect, onCreate, onOpenMessages, returnedToHub }: H
   const [sellOpen, setSellOpen] = useState(false);
   const [courseOpen, setCourseOpen] = useState(false);
   const [moreOpen, setMoreOpen] = useState(false);
+  const [notifOpen, setNotifOpen] = useState(false);
+  const unreadNotifs = useUnreadNotificationsCount();
   const currency: Currency = country ? baseCurrency : "USD";
 
   const goSection = (section: string) =>
@@ -217,6 +226,49 @@ export function HomeHub({ onSelect, onCreate, onOpenMessages, returnedToHub }: H
 
   return (
     <div className="hub-enter mx-auto w-full max-w-5xl px-3 md:px-6 py-4 md:py-8 space-y-7 pb-24 bg-[#0A0A0B] min-h-screen">
+      {/* Brand Header — logo, tagline, notifications, avatar */}
+      <section className="flex items-center gap-3">
+        <div className="flex flex-col min-w-0">
+          <img
+            loading="lazy"
+            decoding="async"
+            src={logoFull}
+            alt="Oventric"
+            className="h-6 w-auto shrink-0"
+          />
+          <span className="mt-0.5 text-[10px] font-bold uppercase tracking-[0.18em] text-white/35">
+            Shop &bull; Connect &bull; Grow
+          </span>
+        </div>
+
+        <div className="ml-auto flex items-center gap-2 shrink-0">
+          <button
+            type="button"
+            onClick={() => (isAuthenticated ? setNotifOpen(true) : openGate("generic"))}
+            aria-label="Notifications"
+            className="relative h-11 w-11 flex items-center justify-center rounded-full bg-[#141416] border border-white/5 text-white/70 active:scale-95 transition-transform"
+          >
+            <Bell className="w-5 h-5" strokeWidth={2} />
+            <CountBadge count={unreadNotifs} ariaLabel={`${unreadNotifs} new notifications`} />
+          </button>
+
+          <Link
+            to={mySlug ? "/profile/$id" : "/"}
+            params={mySlug ? { id: mySlug } : undefined}
+            onClick={(e) => {
+              if (!isAuthenticated) {
+                e.preventDefault();
+                openGate("generic");
+              }
+            }}
+            aria-label="Your profile"
+            className="h-11 w-11 rounded-full overflow-hidden border border-white/10 shrink-0 active:scale-95 transition-transform bg-[#141416]"
+          >
+            <AvatarImage src={avatarUrl} alt={name || "You"} />
+          </Link>
+        </div>
+      </section>
+
       {/* Search Header */}
       <section className="flex items-center gap-3">
         <div className="relative flex-1 group">
@@ -489,6 +541,7 @@ export function HomeHub({ onSelect, onCreate, onOpenMessages, returnedToHub }: H
         onSell={() => requireTier(2, () => setSellOpen(true))}
       />
       <SellSwitcherModal open={sellOpen} onClose={() => setSellOpen(false)} />
+      <NotificationsDrawer open={notifOpen} onClose={() => setNotifOpen(false)} />
     </div>
   );
 }
