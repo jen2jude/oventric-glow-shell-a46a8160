@@ -329,7 +329,8 @@ export function FeedDiscoverExplore({
                 key={b.id}
                 type="button"
                 onClick={() => navigateSection("Bounties")}
-                className="w-[200px] shrink-0 snap-start overflow-hidden rounded-2xl border border-white/[0.06] bg-[#141416] text-left active:scale-[0.98]"
+                className="w-[200px] shrink-0 snap-start overflow-hidden rounded-[10px] border border-white/[0.06] bg-[#141416] text-left active:scale-[0.98]"
+
               >
                 {b.coverUrl ? (
                   <img loading="lazy" decoding="async" src={b.coverUrl} alt="" className="h-24 w-full object-cover" />
@@ -361,7 +362,8 @@ export function FeedDiscoverExplore({
                 key={p.id}
                 to="/product/$id"
                 params={{ id: p.id }}
-                className="w-[152px] shrink-0 snap-start overflow-hidden rounded-2xl border border-white/[0.06] bg-[#141416] active:scale-[0.98]"
+                className="w-[152px] shrink-0 snap-start overflow-hidden rounded-[10px] border border-white/[0.06] bg-[#141416] active:scale-[0.98]"
+
               >
                 {p.coverUrl ? (
                   <img loading="lazy" decoding="async" src={p.coverUrl} alt="" className="h-28 w-full object-cover" />
@@ -393,7 +395,8 @@ export function FeedDiscoverExplore({
                 key={c.id}
                 type="button"
                 onClick={() => navigateSection("Academy")}
-                className="w-[200px] shrink-0 snap-start overflow-hidden rounded-2xl border border-white/[0.06] bg-[#141416] text-left active:scale-[0.98]"
+                className="w-[200px] shrink-0 snap-start overflow-hidden rounded-[10px] border border-white/[0.06] bg-[#141416] text-left active:scale-[0.98]"
+
               >
                 {c.coverUrl ? (
                   <img loading="lazy" decoding="async" src={c.coverUrl} alt="" className="h-24 w-full object-cover" />
