@@ -422,16 +422,6 @@ export function HomeHub({ onSelect, onCreate, onOpenMessages, returnedToHub }: H
         <CommunityRail onOpenFeed={() => onSelect("Feed")} />
       </section>
 
-      {/* Floating Action Button for Create (mirrored from App Chrome if not present) */}
-      <div className="fixed bottom-24 right-6 z-50">
-        <button 
-          onClick={() => onCreate()}
-          className="h-14 w-14 flex items-center justify-center rounded-full bg-[#E5484D] text-white shadow-[0_8px_25px_rgba(229,72,77,0.4)] active:scale-90 transition-all border border-white/10"
-        >
-          <Plus className="w-7 h-7" strokeWidth={3} />
-        </button>
-      </div>
-
       {!isAuthenticated && (
         <button
           type="button"
